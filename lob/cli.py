@@ -71,8 +71,7 @@ def cmd_stress(args):
     from lob import stress
     res = stress.run(args.stream, args.out, check_every=args.check,
                      engine_events=args.engine_events, label=args.label)
-    _dump({k: res[k] for k in ('engine_only', 'engine_checked', 'snapshot', 'e2e',
-                               'latency_ns', 'tracemalloc')}, args.json)
+    _dump(res, args.json)
 
 
 def cmd_queue_collect(args):
