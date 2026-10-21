@@ -1,0 +1,64 @@
+{
+ "check_every": 10000,
+ "e2e": {
+  "events": 10000000,
+  "events_per_second": 208125,
+  "max_resting_orders": 7559,
+  "ru_maxrss_mb": 50.6,
+  "seconds": 48.048,
+  "snapshots": 4992,
+  "trades": 1820774,
+  "volume": 14206029
+ },
+ "engine_checked": {
+  "events": 1000000,
+  "events_per_second": 302235,
+  "runs": [
+   280702,
+   302235,
+   220951
+  ],
+  "seconds": 3.3087
+ },
+ "engine_only": {
+  "events": 1000000,
+  "events_per_second": 399043,
+  "runs": [
+   334332,
+   384816,
+   399043
+  ],
+  "seconds": 2.506
+ },
+ "harness": "v2 (gc.freeze on pre-decoded input)",
+ "label": "r3_v2",
+ "latency_ns": {
+  "events": 10000000,
+  "max": 18464619,
+  "mean": 2934.9530392,
+  "p50": 2105,
+  "p90": 4431,
+  "p99": 14225,
+  "p99_9": 56800
+ },
+ "machine": {
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "cpus": 4,
+  "implementation": "CPython",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "python": "3.12.3"
+ },
+ "n_events": 10000000,
+ "snapshot": {
+  "after_every_event_ns": 2356.7,
+  "cached_ns": 205.1,
+  "events": 500000,
+  "forced_rebuild_ns": 3387.1
+ },
+ "stream": "events_10m.bin",
+ "stream_sha256": "fc064598e6320a01fdebe3136f972fa835fc5d78c6c3ac0d35920dd0d0e6919d",
+ "tracemalloc": {
+  "events": 1000000,
+  "peak_mb": 12.0
+ }
+}

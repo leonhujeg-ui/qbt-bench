@@ -73,6 +73,28 @@ def mutation_table():
     return head + '\n' + '\n'.join(rows)
 
 
+def survivor_table():
+    """Surviving mutants with the hand-written triage from mutation_triage.json
+    (class: equivalent | killed_by_new_test | survived)."""
+    triage = {}
+    tp = os.path.join(RESULTS, 'mutation_triage.json')
+    if os.path.exists(tp):
+        triage = load('mutation_triage.json')
+    rows = []
+    for name in ('mutations_book.json', 'mutations_queue_model.json'):
+        if not os.path.exists(os.path.join(RESULTS, name)):
+            continue
+        r = load(name)
+        for m in r['survivors']:
+            key = '%s:%d' % (r['target'], m['id'])
+            t = triage.get(key, {'class': '未分类', 'note': ''})
+            rows.append('| %s | %d | %s | %d | `%s` | %s | %s |' % (
+                r['target'], m['id'], m['desc'], m['line'], m['snippet'].replace('|', '\\|'),
+                t['class'], t['note']))
+    head = ('| 文件 | id | 突变 | 行 | 代码 | 判定 | 说明 |\n|---|---|---|---|---|---|---|')
+    return head + '\n' + '\n'.join(rows)
+
+
 def fuzz_table():
     rows = []
     for path in sorted(glob.glob(os.path.join(RESULTS, 'fuzz_*.json'))):
@@ -108,7 +130,8 @@ def bench_table():
 
 def main():
     for title, fn in (('压测', stress_table), ('对拍', compare_table), ('排队模型', queue_table),
-                      ('突变', mutation_table), ('模糊', fuzz_table), ('覆盖率', coverage_table),
+                      ('突变', mutation_table), ('漏网', survivor_table),
+                      ('模糊', fuzz_table), ('覆盖率', coverage_table),
                       ('数据结构', bench_table)):
         print('### %s\n' % title)
         try:

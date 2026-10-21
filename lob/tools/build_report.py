@@ -119,7 +119,8 @@ def main():
              T.stress_table(), '',
              prose('queue.md'), '', '### 5.x 结果', '', T.queue_table(), '', prose('queue_results.md'), '',
              prose('mutation.md'), '', '### 6.x 结果', '', T.mutation_table(), '',
-             prose('mutation_results.md'), '', T.fuzz_table(), '', prose('fuzz_results.md'), '',
+             '漏网清单（逐条判定）：', '', T.survivor_table(), '', prose('mutation_results.md'), '',
+             T.fuzz_table(), '', prose('fuzz_results.md'), '',
              '### 6.y 覆盖率', '', T.coverage_table(), '', prose('limits.md'), '']
     print('\n'.join(parts))
 
