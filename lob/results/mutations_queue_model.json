@@ -1,7 +1,7 @@
 {
  "by_operator": {
   "arith": {
-   "killed": 24,
+   "killed": 25,
    "run": 25
   },
   "aug": {
@@ -25,7 +25,7 @@
    "run": 13
   },
   "const": {
-   "killed": 26,
+   "killed": 27,
    "run": 30
   },
   "delete": {
@@ -43,53 +43,19 @@
  },
  "candidates": 292,
  "file": "lob/queue_model.py",
- "kill_rate": 94.2,
- "killed": 113,
+ "kill_rate": 95.8,
+ "killed": 115,
  "rerun": {
   "note": "survivors of run 1 re-run after adding tests; killed mutants kept",
-  "seconds": 719.4,
+  "seconds": 131.2,
   "survivor_ids": [
-   51,
-   62,
-   78,
-   87,
-   101,
-   105,
-   113,
-   115,
    124,
-   133,
-   167,
    169,
-   172,
-   173,
-   174,
    176,
    179,
-   180,
-   181,
-   182,
    188,
-   193,
    211,
-   219,
-   222,
-   225,
-   226,
-   227,
-   235,
-   236,
-   237,
-   247,
-   248,
-   251,
-   253,
-   254,
-   259,
-   262,
-   266,
-   271,
-   273
+   237
   ]
  },
  "results": [
@@ -557,10 +523,10 @@
    "line": 256,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 47.9,
+   "seconds": 95.5,
    "snippet": "for t in range(0, 11, 2):",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 47.672s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 95.222s\n\nOK\n"
   },
   {
    "desc": "Mod -> FloorDiv",
@@ -790,10 +756,10 @@
    "line": 168,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 49.4,
+   "seconds": 90.2,
    "snippet": "for a10 in range(-60, 61, 5):",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 49.167s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 90.013s\n\nOK\n"
   },
   {
    "desc": "negate condition",
@@ -834,10 +800,10 @@
    "line": 176,
    "op": "cmp",
    "rerun_with_added_tests": true,
-   "seconds": 49.1,
+   "seconds": 93.6,
    "snippet": "if ll > best_ll:",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 48.932s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 93.392s\n\nOK\n"
   },
   {
    "desc": "const 0 -> 1",
@@ -855,10 +821,10 @@
    "line": 227,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 74.6,
+   "seconds": 92.6,
    "snippet": "return {'n': len(pairs), 'base_rate': round(base, 4),",
-   "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 74.359s\n\nOK\n"
+   "status": "killed",
+   "tail": "ser/qbt-bench/lob/tests/test_queue_model.py\", line 176, in test_base_rate_rounding\n    self.assertEqual(Q.evaluate(m, rows, 5)['base_rate'], 0.4286)\nAssertionError: 0.42857 != 0.4286\n\n----------------------------------------------------------------------\nRan 25 tests in 92.438s\n\nFAILED (failures=1)\n"
   },
   {
    "desc": "const 2 -> 3",
@@ -909,10 +875,10 @@
    "line": 266,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 80.5,
+   "seconds": 39.6,
    "snippet": "nmax = max((b['n'] for b in rel), default=1)",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 80.291s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 39.333s\n\nOK\n"
   },
   {
    "desc": "bool -> False",
@@ -1001,10 +967,10 @@
    "line": 171,
    "op": "cmp",
    "rerun_with_added_tests": true,
-   "seconds": 80.2,
+   "seconds": 36.8,
    "snippet": "if ll > best_ll:",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 79.983s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 36.687s\n\nOK\n"
   },
   {
    "desc": "Or -> And",
@@ -1119,10 +1085,10 @@
    "line": 174,
    "op": "arith",
    "rerun_with_added_tests": true,
-   "seconds": 87.6,
+   "seconds": 37.5,
    "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
-   "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 87.393s\n\nOK\n"
+   "status": "killed",
+   "tail": "t_window\n    self.assertEqual((a, b), (best_a, b0))\nAssertionError: Tuples differ: (1.0, 1.0) != (1.05, 1.0)\n\nFirst differing element 0:\n1.0\n1.05\n\n- (1.0, 1.0)\n+ (1.05, 1.0)\n?     +\n\n\n----------------------------------------------------------------------\nRan 25 tests in 37.288s\n\nFAILED (failures=1)\n"
   },
   {
    "desc": "Sub -> Add",
@@ -1337,7 +1303,7 @@
  ],
  "run": 120,
  "seconds": 1085.8,
- "survived": 7,
+ "survived": 5,
  "survivors": [
   {
    "desc": "const 11 -> 12",
@@ -1345,10 +1311,10 @@
    "line": 256,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 47.9,
+   "seconds": 95.5,
    "snippet": "for t in range(0, 11, 2):",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 47.672s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 95.222s\n\nOK\n"
   },
   {
    "desc": "const 61 -> 62",
@@ -1356,10 +1322,10 @@
    "line": 168,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 49.4,
+   "seconds": 90.2,
    "snippet": "for a10 in range(-60, 61, 5):",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 49.167s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 90.013s\n\nOK\n"
   },
   {
    "desc": "Gt -> GtE",
@@ -1367,21 +1333,10 @@
    "line": 176,
    "op": "cmp",
    "rerun_with_added_tests": true,
-   "seconds": 49.1,
+   "seconds": 93.6,
    "snippet": "if ll > best_ll:",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 48.932s\n\nOK\n"
-  },
-  {
-   "desc": "const 4 -> 5",
-   "id": 179,
-   "line": 227,
-   "op": "const",
-   "rerun_with_added_tests": true,
-   "seconds": 74.6,
-   "snippet": "return {'n': len(pairs), 'base_rate': round(base, 4),",
-   "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 74.359s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 93.392s\n\nOK\n"
   },
   {
    "desc": "const 1 -> 2",
@@ -1389,10 +1344,10 @@
    "line": 266,
    "op": "const",
    "rerun_with_added_tests": true,
-   "seconds": 80.5,
+   "seconds": 39.6,
    "snippet": "nmax = max((b['n'] for b in rel), default=1)",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 80.291s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 39.333s\n\nOK\n"
   },
   {
    "desc": "Gt -> GtE",
@@ -1400,21 +1355,10 @@
    "line": 171,
    "op": "cmp",
    "rerun_with_added_tests": true,
-   "seconds": 80.2,
+   "seconds": 36.8,
    "snippet": "if ll > best_ll:",
    "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 79.983s\n\nOK\n"
-  },
-  {
-   "desc": "Mult -> FloorDiv",
-   "id": 237,
-   "line": 174,
-   "op": "arith",
-   "rerun_with_added_tests": true,
-   "seconds": 87.6,
-   "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
-   "status": "survived",
-   "tail": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 87.393s\n\nOK\n"
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 36.687s\n\nOK\n"
   }
  ],
  "target": "queue_model",
