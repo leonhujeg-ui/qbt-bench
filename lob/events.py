@@ -14,7 +14,6 @@ Prices are integer ticks, quantities integer lots.  No floats anywhere.
 import hashlib
 import heapq
 import json
-import mmap
 import os
 import random
 import struct
@@ -37,24 +36,34 @@ def pack(seq, ts, symbol, kind, side, flags, trader, oid, price, qty, aux=0):
                        price, qty, aux)
 
 
+CHUNK_RECORDS = 1 << 16
+
+
 def iter_records(path, symbols=None, start=0, stop=None):
-    """Yield decoded 12-tuples from a stream file (optionally symbol filtered)."""
+    """Yield decoded 12-tuples from a stream file (optionally symbol filtered).
+    Reads fixed-size chunks (no mmap) so resident memory stays small."""
     with open(path, 'rb') as fh:
         size = os.fstat(fh.fileno()).st_size
-        if size == 0:
+        lo = start * RECORD_SIZE
+        hi = size if stop is None else min(size, stop * RECORD_SIZE)
+        if lo >= hi:
             return
-        with mmap.mmap(fh.fileno(), 0, access=mmap.ACCESS_READ) as mm:
-            lo = start * RECORD_SIZE
-            hi = size if stop is None else min(size, stop * RECORD_SIZE)
-            view = memoryview(mm)[lo:hi]
-            if symbols is None:
-                yield from RECORD.iter_unpack(view)
+        fh.seek(lo)
+        remaining = hi - lo
+        want = set(symbols) if symbols is not None else None
+        unpack = RECORD.iter_unpack
+        while remaining > 0:
+            buf = fh.read(min(remaining, CHUNK_RECORDS * RECORD_SIZE))
+            if not buf:
+                break
+            remaining -= len(buf)
+            buf = buf[:len(buf) - len(buf) % RECORD_SIZE]
+            if want is None:
+                yield from unpack(buf)
             else:
-                want = set(symbols)
-                for rec in RECORD.iter_unpack(view):
+                for rec in unpack(buf):
                     if rec[2] in want:
                         yield rec
-            view.release()
 
 
 def count_records(path):

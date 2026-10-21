@@ -6,7 +6,8 @@ Data structures (chosen after the benchmark in tools/bench_structures.py):
     best removal are O(1), insertion is bisect + memmove (C speed);
   * per price level: a visible-quantity dict and a FIFO list
     [head_index, dead_count, order, order, ...] with lazy deletion (cancelled
-    slots become None) and amortised compaction;
+    slots become None) and amortised compaction; both dicts are keyed by the
+    sort key (bids: price, asks: -price) so no negation on the hot path;
   * orders are plain lists (no objects): see O_* field indices below;
   * trades are appended to self.trades as tuples (layout: common.T_*).
 Semantics: SPEC.md.  Must agree trade-for-trade with reference.py.
@@ -36,7 +37,7 @@ class Book:
                  'ask_qty', 'bid_queue', 'ask_queue', 'trades', 'prio', 'seq',
                  'submitted', 'filled', 'cancelled', 'rejected', 'resting',
                  'stp_cancels', 'n_events', 'last_ts', 'ts_regressions',
-                 'dirty', '_snap', '_depth')
+                 'dirty', 'keys_dirty', '_snap', '_keys', '_depth')
 
     def __init__(self, cfg):
         self.cfg = cfg
@@ -62,7 +63,9 @@ class Book:
         self.last_ts = 0
         self.ts_regressions = 0
         self.dirty = True
+        self.keys_dirty = True
         self._snap = None
+        self._keys = None
         self._depth = 0
 
     # ------------------------------------------------------------------ API
@@ -92,14 +95,21 @@ class Book:
 
     def top(self, depth=10):
         """Top-`depth` snapshot: (bid_prices, bid_qtys, ask_prices, ask_qtys),
-        best first.  Cached until the next mutation (amortised cost)."""
+        best first.  Cached until the next mutation; the price slices are
+        cached separately and only rebuilt when a level appears/disappears."""
         if not self.dirty and self._depth == depth:
             return self._snap
-        bp = self.bid_keys[-1:-depth - 1:-1]
-        ap = [-k for k in self.ask_keys[-1:-depth - 1:-1]]
+        if self.keys_dirty or self._depth != depth:
+            bp = self.bid_keys[-1:-depth - 1:-1]
+            apn = self.ask_keys[-1:-depth - 1:-1]
+            self._keys = (bp, apn, [-k for k in apn])
+            self.keys_dirty = False
+            self._depth = depth
+        bp, apn, ap = self._keys
         snap = (bp, list(map(self.bid_qty.__getitem__, bp)),
-                ap, list(map(self.ask_qty.__getitem__, ap)))
-        self._snap, self.dirty, self._depth = snap, False, depth
+                ap, list(map(self.ask_qty.__getitem__, apn)))
+        self._snap = snap
+        self.dirty = False
         return snap
 
     def levels(self, depth=None):
@@ -119,32 +129,30 @@ class Book:
                   self.rejected, self.resting, self.stp_cancels))
         for keys, qd in ((self.bid_keys, self.bid_qty), (self.ask_keys, self.ask_qty)):
             for k in keys:
-                p = abs(k)
-                h = hash((h, p, qd[p]))
+                h = hash((h, abs(k), qd[k]))
         return h
 
     # ------------------------------------------------------------------ NEW
-    def _validate(self, side, flags, oid, price, qty, aux):
-        if side != SIDE_BUY and side != SIDE_SELL:
-            return REJ_SIDE
-        if flags and not flags_valid(flags):
-            return REJ_FLAGS
-        if oid in self.orders:
-            return REJ_DUP
-        if qty < self.min_qty or qty > self.max_qty or qty % self.lot:
-            return REJ_QTY
-        if not flags & FLAG_MARKET:
-            if price <= 0 or price % self.tick:
-                return REJ_PRICE
-            if price > self.ref + self.band or price < self.ref - self.band:
-                return REJ_BAND
-        if flags & FLAG_ICEBERG and (aux < self.lot or aux > qty or aux % self.lot):
-            return REJ_DISPLAY
-        return 0
-
     def _new(self, side, flags, trader, oid, price, qty, aux):
         self.submitted += qty
-        rej = self._validate(side, flags, oid, price, qty, aux)
+        if side != SIDE_BUY and side != SIDE_SELL:
+            rej = REJ_SIDE
+        elif flags and not flags_valid(flags):
+            rej = REJ_FLAGS
+        elif oid in self.orders:
+            rej = REJ_DUP
+        elif qty < self.min_qty or qty > self.max_qty or qty % self.lot:
+            rej = REJ_QTY
+        elif flags & FLAG_MARKET:
+            rej = 0
+        elif price <= 0 or price % self.tick:
+            rej = REJ_PRICE
+        elif price > self.ref + self.band or price < self.ref - self.band:
+            rej = REJ_BAND
+        else:
+            rej = 0
+        if not rej and flags & FLAG_ICEBERG and (aux < self.lot or aux > qty or aux % self.lot):
+            rej = REJ_DISPLAY
         if rej:
             self.rejected += qty
             return rej
@@ -185,15 +193,16 @@ class Book:
             qd, qq, keys, key = self.bid_qty, self.bid_queue, self.bid_keys, price
         else:
             qd, qq, keys, key = self.ask_qty, self.ask_queue, self.ask_keys, -price
-        q = qd.get(price)
+        q = qd.get(key)
         if q is None:
             insort(keys, key)
-            qd[price] = vis
+            qd[key] = vis
             o[O_SLOT] = Q_FIRST
-            qq[price] = [Q_FIRST, 0, o]
+            qq[key] = [Q_FIRST, 0, o]
+            self.keys_dirty = True
         else:
-            qd[price] = q + vis
-            queue = qq[price]
+            qd[key] = q + vis
+            queue = qq[key]
             o[O_SLOT] = len(queue)
             queue.append(o)
         self.orders[oid] = o
@@ -206,85 +215,95 @@ class Book:
             keys, qd, qq, sgn, lim_key = self.ask_keys, self.ask_qty, self.ask_queue, -1, -limit
         else:
             keys, qd, qq, sgn, lim_key = self.bid_keys, self.bid_qty, self.bid_queue, 1, limit
-        orders, trades, seq, sym = self.orders, self.trades, self.seq, self.symbol
-        stp_new, stopped = self.stp_new, False
-        filled = cancelled = removed = k = 0
+        k = 0
+        stopped = False
         while rem and keys and keys[-1] >= lim_key:
-            price = sgn * keys[-1]
-            queue = qq[price]
-            head, n, lq = queue[Q_HEAD], len(queue), qd[price]
-            while rem and head < n:
-                o = queue[head]
-                if o is None:
-                    head += 1
-                    continue
-                if o[O_TRADER] == trader:
-                    if stp_new:
-                        stopped = True
-                        break
-                    head += 1
-                    del orders[o[O_OID]]
-                    lq -= o[O_VIS]
-                    cancelled += o[O_REM]
-                    removed += o[O_REM]
-                    self.stp_cancels += 1
-                    continue
-                vis = o[O_VIS]
-                fill = rem if rem < vis else vis
-                if side == SIDE_BUY:
-                    trades.append((seq, k, sym, side, oid, o[O_OID], price, fill,
-                                   trader, o[O_TRADER]))
-                else:
-                    trades.append((seq, k, sym, side, o[O_OID], oid, price, fill,
-                                   o[O_TRADER], trader))
-                k += 1
-                rem -= fill
-                filled += fill
-                lq -= fill
-                o[O_REM] -= fill
-                if o[O_REM] == 0:
-                    del orders[o[O_OID]]
-                    head += 1
-                elif fill == vis:                       # iceberg slice exhausted
-                    o[O_VIS] = o[O_DISP] if o[O_DISP] < o[O_REM] else o[O_REM]
-                    lq += o[O_VIS]
-                    self.prio += 1
-                    o[O_PRIO] = self.prio
-                    o[O_SLOT] = n
-                    queue.append(o)
-                    n += 1
-                    head += 1
-                else:
-                    o[O_VIS] -= fill
+            key = keys[-1]
+            queue = qq[key]
+            rem, lq, k, stopped = self._match_level(queue, qd[key], side, trader,
+                                                    oid, rem, sgn * key, k)
             if lq == 0:
                 keys.pop()
-                del qd[price]
-                del qq[price]
+                del qd[key]
+                del qq[key]
+                self.keys_dirty = True
             else:
-                qd[price] = lq
-                queue[Q_HEAD] = head
-                if head >= COMPACT_MIN_HEAD and head * 2 >= len(queue):
+                qd[key] = lq
+                if queue[Q_HEAD] >= COMPACT_MIN_HEAD and queue[Q_HEAD] * 2 >= len(queue):
                     _compact(queue)
             if stopped:
                 break
+        if k:
+            self.ref = self.trades[-1][6]
+        self.dirty = True
+        return rem, stopped
+
+    def _match_level(self, queue, lq, side, trader, oid, rem, price, k):
+        """Consume one price level FIFO; returns (rem, level_qty, k, stopped)."""
+        orders, trades, seq, sym = self.orders, self.trades, self.seq, self.symbol
+        head, n = queue[Q_HEAD], len(queue)
+        filled = removed = cancelled = 0
+        stopped = False
+        while rem and head < n:
+            o = queue[head]
+            if o is None:
+                head += 1
+                continue
+            if o[O_TRADER] == trader:
+                if self.stp_new:
+                    stopped = True
+                    break
+                head += 1
+                del orders[o[O_OID]]
+                lq -= o[O_VIS]
+                cancelled += o[O_REM]
+                removed += o[O_REM]
+                self.stp_cancels += 1
+                continue
+            vis = o[O_VIS]
+            fill = rem if rem < vis else vis
+            if side == SIDE_BUY:
+                trades.append((seq, k, sym, side, oid, o[O_OID], price, fill,
+                               trader, o[O_TRADER]))
+            else:
+                trades.append((seq, k, sym, side, o[O_OID], oid, price, fill,
+                               o[O_TRADER], trader))
+            k += 1
+            rem -= fill
+            filled += fill
+            lq -= fill
+            o[O_REM] -= fill
+            if o[O_REM] == 0:
+                del orders[o[O_OID]]
+                head += 1
+            elif fill == vis:                       # iceberg slice exhausted
+                o[O_VIS] = o[O_DISP] if o[O_DISP] < o[O_REM] else o[O_REM]
+                lq += o[O_VIS]
+                self.prio += 1
+                o[O_PRIO] = self.prio
+                o[O_SLOT] = n
+                queue.append(o)
+                n += 1
+                head += 1
+            else:
+                o[O_VIS] -= fill
+        queue[Q_HEAD] = head
         self.filled += 2 * filled
         self.resting -= filled + removed
         self.cancelled += cancelled
-        self.ref = self.ref if not filled else trades[-1][6]
-        self.dirty = True
-        return rem, stopped
+        return rem, lq, k, stopped
 
     def _fillable(self, side, trader, limit, want):
         """Pure simulation of _match; the book is not modified."""
         if side == SIDE_BUY:
-            keys, qq, sgn, lim_key = self.ask_keys, self.ask_queue, -1, -limit
+            keys, qq, lim_key = self.ask_keys, self.ask_queue, -limit
         else:
-            keys, qq, sgn, lim_key = self.bid_keys, self.bid_queue, 1, limit
+            keys, qq, lim_key = self.bid_keys, self.bid_queue, limit
         avail = 0
         for idx in range(len(keys) - 1, -1, -1):
             if keys[idx] < lim_key or avail >= want:
                 break
-            queue = qq[sgn * keys[idx]]
+            queue = qq[keys[idx]]
             sim = [(o[O_REM], o[O_VIS], o[O_DISP], o[O_TRADER])
                    for o in queue[queue[Q_HEAD]:] if o is not None]
             j = 0
@@ -304,19 +323,20 @@ class Book:
     # ------------------------------------------------------- CANCEL / MODIFY
     def _unlink(self, o):
         """Remove a live order from its level (lazy slot deletion)."""
-        price, vis = o[O_PRICE], o[O_VIS]
+        vis = o[O_VIS]
         if o[O_SIDE] == SIDE_BUY:
-            qd, qq, keys, key = self.bid_qty, self.bid_queue, self.bid_keys, price
+            qd, qq, keys, key = self.bid_qty, self.bid_queue, self.bid_keys, o[O_PRICE]
         else:
-            qd, qq, keys, key = self.ask_qty, self.ask_queue, self.ask_keys, -price
-        q = qd[price] - vis
+            qd, qq, keys, key = self.ask_qty, self.ask_queue, self.ask_keys, -o[O_PRICE]
+        q = qd[key] - vis
         if q == 0:
-            del qd[price]
-            del qq[price]
+            del qd[key]
+            del qq[key]
             del keys[bisect_left(keys, key)]
+            self.keys_dirty = True
         else:
-            qd[price] = q
-            queue = qq[price]
+            qd[key] = q
+            queue = qq[key]
             queue[o[O_SLOT]] = None
             dead = queue[Q_DEAD] + 1
             if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:
@@ -346,8 +366,10 @@ class Book:
             self.resting -= rem - new
             o[O_REM] = new
             if o[O_VIS] > new:
-                qd = self.bid_qty if o[O_SIDE] == SIDE_BUY else self.ask_qty
-                qd[o[O_PRICE]] -= o[O_VIS] - new
+                if o[O_SIDE] == SIDE_BUY:
+                    self.bid_qty[o[O_PRICE]] -= o[O_VIS] - new
+                else:
+                    self.ask_qty[-o[O_PRICE]] -= o[O_VIS] - new
                 o[O_VIS] = new
                 self.dirty = True
         elif new > rem:

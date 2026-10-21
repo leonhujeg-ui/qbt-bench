@@ -123,7 +123,7 @@ def _full_check_book(book):
             _fail('level containers disagree at seq %d', book.seq)
         for k in keys:
             price = sgn * k
-            queue = qq[price]
+            queue = qq[k]
             head = queue[Q_HEAD]
             if head < Q_FIRST or head > len(queue):
                 _fail('bad queue head at seq %d', book.seq)
@@ -147,9 +147,9 @@ def _full_check_book(book):
                 seen += 1
             if dead != queue[Q_DEAD]:
                 _fail('dead count mismatch at price %d seq %d', price, book.seq)
-            if total != qd[price] or total < 1:
+            if total != qd[k] or total < 1:
                 _fail('level qty %d != sum of visible %d at price %d seq %d',
-                      qd[price], total, price, book.seq)
+                      qd[k], total, price, book.seq)
     if seen != len(book.orders):
         _fail('orders dict has %d entries but queues hold %d at seq %d',
               len(book.orders), seen, book.seq)
