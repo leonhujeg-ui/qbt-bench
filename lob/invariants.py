@@ -34,23 +34,33 @@ class Checker:
         self.full_checks = 0
         self.trades_checked = 0
         self._pre = (None, None, None)
+        self._fast = True
 
     def attach(self, book):
         self._pre = (book.best_bid(), book.best_ask(), book.ref)
+        self._fast = hasattr(book, 'bid_keys')
 
-    def after_event(self, book, n_before, rec=None):
+    def after_event(self, book, n_before, rec=None, status=None):
+        """`status` (the event's status code) lets the caller skip the trade
+        scan for events that cannot have traded."""
         if not self.enabled:
             return
-        bb, ba = book.best_bid(), book.best_ask()
+        if self._fast:                      # Book: read the key arrays directly
+            bk, ak = book.bid_keys, book.ask_keys
+            bb = bk[-1] if bk else None
+            ba = -ak[-1] if ak else None
+        else:                               # ReferenceBook: O(n) scans
+            bb, ba = book.best_bid(), book.best_ask()
         if bb is not None and ba is not None and bb >= ba:
             _fail('crossed book: bid %d >= ask %d at seq %d', bb, ba, book.seq)
         if book.submitted != book.filled + book.resting + book.cancelled + book.rejected:
             _fail('conservation broken at seq %d: %d != %d+%d+%d+%d', book.seq,
                   book.submitted, book.filled, book.resting, book.cancelled,
                   book.rejected)
-        trades = book.trades
-        if len(trades) > n_before:
-            self._check_trades(book, trades[n_before:], rec)
+        if status is None or status < 4:
+            trades = book.trades
+            if len(trades) > n_before:
+                self._check_trades(book, trades[n_before:], rec)
         self.events += 1
         if self.full_every and self.events % self.full_every == 0:
             self.full_check(book)

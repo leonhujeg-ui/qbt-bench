@@ -11,7 +11,7 @@ STDLIB_OK = {'ast', 'array', 'argparse', 'bisect', 'collections', 'filecmp', 'ha
              'sys', 'tempfile', 'time', 'tracemalloc', 'unittest', 'importlib',
              'io', 'textwrap', 'types', 'traceback', 'signal', 'sqlite3',
              'concurrent', 'itertools', 'functools', 'operator', 'string', 'html',
-             'contextlib', 'lob'}
+             'contextlib', 'copy', 'csv', 'lob'}
 
 
 class LimitsTest(unittest.TestCase):

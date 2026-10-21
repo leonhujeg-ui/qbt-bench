@@ -7,6 +7,8 @@ moment; the outcome is the first (and full) execution time of that very
 order in the same replay.  A probe whose order is cancelled or modified
 before any fill is censored (the synthetic generator cancels uniformly at
 random, independently of queue state, so this censoring is non-informative).
+Cancel / modify records are assumed to carry the order's side (the generator
+writes it); records with an invalid side are not counted in the cancel rate.
 """
 import bisect
 import collections

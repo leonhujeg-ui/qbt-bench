@@ -3,6 +3,7 @@
     LOB_MUTANT_MODULE=lob.book LOB_MUTANT_SRC=/tmp/m.py \
         python -m lob.mutants.loader lob.tests.test_cases ...
 """
+import importlib
 import importlib.util
 import os
 import sys
@@ -19,6 +20,9 @@ def install(mod_name=None, src_path=None):
     module.__package__ = mod_name.rpartition('.')[0]
     sys.modules[mod_name] = module
     spec.loader.exec_module(module)
+    parent, _, child = mod_name.rpartition('.')
+    if parent:
+        setattr(importlib.import_module(parent), child, module)
     return module
 
 

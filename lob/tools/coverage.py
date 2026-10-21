@@ -2,8 +2,9 @@
 
     python -m lob.tools.coverage [--json out.json] -- <unittest args...>
 
-Statement lines are taken from the AST (every ast.stmt node's first line,
-minus docstrings and `global`/`nonlocal`, which produce no line event).  Executed lines come from LINE events; each location
+Statement lines are taken from the AST (every ast.stmt / except-handler
+node's first line, minus docstrings and `global`/`nonlocal`, which produce
+no line event).  Executed lines come from LINE events; each location
 is disabled after its first hit so the overhead stays small.
 """
 import ast
@@ -24,7 +25,7 @@ def statement_lines(path):
         tree = ast.parse(fh.read(), path)
     lines = set()
     for node in ast.walk(tree):
-        if not isinstance(node, ast.stmt) or isinstance(node, SKIP_NODES):
+        if not isinstance(node, (ast.stmt, ast.ExceptHandler)) or isinstance(node, SKIP_NODES):
             continue
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) \
                 and isinstance(node.value.value, str):

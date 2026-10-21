@@ -22,7 +22,6 @@ from lob.invariants import Checker
 
 TRADE = struct.Struct('<QIHBxQQqq')   # seq, idx, symbol, aggr_side, buy, sell, price, qty
 TRADE_SIZE = TRADE.size               # 48
-FLUSH_EVERY = 8192
 
 
 def iter_trades(path):
@@ -47,8 +46,9 @@ class Core:
     """The hot loop, shared by the single-process and sharded modes."""
 
     def __init__(self, cfgs, status, trades_fh, check_every=0, snapshot_ns=E.NS,
-                 depth=10, timing=None):
+                 depth=10, timing=None, filter_symbols=True):
         self.books = {s: Book(c) for s, c in cfgs.items()}
+        self.filter_symbols = filter_symbols   # False: every record's symbol has a book
         self.shared = []
         for b in self.books.values():
             b.trades = self.shared
@@ -62,6 +62,7 @@ class Core:
         self.snapshot_ns = snapshot_ns
         self.depth = depth
         self.timing = timing              # array('Q') of per-event ns, or None
+        self.on_event = None              # optional hook(book, rec, status, trades)
         self.snapshots = []
         self.n_trades = self.volume = 0
         self.events = 0
@@ -69,35 +70,41 @@ class Core:
 
     def run(self, path, symbols, limit=None):
         books, shared, status = self.books, self.shared, self.status
-        checkers, snap_ns, depth = self.checkers, self.snapshot_ns, self.depth
+        checkers, snap_ns = self.checkers, self.snapshot_ns
         boundary = {s: E.EPOCH_NS + snap_ns for s in books}
         second = {s: 0 for s in books}
         timing = self.timing
         perf = time.perf_counter_ns
-        n = 0
-        for rec in E.iter_records(path, symbols=symbols, stop=limit):
-            sym = rec[2]
-            book = books[sym]
-            ts = rec[1]
-            if ts >= boundary[sym]:
-                self._cross_boundary(sym, book, ts, boundary, second)
-            n0 = len(shared)
-            if timing is not None:
-                t0 = perf()
-                st = book.process(rec)
-                timing.append(perf() - t0)
-            else:
-                st = book.process(rec)
-            status[rec[0] - 1] = st
-            if checkers is not None:
-                checkers[sym].after_event(book, n0, rec)
-            n += 1
-            if n % FLUSH_EVERY == 0:
-                self._flush()
-                self.max_resting = max(self.max_resting,
-                                       sum(len(b.orders) for b in books.values()))
-        self._flush()
-        self.events = n
+        get_book = books.get if self.filter_symbols else books.__getitem__
+        hook = self.on_event
+        unpack = E.RECORD.iter_unpack
+        for buf in E.iter_chunks(path, 0, limit):
+            for rec in unpack(buf):
+                sym = rec[2]
+                book = get_book(sym)
+                if book is None:
+                    continue
+                if rec[1] >= boundary[sym]:
+                    self._cross_boundary(sym, book, rec[1], boundary, second)
+                if checkers is None and timing is None and hook is None:
+                    status[rec[0] - 1] = book.process(rec)
+                    continue
+                n0 = len(shared)
+                if timing is not None:
+                    t0 = perf()
+                    st = book.process(rec)
+                    timing.append(perf() - t0)
+                else:
+                    st = book.process(rec)
+                status[rec[0] - 1] = st
+                if checkers is not None:
+                    checkers[sym].after_event(book, n0, rec, st)
+                if hook is not None:
+                    hook(book, rec, st, shared[n0:])
+            self._flush()
+            self.max_resting = max(self.max_resting,
+                                   sum(len(b.orders) for b in books.values()))
+        self.events = sum(b.n_events for b in books.values())
         if checkers is not None:
             for s, c in checkers.items():
                 c.full_check(books[s])
@@ -162,9 +169,10 @@ def replay(path, out_dir, symbols=None, check_every=0, snapshot_ns=E.NS, depth=1
     os.makedirs(out_dir, exist_ok=True)
     status = bytearray(n)
     t0 = time.perf_counter()
+    all_symbols = len(symbols) == meta['params']['n_symbols']
     with open(os.path.join(out_dir, 'trades.bin'), 'wb') as tfh:
         core = Core(configs_from_meta(meta, symbols), status, tfh, check_every,
-                    snapshot_ns, depth, timing).run(path, symbols, limit)
+                    snapshot_ns, depth, timing, not all_symbols).run(path, symbols, limit)
     dt = time.perf_counter() - t0
     stats = {'mode': 'single', 'events': core.events, 'trades': core.n_trades,
              'volume': core.volume, 'seconds': round(dt, 3),

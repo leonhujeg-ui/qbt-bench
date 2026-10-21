@@ -13,6 +13,7 @@
 """
 import array
 import json
+import math
 import os
 import platform
 import subprocess
@@ -41,10 +42,11 @@ def machine_info():
 
 
 def percentiles(values, ps=(50, 90, 99, 99.9)):
+    """Nearest-rank percentiles: the ceil(p/100 * n)-th smallest value."""
     s = sorted(values)
     out = {}
     for p in ps:
-        idx = min(len(s) - 1, int(round(p / 100.0 * (len(s) - 1))))
+        idx = max(0, min(len(s) - 1, math.ceil(p * len(s) / 100.0) - 1))
         out['p%s' % str(p).replace('.', '_')] = s[idx]
     out['max'] = s[-1]
     out['mean'] = sum(s) / len(s)
@@ -73,8 +75,8 @@ def engine_throughput(path, meta, n, checked=False):
         for rec in recs:
             b = books[rec[2]]
             n0 = len(b.trades)
-            b.process(rec)
-            checkers[rec[2]].after_event(b, n0, rec)
+            st = b.process(rec)
+            checkers[rec[2]].after_event(b, n0, rec, st)
     dt = time.perf_counter() - t0
     return {'events': len(recs), 'seconds': round(dt, 4),
             'events_per_second': round(len(recs) / dt)}

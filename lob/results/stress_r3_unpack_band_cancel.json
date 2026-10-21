@@ -1,0 +1,51 @@
+{
+ "e2e": {
+  "events": 10000000,
+  "events_per_second": 207761,
+  "max_resting_orders": 7559,
+  "ru_maxrss_mb": 46.4,
+  "seconds": 48.132,
+  "snapshots": 4992,
+  "trades": 1820774,
+  "volume": 14206029
+ },
+ "engine_checked": {
+  "events": 1000000,
+  "events_per_second": 252735,
+  "runs": [
+   252735,
+   250370,
+   245071
+  ],
+  "seconds": 3.9567
+ },
+ "engine_only": {
+  "events": 1000000,
+  "events_per_second": 409868,
+  "runs": [
+   358100,
+   409868,
+   403793
+  ],
+  "seconds": 2.4398
+ },
+ "latency_ns": {
+  "events": 10000000,
+  "max": 22209947,
+  "mean": 2925.1414396,
+  "p50": 2127,
+  "p90": 4319,
+  "p99": 14000,
+  "p99_9": 56624
+ },
+ "snapshot": {
+  "after_every_event_ns": 2292.2,
+  "cached_ns": 82.5,
+  "events": 500000,
+  "forced_rebuild_ns": 1854.2
+ },
+ "tracemalloc": {
+  "events": 1000000,
+  "peak_mb": 12.0
+ }
+}

@@ -39,9 +39,8 @@ def pack(seq, ts, symbol, kind, side, flags, trader, oid, price, qty, aux=0):
 CHUNK_RECORDS = 1 << 16
 
 
-def iter_records(path, symbols=None, start=0, stop=None):
-    """Yield decoded 12-tuples from a stream file (optionally symbol filtered).
-    Reads fixed-size chunks (no mmap) so resident memory stays small."""
+def iter_chunks(path, start=0, stop=None):
+    """Yield raw byte chunks holding whole records (no mmap: small RSS)."""
     with open(path, 'rb') as fh:
         size = os.fstat(fh.fileno()).st_size
         lo = start * RECORD_SIZE
@@ -50,20 +49,25 @@ def iter_records(path, symbols=None, start=0, stop=None):
             return
         fh.seek(lo)
         remaining = hi - lo
-        want = set(symbols) if symbols is not None else None
-        unpack = RECORD.iter_unpack
         while remaining > 0:
             buf = fh.read(min(remaining, CHUNK_RECORDS * RECORD_SIZE))
             if not buf:
                 break
             remaining -= len(buf)
-            buf = buf[:len(buf) - len(buf) % RECORD_SIZE]
-            if want is None:
-                yield from unpack(buf)
-            else:
-                for rec in unpack(buf):
-                    if rec[2] in want:
-                        yield rec
+            yield buf[:len(buf) - len(buf) % RECORD_SIZE]
+
+
+def iter_records(path, symbols=None, start=0, stop=None):
+    """Yield decoded 12-tuples from a stream file (optionally symbol filtered)."""
+    want = set(symbols) if symbols is not None else None
+    unpack = RECORD.iter_unpack
+    for buf in iter_chunks(path, start, stop):
+        if want is None:
+            yield from unpack(buf)
+        else:
+            for rec in unpack(buf):
+                if rec[2] in want:
+                    yield rec
 
 
 def count_records(path):

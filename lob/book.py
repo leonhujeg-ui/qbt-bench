@@ -33,7 +33,7 @@ COMPACT_MIN_HEAD = 64
 
 class Book:
     __slots__ = ('cfg', 'symbol', 'tick', 'lot', 'min_qty', 'max_qty', 'band',
-                 'stp_new', 'ref', 'orders', 'bid_keys', 'ask_keys', 'bid_qty',
+                 'stp_new', 'ref', 'band_lo', 'band_hi', 'orders', 'bid_keys', 'ask_keys', 'bid_qty',
                  'ask_qty', 'bid_queue', 'ask_queue', 'trades', 'prio', 'seq',
                  'submitted', 'filled', 'cancelled', 'rejected', 'resting',
                  'stp_cancels', 'n_events', 'last_ts', 'ts_regressions',
@@ -49,6 +49,7 @@ class Book:
         self.band = cfg.band
         self.stp_new = cfg.stp == STP_CANCEL_NEW
         self.ref = cfg.ref_price
+        self.band_lo, self.band_hi = self.ref - self.band, self.ref + self.band
         self.orders = {}
         self.bid_keys, self.ask_keys = [], []
         self.bid_qty, self.ask_qty = {}, {}
@@ -71,20 +72,19 @@ class Book:
     # ------------------------------------------------------------------ API
     def process(self, rec):
         """Process one decoded event record; return a status code."""
-        kind = rec[3]
-        self.seq = rec[0]
+        seq, ts, _sym, kind, side, flags, _pad, trader, oid, price, qty, aux = rec
+        self.seq = seq
         self.n_events += 1
-        ts = rec[1]
         if ts < self.last_ts:
             self.ts_regressions += 1
         else:
             self.last_ts = ts
         if kind == KIND_NEW:
-            return self._new(rec[4], rec[5], rec[7], rec[8], rec[9], rec[10], rec[11])
+            return self._new(side, flags, trader, oid, price, qty, aux)
         if kind == KIND_CANCEL:
-            return self._cancel(rec[8])
+            return self._cancel(oid)
         if kind == KIND_MODIFY:
-            return self._modify(rec[8], rec[10])
+            return self._modify(oid, qty)
         return REJ_KIND
 
     def best_bid(self):
@@ -147,7 +147,7 @@ class Book:
             rej = 0
         elif price <= 0 or price % self.tick:
             rej = REJ_PRICE
-        elif price > self.ref + self.band or price < self.ref - self.band:
+        elif price > self.band_hi or price < self.band_lo:
             rej = REJ_BAND
         else:
             rej = 0
@@ -157,7 +157,7 @@ class Book:
             self.rejected += qty
             return rej
         if flags & FLAG_MARKET:
-            limit = self.ref + self.band if side == SIDE_BUY else self.ref - self.band
+            limit = self.band_hi if side == SIDE_BUY else self.band_lo
         else:
             limit = price
         if side == SIDE_BUY:
@@ -234,7 +234,8 @@ class Book:
             if stopped:
                 break
         if k:
-            self.ref = self.trades[-1][6]
+            self.ref = ref = self.trades[-1][6]
+            self.band_lo, self.band_hi = ref - self.band, ref + self.band
         self.dirty = True
         return rem, stopped
 
@@ -349,7 +350,26 @@ class Book:
         o = self.orders.pop(oid, None)
         if o is None:
             return REJ_UNKNOWN
-        self._unlink(o)
+        if o[O_SIDE] == SIDE_BUY:
+            qd, qq, keys, key = self.bid_qty, self.bid_queue, self.bid_keys, o[O_PRICE]
+        else:
+            qd, qq, keys, key = self.ask_qty, self.ask_queue, self.ask_keys, -o[O_PRICE]
+        q = qd[key] - o[O_VIS]
+        if q == 0:
+            del qd[key]
+            del qq[key]
+            del keys[bisect_left(keys, key)]
+            self.keys_dirty = True
+        else:
+            qd[key] = q
+            queue = qq[key]
+            queue[o[O_SLOT]] = None
+            dead = queue[Q_DEAD] + 1
+            if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:
+                _compact(queue)
+            else:
+                queue[Q_DEAD] = dead
+        self.dirty = True
         self.cancelled += o[O_REM]
         self.resting -= o[O_REM]
         return ST_ACK_CANCEL
