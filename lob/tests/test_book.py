@@ -9,7 +9,7 @@ from lob import cli
 from lob import compare as CMP
 from lob import events as E
 from lob import replay as R
-from lob.book import Book, O_VIS, O_PRIO, Q_HEAD, Q_FIRST, COMPACT_MIN_DEAD, COMPACT_MIN_HEAD
+from lob.book import Book, O_VIS, O_PRIO, Q_HEAD, Q_DEAD, Q_FIRST, COMPACT_MIN_DEAD, COMPACT_MIN_HEAD
 from lob.common import BookConfig
 from lob.invariants import Checker
 from lob.tests.harness import N, C, M, to_record, run_events
@@ -144,7 +144,61 @@ class CompactionTest(unittest.TestCase):
         self.assertLess(book.ask_queue[-101][Q_HEAD], COMPACT_MIN_HEAD)
 
 
+class CompactionPolicyTest(unittest.TestCase):
+    """Compaction must happen exactly at the documented thresholds."""
+
+    def _asks(self, n):
+        book = Book(BookConfig(ref_price=100))
+        for i in range(1, n + 1):
+            book.process(to_record(i, N(i, 2, 101, 1)))
+        return book, book.ask_queue[-101], n + 1
+
+    def test_no_premature_head_compaction(self):
+        book, queue, seq = self._asks(70)
+        for _ in range(5):
+            book.process(to_record(seq, N(seq, 1, 101, 1)))
+            seq += 1
+        self.assertEqual(queue[Q_HEAD], Q_FIRST + 5)
+        self.assertEqual(len(queue), Q_FIRST + 70)
+
+    def test_unlink_compaction_thresholds(self):
+        # (i) small level: two increases of the same order, no compaction
+        book, queue, seq = self._asks(2)
+        for q in (3, 4):
+            book.process(to_record(seq, M(1, q)))
+            seq += 1
+        self.assertEqual((queue[Q_DEAD], len(queue)), (2, Q_FIRST + 4))
+        # (ii) exactly COMPACT_MIN_DEAD dead slots and dead*2 == entries -> compaction
+        book, queue, seq = self._asks(COMPACT_MIN_DEAD)
+        for i in range(1, COMPACT_MIN_DEAD + 1):
+            book.process(to_record(seq, M(i, 2)))
+            seq += 1
+            if i < COMPACT_MIN_DEAD:
+                self.assertEqual(queue[Q_DEAD], i)
+        self.assertEqual(queue[Q_DEAD], 0)
+        self.assertNotIn(None, queue[Q_FIRST:])
+        self.assertEqual([o[0] for o in queue[Q_FIRST:]], list(range(1, COMPACT_MIN_DEAD + 1)))
+        # (iii) dead*2 below the entry count: no compaction yet
+        book, queue, seq = self._asks(100)
+        for i in range(1, 51):
+            book.process(to_record(seq, M(i, 2)))
+            seq += 1
+        self.assertEqual((queue[Q_DEAD], len(queue)), (50, Q_FIRST + 150))
+        Checker().full_check(book)
+
+
 class MiscBookTest(unittest.TestCase):
+    def test_initial_state(self):
+        book = Book(BookConfig())
+        self.assertEqual((book.seq, book.n_events, book.prio, book.ref), (0, 0, 0, 1000))
+        self.assertTrue(book.dirty and book.keys_dirty)
+        self.assertEqual(book.top(0), ([], [], [], []))
+        self.assertEqual(book.top(10), ([], [], [], []))
+        self.assertEqual(book.top(0), ([], [], [], []))
+        self.assertEqual((book.submitted, book.filled, book.cancelled, book.rejected,
+                          book.resting, book.stp_cancels, book.ts_regressions), (0,) * 7)
+
+
     def test_digest_and_ts_regressions(self):
         evs = [N(1, 1, 99, 5), N(2, 2, 101, 7), N(3, 1, 101, 2)]
         b1 = run_events(Book, BookConfig(ref_price=100), evs)[4]

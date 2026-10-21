@@ -121,6 +121,11 @@ FOKS = [
     Case('K11 FOK+post-only rejected', [N(1, B, 100, 5, FOK | PO)], [12]),
     Case('K12 FOK sell side', [N(1, B, 100, 4), N(2, B, 99, 4), N(3, S, 99, 8, FOK)],
          [R, R, F], [(1, 3, 100, 4), (2, 3, 99, 4)]),
+    Case('K13 FOK above iceberg total rejected',
+         [N(1, S, 101, 5, ICE, 1, 2), N(2, B, 101, 8, FOK)], [R, 19], asks=[(101, 2)]),
+    Case('K14 FOK equal to iceberg total plus other order',
+         [N(1, S, 101, 5, ICE, 1, 2), N(2, S, 101, 3), N(3, B, 101, 8, FOK)], [R, R, F],
+         [(3, 1, 101, 2), (3, 2, 101, 3), (3, 1, 101, 2), (3, 1, 101, 1)]),
 ]
 
 POST_ONLY = [
@@ -240,6 +245,8 @@ MODIFY = [
     Case('D13 modify ignores price field',
          [N(1, B, 100, 5), RAW(KIND_MODIFY, 2, 0, 0, 1, -999, 3)], [R, AM],
          bids=[(100, 3)]),
+    Case('D14 modify to exactly max_qty accepted', [N(1, S, 101, 5), M(1, 100)], [R, AM],
+         asks=[(101, 100)], cfg={'max_qty': 100}),
 ]
 
 STP = [
@@ -310,6 +317,10 @@ VALIDATION = [
     Case('V22 price checked before band', [N(1, B, -1, 5)], [15], cfg={'band': 1}),
     Case('V23 band checked before display', [N(1, B, 200, 5, ICE, 1, 0)], [16],
          cfg={'band': 10}),
+    Case('V24 price one is a valid price', [N(1, B, 1, 5)], [R], bids=[(1, 5)],
+         cfg={'ref_price': 2, 'band': 10}),
+    Case('V25 qty equal to max accepted', [N(1, B, 100, 10)], [R], bids=[(100, 10)],
+         cfg={'max_qty': 10}),
 ]
 
 MISC = [
