@@ -27,6 +27,8 @@ def stream(n, symbols, seed, name):
 
 
 def save(name, summary):
+    if os.environ.get('LOB_MUTANT_MODULE'):      # mutant runs must not touch results/
+        return
     os.makedirs(RESULTS, exist_ok=True)
     with open(os.path.join(RESULTS, name), 'w') as fh:
         json.dump(summary, fh, indent=1, sort_keys=True)
