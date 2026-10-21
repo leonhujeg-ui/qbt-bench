@@ -32,7 +32,7 @@ class HandWrittenCasesTest(unittest.TestCase):
                          book.filled + book.resting + book.cancelled + book.rejected,
                          label + ' conservation')
         self.assertEqual(book.filled, 2 * sum(t[3] for t in trades), label + ' filled')
-        self.assertEqual(book.resting, sum(o.rem for o in book.live_orders()),
+        self.assertEqual(book.resting, book.resting_check(),
                          label + ' resting')
 
 

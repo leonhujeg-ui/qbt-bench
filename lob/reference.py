@@ -79,6 +79,14 @@ class ReferenceBook:
                 best = o
         return best
 
+    def best_bid(self):
+        o = self.best(SIDE_BUY)
+        return None if o is None else o.price
+
+    def best_ask(self):
+        o = self.best(SIDE_SELL)
+        return None if o is None else o.price
+
     def levels(self, depth=None):
         bids, asks = {}, {}
         for o in self.rest:
@@ -92,6 +100,9 @@ class ReferenceBook:
 
     def live_orders(self):
         return list(self.rest)
+
+    def resting_check(self):
+        return sum(o.rem for o in self.rest)
 
     # ---- NEW -------------------------------------------------------------
     def _validate(self, side, flags, oid, price, qty, aux):
@@ -126,10 +137,11 @@ class ReferenceBook:
             self.rejected += qty
             return rej
         limit = self._limit(side, flags, price)
-        opp = self.best(SIDE_SELL if side == SIDE_BUY else SIDE_BUY)
-        if flags & FLAG_POST_ONLY and opp is not None and self._crosses(side, limit, opp.price):
-            self.rejected += qty
-            return REJ_POST_ONLY
+        if flags & FLAG_POST_ONLY:
+            opp = self.best(SIDE_SELL if side == SIDE_BUY else SIDE_BUY)
+            if opp is not None and self._crosses(side, limit, opp.price):
+                self.rejected += qty
+                return REJ_POST_ONLY
         if flags & FLAG_FOK and self._fillable(side, trader, limit, qty) < qty:
             self.rejected += qty
             return REJ_FOK
@@ -155,6 +167,7 @@ class ReferenceBook:
     def _match(self, side, trader, oid, limit, rem):
         """Match incoming order against the book; return (remaining, stp_stop)."""
         opp_side = SIDE_SELL if side == SIDE_BUY else SIDE_BUY
+        k = 0
         while rem > 0:
             o = self.best(opp_side)
             if o is None or not self._crosses(side, limit, o.price):
@@ -169,8 +182,9 @@ class ReferenceBook:
             fill = min(rem, o.vis)
             buy_oid, sell_oid = (oid, o.oid) if side == SIDE_BUY else (o.oid, oid)
             bt, stt = (trader, o.trader) if side == SIDE_BUY else (o.trader, trader)
-            self.trades.append((self.seq, len(self.trades), self.cfg.symbol, side,
-                                buy_oid, sell_oid, o.price, fill, bt, stt))
+            self.trades.append((self.seq, k, self.cfg.symbol, side, buy_oid,
+                                sell_oid, o.price, fill, bt, stt))
+            k += 1
             rem -= fill
             o.rem -= fill
             o.vis -= fill

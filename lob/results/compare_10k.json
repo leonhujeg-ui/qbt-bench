@@ -1,0 +1,16 @@
+{
+ "events": 10000,
+ "first_divergence": null,
+ "full_checks": 10004,
+ "resting_orders": 1589,
+ "seconds": 4.205,
+ "symbols": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "trades": 2338,
+ "trades_checked": 2338,
+ "volume": 16970
+}
