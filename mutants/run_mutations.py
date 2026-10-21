@@ -200,16 +200,22 @@ def select_mutants(module, per_module, seed):
     return source, valid
 
 
-def _prepare_workdir(workdir, module, mutated_source):
+SIBLINGS = ("tests", "strategies", "tools", "bench", "fuzz", "mutants")   # 测试可能 import 的顶层包，全部软链进工作目录
+
+
+def _prepare_workdir(workdir, module=None, mutated_source=None):
+    """独立工作目录：qbt/ 为（可能被突变的）副本，其余顶层包软链到仓库。module=None 表示未突变基线。"""
     if os.path.exists(workdir):
         shutil.rmtree(workdir)
     os.makedirs(workdir)
     shutil.copytree(os.path.join(REPO, PACKAGE), os.path.join(workdir, PACKAGE),
                     ignore=shutil.ignore_patterns("__pycache__"))
-    with open(os.path.join(workdir, PACKAGE, module + ".py"), "w", encoding="utf-8") as f:
-        f.write(mutated_source)
-    for name in ("tests", "strategies"):
-        os.symlink(os.path.join(REPO, name), os.path.join(workdir, name))
+    if module is not None:
+        with open(os.path.join(workdir, PACKAGE, module + ".py"), "w", encoding="utf-8") as f:
+            f.write(mutated_source)
+    for name in SIBLINGS:
+        if os.path.isdir(os.path.join(REPO, name)):
+            os.symlink(os.path.join(REPO, name), os.path.join(workdir, name))
 
 
 def run_one(mutant, source, workroot, timeout, test_args):
@@ -234,14 +240,18 @@ def run_one(mutant, source, workroot, timeout, test_args):
     return rec
 
 
-def baseline_timeout(test_args):
-    """跑一次未突变的测试套件计时；死循环突变体超过 4 倍基线即判 timeout（计入抓住并单列）。"""
+def baseline_timeout(test_args, workroot):
+    """在与突变体相同的工作目录布局里跑一次未突变套件计时（保证环境差异不会被误判为抓住）；
+    死循环突变体超过 4 倍基线即判 timeout（计入抓住并单列）。"""
+    workdir = os.path.join(workroot, "_baseline")
+    _prepare_workdir(workdir)
     env = dict(os.environ, PYTHONPATH="", QBT_FAST_TESTS="1", PYTHONDONTWRITEBYTECODE="1")
     t0 = time.perf_counter()
-    proc = subprocess.run([sys.executable, "-m", "unittest"] + test_args, cwd=REPO, env=env,
+    proc = subprocess.run([sys.executable, "-m", "unittest"] + test_args, cwd=workdir, env=env,
                           capture_output=True, text=True)
+    shutil.rmtree(workdir, ignore_errors=True)
     if proc.returncode != 0:
-        raise SystemExit("baseline test run failed; fix the suite before mutating:\n" + proc.stderr[-2000:])
+        raise SystemExit("baseline test run failed in mutant layout; fix the suite before mutating:\n" + proc.stderr[-2000:])
     return max(30.0, 4.0 * (time.perf_counter() - t0))
 
 
@@ -299,8 +309,10 @@ def main(argv=None):
         for m, (_src, muts) in plan.items():
             print(f"{m:12s} candidates(valid, capped)={len(muts)}")
         return 0
+    workroot = os.path.join(REPO, "mutants", "_work")
+    os.makedirs(workroot, exist_ok=True)
     if args.timeout <= 0:
-        args.timeout = baseline_timeout(args.tests)
+        args.timeout = baseline_timeout(args.tests, workroot)
         print(f"auto timeout = {args.timeout:.0f}s", flush=True)
     done = {}
     if args.resume and os.path.exists(args.out):
@@ -308,8 +320,6 @@ def main(argv=None):
             done = {r["id"]: r for r in json.load(f)["mutants"]}
     records = list(done.values())
     todo = [(m, src) for _mod, (src, muts) in plan.items() for m in muts if m["id"] not in done]
-    workroot = os.path.join(REPO, "mutants", "_work")
-    os.makedirs(workroot, exist_ok=True)
     t0 = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = [pool.submit(run_one, m, src, workroot, args.timeout, args.tests) for m, src in todo]
