@@ -21,6 +21,17 @@ ORDER_TYPES = (MARKET, LIMIT, STOP, TAKE_PROFIT, ICEBERG)
 PENDING, PARTIAL, FILLED, CANCELLED, REJECTED = "pending", "partial", "filled", "cancelled", "rejected"
 
 
+def _real(name, v, allow_bool=False):
+    """配置字段必须是有限实数（bool 只在 allow_bool 时接受），否则 ConfigError 而不是 TypeError。"""
+    if isinstance(v, bool):
+        if allow_bool:
+            return v
+        raise ConfigError(f"{name} must be a real number, got bool")
+    if not isinstance(v, (int, float)) or not math.isfinite(v):
+        raise ConfigError(f"{name} must be a finite real number, got {v!r}")
+    return v
+
+
 @dataclass(frozen=True)
 class BrokerConfig:
     cash: float = 100_000.0
@@ -37,22 +48,27 @@ class BrokerConfig:
     allow_short: bool = True
 
     def check(self):
-        if not math.isfinite(self.cash) or self.cash <= 0:
+        for name in ("cash", "maker_fee", "taker_fee", "slippage", "impact", "liquidation_fee", "max_participation",
+                     "max_leverage", "maintenance_margin", "funding_rate"):
+            _real(name, getattr(self, name))
+        if self.cash <= 0:
             raise ConfigError("cash must be positive and finite")
         for name in ("maker_fee", "taker_fee", "slippage", "impact", "liquidation_fee"):
             v = getattr(self, name)
-            if not math.isfinite(v) or v < 0 or v >= 1:
+            if v < 0 or v >= 1:
                 raise ConfigError(f"{name} must be in [0,1)")
         if not (0 < self.max_participation <= 1):
             raise ConfigError("max_participation must be in (0,1]")
-        if not math.isfinite(self.max_leverage) or self.max_leverage <= 0:
+        if self.max_leverage <= 0:
             raise ConfigError("max_leverage must be positive")
         if not (0 <= self.maintenance_margin < 1):
             raise ConfigError("maintenance_margin must be in [0,1)")
-        if not math.isfinite(self.funding_rate) or abs(self.funding_rate) >= 1:
+        if abs(self.funding_rate) >= 1:
             raise ConfigError("funding_rate must be finite and |rate| < 1")
         if not isinstance(self.funding_interval, int) or isinstance(self.funding_interval, bool) or self.funding_interval < 0:
             raise ConfigError("funding_interval must be a non-negative int")
+        if not isinstance(self.allow_short, bool):
+            raise ConfigError("allow_short must be bool")
         return self
 
     def to_dict(self):
@@ -118,6 +134,7 @@ class Broker:
         self.cash = float(self.cfg.cash)
         self.initial_cash = self.cash
         self.positions = {s: Position(s) for s in data}
+        self._rows = [(s, self.positions[s], data[s].close) for s in data]   # 热循环用：避免每根 bar 查 dict/属性链
         self.pending = []
         self.orders = []
         self.fills = []
@@ -179,10 +196,10 @@ class Broker:
             self._apply_funding(i)
         equity = self.cash
         gross = 0.0
-        for sym, pos in self.positions.items():
+        for _sym, pos, close in self._rows:
             q = pos.qty
             if q:
-                v = q * self.data[sym].close[i]
+                v = q * close[i]
                 equity += v
                 gross += v if v > 0 else -v
         self.equity = equity
