@@ -12,6 +12,7 @@
                    separate smaller run (tracemalloc itself is slow)
 """
 import array
+import gc
 import json
 import math
 import os
@@ -59,8 +60,12 @@ def _books(meta, limit=None):
 
 
 def engine_throughput(path, meta, n, checked=False):
-    """Book.process on pre-decoded records (first n events)."""
+    """Book.process on pre-decoded records (first n events).  The input list
+    is moved to the permanent GC generation (gc.freeze) so that cyclic-GC
+    passes do not repeatedly traverse 1M tuples during the timed loop."""
     recs = list(E.iter_records(path, stop=n))
+    gc.collect()
+    gc.freeze()
     books = _books(meta)
     checkers = None
     if checked:
@@ -78,6 +83,7 @@ def engine_throughput(path, meta, n, checked=False):
             st = b.process(rec)
             checkers[rec[2]].after_event(b, n0, rec, st)
     dt = time.perf_counter() - t0
+    gc.unfreeze()
     return {'events': len(recs), 'seconds': round(dt, 4),
             'events_per_second': round(len(recs) / dt)}
 
@@ -85,6 +91,8 @@ def engine_throughput(path, meta, n, checked=False):
 def snapshot_cost(path, meta, n):
     """Return per-call cost (ns) of top(10) in two regimes."""
     recs = list(E.iter_records(path, stop=n))
+    gc.collect()
+    gc.freeze()
     books = _books(meta)
     t0 = time.perf_counter()
     for rec in recs:
@@ -108,6 +116,7 @@ def snapshot_cost(path, meta, n):
         b.dirty = True
         b.top(10)
     rebuild = time.perf_counter() - t0
+    gc.unfreeze()
     return {'events': len(recs),
             'after_every_event_ns': round((with_snap - base) / len(recs) * 1e9, 1),
             'cached_ns': round(cached / reps * 1e9, 1),
@@ -146,7 +155,7 @@ def run(path, out_dir, check_every=10000, engine_events=1_000_000,
     os.makedirs(out_dir, exist_ok=True)
     res = {'label': label, 'stream': os.path.basename(path), 'stream_sha256': meta['sha256'],
            'n_events': meta['n_events'], 'machine': machine_info(),
-           'check_every': check_every}
+           'check_every': check_every, 'harness': 'v2 (gc.freeze on pre-decoded input)'}
     # e2e first: a child inherits the parent's RSS high-water mark across exec
     stats = e2e_subprocess(path, os.path.join(out_dir, 'e2e'), check_every)
     res['e2e'] = {k: stats[k] for k in ('events', 'trades', 'volume', 'seconds',

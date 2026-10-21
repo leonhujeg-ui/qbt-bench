@@ -78,7 +78,22 @@ class Core:
         get_book = books.get if self.filter_symbols else books.__getitem__
         hook = self.on_event
         unpack = E.RECORD.iter_unpack
+        plain = checkers is None and timing is None and hook is None and not self.filter_symbols
+        base = 0
         for buf in E.iter_chunks(path, 0, limit):
+            if plain:            # unfiltered stream: seq is contiguous, write per chunk
+                sts = []
+                append = sts.append
+                for rec in unpack(buf):
+                    sym = rec[2]
+                    book = books[sym]
+                    if rec[1] >= boundary[sym]:
+                        self._cross_boundary(sym, book, rec[1], boundary, second)
+                    append(book.process(rec))
+                status[base:base + len(sts)] = bytes(sts)
+                base += len(sts)
+                self._flush()
+                continue
             for rec in unpack(buf):
                 sym = rec[2]
                 book = get_book(sym)
@@ -86,9 +101,6 @@ class Core:
                     continue
                 if rec[1] >= boundary[sym]:
                     self._cross_boundary(sym, book, rec[1], boundary, second)
-                if checkers is None and timing is None and hook is None:
-                    status[rec[0] - 1] = book.process(rec)
-                    continue
                 n0 = len(shared)
                 if timing is not None:
                     t0 = perf()

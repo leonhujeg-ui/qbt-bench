@@ -1,17 +1,12 @@
 """Project rules: file <= 800 lines, function <= 60 lines, stdlib only."""
 import ast
 import os
+import sys
 import unittest
 
 from lob.tools.lint_limits import python_files, check_file, ROOT
 
-STDLIB_OK = {'ast', 'array', 'argparse', 'bisect', 'collections', 'filecmp', 'hashlib',
-             'heapq', 'json', 'math', 'mmap', 'multiprocessing', 'os', 'platform',
-             'random', 'resource', 'shutil', 'statistics', 'struct', 'subprocess',
-             'sys', 'tempfile', 'time', 'tracemalloc', 'unittest', 'importlib',
-             'io', 'textwrap', 'types', 'traceback', 'signal', 'sqlite3',
-             'concurrent', 'itertools', 'functools', 'operator', 'string', 'html',
-             'contextlib', 'copy', 'csv', 'lob'}
+STDLIB_OK = set(sys.stdlib_module_names) | {'lob'}
 
 
 class LimitsTest(unittest.TestCase):

@@ -33,11 +33,11 @@ class Checker:
         self.events = 0
         self.full_checks = 0
         self.trades_checked = 0
-        self._pre = (None, None, None)
+        self._bb = self._ba = self._ref = None
         self._fast = True
 
     def attach(self, book):
-        self._pre = (book.best_bid(), book.best_ask(), book.ref)
+        self._bb, self._ba, self._ref = book.best_bid(), book.best_ask(), book.ref
         self._fast = hasattr(book, 'bid_keys')
 
     def after_event(self, book, n_before, rec=None, status=None):
@@ -64,10 +64,10 @@ class Checker:
         self.events += 1
         if self.full_every and self.events % self.full_every == 0:
             self.full_check(book)
-        self._pre = (bb, ba, book.ref)
+        self._bb, self._ba, self._ref = bb, ba, book.ref
 
     def _check_trades(self, book, trades, rec):
-        pre_bb, pre_ba, pre_ref = self._pre
+        pre_bb, pre_ba, pre_ref = self._bb, self._ba, self._ref
         side = trades[0][T_AGGR_SIDE]
         buy = side == SIDE_BUY
         if rec is not None:
