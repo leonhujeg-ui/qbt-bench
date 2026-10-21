@@ -10,13 +10,13 @@
  "book:284": {"class": "等价", "note": "cancel_old 撤旧单后 continue→break：同上，外层循环重入同一档"},
  "book:297": {"class": "等价", "note": "_fillable 中 break→continue：后续档位同样不交叉或 avail 已够，只多做无效扫描"},
  "book:307": {"class": "等价", "note": "同 book:210（keys_dirty 布尔翻转）"},
- "book:315": {"class": "补判据", "note": "_unlink 压实条件 and→or（小队列提前压实）：test_unlink_compaction_thresholds (i) 断言 2 单档两次增量后 dead==2 未压实"},
+ "book:315": {"class": "补判据", "note": "_cancel 内联压实条件 and→or（小队列提前压实）：test_cancel_compaction_thresholds (i) 断言 2 单档撤 1 单后 dead==1 未压实（首次补的判据误打在 _unlink 的同形条件上，已补撤单路径）"},
  "book:319": {"class": "补判据", "note": "改量 > max_qty 改为 >=：cases D14 改到恰好 max_qty 必须接受"},
- "book:398": {"class": "补判据", "note": "压实阈值 >= 改 >：test_unlink_compaction_thresholds (ii) 断言恰好 32 个死槽时压实"},
+ "book:398": {"class": "补判据", "note": "_cancel 压实阈值 >= 改 >：test_cancel_compaction_thresholds (ii) 断言恰好 32 个死槽时压实"},
  "book:431": {"class": "等价", "note": "_fillable 中 fill 值 want-avail→want+avail：仅使 avail 超过 want，而调用方只比较 avail<qty，判定不变"},
  "book:458": {"class": "等价", "note": "冰山露出 disp<rem 改 <=：disp==rem 时两分支取值相同"},
  "book:459": {"class": "等价", "note": "_fillable 条件 want-avail<vis→want+avail<vis：只改变 fill 取 vis 的时机，avail 一旦 >= want 即退出，判定不变"},
- "book:461": {"class": "补判据", "note": "压实条件 dead*2 改 dead*3：test_unlink_compaction_thresholds (iii) 断言 100 单档 50 次增量后未压实"},
+ "book:461": {"class": "补判据", "note": "_cancel 压实条件 dead*2 改 dead*3：test_cancel_compaction_thresholds (iii) 断言 100 单档撤 40 单后未压实"},
  "book:470": {"class": "补判据", "note": "FOK 纯模拟冰山露出后剩余 rem-vis 改 rem+vis（高估可成量）：cases K13 FOK 8 > 冰山总量 5 必须拒绝"},
  "book:479": {"class": "补判据", "note": "price<=0 改 price<=1：cases V24 价格 1 必须接受"}
 }

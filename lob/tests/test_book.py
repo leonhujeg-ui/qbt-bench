@@ -187,6 +187,30 @@ class CompactionPolicyTest(unittest.TestCase):
         Checker().full_check(book)
 
 
+    def test_cancel_compaction_thresholds(self):
+        # (i) small level: cancel one of two, no compaction (dead < COMPACT_MIN_DEAD)
+        book, queue, seq = self._asks(2)
+        book.process(to_record(seq, C(1)))
+        self.assertEqual((queue[Q_DEAD], len(queue)), (1, Q_FIRST + 2))
+        # (ii) exactly COMPACT_MIN_DEAD dead slots and dead*2 == entries -> compaction
+        book, queue, seq = self._asks(2 * COMPACT_MIN_DEAD)
+        for i in range(1, COMPACT_MIN_DEAD + 1):
+            book.process(to_record(seq, C(i)))
+            seq += 1
+            if i < COMPACT_MIN_DEAD:
+                self.assertEqual(queue[Q_DEAD], i)
+        self.assertEqual((queue[Q_DEAD], len(queue)), (0, Q_FIRST + COMPACT_MIN_DEAD))
+        self.assertEqual([o[0] for o in queue[Q_FIRST:]],
+                         list(range(COMPACT_MIN_DEAD + 1, 2 * COMPACT_MIN_DEAD + 1)))
+        # (iii) dead*2 below the entry count: no compaction yet
+        book, queue, seq = self._asks(100)
+        for i in range(1, 41):
+            book.process(to_record(seq, C(i)))
+            seq += 1
+        self.assertEqual((queue[Q_DEAD], len(queue)), (40, Q_FIRST + 100))
+        Checker().full_check(book)
+
+
 class MiscBookTest(unittest.TestCase):
     def test_initial_state(self):
         book = Book(BookConfig())
