@@ -35,11 +35,10 @@ def statement_lines(path):
 
 
 class Collector:
-    TOOL = 1   # sys.monitoring.COVERAGE_ID
-
-    def __init__(self, root=ROOT):
+    def __init__(self, root=ROOT, tool_id=1):      # 1 = sys.monitoring.COVERAGE_ID
         self.root = root
         self.hits = {}
+        self.TOOL = tool_id
 
     def _on_line(self, code, line):
         fn = code.co_filename

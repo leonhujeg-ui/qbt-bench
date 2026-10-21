@@ -178,6 +178,8 @@ def sample_mutants(mutants, max_per_file, seed):
     rest = [m for m in mutants if m not in chosen]
     if len(chosen) < max_per_file and rest:
         chosen.extend(rng.sample(rest, min(len(rest), max_per_file - len(chosen))))
+    elif len(chosen) > max_per_file:            # more operators than the budget
+        chosen = rng.sample(chosen, max_per_file)
     return sorted(chosen, key=lambda m: m['id'])
 
 

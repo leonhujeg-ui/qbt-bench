@@ -58,6 +58,20 @@ class MutationToolingTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             loader.install('lob.common', src)        # already imported here
 
+    def test_run_target_smoke_on_small_module(self):
+        path = os.path.join(os.path.dirname(RM.ROOT), 'lob', 'common.py')
+        RM.TARGETS['smoke'] = ('lob.common', path, ['lob.tests.test_limits'])
+        try:
+            tmp = tempfile.mkdtemp()
+            out = os.path.join(tmp, 'm.json')
+            s = RM.run_target('smoke', max_per_file=3, seed=2, workers=2, timeout=120, out=out)
+            self.assertEqual(s['run'], 3)
+            self.assertEqual(s['killed'] + s['survived'], 3)
+            self.assertTrue(os.path.exists(out))
+            self.assertEqual(RM.main(['--target', 'smoke', '--max', '2', '--workers', '2']), 0)
+        finally:
+            del RM.TARGETS['smoke']
+
     def test_run_one_kills_an_obvious_mutant(self):
         path = RM.TARGETS['book'][1]
         ms = RM.make_mutants(path)
@@ -93,7 +107,7 @@ class CoverageAndLintTest(unittest.TestCase):
         self.assertIn(os.path.join(LL.ROOT, 'book.py'), LL.python_files())
 
     def test_coverage_collector_records_lines(self):
-        col = COV.Collector(root=COV.ROOT)
+        col = COV.Collector(root=COV.ROOT, tool_id=3)   # 1 is taken when run under the tool
         col.start()
         try:
             from lob.common import flags_valid
