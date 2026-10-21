@@ -3,12 +3,12 @@
  "first_divergence": null,
  "full_checks": 1005,
  "resting_orders": 3935,
- "seconds": 26.781,
+ "seconds": 54.851,
  "shard_seconds": [
-  26.732,
-  25.607,
-  21.829,
-  17.938
+  54.778,
+  54.773,
+  48.806,
+  37.849
  ],
  "shards": [
   [
