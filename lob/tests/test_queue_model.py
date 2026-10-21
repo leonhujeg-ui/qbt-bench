@@ -143,6 +143,38 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(set(self.param.params), {(hh, d) for hh in (1, 5)
                                                   for d in range(Q.D_MAX + 1)})
 
+    def test_parametric_refinement_window(self):
+        """Optimum between coarse grid points (true scale 5*e^1.25) must be
+        found by the fine search around the coarse argmax."""
+        rng = random.Random(12)
+        rows = []
+        for i in range(3000):
+            ahead = rng.randint(10, 30)
+            p = 1.0 - math.exp(-5.0 * math.exp(1.25) / (ahead + 1))
+            filled = rng.random() < p
+            rows.append({'d': 0, 'ahead': ahead, 'rate_trd': 1.0,
+                         'first_fill_ns': 2 * NS if filled else None, 'full_fill_ns': None,
+                         'censor_ns': None})
+        pm = Q.ParametricModel().fit(rows, (5,))
+        a, b = pm.params[(5, 0)]
+        data = [(r['rate_trd'], r['ahead'], outcome(r, 5 * NS)) for r in rows]
+        grid = [(a10 / 10.0, bb) for a10 in range(-60, 61, 5)
+                for bb in (0.0, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0)]
+        a0, b0 = max(grid, key=lambda ab: pm._loglik(ab[0], ab[1], data, 5))
+        fine = [a100 / 100.0 for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5)]
+        best_a = max(fine, key=lambda aa: pm._loglik(aa, b0, data, 5))
+        self.assertEqual((a, b), (best_a, b0))
+        self.assertNotEqual(a, a0)                                  # refinement did move
+        self.assertAlmostEqual(a, math.log(5.0 * math.exp(1.25) / (5.0 + b0)), delta=0.06)
+
+    def test_base_rate_rounding(self):
+        rows = synthetic_rows(7, 4)
+        for i, r in enumerate(rows):
+            r['censor_ns'] = None
+            r['first_fill_ns'] = NS if i < 3 else None
+        m = Q.QueueModel().fit(rows, (5,))
+        self.assertEqual(Q.evaluate(m, rows, 5)['base_rate'], 0.4286)
+
     def test_evaluate_rounding_and_bins(self):
         rows = synthetic_rows(70, 9)
         m = Q.QueueModel().fit(rows, (5,))

@@ -96,8 +96,8 @@
   "note": "2*M 改 2//M：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
  },
  "queue_model:124": {
-  "class": "补判据",
-  "note": "刻度 range(0,11,2) 改 12（多一个 1.2 刻度）：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+  "class": "等价",
+  "note": "刻度 range(0,11,2) 改 range(0,12,2)：步长 2 下两者都是 0..10，集合不变（首次误判为可补判据，复跑仍漏网后改判等价）"
  },
  "queue_model:133": {
   "class": "补判据",
@@ -129,7 +129,7 @@
  },
  "queue_model:179": {
   "class": "补判据",
-  "note": "base_rate round 4→5 位：test_evaluate_rounding_and_bins 断言 round(...,4)"
+  "note": "base_rate round 4→5 位：test_base_rate_rounding 用 3/7 的成交率断言 0.4286（首次判据的数据集成交率恰好不区分 4/5 位）"
  },
  "queue_model:180": {
   "class": "补判据",
@@ -185,7 +185,7 @@
  },
  "queue_model:237": {
   "class": "补判据",
-  "note": "细网格中心（上界）同上：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax"
+  "note": "细网格上界 int(a0*100) 改 int(a0//100)：test_parametric_refinement_window 构造最优点在粗网格点之间（a=ln3）的数据，细网格必须找到它"
  },
  "queue_model:247": {
   "class": "补判据",
