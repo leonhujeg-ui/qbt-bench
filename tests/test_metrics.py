@@ -138,6 +138,37 @@ class TestHandComputed(QBTTestCase):
         self.assertEqual((empty["bars"], empty["total_return"], empty["max_drawdown"]), (0, 0.0, 0.0))
 
 
+class TestSurvivorKillers(QBTTestCase):
+    """针对突变测试漏网项补的判据（边界与常数）。"""
+
+    def test_returns_with_sub_unit_equity(self):
+        self.assertCloseList(M.returns_from_equity([0.5, 1.0]), [1.0], abs_tol=1e-12)     # 0 < 权益 < 1 也要算收益
+
+    def test_std_edge_and_two_returns(self):
+        self.assertEqual(M._std([1.0], 1), 0.0)
+        self.assertAlmostEqual(M.sharpe([0.1, 0.3], 1.0), 0.2 / math.sqrt(0.02), delta=1e-12)   # 恰好 2 个收益也要算
+        self.assertAlmostEqual(M.sortino([0.1, -0.3], 1.0), -0.1 / math.sqrt(0.09 / 2), delta=1e-12)
+
+    def test_sortino_with_rf_and_ppy(self):
+        """ppy=4, rf=0.05 => 每期扣 0.0125：ex=[0.1875,-0.2625,0.4875]，下行=sqrt(0.2625^2/3)，均值 0.1375。"""
+        ex = [0.2 - 0.0125, -0.25 - 0.0125, 0.5 - 0.0125]
+        dd = math.sqrt(ex[1] ** 2 / 3)
+        self.assertAlmostEqual(M.sortino([0.2, -0.25, 0.5], 4.0, rf=0.05), sum(ex) / 3 / dd * 2.0, delta=1e-12)
+        sd = math.sqrt(sum((x - sum(ex) / 3) ** 2 for x in ex) / 2)
+        self.assertAlmostEqual(M.sharpe([0.2, -0.25, 0.5], 4.0, rf=0.05), sum(ex) / 3 / sd * 2.0, delta=1e-12)
+
+    def test_drawdown_recovery_index_and_flat(self):
+        dd = M.max_drawdown([100.0, 80.0, 100.0, 100.0, 100.0])
+        self.assertEqual((dd["duration_bars"], dd["recovered"]), (2, True))          # 首次恢复即止
+        self.assertEqual(M.longest_drawdown_bars([100.0, 100.0, 100.0]), 0)           # 持平不算水下
+        self.assertEqual(M.longest_drawdown_bars([100.0, 90.0, 100.0, 100.0, 95.0]), 2)
+        self.assertEqual(M.max_drawdown([100.0, 80.0, 90.0])["recovered"], False)
+
+    def test_trade_stats_zero_loss_and_zero_profit(self):
+        s = M.trade_stats([{"pnl": -1.0, "bars": 1}])
+        self.assertEqual((s["profit_factor"], s["gross_profit"], s["win_rate"]), (0.0, 0.0, 0.0))
+
+
 class TestProperties(QBTTestCase):
     def test_against_bruteforce_on_random_equity(self):
         r = random.Random(1)

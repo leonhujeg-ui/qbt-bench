@@ -9,8 +9,6 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
-
 from qbt.data import SECONDS_PER_YEAR
 
 
@@ -40,7 +38,15 @@ def cagr(equity, bar_seconds):
     if equity[-1] <= 0:
         return -1.0
     years = (n - 1) * bar_seconds / SECONDS_PER_YEAR
-    return (equity[-1] / equity[0]) ** (1.0 / years) - 1.0
+    ratio = equity[-1] / equity[0]
+    if ratio <= 0.0:                                              # 比值下溢到 0：年化 -100%
+        return -1.0
+    if ratio != ratio:
+        return ratio                                              # NaN 输入透传 NaN，不抛异常
+    growth = math.log(ratio) / years                              # 用对数避免 x**(1/years) 溢出
+    if growth > 700.0:                                            # exp(700) ~ 1e304：截断为有限大数，保持 JSON 可序列化
+        return 1e300
+    return math.exp(growth) - 1.0
 
 
 def _mean(xs):
@@ -53,9 +59,9 @@ def _std(xs, ddof=1):
     if n - ddof <= 0:
         return 0.0
     m = _mean(xs)
-    var = sum((x - m) ** 2 for x in xs) / (n - ddof)
-    scale = max(abs(x) for x in xs)
-    return math.sqrt(var) if var > (1e-14 * scale) ** 2 else 0.0
+    var = sum((x - m) * (x - m) for x in xs) / (n - ddof)        # 用乘法而非 **：float 溢出得到 inf 而不是 OverflowError
+    scale = 1e-14 * max(abs(x) for x in xs)
+    return math.sqrt(var) if var > scale * scale else 0.0
 
 
 def sharpe(returns, ppy, rf=0.0):
@@ -72,7 +78,7 @@ def sortino(returns, ppy, rf=0.0):
     if len(returns) < 2:
         return 0.0
     ex = [r - rf / ppy for r in returns]
-    dd = math.sqrt(sum(min(x, 0.0) ** 2 for x in ex) / len(ex))
+    dd = math.sqrt(sum(min(x, 0.0) * min(x, 0.0) for x in ex) / len(ex))
     return _mean(ex) / dd * math.sqrt(ppy) if dd > 0 else 0.0
 
 
@@ -142,26 +148,42 @@ def var_cvar(returns, alpha=0.05):
     return var, cvar
 
 
+def _civil_from_days(days):
+    """UTC 天序号（自 1970-01-01）-> (year, month)，Howard Hinnant 的整数算法，无 datetime 开销。"""
+    z = days + 719468
+    era = (z if z >= 0 else z - 146096) // 146097
+    doe = z - era * 146097
+    yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365
+    y = yoe + era * 400
+    doy = doe - (365 * yoe + yoe // 4 - yoe // 100)
+    mp = (5 * doy + 2) // 153
+    m = mp + 3 if mp < 10 else mp - 9
+    return (y + 1 if m <= 2 else y, m)
+
+
 def _day_key(ts):
-    return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d")
+    return int(ts) // 86400
 
 
 def _month_key(ts):
-    dt = datetime.fromtimestamp(ts, tz=timezone.utc)
-    return dt.year, dt.month
+    return _civil_from_days(int(ts) // 86400)
 
 
 def period_returns(equity, ts, key_fn):
-    """按 key_fn(ts) 分组，取每组最后一个权益，组间收益 = 本组末 / 上组末 - 1；首组相对首个权益。"""
+    """按 key_fn(ts) 分组，取每组最后一个权益，组间收益 = 本组末 / 上组末 - 1；首组相对首个权益。
+    分组键只在“天序号变化”时重新计算（同一天内的 bar 直接沿用），1M 根 1 分钟 bar 只需 ~700 次键计算。"""
     if not equity:
         return []
     groups = []
+    last_day, key = None, None
     for e, t in zip(equity, ts):
-        k = key_fn(t)
-        if groups and groups[-1][0] == k:
+        day = int(t) // 86400
+        if day != last_day:
+            last_day, key = day, key_fn(t)
+        if groups and groups[-1][0] == key:
             groups[-1][1] = e
         else:
-            groups.append([k, e])
+            groups.append([key, e])
     out, prev = [], equity[0]
     for k, e in groups:
         out.append((k, e / prev - 1.0 if prev > 0 else 0.0))
