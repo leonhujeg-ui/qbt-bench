@@ -35,11 +35,9 @@ def cagr(equity, bar_seconds):
     n = len(equity)
     if n < 2 or equity[0] <= 0:
         return 0.0
-    if equity[-1] <= 0:
-        return -1.0
     years = (n - 1) * bar_seconds / SECONDS_PER_YEAR
     ratio = equity[-1] / equity[0]
-    if ratio <= 0.0:                                              # 比值下溢到 0：年化 -100%
+    if ratio <= 0.0:                                              # 期末权益 <= 0 或比值下溢到 0：年化 -100%
         return -1.0
     if ratio != ratio:
         return ratio                                              # NaN 输入透传 NaN，不抛异常

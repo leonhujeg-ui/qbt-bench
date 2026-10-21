@@ -200,6 +200,10 @@ class TestValidation(QBTTestCase):
             with self.assertRaises(DataError, msg=str(kw)):
                 generate(**kw, seed=1)
         self.assertEqual(GenSpec.from_dict(GenSpec(n=3, seed=4).to_dict()), GenSpec(n=3, seed=4))
+        for kw in ({"sigma": math.nan}, {"s0": True}, {"mu": "0.1"}, {"wick": math.inf}, {"seed": 1.5}, {"symbol": ""},
+                   {"n": True}):
+            with self.assertRaises(DataError, msg=str(kw)):
+                generate(**{"n": 5, "seed": 1, **kw})
 
     def test_generate_override_kwargs(self):
         spec = GenSpec(n=10, seed=1)
@@ -217,6 +221,17 @@ class TestUtilities(QBTTestCase):
         self.assertNotEqual(d.close[10], -1.0)
         self.assertEqual(len(d.slice(90, 500)), 10)
         self.assertEqual(len(d.slice(-5, None)), 5)
+
+    def test_slots_and_slice_validated_flag(self):
+        d = generate(n=10, seed=1)
+        self.assertFalse(hasattr(d, "__dict__"))                 # __slots__ 契约（列式对象不带实例字典）
+        self.assertTrue(d.slice(0, 5)._validated)                # 切片保留已校验标记（不重复 O(n) 校验）
+        d._validated = False
+        self.assertFalse(d.slice(0, 5)._validated)
+        for kw in ({"s0": 0.0}, {"sigma": -0.1}, {"bar_seconds": 0}):
+            with self.assertRaises(DataError) as ctx:
+                generate(n=5, seed=1, **kw)
+            self.assertIn("required", str(ctx.exception))        # 规格检查先于生成，给出精确原因
 
     def test_csv_roundtrip_exact(self):
         d = generate(n=300, seed=8, halt_prob=0.01)

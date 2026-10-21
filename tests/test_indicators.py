@@ -64,6 +64,7 @@ class TestMovingAverages(QBTTestCase):
         self.assertCloseList(I.hma(self.x, n), ref)
         self.assertCloseList(I.hma([3.0] * 50, 9)[20:], [3.0] * 30)
         self.assertEqual(I.hma(self.x[:5], 16), [None] * 5)
+        self.assertCloseList(I.hma(self.x[:20], 1), self.x[:20])             # n=1：半窗/根窗都钳到 1 => 恒等
 
     def test_dema_tema_lag_on_ramp(self):
         """斜坡输入：EMA 稳态滞后 = (1-a)/a * slope；DEMA/TEMA 对线性趋势渐近无滞后。"""
@@ -130,6 +131,7 @@ class TestOscillators(QBTTestCase):
         x = [math.exp(g * i) for i in range(600)]
         t = I.trix(x, 5)
         self.assertIsNone(t[0])
+        self.assertIsNotNone(t[1])
         self.assertAlmostEqual(t[-1], math.exp(g) - 1.0, delta=1e-9)
         self.assertIsNone(I.trix([1.0, 0.0, 0.0], 1)[2])
 
@@ -346,6 +348,10 @@ class TestVolumeTrendRisk(QBTTestCase):
         self.assertEqual(I.parabolic_sar([1.0], [1.0]), ([None], [None]))
         down = I.parabolic_sar([5.0, 4.0, 3.0], [4.0, 3.0, 2.0])[1]
         self.assertEqual(down[1:], [-1, -1])
+        sar1, tr1 = I.parabolic_sar([2.0, 3.0, 10.0], [1.0, 2.0, 9.0])
+        self.assertEqual((tr1[1], sar1[1]), (1, 1.0))      # 初始方向/初始 SAR 只由前两根决定（看 high[-1] 会先判空再翻多，SAR=2）
+        sar2 = I.parabolic_sar([10.0, 11.0, 12.0, 13.0], [5.0, 10.5, 11.5, 12.5])[0]
+        self.assertEqual(sar2[2], 5.0)                                                   # 第 2 根取 min(cur, low[1], low[0])，low[0]=5 生效
 
     def test_supertrend_properties(self):
         d = self.d

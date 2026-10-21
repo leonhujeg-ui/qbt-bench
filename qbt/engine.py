@@ -78,7 +78,9 @@ class IndicatorCache:
             self.hits += 1
             return val
         self.misses += 1
-        fn = _ind.REGISTRY[name]
+        fn = _ind.REGISTRY.get(name)
+        if fn is None:
+            raise ConfigError(f"unknown indicator {name!r}")
         cols = [getattr(data, a) if isinstance(a, str) and a in ("open", "high", "low", "close", "volume") else a
                 for a in args]
         val = fn(*cols)
@@ -102,7 +104,7 @@ INDICATOR_CACHE = IndicatorCache()
 class Context:
     """策略可见的接口：数据、账户查询、下单、指标缓存。"""
 
-    __slots__ = ("data", "raw", "broker", "index", "symbols", "cache", "strict", "log")
+    __slots__ = ("data", "raw", "broker", "index", "symbols", "cache", "strict")
 
     def __init__(self, data, broker, strict=False, cache=None):
         self.raw = data
@@ -112,7 +114,6 @@ class Context:
         self.broker = broker
         self.symbols = list(data)
         self.cache = cache or INDICATOR_CACHE
-        self.log = []
 
     # ---- 账户 ----
     def position(self, symbol):
@@ -158,6 +159,18 @@ class Context:
         return None
 
 
+def _check_param_type(strategy, key, value, default):
+    """参数类型按默认值归类：bool 只接受 bool；int/float 接受有限实数；str 接受 str。"""
+    if isinstance(default, bool):
+        ok = isinstance(value, bool)
+    elif isinstance(default, (int, float)):
+        ok = isinstance(value, (int, float)) and not isinstance(value, bool) and value == value and abs(value) != float("inf")
+    else:
+        ok = isinstance(value, type(default))
+    if not ok:
+        raise ConfigError(f"{strategy}: param {key}={value!r} has wrong type (expected like {default!r})")
+
+
 class Strategy:
     """策略基类。子类覆盖 on_start / on_bar，并声明 PARAM_SPACE（>= 4 维）与 DEFAULTS。"""
 
@@ -169,7 +182,11 @@ class Strategy:
         unknown = set(params) - set(self.DEFAULTS)
         if unknown:
             raise ConfigError(f"{self.name}: unknown params {sorted(unknown)}")
+        for k, v in params.items():
+            _check_param_type(self.name, k, v, self.DEFAULTS[k])
         self.params = {**self.DEFAULTS, **params}
+        if symbol is not None and not isinstance(symbol, str):
+            raise ConfigError("symbol must be str or None")
         self.symbol = symbol
 
     def on_start(self, ctx):

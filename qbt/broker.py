@@ -24,12 +24,10 @@ PENDING, PARTIAL, FILLED, CANCELLED, REJECTED = "pending", "partial", "filled", 
 def _real(name, v, allow_bool=False):
     """配置字段必须是有限实数（bool 只在 allow_bool 时接受），否则 ConfigError 而不是 TypeError。"""
     if isinstance(v, bool):
-        if allow_bool:
-            return v
-        raise ConfigError(f"{name} must be a real number, got bool")
-    if not isinstance(v, (int, float)) or not math.isfinite(v):
+        if not allow_bool:
+            raise ConfigError(f"{name} must be a real number, got bool")
+    elif not isinstance(v, (int, float)) or not math.isfinite(v):
         raise ConfigError(f"{name} must be a finite real number, got {v!r}")
-    return v
 
 
 @dataclass(frozen=True)
@@ -79,8 +77,7 @@ class Order:
     __slots__ = ("id", "symbol", "side", "qty", "remaining", "type", "price", "display", "status",
                  "created", "expires", "reduce_only", "tag", "reason")
 
-    def __init__(self, oid, symbol, side, qty, otype, price=None, display=None, created=-1,
-                 expires=None, reduce_only=False, tag=""):
+    def __init__(self, oid, symbol, side, qty, otype, price, display, created, expires, reduce_only, tag):
         self.id, self.symbol, self.side, self.qty, self.remaining = oid, symbol, side, qty, qty
         self.type, self.price, self.display = otype, price, display
         self.status, self.created, self.expires = PENDING, created, expires
@@ -373,7 +370,7 @@ def round_trips(fills):
     for f in fills:
         st = state.get(f.symbol)
         signed = f.side * f.qty
-        if st is None or st["qty"] == 0.0:
+        if st is None:
             state[f.symbol] = {"qty": signed, "avg": f.price, "entry": f.bar, "fees": f.fee, "pnl": 0.0, "peak": f.qty}
             continue
         if (st["qty"] > 0) == (signed > 0):
@@ -391,7 +388,7 @@ def round_trips(fills):
                            "side": 1 if st["qty"] > 0 else -1, "qty": st["peak"], "entry_price": st["avg"],
                            "exit_price": f.price, "pnl": st["pnl"] - st["fees"], "bars": f.bar - st["entry"]})
             if abs(remaining) <= 1e-12:
-                state[f.symbol] = {"qty": 0.0, "avg": 0.0, "entry": f.bar, "fees": 0.0, "pnl": 0.0, "peak": 0.0}
+                del state[f.symbol]                      # 平仓：下一笔成交重新开仓
             else:
                 state[f.symbol] = {"qty": remaining, "avg": f.price, "entry": f.bar, "fees": 0.0, "pnl": 0.0,
                                    "peak": abs(remaining)}

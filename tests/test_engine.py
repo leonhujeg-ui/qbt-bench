@@ -130,6 +130,12 @@ class TestEngineSemantics(QBTTestCase):
             self.assertEqual([f.to_dict() for f in loose.fills], [f.to_dict() for f in strict.fills], name)
         with self.assertRaises(LookaheadError):
             run_backtest(d, Peeker(), CFG, strict=True)
+        two = [REGISTRY["ma_cross"](fast=5, slow=20), REGISTRY["rsi_reversion"](n=7)]
+        loose2 = Engine(d, two, CFG).run()
+        strict2 = Engine(d, [REGISTRY["ma_cross"](fast=5, slow=20), REGISTRY["rsi_reversion"](n=7)], CFG, strict=True).run()
+        self.assertEqual(loose2.equity, strict2.equity)                        # 多策略循环也逐根推进 ctx.index
+        with self.assertRaises(LookaheadError):
+            Engine(d, [REGISTRY["ma_cross"](), Peeker()], CFG, strict=True).run()
         run_backtest(d.slice(0, 50), Peeker(), CFG)      # 非严格模式不拦截（由篡改判据兜底）
 
     def test_guarded_column_semantics(self):
@@ -137,6 +143,7 @@ class TestEngineSemantics(QBTTestCase):
             index = 4
         col = GuardedColumn([10, 11, 12, 13, 14, 15, 16], Clock())
         self.assertEqual(col[4], 14)
+        self.assertEqual(col[0], 10)
         self.assertEqual(col[-7], 10)
         self.assertEqual(col[0:5], [10, 11, 12, 13, 14])
         self.assertEqual(list(col), [10, 11, 12, 13, 14])
@@ -198,9 +205,9 @@ class TestEngineSemantics(QBTTestCase):
         self.assertEqual((cache.hits, cache.misses), (1, 1))
         ctx.indicator("sma", "close", 20)
         ctx.indicator("sma", "close", 30)
-        ctx.indicator("macd", "close", 5, 10, 3)
-        self.assertLessEqual(cache._elements, 1000)
-        self.assertLess(len(cache._store), 5)                  # 容量 1000 元素 => 发生了淘汰
+        self.assertEqual((len(cache._store), cache._elements), (3, 900))
+        ctx.indicator("macd", "close", 5, 10, 3)               # 900 元素，超容量 => 淘汰最旧的三个 sma
+        self.assertEqual((len(cache._store), cache._elements), (1, 900))
         c = ctx.indicator("sma", "close", 10)
         self.assertEqual(c, a)
         cache.clear()
@@ -259,9 +266,38 @@ class TestEngineSemantics(QBTTestCase):
         self.assertEqual(ctx.cash, CFG.cash)
         self.assertEqual(ctx.equity, CFG.cash)
         self.assertIs(ctx.data, ctx.raw)                       # 非严格模式默认直接暴露裸数据
+        self.assertIs(Engine(d, EveryKBars(), CFG).ctx.strict, False)
+        self.assertEqual(Strategy.name, "base")
+        self.assertGreater(s.size_qty(ctx, 0.5, 0.5), 0.0)      # 价格在 (0,1] 也能定仓
+        ctx.broker.equity = 0.5
+        self.assertAlmostEqual(s.size_qty(ctx, 50.0, 0.5), 0.005)   # 权益在 (0,1] 也能定仓
+        uni = generate_universe(["P", "Q"], 20, 1)
+        eng = Engine(uni, EveryKBars(), CFG)
+        eng.run()
+        self.assertEqual(eng.strategies[0].symbol, "P")         # 未指定标的 => 第一个
+        from qbt import indicators as I
+        ctx2 = Context(uni, None)
+        self.assertEqual(ctx2.indicator("sma", "close", 3), I.sma(uni["P"].close, 3))      # 默认标的 = 第一个
+        q = generate(n=20, seed=1, symbol="Q", bar_seconds=300)
+        res = Engine({"P": uni["P"], "Q": q}, EveryKBars(), CFG).run()
+        self.assertEqual((res.bar_seconds, res.ts), (uni["P"].bar_seconds, uni["P"].ts))   # 结果时间轴取第一个标的
         self.assertEqual(ctx.index, -1)
         ctx.broker.equity = 0.0
         self.assertEqual(s.size_qty(ctx, 50.0, 0.5), 0.0)      # 权益 <= 0 不开仓
+        ctx.broker.equity = -0.5
+        self.assertEqual(s.size_qty(ctx, 50.0, 0.5), 0.0)
+        with self.assertRaises(ConfigError):
+            ctx.indicator("not_an_indicator", "close", 5)
+        with self.assertRaises(ConfigError):
+            EveryKBars(k="5")                                     # 参数类型按默认值校验
+        with self.assertRaises(ConfigError):
+            EveryKBars(k=float("nan"))
+        with self.assertRaises(ConfigError):
+            EveryKBars(symbol=5)
+        with self.assertRaises(ConfigError):
+            REGISTRY["ma_cross"](short=1)
+        with self.assertRaises(ConfigError):
+            run_backtest(d, REGISTRY["ma_cross"](ma="nope"), CFG)
         self.assertEqual(IndicatorCache().max_elements, 8_000_000)
         from qbt.engine import GuardedData
         self.assertFalse(hasattr(GuardedData(d, ctx), "__dict__"))   # __slots__ 契约

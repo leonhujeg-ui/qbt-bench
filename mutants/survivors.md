@@ -1,66 +1,54 @@
 # 突变测试漏网清单（survivors）
 
-总数 320，抓住 262，漏网 58，抓住率 81.9%
+总数 640，抓住 590，漏网 50，抓住率 92.2%
 
-- `broker:1066:compare` 行 145 [compare]: `side < 0` -> `side <= 0`
-- `broker:2466:const` 行 203 [const]: `0` -> `1`
-- `broker:1153:break_continue` 行 213 [break_continue]: `continue` -> `break`
-- `broker:1168:compare` 行 226 [compare]: `order.remaining < cap` -> `order.remaining <= cap`
-- `broker:2532:const` 行 234 [const]: `0` -> `-1`
-- `broker:1198:compare` 行 239 [compare]: `side > 0` -> `side >= 0`
-- `broker:1880:const` 行 239 [const]: `0` -> `-1`
-- `broker:3106:compare` 行 242 [compare]: `o < p` -> `o <= p`
-- `broker:1357:compare` 行 333 [compare]: `self.cash < 0` -> `self.cash <= 0`
-- `broker:1424:compare` 行 372 [compare]: `abs(remaining) <= 1e-12` -> `abs(remaining) < 1e-12`
-- `engine:743:const` 行 154 [const]: `1e-09` -> `1.5000000000000002e-09`
-- `engine:419:compare` 行 156 [compare]: `delta < -1e-09` -> `delta <= -1e-09`
-- `engine:1202:const` 行 189 [const]: `0` -> `-1`
-- `engine:1358:const` 行 255 [const]: `0.0` -> `1.0`
-- `engine:958:const` 行 256 [const]: `1` -> `0`
-- `metrics:1322:const` 行 21 [const]: `0` -> `1`
-- `metrics:326:compare` 行 30 [compare]: `len(equity) < 1` -> `len(equity) <= 1`
-- `metrics:150:compare` 行 40 [compare]: `equity[-1] <= 0` -> `equity[-1] < 0`
-- `metrics:341:const` 行 40 [const]: `0` -> `-1`
-- `metrics:358:const` 行 53 [const]: `0` -> `-1`
-- `metrics:1062:const` 行 58 [const]: `2` -> `1`
-- `metrics:1355:const` 行 58 [const]: `1e-14` -> `1.5e-14`
-- `metrics:711:binop` 行 58 [binop]: `(1e-14 * scale) ** 2` -> `1e-14 * scale * 2`
-- `metrics:177:compare` 行 63 [compare]: `len(returns) < 2` -> `len(returns) <= 2`
-- `metrics:189:compare` 行 72 [compare]: `len(returns) < 2` -> `len(returns) <= 2`
-- `metrics:733:binop` 行 74 [binop]: `rf / ppy` -> `rf * ppy`
-- `metrics:412:const` 行 82 [const]: `0` -> `1`
-- `metrics:412:const` 行 82 [const]: `0` -> `-1`
-- `metrics:1115:compare` 行 86 [compare]: `v >= peak` -> `v > peak`
-- `metrics:437:delete_stmt` 行 93 [delete_stmt]: `break` -> `pass`
-- `metrics:1414:binop` 行 104 [binop]: `i - start` -> `i + start`
-- `metrics:1159:const` 行 105 [const]: `False` -> `True`
-- `metrics:1183:const` 行 116 [const]: `0` -> `-1`
-- `metrics:1307:const` 行 199 [const]: `1` -> `0`
-- `optimizer:1264:const` 行 110 [const]: `1` -> `0`
-- `optimizer:248:delete_stmt` 行 110 [delete_stmt]: `d = d.slice(task['slice'][0], task['slice'][1])` -> `pass`
-- `optimizer:102:delete_stmt` 行 115 [delete_stmt]: `out['fills'] = len(res.fills)` -> `pass`
-- `optimizer:561:const` 行 139 [const]: `20` -> `21`
-- `optimizer:565:const` 行 142 [const]: `1` -> `2`
-- `optimizer:278:negate_cond` 行 143 [negate_cond]: `if self._pending >= flush_every:
-    self.flush()` -> `if not self._pending >= flush_every:
-    self.flush()`
-- `optimizer:283:delete_stmt` 行 151 [delete_stmt]: `self.flush()` -> `pass`
-- `optimizer:292:const` 行 156 [const]: `1` -> `0`
-- `optimizer:296:const` 行 156 [const]: `20` -> `21`
-- `optimizer:306:compare` 行 162 [compare]: `workers <= 1` -> `workers < 1`
-- `optimizer:1372:compare` 行 175 [compare]: `k % progress == 0` -> `k % progress != 0`
-- `optimizer:1676:binop` 行 175 [binop]: `k % progress` -> `k * progress`
-- `optimizer:1678:const` 行 175 [const]: `0` -> `1`
-- `optimizer:604:negate_cond` 行 175 [negate_cond]: `if progress and k % progress == 0:
-    print(f'[{k}/{len(todo)}] {r['key'][:60]} objective={r['objective']:.4f}', flush=` -> `if not (progress and k % progress == 0):
-    print(f'[{k}/{len(todo)}] {r['key'][:60]} objective={r['objective']:.4f}', `
-- `optimizer:2059:const` 行 176 [const]: `60` -> `59`
-- `optimizer:987:const` 行 178 [const]: `1` -> `2`
-- `optimizer:606:delete_stmt` 行 179 [delete_stmt]: `pool.shutdown()` -> `pass`
-- `optimizer:1009:const` 行 198 [const]: `1` -> `2`
-- `optimizer:1011:compare` 行 198 [compare]: `0 < train_frac < 1` -> `0 <= train_frac < 1`
-- `optimizer:1892:const` 行 206 [const]: `1` -> `0`
-- `optimizer:351:delete_stmt` 行 209 [delete_stmt]: `train_task['id'] = task['id'] + f':wf{k}:train'` -> `pass`
-- `optimizer:1081:const` 行 228 [const]: `5000` -> `5001`
-- `optimizer:745:binop` 行 250 [binop]: `time.perf_counter() - t0` -> `time.perf_counter() + t0`
-- `optimizer:1180:const` 行 253 [const]: `1` -> `2`
+- `broker:1117:compare` 行 159 [compare]: `side < 0` -> `side <= 0`
+- `broker:1934:compare` 行 248 [compare]: `side > 0` -> `side >= 0`
+- `broker:1938:compare` 行 250 [compare]: `side < 0` -> `side <= 0`
+- `broker:1957:const:1` 行 255 [const]: `0` -> `1`
+- `broker:3254:compare` 行 317 [compare]: `pos.qty > 0` -> `pos.qty >= 0`
+- `broker:2253:compare` 行 383 [compare]: `st['qty'] > 0` -> `st['qty'] >= 0`
+- `cli:738:const:0` 行 50 [const]: `1` -> `0`
+- `cli:738:const:2` 行 50 [const]: `1` -> `2`
+- `cli:946:const:2` 行 70 [const]: `1` -> `2`
+- `cli:301:const:0` 行 71 [const]: `1` -> `0`
+- `cli:301:const:2` 行 71 [const]: `1` -> `2`
+- `cli:812:const:True` 行 91 [const]: `False` -> `True`
+- `data:265:const:-1` 行 206 [const]: `0` -> `-1`
+- `data:1481:compare` 行 228 [compare]: `rnd() < jump_prob` -> `rnd() <= jump_prob`
+- `data:1876:compare` 行 232 [compare]: `o > c` -> `o >= c`
+- `engine:1226:const:1.5000000000000002e-09` 行 157 [const]: `1e-09` -> `1.5000000000000002e-09`
+- `engine:832:compare` 行 206 [compare]: `ctx.equity <= 0` -> `ctx.equity < 0`
+- `engine:1468:const:-1` 行 274 [const]: `0` -> `-1`
+- `indicators:2065:const:0` 行 72 [const]: `1` -> `0`
+- `indicators:2191:compare` 行 127 [compare]: `d > 0` -> `d >= 0`
+- `indicators:4696:binop` 行 312 [binop]: `i + 1` -> `i - 1`
+- `indicators:5839:binop` 行 315 [binop]: `w - mean` -> `w + mean`
+- `indicators:268:delete_stmt` 行 450 [delete_stmt]: `_check_window(n)` -> `pass`
+- `indicators:5001:const:1.5` 行 457 [const]: `1.0` -> `1.5`
+- `indicators:5137:compare` 行 527 [compare]: `bl > lower` -> `bl >= lower`
+- `indicators:3079:compare` 行 550 [compare]: `v > peak` -> `v >= peak`
+- `metrics:425:const:1.5e-14` 行 61 [const]: `1e-14` -> `1.5e-14`
+- `metrics:514:const:True` 行 104 [const]: `False` -> `True`
+- `metrics:1360:const:0` 行 143 [const]: `1` -> `0`
+- `metrics:594:const:146098` 行 152 [const]: `146097` -> `146098`
+- `metrics:991:binop` 行 152 [binop]: `z - 146096` -> `z + 146096`
+- `metrics:1041:const:86399` 行 178 [const]: `86400` -> `86399`
+- `optimizer:2064:const:False` 行 78 [const]: `True` -> `False`
+- `optimizer:1845:const:False` 行 142 [const]: `True` -> `False`
+- `optimizer:310:delete_stmt` 行 164 [delete_stmt]: `_worker_init(task['data_spec'])` -> `pass`
+- `optimizer:967:compare` 行 167 [compare]: `'fork' in multiprocessing.get_all_start_methods()` -> `'fork' not in multiprocessing.get_all_start_methods()`
+- `optimizer:2038:const:7` 行 170 [const]: `8` -> `7`
+- `optimizer:995:const:2` 行 179 [const]: `1` -> `2`
+- `optimizer:336:const:2` 行 195 [const]: `1` -> `2`
+- `optimizer:358:delete_stmt` 行 214 [delete_stmt]: `_worker_init(task['data_spec'])` -> `pass`
+- `optimizer:1534:const:49` 行 250 [const]: `50` -> `49`
+- `optimizer:1534:const:51` 行 250 [const]: `50` -> `51`
+- `optimizer:753:const:2` 行 252 [const]: `3` -> `2`
+- `optimizer:753:const:4` 行 252 [const]: `3` -> `4`
+- `optimizer:1188:const:0` 行 255 [const]: `1` -> `0`
+- `optimizer:1188:const:2` 行 255 [const]: `1` -> `2`
+- `optimizer:1199:const:False` 行 259 [const]: `True` -> `False`
+- `report:1465:const:True` 行 47 [const]: `False` -> `True`
+- `report:501:const:1.5` 行 93 [const]: `1.0` -> `1.5`
+- `report:1206:const:True` 行 134 [const]: `False` -> `True`

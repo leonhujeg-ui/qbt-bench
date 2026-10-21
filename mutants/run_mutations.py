@@ -21,6 +21,7 @@ import concurrent.futures
 import json
 import os
 import random
+import shlex
 import shutil
 import subprocess
 import sys
@@ -177,27 +178,42 @@ def list_modules(only=None):
     return [n for n in names if only is None or n in only]
 
 
+def _validate(source, path, idx, op, extra, tree_nodes):
+    try:
+        mutated, before, after = apply_mutation(source, idx, op, extra)
+        compile(mutated, path, "exec")
+    except (SyntaxError, ValueError, RuntimeError):
+        return None
+    if mutated == ast.unparse(ast.parse(source)):
+        return None
+    return {"line": tree_nodes[idx].lineno, "op": op, "before": before[:120], "after": after[:120],
+            "idx": idx, "extra": extra}
+
+
 def select_mutants(module, per_module, seed):
+    """枚举候选后按 seed 抽样；只对抽中的候选做“应用 + 编译”校验（惰性），抽样结果仍然确定。"""
     path = os.path.join(REPO, PACKAGE, module + ".py")
     with open(path, "r", encoding="utf-8") as f:
         source = f.read()
     cands = enumerate_candidates(source)
-    valid = []
-    for idx, op, extra in cands:
-        try:
-            mutated, before, after = apply_mutation(source, idx, op, extra)
-            compile(mutated, path, "exec")
-        except (SyntaxError, ValueError, RuntimeError):
-            continue
-        if mutated == ast.unparse(ast.parse(source)):
-            continue
-        lineno = list(ast.walk(ast.parse(source)))[idx].lineno
-        valid.append({"id": f"{module}:{idx}:{op}", "module": module, "line": lineno, "op": op,
-                      "before": before[:120], "after": after[:120], "idx": idx, "extra": extra})
-    if per_module and len(valid) > per_module:
+    tree_nodes = list(ast.walk(ast.parse(source)))
+    if per_module and len(cands) > per_module:
         rng = random.Random(f"{seed}:{module}")
-        valid = sorted(rng.sample(valid, per_module), key=lambda m: m["idx"])
-    return source, valid
+        order = list(range(len(cands)))
+        rng.shuffle(order)
+    else:
+        order = list(range(len(cands)))
+    valid = []
+    for i in order:
+        if per_module and len(valid) >= per_module:
+            break
+        idx, op, extra = cands[i]
+        rec = _validate(source, path, idx, op, extra, tree_nodes)
+        if rec is not None:
+            rec["id"] = f"{module}:{idx}:{op}" + (f":{extra}" if op == "const" else "")   # 常量 ±1 两个变体 id 不同
+            rec["module"] = module
+            valid.append(rec)
+    return source, sorted(valid, key=lambda m: m["idx"])
 
 
 SIBLINGS = ("tests", "strategies", "tools", "bench", "fuzz", "mutants")   # 测试可能 import 的顶层包，全部软链进工作目录
@@ -300,10 +316,16 @@ def main(argv=None):
                     help="单个突变体的测试超时（秒）；0 = 自动：先跑一次未突变基线，取 max(30, 4*基线)")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--resume", action="store_true")
+    ap.add_argument("--merge", action="store_true",
+                    help="把本次 --module 的结果合并进已有 --out：只替换这些模块的记录，其他模块保留")
+    ap.add_argument("--ids", nargs="*", default=None,
+                    help="只重跑这些突变 id（补判据后验证之前漏网的突变体），结果合并进 --out")
     ap.add_argument("--out", default=os.path.join(REPO, "mutants", "results.json"))
     ap.add_argument("--md", default=os.path.join(REPO, "mutants", "survivors.md"))
-    ap.add_argument("--tests", nargs="*", default=["discover", "-s", "tests", "-p", "test_*.py"])
+    ap.add_argument("--tests", default="discover -s tests -p test_*.py",
+                    help="传给 python -m unittest 的参数（单个字符串，可含 -f 失败即停与模块顺序）")
     args = ap.parse_args(argv)
+    args.tests = shlex.split(args.tests)
     plan = {m: select_mutants(m, args.per_module, args.seed) for m in list_modules(args.module)}
     if args.list:
         for m, (_src, muts) in plan.items():
@@ -318,6 +340,15 @@ def main(argv=None):
     if args.resume and os.path.exists(args.out):
         with open(args.out, "r", encoding="utf-8") as f:
             done = {r["id"]: r for r in json.load(f)["mutants"]}
+    if args.merge and os.path.exists(args.out):
+        with open(args.out, "r", encoding="utf-8") as f:
+            done = {r["id"]: r for r in json.load(f)["mutants"] if r["module"] not in plan}
+    if args.ids:
+        wanted = set(args.ids)
+        if os.path.exists(args.out):
+            with open(args.out, "r", encoding="utf-8") as f:
+                done = {r["id"]: r for r in json.load(f)["mutants"] if r["id"] not in wanted}
+        plan = {m: (src, [x for x in muts if x["id"] in wanted]) for m, (src, muts) in plan.items()}
     records = list(done.values())
     todo = [(m, src) for _mod, (src, muts) in plan.items() for m in muts if m["id"] not in done]
     t0 = time.perf_counter()

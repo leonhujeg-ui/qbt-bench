@@ -113,10 +113,11 @@ def evaluate(task, params):
     m = _metrics.compute(res.equity, res.ts, res.bar_seconds, res.trades)
     out = {k: m[k] for k in RESULT_METRICS}
     out["fills"] = len(res.fills)
-    obj = m[task["objective"]]
+    raw = m[task["objective"]]
+    obj = raw
     if obj is None or m["n_trades"] == 0:
-        obj = -1e300                     # 无交易 / 目标未定义（如 Calmar 无回撤）的组合不参与竞争
-    return {"key": param_key(params), "params": params, "metrics": out, "objective": obj}
+        obj = -1e300                     # 无交易 / 目标未定义（如 Calmar 无回撤）的组合不参与选优
+    return {"key": param_key(params), "params": params, "metrics": out, "objective": obj, "raw_objective": raw}
 
 
 def _evaluate_star(args):
@@ -214,7 +215,8 @@ def walk_forward(task, combos, n_folds=3, train_frac=0.7, workers=1, checkpoint=
         oos = evaluate(test_task, top["params"])
         folds.append({"train": [a, b], "test": [b, c], "best": top["params"],
                       "in_sample": top["metrics"], "out_of_sample": oos["metrics"],
-                      "is_objective": top["objective"], "oos_objective": oos["objective"]})
+                      "is_objective": top["objective"],
+                      "oos_objective": oos["raw_objective"] if oos["raw_objective"] is not None else 0.0})
     return {"folds": folds,
             "is_mean_objective": sum(f["is_objective"] for f in folds) / len(folds),
             "oos_mean_objective": sum(f["oos_objective"] for f in folds) / len(folds)}

@@ -164,8 +164,17 @@ class GenSpec:
         return cls(**d)
 
     def check(self):
-        if not isinstance(self.n, int) or self.n < 0:
+        if not isinstance(self.n, int) or isinstance(self.n, bool) or self.n < 0:
             raise DataError("n must be a non-negative int")
+        for name in ("s0", "mu", "sigma", "bar_seconds", "start_ts", "jump_prob", "jump_sigma", "halt_prob",
+                     "halt_len", "gap_prob", "gap_sigma", "base_volume", "vol_sigma", "wick"):
+            v = getattr(self, name)
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or v != v or v in (math.inf, -math.inf):
+                raise DataError(f"{name} must be a finite real number, got {v!r}")
+        if not isinstance(self.seed, (int, str, bytes)) or isinstance(self.seed, bool):
+            raise DataError("seed must be int/str/bytes")
+        if not isinstance(self.symbol, str) or not self.symbol:
+            raise DataError("symbol must be a non-empty str")
         if self.s0 <= 0 or self.sigma < 0 or self.bar_seconds <= 0:
             raise DataError("s0>0, sigma>=0, bar_seconds>0 required")
         for p in (self.jump_prob, self.halt_prob, self.gap_prob):

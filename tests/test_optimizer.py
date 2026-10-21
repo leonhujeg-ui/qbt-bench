@@ -88,6 +88,11 @@ class TestSearch(QBTTestCase):
         O._worker_init(t["data_spec"])
         none = O.evaluate(t, {"fast": 30, "slow": 30})                    # fast>=slow：不交易
         self.assertEqual((none["metrics"]["n_trades"], none["objective"]), (0, -1e300))
+        self.assertEqual(none["raw_objective"], 0.0)                       # 无交易：夏普原始值 0，哨兵只用于选优
+        # 样本外无交易的折：报告 0.0 而不是哨兵
+        wf = O.walk_forward(dict(t), [{"fast": 30, "slow": 30}], n_folds=1, train_frac=0.5, workers=1)
+        self.assertEqual(wf["folds"][0]["oos_objective"], 0.0)
+        self.assertEqual(wf["folds"][0]["is_objective"], -1e300)
         calmar_task = task(objective="calmar")
         self.assertEqual(O.evaluate(calmar_task, {"fast": 30, "slow": 30})["objective"], -1e300)
         ok = O.evaluate(t, {"fast": 5, "slow": 30})
@@ -102,6 +107,8 @@ class TestSearch(QBTTestCase):
             half = O.run_search(t, combos[:4], workers=1, checkpoint=ck, flush_every=2)
             self.assertEqual(set(ck.load(t["id"])), {r["key"] for r in half})
             full = O.run_search(t, combos, workers=2, checkpoint=ck)
+            rows = sqlite3.connect(os.path.join(tmp, "ck.db")).execute("SELECT COUNT(*) FROM results").fetchone()[0]
+            self.assertEqual(rows, 8)                                                # run_search 结束即提交（不依赖 close）
             ck.close()
             clean = O.run_search(t, combos, workers=1)
             self.assertEqual(json.dumps(full, sort_keys=True), json.dumps(clean, sort_keys=True))
@@ -127,7 +134,7 @@ class TestSearch(QBTTestCase):
                    "--workers", "2", "--limit", str(limit)]
             env = dict(os.environ, PYTHONPATH=REPO)
             proc = subprocess.Popen(cmd + ["--checkpoint", db, "--out", out_resumed], cwd=REPO, env=env,
-                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
             rows, deadline = 0, time.time() + 120
             while time.time() < deadline and proc.poll() is None:
                 time.sleep(0.05)
@@ -138,7 +145,7 @@ class TestSearch(QBTTestCase):
                 if rows >= 20:
                     break
             if proc.poll() is None:
-                proc.send_signal(signal.SIGKILL)
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)       # 连同进程池 worker 一起杀掉（模拟整机 kill）
                 proc.wait()
             killed_midway = rows >= 20 and rows < limit and not os.path.exists(out_resumed)
             self.assertTrue(killed_midway, f"rows={rows}, finished={os.path.exists(out_resumed)}")
@@ -149,6 +156,91 @@ class TestSearch(QBTTestCase):
                 self.assertEqual(f1.read(), f2.read())
             with open(out_clean) as f:
                 self.assertEqual(json.load(f)["n_results"], limit)
+
+
+class TestSurvivorKillers(QBTTestCase):
+    def test_evaluate_slice_and_fields(self):
+        from qbt.engine import run_backtest
+        from qbt.broker import BrokerConfig
+        t = task(n=600)
+        O._worker_init(t["data_spec"])
+        res = O.evaluate(dict(t, slice=[100, 400]), {"fast": 5, "slow": 20})
+        d = O.load_data(t["data_spec"]).slice(100, 400)
+        direct = run_backtest(d, REGISTRY["ma_cross"](fast=5, slow=20), BrokerConfig(**t["broker"]))
+        self.assertEqual(res["metrics"]["fills"], len(direct.fills))
+        self.assertEqual(res["metrics"]["end_equity"], direct.final_equity)
+        self.assertIn("fills", res["metrics"])
+
+    def test_checkpoint_flush_semantics(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "ck.db")
+            ck = O.Checkpoint(path)
+            other = sqlite3.connect(path)
+            count = lambda: other.execute("SELECT COUNT(*) FROM results").fetchone()[0]
+            ck.save("t", {"key": "a", "objective": 1.0}, flush_every=2)
+            self.assertEqual((count(), ck._pending), (0, 1))                       # 未到阈值不提交
+            ck.save("t", {"key": "b", "objective": 2.0}, flush_every=2)
+            self.assertEqual((count(), ck._pending), (2, 0))                       # 到阈值提交并清零
+            ck.save("t", {"key": "c", "objective": 3.0}, flush_every=20)
+            self.assertEqual(count(), 2)
+            ck.flush()
+            self.assertEqual(count(), 3)
+            ck.save("t", {"key": "c", "objective": 4.0}, flush_every=1)              # 同键覆盖
+            self.assertEqual(ck.load("t")["c"]["objective"], 4.0)
+            ck.save("t", {"key": "d", "objective": 5.0}, flush_every=50)             # 未提交
+            self.assertEqual(count(), 3)
+            ck.close()                                                               # close 必须提交
+            self.assertEqual(count(), 4)
+            other.close()
+            import inspect
+            self.assertEqual(inspect.signature(O.run_search).parameters["flush_every"].default, 20)
+            self.assertEqual(inspect.signature(O.Checkpoint.save).parameters["flush_every"].default, 20)
+
+    def test_progress_printing(self):
+        import contextlib
+        import io
+        t = task(n=400)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            O.run_search(t, O.grid(SPACE)[:4], workers=1, progress=2)
+        lines = buf.getvalue().strip().splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(lines[0].startswith("[2/4]") and lines[1].startswith("[4/4]"))
+        self.assertIn("objective=", lines[0])
+        with contextlib.redirect_stdout(io.StringIO()) as quiet:
+            O.run_search(t, O.grid(SPACE)[:2], workers=1)
+        self.assertEqual(quiet.getvalue(), "")
+
+    def test_walk_forward_single_fold_and_uneven_split_and_checkpoint(self):
+        t = task(n=1000)
+        combos = O.grid(SPACE)[:2]
+        one = O.walk_forward(t, combos, n_folds=1, train_frac=0.5, workers=1)
+        self.assertEqual(one["folds"][0]["train"], [0, 500])
+        self.assertEqual(one["folds"][0]["test"], [500, 1000])
+        with self.assertRaises(ConfigError):
+            O.walk_forward(t, combos, n_folds=2, train_frac=0.0)
+        three = O.walk_forward(t, combos, n_folds=3, train_frac=0.5, workers=1)
+        self.assertEqual([f["train"][0] for f in three["folds"]], [0, 333, 666])
+        self.assertEqual(three["folds"][-1]["test"][1], 1000)                       # 最后一折吃掉余数
+        with tempfile.TemporaryDirectory() as tmp:
+            ck = O.Checkpoint(os.path.join(tmp, "ck.db"))
+            with_ck = O.walk_forward(t, combos, n_folds=3, train_frac=0.5, workers=1, checkpoint=ck)
+            keys = ck.conn.execute("SELECT DISTINCT task FROM results").fetchall()
+            ck.close()
+        self.assertEqual(json.dumps(with_ck, sort_keys=True), json.dumps(three, sort_keys=True))
+        self.assertEqual(len(keys), 3)                                               # 每折独立的 task id
+
+    def test_cli_reports_elapsed(self):
+        import contextlib
+        import io
+        import re
+        with tempfile.TemporaryDirectory() as tmp:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                O.main(["--strategy", "ma_cross", "--n", "300", "--limit", "2", "--out", os.path.join(tmp, "o.json")])
+            m = re.search(r"done 2 combos in ([0-9.]+)s", buf.getvalue())
+            self.assertIsNotNone(m, buf.getvalue())
+            self.assertLess(float(m.group(1)), 120.0)
 
 
 class TestWalkForward(QBTTestCase):
@@ -179,7 +271,7 @@ class TestWalkForward(QBTTestCase):
             O._worker_init(t["data_spec"])
             oos = O.evaluate(dict(t, slice=[b, c]), f["best"])
             self.assertEqual(oos["metrics"], f["out_of_sample"])
-            self.assertEqual(oos["objective"], f["oos_objective"])
+            self.assertEqual(oos["raw_objective"], f["oos_objective"])        # 样本外报告原始值，不用 -1e300 哨兵
         self.assertAlmostEqual(wf["oos_mean_objective"], sum(f["oos_objective"] for f in folds) / 3)
         self.assertAlmostEqual(wf["is_mean_objective"], sum(f["is_objective"] for f in folds) / 3)
         again = O.walk_forward(t, combos, n_folds=3, train_frac=0.6, workers=1)

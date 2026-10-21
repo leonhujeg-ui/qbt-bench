@@ -54,8 +54,9 @@ class TestConfigAndValidation(QBTTestCase):
                 b.submit("S", **kw)
         with self.assertRaises(OrderError):
             b.submit("NOPE", 1, 1)
-        with self.assertRaises(OrderError):
+        with self.assertRaises(OrderError) as ctx:
             b.submit(5, 1, 1)
+        self.assertIn("symbol must be str", str(ctx.exception))
         self.assertEqual(b.orders, [])
         o = b.submit("S", 1, 1)
         self.assertEqual((o.id, o.status, o.remaining), (1, PENDING, 1.0))
@@ -63,6 +64,11 @@ class TestConfigAndValidation(QBTTestCase):
         self.assertEqual([x.id for x in (b.submit("S", 1, 1), b.submit("S", -1, 1))], [2, 3])   # 连续编号
         self.assertEqual(b.bar, 0)
         self.assertEqual(b.assets() - b.liabilities(), b.cash)
+        b.cancel_all()
+        b.cash = -0.5                                                       # -1 < 现金 < 0 的边界：负现金全部计入负债
+        b.on_bar(0)
+        self.assertEqual((b.assets(), b.liabilities()), (0.0, 0.5))
+        self.assertEqual(b.assets() - b.liabilities(), b.equity)
 
 
 class TestMatching(QBTTestCase):
@@ -188,12 +194,15 @@ class TestMatching(QBTTestCase):
         b.on_bar(1)
         self.assertEqual(c.status, FILLED)
         self.assertFalse(b.cancel(c))
+        e2 = b.submit("S", 1, 1, LIMIT, price=50.0, expires=1)
+        m2 = b.submit("S", 1, 1, MARKET)
         b.on_bar(2)
         self.assertEqual((e.status, e.reason), (CANCELLED, "expired"))
+        self.assertEqual((e2.status, m2.status), (CANCELLED, FILLED))    # 过期单之后的挂单仍被处理
         x = b.submit("S", 1, 1, MARKET)
         y = b.submit("S", -1, 1, MARKET)
         b.on_bar(3)
-        self.assertEqual([f.order_id for f in b.fills[1:]], [x.id, y.id])       # 提交顺序撮合
+        self.assertEqual([f.order_id for f in b.fills[2:]], [x.id, y.id])       # 提交顺序撮合（前两笔是 c 与 m2）
         z = b.submit("S", 1, 1, LIMIT, price=1.0)
         self.assertEqual(b.cancel_all("OTHER"), 0)
         self.assertEqual(b.cancel_all(), 1)
@@ -369,6 +378,44 @@ class TestAccounting(QBTTestCase):
         self.assertAlmostEqual(b.fees_paid, sum(f.fee for f in b.fills), delta=1e-9)
         self.assertAlmostEqual(b.fees_paid, 1500.0, delta=1e-9)
 
+    def test_short_liquidation(self):
+        """空头 2.5x 杠杆，价格暴涨 => 强平必须把空头买回（side=+1），现金按买回价扣减。"""
+        rows = [(100, 101, 99, 100, 1e9), (100, 101, 99, 100, 1e9), (100, 140, 99, 140, 1e9), (140, 141, 139, 140, 1e9)]
+        b, d = broker(rows, max_leverage=3.0, maintenance_margin=0.2, liquidation_fee=0.0, slippage=0,
+                      taker_fee=0, max_participation=1.0)
+        b.on_bar(0)
+        b.submit("S", -1, 2500, MARKET)
+        b.on_bar(1)
+        self.assertEqual(b.position("S"), -2500.0)
+        b.on_bar(2)                                       # 权益 = 10万 - 2500*40 = 0 < 0.2 * 35万 => 强平
+        self.assertEqual((b.liquidations, b.position("S")), (1, 0.0))
+        self.assertEqual((b.fills[-1].side, b.fills[-1].qty, b.fills[-1].price), (1, 2500.0, 140.0))
+        self.assertAlmostEqual(b.cash, 100_000 + 2500 * 100 - 2500 * 140, delta=1e-9)
+        self.assertAlmostEqual(b.equity, b.cash, delta=1e-9)
+
+    def test_tiny_long_liquidation_and_small_cap_fill(self):
+        """数量 <= 1 的多头也能被强平（side 由 qty>0 决定，不是 qty>1）；参与上限 <= 1 手时仍按上限成交。"""
+        rows = [(100, 101, 99, 100, 5.0), (100, 101, 99, 100, 5.0), (100, 101, 50, 50, 5.0), (50, 51, 49, 50, 5.0)]
+        b, d = broker(rows, cash=30.0, max_leverage=3.0, maintenance_margin=0.25, slippage=0, taker_fee=0,
+                      max_participation=0.1)
+        b.on_bar(0)
+        o = b.submit("S", 1, 0.5, MARKET)
+        b.on_bar(1)
+        self.assertEqual((o.status, b.position("S")), (FILLED, 0.5))      # cap = 0.1 * 5 = 0.5 手
+        b.on_bar(2)                                                       # 权益 = 30 - 0.5*50 = 5 < 0.25 * 25 = 6.25 => 强平
+        self.assertEqual((b.liquidations, b.position("S")), (1, 0.0))
+        self.assertEqual(b.fills[-1].side, -1)
+        # 强平后权益落在 (0, 1]：不算破产（破产判定是 <= 0，不是 <= 1）
+        rows2 = [(100, 101, 99, 100, 5.0), (100, 101, 99, 100, 5.0), (100, 101, 41, 41, 5.0)]
+        b2, _ = broker(rows2, cash=30.0, max_leverage=3.0, maintenance_margin=0.25, slippage=0, taker_fee=0,
+                       liquidation_fee=0.0, max_participation=0.1)
+        b2.on_bar(0)
+        b2.submit("S", 1, 0.5, MARKET)
+        b2.on_bar(1)
+        b2.on_bar(2)                                                      # 权益 = 30 - 0.5*59 = 0.5
+        self.assertEqual((b2.liquidations, b2.bankrupt), (1, False))
+        self.assertAlmostEqual(b2.equity, 0.5, delta=1e-9)
+
     def test_liquidation_without_bankruptcy_keeps_trading(self):
         rows = [(100, 101, 99, 100, 1e9), (100, 101, 99, 100, 1e9), (100, 101, 75, 75, 1e9), (75, 76, 74, 75, 1e9)]
         b, d = broker(rows, max_leverage=3.0, maintenance_margin=0.2, liquidation_fee=0.0, slippage=0,
@@ -496,6 +543,11 @@ class TestRoundTrips(QBTTestCase):
         self.assertAlmostEqual(t[0]["pnl"], (120 - 105) * 5 + (90 - 105) * 15 - 4.5, delta=1e-9)
         self.assertEqual((t[1]["side"], t[1]["qty"], t[1]["entry_price"], t[1]["exit_price"]), (-1, 10.0, 90, 80))
         self.assertAlmostEqual(t[1]["pnl"], (90 - 80) * 10, delta=1e-9)
+        frac = [F(1, -1, 0.5, 10.0), F(2, -1, 0.25, 12.0), F(3, 1, 0.75, 9.0)]      # 分数数量的空头往返
+        ft = round_trips(frac)
+        self.assertEqual(len(ft), 1)
+        self.assertEqual((ft[0]["side"], ft[0]["qty"]), (-1, 0.75))
+        self.assertAlmostEqual(ft[0]["pnl"], (0.5 * 10 + 0.25 * 12) - 0.75 * 9, delta=1e-12)
         self.assertEqual(round_trips([]), [])
         self.assertEqual(round_trips([F(1, 1, 1, 1)]), [])        # 未平仓不计
         self.assertEqual(len(round_trips([F(1, 1, 2, 1), F(2, -1, 1, 1), F(3, -1, 1, 1)])), 1)

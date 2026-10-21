@@ -34,6 +34,7 @@ class TestHandComputed(QBTTestCase):
         self.assertEqual(M.returns_from_equity([100.0, 0.0, 50.0]), [-1.0, 0.0])    # 权益为 0 后的收益定义为 0
         self.assertEqual(M.total_return([]), 0.0)
         self.assertEqual(M.total_return([0.0, 5.0]), 0.0)
+        self.assertAlmostEqual(M.total_return([0.5, 1.0]), 1.0, delta=1e-12)      # 起始权益在 (0,1] 也要算
 
     def test_sharpe_sortino_hand(self):
         ppy = 1.0
@@ -65,6 +66,7 @@ class TestHandComputed(QBTTestCase):
         self.assertEqual(M.longest_drawdown_bars([1.0, 2.0, 3.0]), 0)
         neg = M.max_drawdown([100.0, -50.0, 10.0])
         self.assertEqual(neg["mdd"], 1.5)
+        self.assertEqual(M.max_drawdown([-5.0, -5.0])["mdd"], 0.0)              # 非正峰值且持平：回撤 0
 
     def test_cagr_calmar_hand(self):
         c = M.cagr(self.EQ, SECONDS_PER_YEAR)        # 3 年，1.35^(1/3) - 1
@@ -101,6 +103,7 @@ class TestHandComputed(QBTTestCase):
             prod *= 1 + m["ret"]
         self.assertAlmostEqual(prod - 1, M.total_return(eq), delta=1e-12)        # 月度复合 == 总收益
         self.assertEqual(M.period_returns([0.0, 5.0], [0, DAY], M._day_key)[1][1], 0.0)
+        self.assertAlmostEqual(M.period_returns([0.5, 1.0], [0, DAY], M._day_key)[1][1], 1.0, delta=1e-12)   # 0<prev<=1
 
     def test_trade_stats_hand(self):
         T = lambda pnl, bars=3: {"pnl": pnl, "bars": bars}
@@ -162,11 +165,34 @@ class TestSurvivorKillers(QBTTestCase):
         self.assertEqual((dd["duration_bars"], dd["recovered"]), (2, True))          # 首次恢复即止
         self.assertEqual(M.longest_drawdown_bars([100.0, 100.0, 100.0]), 0)           # 持平不算水下
         self.assertEqual(M.longest_drawdown_bars([100.0, 90.0, 100.0, 100.0, 95.0]), 2)
+        self.assertEqual(M.longest_drawdown_bars([100.0, 110.0, 100.0, 110.0]), 2)       # 峰值不在 0：恢复时长 = i - start
         self.assertEqual(M.max_drawdown([100.0, 80.0, 90.0])["recovered"], False)
 
     def test_trade_stats_zero_loss_and_zero_profit(self):
         s = M.trade_stats([{"pnl": -1.0, "bars": 1}])
         self.assertEqual((s["profit_factor"], s["gross_profit"], s["win_rate"]), (0.0, 0.0, 0.0))
+
+
+class TestMetricsEdges(QBTTestCase):
+    def test_cagr_overflow_and_underflow(self):
+        from qbt.data import SECONDS_PER_YEAR as SPY
+        self.assertEqual(M.cagr([1.0, 10.0], 0.003 * SPY), 1e300)        # growth = ln10/0.003 ≈ 767 > 700 => 截断（而非 OverflowError）
+        self.assertEqual(M.cagr([1e300, 1e-300], DAY), -1.0)               # 比值下溢为 0
+        self.assertEqual(M.cagr([100.0, 0.0], DAY), -1.0)
+        self.assertEqual(M.cagr([100.0, -5.0], DAY), -1.0)
+
+    def test_civil_from_days_matches_datetime(self):
+        for d in list(range(-3000, 48000, 7)) + [0, 10957, 11016, 47482, 47847, 54787, 146097 - 719468, 146097 - 719468 + 1]:
+            dt = datetime.fromtimestamp(d * DAY, tz=timezone.utc)
+            self.assertEqual(M._civil_from_days(d), (dt.year, dt.month), d)
+            self.assertEqual(M._month_key(d * DAY + 3600), (dt.year, dt.month))
+            self.assertEqual(M._day_key(d * DAY + 86399), d)
+
+    def test_drawdown_indices_and_empty_compute_fields(self):
+        dd = M.max_drawdown([1.0, 2.0, 3.0])
+        self.assertEqual((dd["peak_idx"], dd["trough_idx"]), (0, 0))
+        empty = M.compute([], [], DAY)
+        self.assertEqual((empty["start_equity"], empty["end_equity"], empty["sharpe"], empty["monthly"]), (0.0, 0.0, 0.0, []))
 
 
 class TestProperties(QBTTestCase):
