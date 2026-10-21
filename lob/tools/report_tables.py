@@ -16,17 +16,18 @@ def load(name):
 
 
 def stress_table():
+    runs = [load(os.path.basename(p)) for p in glob.glob(os.path.join(RESULTS, 'stress_r*.json'))]
+    runs.sort(key=lambda r: ('v2' if r.get('harness') else 'v1', r['label']))
     rows = []
-    for path in sorted(glob.glob(os.path.join(RESULTS, 'stress_r*.json'))):
-        r = load(os.path.basename(path))
-        rows.append('| %s | %s | %s | %s | %.2f | %.1f | %.1f | %.1f | %.0f |' % (
-            r['label'], r['engine_only']['events_per_second'],
-            r['engine_checked']['events_per_second'], r['e2e']['events_per_second'],
-            r['snapshot']['after_every_event_ns'] / 1000.0, r['latency_ns']['p50'] / 1000.0,
-            r['latency_ns']['p99'] / 1000.0, r['latency_ns']['p99_9'] / 1000.0,
-            r['e2e']['ru_maxrss_mb']))
-    head = ('| 轮次 | engine-only ev/s | engine+checker ev/s | 端到端 ev/s | Top-10 快照 µs '
-            '| p50 µs | p99 µs | p999 µs | RSS 峰值 MB |\n|---|---|---|---|---|---|---|---|---|')
+    for r in runs:
+        rows.append('| %s | %s | %s | %s | %s | %.2f | %.1f | %.1f | %.1f | %.0f |' % (
+            'v2' if r.get('harness') else 'v1', r['label'],
+            r['engine_only']['events_per_second'], r['engine_checked']['events_per_second'],
+            r['e2e']['events_per_second'], r['snapshot']['after_every_event_ns'] / 1000.0,
+            r['latency_ns']['p50'] / 1000.0, r['latency_ns']['p99'] / 1000.0,
+            r['latency_ns']['p99_9'] / 1000.0, r['e2e']['ru_maxrss_mb']))
+    head = ('| harness | 轮次 | engine-only ev/s | engine+checker ev/s | 端到端 ev/s | Top-10 快照 µs '
+            '| p50 µs | p99 µs | p999 µs | RSS 峰值 MB |\n|---|---|---|---|---|---|---|---|---|---|')
     return head + '\n' + '\n'.join(rows)
 
 

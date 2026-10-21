@@ -200,7 +200,7 @@ def run_one(target, mutant, timeout, tmpdir):
         'status': status, 'seconds': round(time.perf_counter() - t0, 1), 'tail': tail}
 
 
-def run_target(target, max_per_file=120, seed=1, workers=4, timeout=600, out=None):
+def run_target(target, max_per_file=120, seed=1, workers=4, timeout=300, out=None):
     _mod, path, _tests = TARGETS[target]
     mutants = make_mutants(path)
     chosen = sample_mutants(mutants, max_per_file, seed)
@@ -239,7 +239,7 @@ def main(argv=None):
     ap.add_argument('--max', type=int, default=120)
     ap.add_argument('--seed', type=int, default=1)
     ap.add_argument('--workers', type=int, default=4)
-    ap.add_argument('--timeout', type=int, default=600)
+    ap.add_argument('--timeout', type=int, default=300)
     ap.add_argument('--json', default=None)
     args = ap.parse_args(argv)
     s = run_target(args.target, args.max, args.seed, args.workers, args.timeout, args.json)
