@@ -1,0 +1,107 @@
+{
+ "per_horizon": {
+  "1": {
+   "base_rate": 0.5531,
+   "brier": 0.17264,
+   "brier_constant": 0.24718,
+   "brier_parametric": 0.25392,
+   "brier_train": 0.1655,
+   "by_regime": {
+    "normal": {
+     "base_rate": 0.5219,
+     "brier": 0.17525,
+     "n": 22347
+    },
+    "shock": {
+     "base_rate": 0.5241,
+     "brier": 0.19423,
+     "n": 5125
+    },
+    "withdraw": {
+     "base_rate": 0.5811,
+     "brier": 0.16704,
+     "n": 30222
+    }
+   },
+   "n": 57694
+  },
+  "10": {
+   "base_rate": 0.8511,
+   "brier": 0.11699,
+   "brier_constant": 0.12674,
+   "brier_parametric": 0.17493,
+   "brier_train": 0.10986,
+   "by_regime": {
+    "normal": {
+     "base_rate": 0.8459,
+     "brier": 0.12296,
+     "n": 22074
+    },
+    "shock": {
+     "base_rate": 0.7228,
+     "brier": 0.17976,
+     "n": 4953
+    },
+    "withdraw": {
+     "base_rate": 0.8761,
+     "brier": 0.10222,
+     "n": 29951
+    }
+   },
+   "n": 56978
+  },
+  "2": {
+   "base_rate": 0.6639,
+   "brier": 0.1771,
+   "brier_constant": 0.22312,
+   "brier_parametric": 0.27598,
+   "brier_train": 0.16732,
+   "by_regime": {
+    "normal": {
+     "base_rate": 0.6552,
+     "brier": 0.18398,
+     "n": 22306
+    },
+    "shock": {
+     "base_rate": 0.5711,
+     "brier": 0.19675,
+     "n": 5118
+    },
+    "withdraw": {
+     "base_rate": 0.6862,
+     "brier": 0.16868,
+     "n": 30174
+    }
+   },
+   "n": 57598
+  },
+  "5": {
+   "base_rate": 0.7891,
+   "brier": 0.1472,
+   "brier_constant": 0.16644,
+   "brier_parametric": 0.25988,
+   "brier_train": 0.13891,
+   "by_regime": {
+    "normal": {
+     "base_rate": 0.7869,
+     "brier": 0.15268,
+     "n": 22213
+    },
+    "shock": {
+     "base_rate": 0.6489,
+     "brier": 0.19431,
+     "n": 5022
+    },
+    "withdraw": {
+     "base_rate": 0.8141,
+     "brier": 0.13528,
+     "n": 30067
+    }
+   },
+   "n": 57302
+  }
+ },
+ "probes": 192918,
+ "test": 57876,
+ "train": 135042
+}

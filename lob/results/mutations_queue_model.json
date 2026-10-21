@@ -1,0 +1,1366 @@
+{
+ "by_operator": {
+  "arith": {
+   "killed": 25,
+   "run": 25
+  },
+  "aug": {
+   "killed": 5,
+   "run": 5
+  },
+  "bool": {
+   "killed": 3,
+   "run": 3
+  },
+  "boolop": {
+   "killed": 3,
+   "run": 3
+  },
+  "brkcont": {
+   "killed": 2,
+   "run": 2
+  },
+  "cmp": {
+   "killed": 11,
+   "run": 13
+  },
+  "const": {
+   "killed": 27,
+   "run": 30
+  },
+  "delete": {
+   "killed": 23,
+   "run": 23
+  },
+  "negate": {
+   "killed": 12,
+   "run": 12
+  },
+  "usub": {
+   "killed": 4,
+   "run": 4
+  }
+ },
+ "candidates": 292,
+ "file": "lob/queue_model.py",
+ "kill_rate": 95.8,
+ "killed": 115,
+ "rerun": {
+  "note": "survivors of run 1 re-run after adding tests; killed mutants kept",
+  "seconds": 131.2,
+  "survivor_ids": [
+   124,
+   169,
+   176,
+   179,
+   188,
+   211,
+   237
+  ]
+ },
+ "results": [
+  {
+   "desc": "negate condition",
+   "id": 2,
+   "line": 54,
+   "op": "negate",
+   "seconds": 29.4,
+   "snippet": "if rate_trd_opp is None:",
+   "status": "killed",
+   "tail": " imbalance_bin\n    x = (rate_trd - rate_trd_opp) / (rate_trd + rate_trd_opp + 1.0)\n         ~~~~~~~~~^~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for -: 'float' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 19 tests in 29.247s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 3,
+   "line": 198,
+   "op": "delete",
+   "seconds": 32.2,
+   "snippet": "out = []",
+   "status": "killed",
+   "tail": "i, 'n': len(sel), 'mean_pred': sum((p for p, _ in sel)) / len(sel), 'mean_obs': sum((y for _, y in sel)) / len(sel)})\n    ^^^\nNameError: name 'out' is not defined. Did you mean: 'oct'?\n\n----------------------------------------------------------------------\nRan 19 tests in 32.105s\n\nFAILED (errors=5)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 10,
+   "line": 241,
+   "op": "delete",
+   "seconds": 31.8,
+   "snippet": "scale = W - 2 * M",
+   "status": "killed",
+   "tail": "                       ^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_10.py\", line 210, in X\n    return M + p * scale\n                   ^^^^^\nNameError: name 'scale' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 31.621s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 16,
+   "line": 275,
+   "op": "negate",
+   "seconds": 31.6,
+   "snippet": "if len(pts) > 1:",
+   "status": "killed",
+   "tail": "\"><title>n=1 pred=0.800 obs=1.000</title></circle>\\n<circle cx=\"387.2\" cy=\"56.0\" r=\"12.0\" fill=\"#1f77b4\" fill-opacity=\"0.75\"><title>n=1 pred=0.900 obs=1.000</title></circle>\\n</svg>'\n\n----------------------------------------------------------------------\nRan 19 tests in 31.433s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 24,
+   "line": 38,
+   "op": "negate",
+   "seconds": 30.1,
+   "snippet": "if u < edge:",
+   "status": "killed",
+   "tail": "--\nTraceback (most recent call last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 62, in test_bins\n    self.assertEqual(Q.u_bin(0.0), 0)\nAssertionError: 12 != 0\n\n----------------------------------------------------------------------\nRan 19 tests in 29.991s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Is -> IsNot",
+   "id": 26,
+   "line": 54,
+   "op": "cmp",
+   "seconds": 30.7,
+   "snippet": "if rate_trd_opp is None:",
+   "status": "killed",
+   "tail": " imbalance_bin\n    x = (rate_trd - rate_trd_opp) / (rate_trd + rate_trd_opp + 1.0)\n         ~~~~~~~~~^~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for -: 'float' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 19 tests in 30.631s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 27,
+   "line": 55,
+   "op": "delete",
+   "seconds": 30.5,
+   "snippet": "rate_trd_opp = rate_trd",
+   "status": "killed",
+   "tail": " imbalance_bin\n    x = (rate_trd - rate_trd_opp) / (rate_trd + rate_trd_opp + 1.0)\n         ~~~~~~~~~^~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for -: 'float' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 19 tests in 30.408s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 30,
+   "line": 69,
+   "op": "delete",
+   "seconds": 26.5,
+   "snippet": "self.global_rate = {}   # horizon_s -> p",
+   "status": "killed",
+   "tail": "ut_queue_model_30.py\", line 78, in fit\n    self.global_rate[h] = k_all / n_all if n_all else 0.0\n    ^^^^^^^^^^^^^^^^\nAttributeError: 'QueueModel' object has no attribute 'global_rate'\n\n----------------------------------------------------------------------\nRan 10 tests in 26.374s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 32,
+   "line": 103,
+   "op": "delete",
+   "seconds": 33.1,
+   "snippet": "g = self.global_rate[h]",
+   "status": "killed",
+   "tail": "                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_32.py\", line 97, in predict\n    return g\n           ^\nNameError: name 'g' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 32.998s\n\nFAILED (errors=5)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 34,
+   "line": 105,
+   "op": "delete",
+   "seconds": 33.8,
+   "snippet": "cell = self.tables[h].get(key)",
+   "status": "killed",
+   "tail": "          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_34.py\", line 96, in predict\n    if cell is None:\n       ^^^^\nNameError: name 'cell' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 33.594s\n\nFAILED (errors=5)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 35,
+   "line": 106,
+   "op": "negate",
+   "seconds": 30.1,
+   "snippet": "if cell is None:",
+   "status": "killed",
+   "tail": "AlmostEqual(self.model.predict(0, 0, 0, 0, 10.0, 0, 5, 0, 10.0, 2),\nAssertionError: 0.33282403870639166 != 0.908113128701364 within 7 places (0.5752890899949723 difference)\n\n----------------------------------------------------------------------\nRan 19 tests in 30.032s\n\nFAILED (failures=3, errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 36,
+   "line": 108,
+   "op": "delete",
+   "seconds": 31.8,
+   "snippet": "n, k, _ = cell",
+   "status": "killed",
+   "tail": "^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_36.py\", line 99, in predict\n    return (k + ALPHA * g) / (n + ALPHA)\n            ^\nNameError: name 'k' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 31.677s\n\nFAILED (errors=4)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 38,
+   "line": 115,
+   "op": "delete",
+   "seconds": 30.8,
+   "snippet": "key = cell_key(d if dist is None else dist, ahead, rate_trd, h, rate_trd_opp, spread)",
+   "status": "killed",
+   "tail": "  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_38.py\", line 105, in time_to_fill\n    cell = self.tables[h].get(key)\n                              ^^^\nNameError: name 'key' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 30.672s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 40,
+   "line": 117,
+   "op": "negate",
+   "seconds": 27.7,
+   "snippet": "if cell is None or cell[2] is None:",
+   "status": "killed",
+   "tail": "_queue_model.py\", line 124, in test_time_to_fill_is_cell_median\n    self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),\nAssertionError: None != 2.514752729\n\n----------------------------------------------------------------------\nRan 19 tests in 27.609s\n\nFAILED (failures=1, errors=1)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 41,
+   "line": 122,
+   "op": "negate",
+   "seconds": 30.9,
+   "snippet": "if horizon_s in self.tables:",
+   "status": "killed",
+   "tail": " test_unseen_cell_falls_back_to_global_rate\n    self.assertEqual(m._horizon(4), 5)                     # nearest horizon\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 4 != 5\n\n----------------------------------------------------------------------\nRan 19 tests in 30.769s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 46,
+   "line": 153,
+   "op": "delete",
+   "seconds": 27.4,
+   "snippet": "x = math.exp(a) * (rate_trd * h + b) / (ahead + 1.0)",
+   "status": "killed",
+   "tail": "_queue_model_46.py\", line 137, in _p\n    return min(1 - 1e-06, max(1e-06, 1.0 - math.exp(-x)))\n                                                     ^\nNameError: name 'x' is not defined\n\n----------------------------------------------------------------------\nRan 10 tests in 27.255s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "const 10 -> 11",
+   "id": 51,
+   "line": 197,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 40.9,
+   "snippet": "def reliability(pairs, bins=10):",
+   "status": "killed",
+   "tail": "56, in test_evaluate_rounding_and_bins\n    self.assertAlmostEqual(b['hi'] - b['lo'], 0.1)\nAssertionError: 0.09090909090909091 != 0.1 within 7 places (0.009090909090909094 difference)\n\n----------------------------------------------------------------------\nRan 23 tests in 40.649s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 53,
+   "line": 201,
+   "op": "delete",
+   "seconds": 36.7,
+   "snippet": "sel = [(p, y) for p, y in pairs if lo <= p < hi or (i == bins - 1 and p == 1.0)]",
+   "status": "killed",
+   "tail": "^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_53.py\", line 181, in reliability\n    if sel:\n       ^^^\nNameError: name 'sel' is not defined. Did you mean: 'set'?\n\n----------------------------------------------------------------------\nRan 19 tests in 36.565s\n\nFAILED (errors=5)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 54,
+   "line": 202,
+   "op": "negate",
+   "seconds": 36.2,
+   "snippet": "if sel:",
+   "status": "killed",
+   "tail": " sum((y for _, y in sel)) / len(sel)})\n                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~\nZeroDivisionError: division by zero\n\n----------------------------------------------------------------------\nRan 19 tests in 36.125s\n\nFAILED (errors=4)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 56,
+   "line": 219,
+   "op": "delete",
+   "seconds": 36.6,
+   "snippet": "y = outcome(r, h_ns)",
+   "status": "killed",
+   "tail": "t, 5)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_56.py\", line 195, in evaluate\n    if y < 0:\n       ^\nNameError: name 'y' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 36.549s\n\nFAILED (errors=3)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 57,
+   "line": 220,
+   "op": "negate",
+   "seconds": 64.3,
+   "snippet": "if y < 0:",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 1.44331 not less than 0.0\n\n----------------------------------------------------------------------\nRan 19 tests in 64.133s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 59,
+   "line": 223,
+   "op": "delete",
+   "seconds": 68.7,
+   "snippet": "pairs.append((p, y))",
+   "status": "killed",
+   "tail": ")\n  File \"/usr/lib/python3.12/unittest/case.py\", line 1255, in assertLess\n    if not a < b:\n           ^^^^^\nTypeError: '<' not supported between instances of 'NoneType' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 19 tests in 68.517s\n\nFAILED (errors=3)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 62,
+   "line": 241,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 40.4,
+   "snippet": "scale = W - 2 * M",
+   "status": "killed",
+   "tail": "56', '424', '424', '56']\n\nFirst differing element 2:\n'648'\n'424'\n\n- ['56', '424', '648', '-168']\n?                - ^    ^^ -\n\n+ ['56', '424', '424', '56']\n?                 ^^    ^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 40.267s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 63,
+   "line": 257,
+   "op": "delete",
+   "seconds": 74.9,
+   "snippet": "v = t / 10",
+   "status": "killed",
+   "tail": "iddle\" fill=\"#444\">%.1f</text>' % (X(v), H - M + 18, v))\n                                                                                           ^\nNameError: name 'v' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 74.743s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 67,
+   "line": 270,
+   "op": "delete",
+   "seconds": 73.4,
+   "snippet": "pts.append((X(b['mean_pred']), Y(b['mean_obs'])))",
+   "status": "killed",
+   "tail": "\"><title>n=1 pred=0.800 obs=1.000</title></circle>\\n<circle cx=\"387.2\" cy=\"56.0\" r=\"12.0\" fill=\"#1f77b4\" fill-opacity=\"0.75\"><title>n=1 pred=0.900 obs=1.000</title></circle>\\n</svg>'\n\n----------------------------------------------------------------------\nRan 19 tests in 73.212s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 71,
+   "line": 280,
+   "op": "delete",
+   "seconds": 67.7,
+   "snippet": "fh.write('\\n'.join(parts))",
+   "status": "killed",
+   "tail": "t call last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 161, in test_svg_written\n    self.assertTrue(svg.startswith('<svg'))\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 19 tests in 67.472s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 73,
+   "line": 296,
+   "op": "delete",
+   "seconds": 66.3,
+   "snippet": "ev_train = evaluate(model, train, h)",
+   "status": "killed",
+   "tail": "File \"/tmp/lobmut_t3o83ucf/mut_queue_model_73.py\", line 248, in run\n    ev['brier_train'] = ev_train['brier']\n                        ^^^^^^^^\nNameError: name 'ev_train' is not defined\n\n----------------------------------------------------------------------\nRan 19 tests in 66.113s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 78,
+   "line": 301,
+   "op": "delete",
+   "rerun_with_added_tests": true,
+   "seconds": 39.1,
+   "snippet": "ev['brier_parametric'] = ev_param['brier']",
+   "status": "killed",
+   "tail": "416, in test_collect_fit_evaluate_on_small_stream\n    self.assertIsInstance(ev['brier_parametric'], float)\n                          ~~^^^^^^^^^^^^^^^^^^^^\nKeyError: 'brier_parametric'\n\n----------------------------------------------------------------------\nRan 23 tests in 38.931s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 81,
+   "line": 306,
+   "op": "delete",
+   "seconds": 37.8,
+   "snippet": "res['per_horizon'][str(h)] = ev",
+   "status": "killed",
+   "tail": "\"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 317, in test_collect_fit_evaluate_on_small_stream\n    ev = res['per_horizon'][h]\n         ~~~~~~~~~~~~~~~~~~^^^\nKeyError: '1'\n\n----------------------------------------------------------------------\nRan 19 tests in 37.670s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 87,
+   "line": 45,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 41.1,
+   "snippet": "return 0 if x < -0.3 else (2 if x > 0.3 else 1)",
+   "status": "killed",
+   "tail": "ine 71, in test_bins\n    self.assertEqual(Q.imbalance_bin(3.0, 6.0), 1)      # x == -0.3 exactly: middle bin\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 1\n\n----------------------------------------------------------------------\nRan 23 tests in 40.934s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 88,
+   "line": 45,
+   "op": "const",
+   "seconds": 40.8,
+   "snippet": "return 0 if x < -0.3 else (2 if x > 0.3 else 1)",
+   "status": "killed",
+   "tail": "(most recent call last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 68, in test_bins\n    self.assertEqual(Q.imbalance_bin(0.0, 10.0), 0)\nAssertionError: 1 != 0\n\n----------------------------------------------------------------------\nRan 19 tests in 40.678s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 90,
+   "line": 49,
+   "op": "const",
+   "seconds": 40.7,
+   "snippet": "return 0 if spread <= 2 else (1 if spread <= 5 else 2)",
+   "status": "killed",
+   "tail": "bin(1), Q.spread_bin(2), Q.spread_bin(5), Q.spread_bin(6)),\nAssertionError: Tuples differ: (1, 1, 1, 2) != (0, 0, 1, 2)\n\nFirst differing element 0:\n1\n0\n\n- (1, 1, 1, 2)\n+ (0, 0, 1, 2)\n\n----------------------------------------------------------------------\nRan 19 tests in 40.596s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 94,
+   "line": 74,
+   "op": "delete",
+   "seconds": 28.2,
+   "snippet": "cells = {}",
+   "status": "killed",
+   "tail": "^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_94.py\", line 71, in fit\n    c = cells.setdefault(row_key(r, h), [0, 0, []])\n        ^^^^^\nNameError: name 'cells' is not defined\n\n----------------------------------------------------------------------\nRan 10 tests in 28.074s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 95,
+   "line": 75,
+   "op": "delete",
+   "seconds": 26.1,
+   "snippet": "n_all = k_all = 0",
+   "status": "killed",
+   "tail": "e \"/tmp/lobmut_t3o83ucf/mut_queue_model_95.py\", line 74, in fit\n    n_all += 1\n    ^^^^^\nUnboundLocalError: cannot access local variable 'n_all' where it is not associated with a value\n\n----------------------------------------------------------------------\nRan 10 tests in 25.891s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 96,
+   "line": 87,
+   "op": "delete",
+   "seconds": 32.3,
+   "snippet": "self.global_rate[h] = k_all / n_all if n_all else 0.0",
+   "status": "killed",
+   "tail": "             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_96.py\", line 93, in predict\n    g = self.global_rate[h]\n        ~~~~~~~~~~~~~~~~^^^\nKeyError: 5\n\n----------------------------------------------------------------------\nRan 19 tests in 32.176s\n\nFAILED (errors=5)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 99,
+   "line": 97,
+   "op": "const",
+   "seconds": 34.4,
+   "snippet": "dist=None, rate_trd_opp=None, spread=2):",
+   "status": "killed",
+   "tail": "ctions_monotone_in_queue_position\n    self.assertGreater(self.model.predict(0, 1, 0, 0, 10.0, 0, 5, 0, 10.0),\nAssertionError: 0.33282403870639166 not greater than 0.33282403870639166\n\n----------------------------------------------------------------------\nRan 19 tests in 34.312s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 101,
+   "line": 112,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 63.9,
+   "snippet": "spread=2):",
+   "status": "killed",
+   "tail": "/lob/tests/test_queue_model.py\", line 119, in test_default_spread_is_two_ticks\n    self.assertEqual(self.model.time_to_fill(3, 4.0, 0, 5, 0, 4.0),\nAssertionError: None != 2.706545539\n\n----------------------------------------------------------------------\nRan 23 tests in 63.824s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 102,
+   "line": 117,
+   "op": "boolop",
+   "seconds": 41.2,
+   "snippet": "if cell is None or cell[2] is None:",
+   "status": "killed",
+   "tail": "t_t3o83ucf/mut_queue_model_102.py\", line 106, in time_to_fill\n    if cell is None and cell[2] is None:\n                        ~~~~^^^\nTypeError: 'NoneType' object is not subscriptable\n\n----------------------------------------------------------------------\nRan 19 tests in 41.046s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 105,
+   "line": 176,
+   "op": "negate",
+   "rerun_with_added_tests": true,
+   "seconds": 64.2,
+   "snippet": "if ll > best_ll:",
+   "status": "killed",
+   "tail": "ine 133, in test_parametric_fit_is_the_grid_argmax\n    self.assertGreaterEqual(best, coarse, d)\nAssertionError: -743.6457682261649 not greater than or equal to -662.2868134419324 : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 63.994s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 107,
+   "line": 184,
+   "op": "aug",
+   "seconds": 42.9,
+   "snippet": "ll += math.log(p) if y else math.log(1.0 - p)",
+   "status": "killed",
+   "tail": "user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.65979 not less than 0.22447\n\n----------------------------------------------------------------------\nRan 19 tests in 42.690s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 111,
+   "line": 221,
+   "op": "brkcont",
+   "seconds": 63.2,
+   "snippet": "continue",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.02934 not less than 0.0\n\n----------------------------------------------------------------------\nRan 19 tests in 63.052s\n\nFAILED (failures=3)\n"
+  },
+  {
+   "desc": "const 480 -> 481",
+   "id": 113,
+   "line": 240,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 68.2,
+   "snippet": "W, H, M = 480, 480, 56",
+   "status": "killed",
+   "tail": " in test_svg_geometry\n    self.assertEqual(root.get('viewBox'), '0 0 480 480')\nAssertionError: '0 0 480 481' != '0 0 480 480'\n- 0 0 480 481\n?           ^\n+ 0 0 480 480\n?           ^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 68.022s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 115,
+   "line": 241,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 65.1,
+   "snippet": "scale = W - 2 * M",
+   "status": "killed",
+   "tail": "6'] != ['56', '424', '424', '56']\n\nFirst differing element 2:\n'536'\n'424'\n\n- ['56', '424', '536', '-56']\n?                ^^^    -\n\n+ ['56', '424', '424', '56']\n?                ^^^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 64.920s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 120,
+   "line": 252,
+   "op": "arith",
+   "seconds": 74.8,
+   "snippet": "'<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\" stroke=\"#999\" stroke-dasharray=\"4 4\"/>'",
+   "status": "killed",
+   "tail": "             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^~~~~~~~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for //: 'str' and 'tuple'\n\n----------------------------------------------------------------------\nRan 19 tests in 74.683s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 122,
+   "line": 255,
+   "op": "arith",
+   "seconds": 53.3,
+   "snippet": "'<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\" stroke=\"#444\"/>' % (X(0), Y(0), X(0), Y(1))]",
+   "status": "killed",
+   "tail": "                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^~~~~~~~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for //: 'str' and 'tuple'\n\n----------------------------------------------------------------------\nRan 19 tests in 53.050s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "const 11 -> 12",
+   "id": 124,
+   "line": 256,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 95.5,
+   "snippet": "for t in range(0, 11, 2):",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 95.222s\n\nOK\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 126,
+   "line": 262,
+   "op": "arith",
+   "seconds": 42.3,
+   "snippet": "parts.append('<text x=\"%d\" y=\"%d\" text-anchor=\"middle\" fill=\"#222\">predicted probability'",
+   "status": "killed",
+   "tail": "                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for //: 'str' and 'tuple'\n\n----------------------------------------------------------------------\nRan 19 tests in 42.069s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 127,
+   "line": 264,
+   "op": "arith",
+   "seconds": 33.7,
+   "snippet": "parts.append('<text transform=\"translate(16,%d) rotate(-90)\" text-anchor=\"middle\" '",
+   "status": "killed",
+   "tail": "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^~~~~~~~~~\nTypeError: unsupported operand type(s) for //: 'str' and 'int'\n\n----------------------------------------------------------------------\nRan 19 tests in 33.578s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 132,
+   "line": 45,
+   "op": "usub",
+   "seconds": 32.9,
+   "snippet": "return 0 if x < -0.3 else (2 if x > 0.3 else 1)",
+   "status": "killed",
+   "tail": "most recent call last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 66, in test_bins\n    self.assertEqual(Q.imbalance_bin(10.0, 10.0), 1)\nAssertionError: 0 != 1\n\n----------------------------------------------------------------------\nRan 19 tests in 32.798s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 133,
+   "line": 45,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 45.8,
+   "snippet": "return 0 if x < -0.3 else (2 if x > 0.3 else 1)",
+   "status": "killed",
+   "tail": "ine 70, in test_bins\n    self.assertEqual(Q.imbalance_bin(6.0, 3.0), 1)      # x == +0.3 exactly: middle bin\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 2 != 1\n\n----------------------------------------------------------------------\nRan 23 tests in 45.633s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 134,
+   "line": 45,
+   "op": "const",
+   "seconds": 33.7,
+   "snippet": "return 0 if x < -0.3 else (2 if x > 0.3 else 1)",
+   "status": "killed",
+   "tail": "(most recent call last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 67, in test_bins\n    self.assertEqual(Q.imbalance_bin(10.0, 0.0), 2)\nAssertionError: 3 != 2\n\n----------------------------------------------------------------------\nRan 19 tests in 33.549s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "LtE -> Lt",
+   "id": 137,
+   "line": 49,
+   "op": "cmp",
+   "seconds": 33.3,
+   "snippet": "return 0 if spread <= 2 else (1 if spread <= 5 else 2)",
+   "status": "killed",
+   "tail": " Q.spread_bin(5), Q.spread_bin(6)),\nAssertionError: Tuples differ: (0, 0, 2, 2) != (0, 0, 1, 2)\n\nFirst differing element 2:\n2\n1\n\n- (0, 0, 2, 2)\n?        ^\n\n+ (0, 0, 1, 2)\n?        ^\n\n\n----------------------------------------------------------------------\nRan 19 tests in 33.185s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 138,
+   "line": 49,
+   "op": "const",
+   "seconds": 34.9,
+   "snippet": "return 0 if spread <= 2 else (1 if spread <= 5 else 2)",
+   "status": "killed",
+   "tail": " Q.spread_bin(5), Q.spread_bin(6)),\nAssertionError: Tuples differ: (0, 0, 2, 2) != (0, 0, 1, 2)\n\nFirst differing element 2:\n2\n1\n\n- (0, 0, 2, 2)\n?        ^\n\n+ (0, 0, 1, 2)\n?        ^\n\n\n----------------------------------------------------------------------\nRan 19 tests in 34.784s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 141,
+   "line": 56,
+   "op": "arith",
+   "seconds": 33.5,
+   "snippet": "return ((min(dist, DIST_MAX) * N_U + u_bin(u)) * 3 + imbalance_bin(rate_trd, rate_trd_opp)) \\",
+   "status": "killed",
+   "tail": " last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 71, in test_bins\n    self.assertEqual(Q.cell_key(0, 0, 0.0, 5), (0 * 3 + 1) * 3 + 0)\nAssertionError: -3 != 3\n\n----------------------------------------------------------------------\nRan 19 tests in 33.409s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 143,
+   "line": 73,
+   "op": "arith",
+   "seconds": 33.2,
+   "snippet": "h_ns = h * E.NS",
+   "status": "killed",
+   "tail": "tests/test_queue_model.py\", line 124, in test_time_to_fill_is_cell_median\n    self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),\nAssertionError: None != 2.514752729\n\n----------------------------------------------------------------------\nRan 19 tests in 33.073s\n\nFAILED (failures=3)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 146,
+   "line": 78,
+   "op": "negate",
+   "seconds": 30.2,
+   "snippet": "if y < 0:",
+   "status": "killed",
+   "tail": "^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_146.py\", line 81, in fit\n    fills.sort()\nTypeError: '<' not supported between instances of 'NoneType' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 10 tests in 30.101s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 148,
+   "line": 81,
+   "op": "aug",
+   "seconds": 33.6,
+   "snippet": "c[0] += 1",
+   "status": "killed",
+   "tail": "7\n\n- [-0.9320108426145578,\n+ [-0.17332518461930227,\n+  -0.6729367561775996,\n   -0.9166584522371999,\n+  -0.9320108426145578]\n-  -0.6729367561775996,\n-  -0.17332518461930227]\n\n----------------------------------------------------------------------\nRan 19 tests in 33.488s\n\nFAILED (failures=2, errors=1)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 149,
+   "line": 82,
+   "op": "aug",
+   "seconds": 35.0,
+   "snippet": "c[1] += y",
+   "status": "killed",
+   "tail": "763063505881564\n\n- [-0.8995791789909438,\n+ [-0.15763063505881564,\n+  -0.60235705127346,\n   -0.8776121243952126,\n+  -0.8995791789909438]\n-  -0.60235705127346,\n-  -0.15763063505881564]\n\n----------------------------------------------------------------------\nRan 19 tests in 34.931s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 150,
+   "line": 83,
+   "op": "aug",
+   "seconds": 34.6,
+   "snippet": "n_all += 1",
+   "status": "killed",
+   "tail": "ests/test_queue_model.py\", line 98, in test_binned_beats_constant_and_is_calibrated\n    self.assertEqual(sum(b['n'] for b in ev['reliability']), ev['n'])\nAssertionError: 1488 != 1760\n\n----------------------------------------------------------------------\nRan 19 tests in 34.539s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 151,
+   "line": 84,
+   "op": "aug",
+   "seconds": 33.3,
+   "snippet": "k_all += y",
+   "status": "killed",
+   "tail": "ests/test_queue_model.py\", line 98, in test_binned_beats_constant_and_is_calibrated\n    self.assertEqual(sum(b['n'] for b in ev['reliability']), ev['n'])\nAssertionError: 1488 != 1760\n\n----------------------------------------------------------------------\nRan 19 tests in 33.146s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 152,
+   "line": 85,
+   "op": "negate",
+   "seconds": 28.2,
+   "snippet": "if y:",
+   "status": "killed",
+   "tail": "^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_152.py\", line 81, in fit\n    fills.sort()\nTypeError: '<' not supported between instances of 'NoneType' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 10 tests in 28.063s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 153,
+   "line": 90,
+   "op": "delete",
+   "seconds": 33.3,
+   "snippet": "fills.sort()",
+   "status": "killed",
+   "tail": "est_queue_model.py\", line 124, in test_time_to_fill_is_cell_median\n    self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),\nAssertionError: 4.435326699 != 2.514752729\n\n----------------------------------------------------------------------\nRan 19 tests in 33.216s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 156,
+   "line": 109,
+   "op": "arith",
+   "seconds": 33.0,
+   "snippet": "return (k + ALPHA * g) / (n + ALPHA)",
+   "status": "killed",
+   "tail": "lf.assertAlmostEqual(self.model.predict(0, 0, 0, 0, 10.0, 0, 5, 0, 10.0, 2),\nAssertionError: 0.8995791789909438 != 0.908113128701364 within 7 places (0.008533949710420208 difference)\n\n----------------------------------------------------------------------\nRan 19 tests in 32.936s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "Is -> IsNot",
+   "id": 158,
+   "line": 117,
+   "op": "cmp",
+   "seconds": 33.5,
+   "snippet": "if cell is None or cell[2] is None:",
+   "status": "killed",
+   "tail": "_queue_model.py\", line 124, in test_time_to_fill_is_cell_median\n    self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),\nAssertionError: None != 2.514752729\n\n----------------------------------------------------------------------\nRan 19 tests in 33.389s\n\nFAILED (failures=1, errors=1)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 162,
+   "line": 154,
+   "op": "arith",
+   "seconds": 26.7,
+   "snippet": "return min(1 - 1e-6, max(1e-6, 1.0 - math.exp(-x)))",
+   "status": "killed",
+   "tail": "t3o83ucf/mut_queue_model_162.py\", line 166, in _loglik\n    ll += math.log(p) if y else math.log(1.0 - p)\n                                ^^^^^^^^^^^^^^^^^\nValueError: math domain error\n\n----------------------------------------------------------------------\nRan 10 tests in 26.624s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 166,
+   "line": 163,
+   "op": "delete",
+   "seconds": 25.9,
+   "snippet": "self.params[(h, d)] = self._grid(data, h) if data else (0.0, 1.0)",
+   "status": "killed",
+   "tail": "ile \"/tmp/lobmut_t3o83ucf/mut_queue_model_166.py\", line 170, in predict_row\n    a, b = self.params[h, min(r['d'], D_MAX)]\n           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\nKeyError: (5, 3)\n\n----------------------------------------------------------------------\nRan 19 tests in 25.818s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 167,
+   "line": 167,
+   "op": "usub",
+   "rerun_with_added_tests": true,
+   "seconds": 44.4,
+   "snippet": "best, best_ll = (0.0, 1.0), -float('inf')",
+   "status": "killed",
+   "tail": "ine 133, in test_parametric_fit_is_the_grid_argmax\n    self.assertGreaterEqual(best, coarse, d)\nAssertionError: -778.8467204636823 not greater than or equal to -662.2868134419324 : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 44.285s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 168,
+   "line": 168,
+   "op": "usub",
+   "seconds": 28.1,
+   "snippet": "for a10 in range(-60, 61, 5):",
+   "status": "killed",
+   "tail": "/user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.4487 not less than 0.22447\n\n----------------------------------------------------------------------\nRan 19 tests in 27.920s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 61 -> 62",
+   "id": 169,
+   "line": 168,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 90.2,
+   "snippet": "for a10 in range(-60, 61, 5):",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 90.013s\n\nOK\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 172,
+   "line": 171,
+   "op": "negate",
+   "rerun_with_added_tests": true,
+   "seconds": 46.2,
+   "snippet": "if ll > best_ll:",
+   "status": "killed",
+   "tail": "ine 133, in test_parametric_fit_is_the_grid_argmax\n    self.assertGreaterEqual(best, coarse, d)\nAssertionError: -675.1821986373161 not greater than or equal to -662.2868134419324 : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 45.996s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 173,
+   "line": 174,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 45.7,
+   "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
+   "status": "killed",
+   "tail": "lmostEqual(best, self.param._loglik(fine_best[0], fine_best[1], data, h),\nAssertionError: -662.2868134419324 != -656.7339174230059 within 9 places (5.5528960189265035 difference) : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 45.514s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 174,
+   "line": 174,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 46.8,
+   "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
+   "status": "killed",
+   "tail": "lmostEqual(best, self.param._loglik(fine_best[0], fine_best[1], data, h),\nAssertionError: -662.2868134419324 != -656.7339174230059 within 9 places (5.5528960189265035 difference) : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 46.569s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 176,
+   "line": 176,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 93.6,
+   "snippet": "if ll > best_ll:",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 93.392s\n\nOK\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 178,
+   "line": 220,
+   "op": "const",
+   "seconds": 24.8,
+   "snippet": "if y < 0:",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.32852 not less than 0.0\n\n----------------------------------------------------------------------\nRan 19 tests in 24.719s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "const 4 -> 5",
+   "id": 179,
+   "line": 227,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 92.6,
+   "snippet": "return {'n': len(pairs), 'base_rate': round(base, 4),",
+   "status": "killed",
+   "tail": "ser/qbt-bench/lob/tests/test_queue_model.py\", line 176, in test_base_rate_rounding\n    self.assertEqual(Q.evaluate(m, rows, 5)['base_rate'], 0.4286)\nAssertionError: 0.42857 != 0.4286\n\n----------------------------------------------------------------------\nRan 25 tests in 92.438s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 180,
+   "line": 241,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 74.7,
+   "snippet": "scale = W - 2 * M",
+   "status": "killed",
+   "tail": "'56', '424', '424', '56']\n\nFirst differing element 2:\n'368'\n'424'\n\n- ['56', '424', '368', '112']\n?                ^^^    ^^^\n\n+ ['56', '424', '424', '56']\n?                ^^^    ^^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 74.534s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 181,
+   "line": 244,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 71.0,
+   "snippet": "return M + p * scale",
+   "status": "killed",
+   "tail": " '56', '56'] != ['56', '424', '424', '56']\n\nFirst differing element 2:\n'56'\n'424'\n\n- ['56', '424', '56', '56']\n?                ^^\n\n+ ['56', '424', '424', '56']\n?                ^^^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 70.859s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 182,
+   "line": 247,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 81.0,
+   "snippet": "return H - M - p * scale",
+   "status": "killed",
+   "tail": "tionError: Lists differ: ['56', '536', '424', '168'] != ['56', '424', '424', '56']\n\nFirst differing element 1:\n'536'\n'424'\n\n- ['56', '536', '424', '168']\n+ ['56', '424', '424', '56']\n\n----------------------------------------------------------------------\nRan 23 tests in 80.828s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 185,
+   "line": 258,
+   "op": "arith",
+   "seconds": 29.8,
+   "snippet": "parts.append('<text x=\"%.0f\" y=\"%d\" text-anchor=\"middle\" fill=\"#444\">%.1f</text>'",
+   "status": "killed",
+   "tail": " 18, v))\n                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^~~~~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for //: 'str' and 'tuple'\n\n----------------------------------------------------------------------\nRan 19 tests in 29.711s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 188,
+   "line": 266,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 39.6,
+   "snippet": "nmax = max((b['n'] for b in rel), default=1)",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 39.333s\n\nOK\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 193,
+   "line": 290,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 82.6,
+   "snippet": "os.makedirs(out_dir, exist_ok=True)",
+   "status": "killed",
+   "tail": "ueue_model_193.py\", line 240, in run\n    os.makedirs(out_dir, exist_ok=False)\n  File \"<frozen os>\", line 225, in makedirs\nFileExistsError: [Errno 17] File exists: '/tmp/tmpsnf6f7fc/qm'\n\n----------------------------------------------------------------------\nRan 23 tests in 82.384s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 194,
+   "line": 303,
+   "op": "arith",
+   "seconds": 32.1,
+   "snippet": "ev['svg'] = reliability_svg(ev['reliability'], 'Reliability, horizon %ds (test, n=%d, '",
+   "status": "killed",
+   "tail": "                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^~~~~~~~~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for //: 'str' and 'tuple'\n\n----------------------------------------------------------------------\nRan 19 tests in 32.015s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "const 5 -> 6",
+   "id": 195,
+   "line": 49,
+   "op": "const",
+   "seconds": 31.5,
+   "snippet": "return 0 if spread <= 2 else (1 if spread <= 5 else 2)",
+   "status": "killed",
+   "tail": "ead_bin(5), Q.spread_bin(6)),\nAssertionError: Tuples differ: (0, 0, 1, 1) != (0, 0, 1, 2)\n\nFirst differing element 3:\n1\n2\n\n- (0, 0, 1, 1)\n?           ^\n\n+ (0, 0, 1, 2)\n?           ^\n\n\n----------------------------------------------------------------------\nRan 19 tests in 31.408s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 197,
+   "line": 78,
+   "op": "cmp",
+   "seconds": 32.4,
+   "snippet": "if y < 0:",
+   "status": "killed",
+   "tail": "del.py\", line 108, in test_predictions_monotone_in_queue_position\n    self.assertGreater(self.model.predict(0, 1, 0, 0, 10.0, 0, 5, 0, 10.0),\nAssertionError: 1.0 not greater than 1.0\n\n----------------------------------------------------------------------\nRan 19 tests in 32.277s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 198,
+   "line": 79,
+   "op": "brkcont",
+   "seconds": 30.2,
+   "snippet": "continue",
+   "status": "killed",
+   "tail": "test_queue_model.py\", line 124, in test_time_to_fill_is_cell_median\n    self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),\nAssertionError: 2.34283308 != 2.514752729\n\n----------------------------------------------------------------------\nRan 19 tests in 30.079s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "Is -> IsNot",
+   "id": 202,
+   "line": 104,
+   "op": "cmp",
+   "seconds": 32.2,
+   "snippet": "key = cell_key(d if dist is None else dist, ahead, rate_trd, h, rate_trd_opp, spread)",
+   "status": "killed",
+   "tail": " u_bin(u)) * 3 + imbalance_bin(rate_trd, rate_trd_opp)) * 3 + spread_bin(spread)\n             ^^^^^^^^^^^^^^^^^^^\nTypeError: '<' not supported between instances of 'int' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 19 tests in 32.100s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "Is -> IsNot",
+   "id": 204,
+   "line": 115,
+   "op": "cmp",
+   "seconds": 32.7,
+   "snippet": "key = cell_key(d if dist is None else dist, ahead, rate_trd, h, rate_trd_opp, spread)",
+   "status": "killed",
+   "tail": " u_bin(u)) * 3 + imbalance_bin(rate_trd, rate_trd_opp)) * 3 + spread_bin(spread)\n             ^^^^^^^^^^^^^^^^^^^\nTypeError: '<' not supported between instances of 'int' and 'NoneType'\n\n----------------------------------------------------------------------\nRan 19 tests in 32.577s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 209,
+   "line": 159,
+   "op": "arith",
+   "seconds": 29.8,
+   "snippet": "for d in range(D_MAX + 1):",
+   "status": "killed",
+   "tail": "ile \"/tmp/lobmut_t3o83ucf/mut_queue_model_209.py\", line 170, in predict_row\n    a, b = self.params[h, min(r['d'], D_MAX)]\n           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\nKeyError: (5, 3)\n\n----------------------------------------------------------------------\nRan 19 tests in 29.678s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 211,
+   "line": 171,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 36.8,
+   "snippet": "if ll > best_ll:",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 36.687s\n\nOK\n"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 216,
+   "line": 201,
+   "op": "boolop",
+   "seconds": 31.8,
+   "snippet": "sel = [(p, y) for p, y in pairs if lo <= p < hi or (i == bins - 1 and p == 1.0)]",
+   "status": "killed",
+   "tail": "66\" text-anchor=\"middle\" fill=\"#222\">predicted probability</text>\\n<text transform=\"translate(16,240) rotate(-90)\" text-anchor=\"middle\" fill=\"#222\">observed frequency</text>\\n</svg>'\n\n----------------------------------------------------------------------\nRan 19 tests in 31.700s\n\nFAILED (failures=3)\n"
+  },
+  {
+   "desc": "FloorDiv -> Mult",
+   "id": 219,
+   "line": 263,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 84.4,
+   "snippet": "'</text>' % (W // 2, H - 14))",
+   "status": "killed",
+   "tail": ".get('y')), ('240', '466'))\nAssertionError: Tuples differ: ('960', '466') != ('240', '466')\n\nFirst differing element 0:\n'960'\n'240'\n\n- ('960', '466')\n?   ^^\n\n+ ('240', '466')\n?   ^^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 84.151s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 9 -> 10",
+   "id": 222,
+   "line": 269,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 86.0,
+   "snippet": "r = 3 + 9 * (b['n'] / nmax) ** 0.5",
+   "status": "killed",
+   "tail": " '8.0') != ('74.4', '332.0', '7.5')\n\nFirst differing element 2:\n'8.0'\n'7.5'\n\n- ('74.4', '332.0', '8.0')\n?                    ^ ^\n\n+ ('74.4', '332.0', '7.5')\n?                    ^ ^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 85.757s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mod -> FloorDiv",
+   "id": 224,
+   "line": 305,
+   "op": "arith",
+   "seconds": 31.6,
+   "snippet": "os.path.join(out_dir, 'reliability_h%d.svg' % h))",
+   "status": "killed",
+   "tail": "                                                                                               ~~~~~~~~~~~~~~~~~~~~~~^^~~\nTypeError: unsupported operand type(s) for //: 'str' and 'int'\n\n----------------------------------------------------------------------\nRan 19 tests in 31.474s\n\nFAILED (errors=1)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 225,
+   "line": 308,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 82.2,
+   "snippet": "json.dump(model.to_dict(), fh, sort_keys=True)",
+   "status": "killed",
+   "tail": "[0.1, 0.2, 0.35, 0.5, 0.75, 1.0[12228 chars]]}}}' != '{\"alpha\": 2.0, \"dist_max\": 8, \"global_rate\"[12228 chars].0]}'\nDiff is 24557 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 23 tests in 81.958s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 226,
+   "line": 310,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 83.3,
+   "snippet": "json.dump(res, fh, indent=1, sort_keys=True)",
+   "status": "killed",
+   "tail": "2.0,\\n  \"dist_max\": 8,\\n  \"hori[6370 chars]]\\n}' != '{\\n \"alpha\": 2.0,\\n \"dist_max\": 8,\\n \"horizon[5079 chars]]\\n}'\nDiff is 13175 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 23 tests in 83.091s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 227,
+   "line": 310,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 83.5,
+   "snippet": "json.dump(res, fh, indent=1, sort_keys=True)",
+   "status": "killed",
+   "tail": "909,\\n \"train\": 8336,\\n \"test\"[5078 chars]}\\n}' != '{\\n \"alpha\": 2.0,\\n \"dist_max\": 8,\\n \"horizons[5078 chars]]\\n}'\nDiff is 10713 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 23 tests in 83.293s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 230,
+   "line": 78,
+   "op": "const",
+   "seconds": 31.0,
+   "snippet": "if y < 0:",
+   "status": "killed",
+   "tail": "del.py\", line 108, in test_predictions_monotone_in_queue_position\n    self.assertGreater(self.model.predict(0, 1, 0, 0, 10.0, 0, 5, 0, 10.0),\nAssertionError: 1.0 not greater than 1.0\n\n----------------------------------------------------------------------\nRan 19 tests in 30.864s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 235,
+   "line": 159,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 85.1,
+   "snippet": "for d in range(D_MAX + 1):",
+   "status": "killed",
+   "tail": "test_parametric_fit_is_the_grid_argmax\n    self.assertEqual(set(self.param.params), {(hh, d) for hh in (1, 5)\nAssertionError: Items in the first set but not the second:\n(5, 4)\n(1, 4)\n\n----------------------------------------------------------------------\nRan 23 tests in 84.831s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 236,
+   "line": 174,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 82.5,
+   "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
+   "status": "killed",
+   "tail": "lmostEqual(best, self.param._loglik(fine_best[0], fine_best[1], data, h),\nAssertionError: -662.2868134419324 != -656.7339174230059 within 9 places (5.5528960189265035 difference) : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 82.326s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 237,
+   "line": 174,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 37.5,
+   "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
+   "status": "killed",
+   "tail": "t_window\n    self.assertEqual((a, b), (best_a, b0))\nAssertionError: Tuples differ: (1.0, 1.0) != (1.05, 1.0)\n\nFirst differing element 0:\n1.0\n1.05\n\n- (1.0, 1.0)\n+ (1.05, 1.0)\n?     +\n\n\n----------------------------------------------------------------------\nRan 25 tests in 37.288s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 238,
+   "line": 184,
+   "op": "arith",
+   "seconds": 30.5,
+   "snippet": "ll += math.log(p) if y else math.log(1.0 - p)",
+   "status": "killed",
+   "tail": "user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.65979 not less than 0.22447\n\n----------------------------------------------------------------------\nRan 19 tests in 30.433s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 239,
+   "line": 200,
+   "op": "const",
+   "seconds": 29.3,
+   "snippet": "lo, hi = i / bins, (i + 1) / bins",
+   "status": "killed",
+   "tail": "ssertionError: Lists differ: [2, 1, 2] != [2, 2]\n\nFirst differing element 1:\n1\n2\n\nFirst list contains 1 additional elements.\nFirst extra element 2:\n2\n\n- [2, 1, 2]\n?     ---\n\n+ [2, 2]\n\n----------------------------------------------------------------------\nRan 19 tests in 29.178s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 242,
+   "line": 201,
+   "op": "boolop",
+   "seconds": 29.7,
+   "snippet": "sel = [(p, y) for p, y in pairs if lo <= p < hi or (i == bins - 1 and p == 1.0)]",
+   "status": "killed",
+   "tail": ", 1, 1, 1, 1, 1, 1, 1, 1, 4] != [2, 2]\n\nFirst differing element 0:\n3\n2\n\nFirst list contains 8 additional elements.\nFirst extra element 2:\n1\n\n- [3, 1, 1, 1, 1, 1, 1, 1, 1, 4]\n+ [2, 2]\n\n----------------------------------------------------------------------\nRan 19 tests in 29.614s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 247,
+   "line": 253,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 84.5,
+   "snippet": "% (X(0), Y(0), X(1), Y(1)),",
+   "status": "killed",
+   "tail": "AssertionError: Lists differ: ['56', '56', '424', '56'] != ['56', '424', '424', '56']\n\nFirst differing element 1:\n'56'\n'424'\n\n- ['56', '56', '424', '56']\n+ ['56', '424', '424', '56']\n\n----------------------------------------------------------------------\nRan 23 tests in 84.281s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 248,
+   "line": 253,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 84.4,
+   "snippet": "% (X(0), Y(0), X(1), Y(1)),",
+   "status": "killed",
+   "tail": "92', '56'] != ['56', '424', '424', '56']\n\nFirst differing element 2:\n'792'\n'424'\n\n- ['56', '424', '792', '56']\n?                ^^\n\n+ ['56', '424', '424', '56']\n?                ^ +\n\n\n----------------------------------------------------------------------\nRan 23 tests in 84.247s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 251,
+   "line": 254,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 84.6,
+   "snippet": "'<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\" stroke=\"#444\"/>' % (X(0), Y(0), X(1), Y(0)),",
+   "status": "killed",
+   "tail": "4', '424'] != ['56', '424', '424', '424']\n\nFirst differing element 1:\n'56'\n'424'\n\n- ['56', '56', '424', '424']\n?        ------\n\n+ ['56', '424', '424', '424']\n?               +++++++\n\n\n----------------------------------------------------------------------\nRan 23 tests in 84.390s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 253,
+   "line": 254,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 84.7,
+   "snippet": "'<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\" stroke=\"#444\"/>' % (X(0), Y(0), X(1), Y(0)),",
+   "status": "killed",
+   "tail": "'56', '424', '424', '424']\n\nFirst differing element 3:\n'56'\n'424'\n\n- ['56', '424', '424', '56']\n?                       ^^\n\n+ ['56', '424', '424', '424']\n?                       ^^^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 84.552s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 254,
+   "line": 255,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 83.5,
+   "snippet": "'<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\" stroke=\"#444\"/>' % (X(0), Y(0), X(0), Y(1))]",
+   "status": "killed",
+   "tail": "AssertionError: Lists differ: ['424', '424', '56', '56'] != ['56', '424', '56', '56']\n\nFirst differing element 0:\n'424'\n'56'\n\n- ['424', '424', '56', '56']\n+ ['56', '424', '56', '56']\n\n----------------------------------------------------------------------\nRan 23 tests in 83.380s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 259,
+   "line": 261,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 84.5,
+   "snippet": "% (M - 6, Y(v) + 4, v))",
+   "status": "killed",
+   "tail": "'50', '281'),\n?    ^^\n\n-  ('62', '207'),\n?    ^^\n\n+  ('50', '207'),\n?    ^^\n\n-  ('62', '134'),\n?    ^^\n\n+  ('50', '134'),\n?    ^^\n\n-  ('62', '60')]\n?    ^^\n\n+  ('50', '60')]\n?    ^^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 84.226s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 14 -> 15",
+   "id": 262,
+   "line": 263,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 82.7,
+   "snippet": "'</text>' % (W // 2, H - 14))",
+   "status": "killed",
+   "tail": "0', '466'))\nAssertionError: Tuples differ: ('240', '465') != ('240', '466')\n\nFirst differing element 1:\n'465'\n'466'\n\n- ('240', '465')\n?            ^\n\n+ ('240', '466')\n?            ^\n\n\n----------------------------------------------------------------------\nRan 23 tests in 82.500s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 265,
+   "line": 56,
+   "op": "arith",
+   "seconds": 28.6,
+   "snippet": "return ((min(dist, DIST_MAX) * N_U + u_bin(u)) * 3 + imbalance_bin(rate_trd, rate_trd_opp)) \\",
+   "status": "killed",
+   "tail": "last):\n  File \"/home/user/qbt-bench/lob/tests/test_queue_model.py\", line 72, in test_bins\n    self.assertEqual(Q.cell_key(1, 0, 0.0, 5), (Q.N_U * 3 + 1) * 3)\nAssertionError: 3 != 120\n\n----------------------------------------------------------------------\nRan 19 tests in 28.542s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 266,
+   "line": 80,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 81.4,
+   "snippet": "c = cells.setdefault(row_key(r, h), [0, 0, []])",
+   "status": "killed",
+   "tail": "_queue_model.py\", line 112, in test_cell_counts_cover_every_uncensored_row\n    self.assertEqual(sum(c[0] for c in self.model.tables[h].values()), n_rows)\nAssertionError: 4192 != 4127\n\n----------------------------------------------------------------------\nRan 23 tests in 81.198s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 270,
+   "line": 154,
+   "op": "usub",
+   "seconds": 25.2,
+   "snippet": "return min(1 - 1e-6, max(1e-6, 1.0 - math.exp(-x)))",
+   "status": "killed",
+   "tail": "mut_queue_model_270.py\", line 137, in _p\n    return min(1 - 1e-06, max(1e-06, 1.0 - math.exp(x)))\n                                           ^^^^^^^^^^^\nOverflowError: math range error\n\n----------------------------------------------------------------------\nRan 10 tests in 25.091s\n\nFAILED (errors=2)\n"
+  },
+  {
+   "desc": "Eq -> NotEq",
+   "id": 271,
+   "line": 161,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 85.6,
+   "snippet": "if min(r['d'], D_MAX) == d]",
+   "status": "killed",
+   "tail": "ne 133, in test_parametric_fit_is_the_grid_argmax\n    self.assertGreaterEqual(best, coarse, d)\nAssertionError: -1026.4138631378607 not greater than or equal to -662.2868134419324 : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 85.429s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "GtE -> Gt",
+   "id": 272,
+   "line": 162,
+   "op": "cmp",
+   "seconds": 31.5,
+   "snippet": "data = [t for t in data if t[2] >= 0]",
+   "status": "killed",
+   "tail": "user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.65979 not less than 0.22447\n\n----------------------------------------------------------------------\nRan 19 tests in 31.339s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 100 -> 101",
+   "id": 273,
+   "line": 174,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 33.4,
+   "snippet": "for a100 in range(int(a0 * 100) - 50, int(a0 * 100) + 51, 5):",
+   "status": "killed",
+   "tail": "mostEqual(best, self.param._loglik(fine_best[0], fine_best[1], data, h),\nAssertionError: -656.7837029846728 != -656.7339174230059 within 9 places (0.04978556166690851 difference) : 0\n\n----------------------------------------------------------------------\nRan 23 tests in 33.267s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 275,
+   "line": 194,
+   "op": "arith",
+   "seconds": 32.1,
+   "snippet": "return sum((p - y) ** 2 for p, y in pairs) / len(pairs) if pairs else None",
+   "status": "killed",
+   "tail": "user/qbt-bench/lob/tests/test_queue_model.py\", line 139, in test_parametric_model\n    self.assertLess(ev['brier'], ev['brier_constant'])\nAssertionError: 0.88037 not less than 0.68745\n\n----------------------------------------------------------------------\nRan 19 tests in 31.950s\n\nFAILED (failures=3)\n"
+  },
+  {
+   "desc": "Eq -> NotEq",
+   "id": 278,
+   "line": 201,
+   "op": "cmp",
+   "seconds": 30.4,
+   "snippet": "sel = [(p, y) for p, y in pairs if lo <= p < hi or (i == bins - 1 and p == 1.0)]",
+   "status": "killed",
+   "tail": "bility_helpers\n    self.assertEqual([b['n'] for b in rel], [2, 2])\nAssertionError: Lists differ: [2, 3] != [2, 2]\n\nFirst differing element 1:\n3\n2\n\n- [2, 3]\n?     ^\n\n+ [2, 2]\n?     ^\n\n\n----------------------------------------------------------------------\nRan 19 tests in 30.303s\n\nFAILED (failures=2)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 286,
+   "line": 91,
+   "op": "const",
+   "seconds": 30.2,
+   "snippet": "med = fills[len(fills) // 2] if fills else None",
+   "status": "killed",
+   "tail": "est_queue_model.py\", line 124, in test_time_to_fill_is_cell_median\n    self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),\nAssertionError: 1.731811559 != 2.514752729\n\n----------------------------------------------------------------------\nRan 19 tests in 30.093s\n\nFAILED (failures=1)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 289,
+   "line": 86,
+   "op": "const",
+   "seconds": 27.2,
+   "snippet": "c[2].append(r['first_fill_ns'])",
+   "status": "killed",
+   "tail": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/lobmut_t3o83ucf/mut_queue_model_289.py\", line 77, in fit\n    c[3].append(r['first_fill_ns'])\n    ~^^^\nIndexError: list index out of range\n\n----------------------------------------------------------------------\nRan 10 tests in 27.132s\n\nFAILED (errors=2)\n"
+  }
+ ],
+ "run": 120,
+ "seconds": 1085.8,
+ "survived": 5,
+ "survivors": [
+  {
+   "desc": "const 11 -> 12",
+   "id": 124,
+   "line": 256,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 95.5,
+   "snippet": "for t in range(0, 11, 2):",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 95.222s\n\nOK\n"
+  },
+  {
+   "desc": "const 61 -> 62",
+   "id": 169,
+   "line": 168,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 90.2,
+   "snippet": "for a10 in range(-60, 61, 5):",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 90.013s\n\nOK\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 176,
+   "line": 176,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 93.6,
+   "snippet": "if ll > best_ll:",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 93.392s\n\nOK\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 188,
+   "line": 266,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 39.6,
+   "snippet": "nmax = max((b['n'] for b in rel), default=1)",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 39.333s\n\nOK\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 211,
+   "line": 171,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 36.8,
+   "snippet": "if ll > best_ll:",
+   "status": "survived",
+   "tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 36.687s\n\nOK\n"
+  }
+ ],
+ "target": "queue_model",
+ "timeouts": 0
+}

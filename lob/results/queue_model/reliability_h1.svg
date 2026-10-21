@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480" font-family="sans-serif" font-size="12">
+<rect width="100%%" height="100%%" fill="#ffffff"/>
+<text x="56" y="24" font-size="14" fill="#222">Reliability, horizon 1s (test, n=57694, Brier 0.1726)</text>
+<line x1="56" y1="424" x2="424" y2="56" stroke="#999" stroke-dasharray="4 4"/>
+<line x1="56" y1="424" x2="424" y2="424" stroke="#444"/>
+<line x1="56" y1="424" x2="56" y2="56" stroke="#444"/>
+<text x="56" y="442" text-anchor="middle" fill="#444">0.0</text>
+<text x="50" y="428" text-anchor="end" fill="#444">0.0</text>
+<text x="130" y="442" text-anchor="middle" fill="#444">0.2</text>
+<text x="50" y="354" text-anchor="end" fill="#444">0.2</text>
+<text x="203" y="442" text-anchor="middle" fill="#444">0.4</text>
+<text x="50" y="281" text-anchor="end" fill="#444">0.4</text>
+<text x="277" y="442" text-anchor="middle" fill="#444">0.6</text>
+<text x="50" y="207" text-anchor="end" fill="#444">0.6</text>
+<text x="350" y="442" text-anchor="middle" fill="#444">0.8</text>
+<text x="50" y="134" text-anchor="end" fill="#444">0.8</text>
+<text x="424" y="442" text-anchor="middle" fill="#444">1.0</text>
+<text x="50" y="60" text-anchor="end" fill="#444">1.0</text>
+<text x="240" y="466" text-anchor="middle" fill="#222">predicted probability</text>
+<text transform="translate(16,240) rotate(-90)" text-anchor="middle" fill="#222">observed frequency</text>
+<circle cx="88.8" cy="375.6" r="3.8" fill="#1f77b4" fill-opacity="0.75"><title>n=76 pred=0.089 obs=0.132</title></circle>
+<circle cx="117.3" cy="361.4" r="9.1" fill="#1f77b4" fill-opacity="0.75"><title>n=4722 pred=0.166 obs=0.170</title></circle>
+<circle cx="146.1" cy="334.4" r="11.1" fill="#1f77b4" fill-opacity="0.75"><title>n=8370 pred=0.245 obs=0.244</title></circle>
+<circle cx="184.6" cy="297.8" r="11.6" fill="#1f77b4" fill-opacity="0.75"><title>n=9462 pred=0.349 obs=0.343</title></circle>
+<circle cx="220.9" cy="264.2" r="8.4" fill="#1f77b4" fill-opacity="0.75"><title>n=3773 pred=0.448 obs=0.434</title></circle>
+<circle cx="265.3" cy="234.3" r="10.2" fill="#1f77b4" fill-opacity="0.75"><title>n=6644 pred=0.569 obs=0.516</title></circle>
+<circle cx="288.8" cy="193.1" r="7.1" fill="#1f77b4" fill-opacity="0.75"><title>n=2155 pred=0.633 obs=0.627</title></circle>
+<circle cx="331.5" cy="153.0" r="9.1" fill="#1f77b4" fill-opacity="0.75"><title>n=4763 pred=0.749 obs=0.736</title></circle>
+<circle cx="370.7" cy="113.7" r="10.6" fill="#1f77b4" fill-opacity="0.75"><title>n=7415 pred=0.855 obs=0.843</title></circle>
+<circle cx="408.1" cy="80.1" r="12.0" fill="#1f77b4" fill-opacity="0.75"><title>n=10314 pred=0.957 obs=0.934</title></circle>
+<polyline fill="none" stroke="#1f77b4" stroke-width="1.5" points="88.8,375.6 117.3,361.4 146.1,334.4 184.6,297.8 220.9,264.2 265.3,234.3 288.8,193.1 331.5,153.0 370.7,113.7 408.1,80.1"/>
+</svg>

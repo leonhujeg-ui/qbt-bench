@@ -1,0 +1,1406 @@
+{
+ "by_operator": {
+  "arith": {
+   "killed": 11,
+   "run": 13
+  },
+  "aug": {
+   "killed": 12,
+   "run": 12
+  },
+  "bool": {
+   "killed": 10,
+   "run": 12
+  },
+  "boolop": {
+   "killed": 12,
+   "run": 12
+  },
+  "brkcont": {
+   "killed": 3,
+   "run": 6
+  },
+  "cmp": {
+   "killed": 11,
+   "run": 12
+  },
+  "const": {
+   "killed": 12,
+   "run": 13
+  },
+  "delete": {
+   "killed": 14,
+   "run": 15
+  },
+  "negate": {
+   "killed": 13,
+   "run": 13
+  },
+  "usub": {
+   "killed": 12,
+   "run": 12
+  }
+ },
+ "candidates": 484,
+ "file": "lob/book.py",
+ "kill_rate": 91.7,
+ "killed": 110,
+ "rerun": {
+  "note": "survivors of run 1 re-run after adding tests; killed mutants kept",
+  "seconds": 81.1,
+  "survivor_ids": [
+   169,
+   210,
+   263,
+   276,
+   284,
+   297,
+   307,
+   315,
+   398,
+   431,
+   458,
+   459,
+   461
+  ]
+ },
+ "results": [
+  {
+   "desc": "delete statement",
+   "id": 22,
+   "line": 61,
+   "op": "delete",
+   "seconds": 38.4,
+   "snippet": "self.resting = 0",
+   "status": "killed",
+   "tail": " 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: level qty 4124 != sum of visible 4119 at price 493 seq 5000\n\n----------------------------------------------------------------------\nRan 315 tests in 38.320s\n\nFAILED (failures=2, errors=167, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 27,
+   "line": 66,
+   "op": "delete",
+   "seconds": 10.1,
+   "snippet": "self.dirty = True",
+   "status": "killed",
+   "tail": "lobmut_iu9vwtu9/mut_book_27.py\", line 82, in top\n    if not self.dirty and self._depth == depth:\n           ^^^^^^^^^^\nAttributeError: 'Book' object has no attribute 'dirty'\n\n----------------------------------------------------------------------\nRan 320 tests in 9.958s\n\nFAILED (errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 34,
+   "line": 77,
+   "op": "aug",
+   "seconds": 10.1,
+   "snippet": "self.n_events += 1",
+   "status": "killed",
+   "tail": "e \"/home/user/qbt-bench/lob/tests/test_book.py\", line 218, in test_cli_commands\n    self.assertEqual(json.load(fh)['events'], 3000)\nAssertionError: -3000 != 3000\n\n----------------------------------------------------------------------\nRan 320 tests in 9.944s\n\nFAILED (failures=4, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 36,
+   "line": 82,
+   "op": "negate",
+   "seconds": 1.9,
+   "snippet": "if kind == KIND_NEW:",
+   "status": "killed",
+   "tail": "r_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 3, 'symbol': 2, 'what': 'status', 'book': '10', 'reference': '4'} is not None\n\n----------------------------------------------------------------------\nRan 315 tests in 1.785s\n\nFAILED (failures=154, errors=8, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 37,
+   "line": 84,
+   "op": "negate",
+   "seconds": 5.4,
+   "snippet": "if kind == KIND_CANCEL:",
+   "status": "killed",
+   "tail": "mpare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 38, 'symbol': 2, 'what': 'status', 'book': '5', 'reference': '6'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 5.327s\n\nFAILED (failures=38, skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 48,
+   "line": 137,
+   "op": "aug",
+   "seconds": 3.0,
+   "snippet": "self.submitted += qty",
+   "status": "killed",
+   "tail": "iants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 2: -24 != 0+24+0+0\n\n----------------------------------------------------------------------\nRan 315 tests in 2.916s\n\nFAILED (failures=149, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 57,
+   "line": 185,
+   "op": "delete",
+   "seconds": 2.6,
+   "snippet": "self._rest(side, price, rem, aux if flags & FLAG_ICEBERG else 0, trader, oid)",
+   "status": "killed",
+   "tail": "ariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 2: 24 != 0+0+0+0\n\n----------------------------------------------------------------------\nRan 315 tests in 2.435s\n\nFAILED (failures=131, errors=6, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 62,
+   "line": 196,
+   "op": "delete",
+   "seconds": 7.6,
+   "snippet": "q = qd.get(key)",
+   "status": "killed",
+   "tail": "line 176, in _rest\\n    if q is None:\\n       ^\\nNameError: name \\'q\\' is not defined\\n'}\n\nDiff is 1274837 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 7.440s\n\nFAILED (failures=2, errors=140, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 77,
+   "line": 248,
+   "op": "negate",
+   "seconds": 600.1,
+   "snippet": "while rem and head < n:",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 81,
+   "line": 294,
+   "op": "aug",
+   "seconds": 5.0,
+   "snippet": "self.cancelled += cancelled",
+   "status": "killed",
+   "tail": "ts.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 21: 127 != 36+58+-11+0\n\n----------------------------------------------------------------------\nRan 315 tests in 4.853s\n\nFAILED (failures=11, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 90,
+   "line": 351,
+   "op": "negate",
+   "seconds": 192.9,
+   "snippet": "if o is None:",
+   "status": "killed",
+   "tail": "F........................................................F.........F.....FEEFEEEFFEE...................................................E..F...............................................................................................................................................F.............sEFs"
+  },
+  {
+   "desc": "negate condition",
+   "id": 93,
+   "line": 358,
+   "op": "negate",
+   "seconds": 600.1,
+   "snippet": "if q == 0:",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 106,
+   "line": 59,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 25.1,
+   "snippet": "self.seq = 0",
+   "status": "killed",
+   "tail": ", 0, 0, 1000))\nAssertionError: Tuples differ: (1, 0, 0, 1000) != (0, 0, 0, 1000)\n\nFirst differing element 0:\n1\n0\n\n- (1, 0, 0, 1000)\n?  ---\n\n+ (0, 0, 0, 1000)\n?       +++\n\n\n----------------------------------------------------------------------\nRan 333 tests in 24.887s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 113,
+   "line": 66,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 24.2,
+   "snippet": "self.dirty = True",
+   "status": "killed",
+   "tail": " File \"/home/user/qbt-bench/lob/tests/test_book.py\", line 194, in test_initial_state\n    self.assertTrue(book.dirty and book.keys_dirty)\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 333 tests in 24.039s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 114,
+   "line": 67,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 24.3,
+   "snippet": "self.keys_dirty = True",
+   "status": "killed",
+   "tail": " File \"/home/user/qbt-bench/lob/tests/test_book.py\", line 194, in test_initial_state\n    self.assertTrue(book.dirty and book.keys_dirty)\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 333 tests in 23.943s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 124,
+   "line": 100,
+   "op": "boolop",
+   "seconds": 4.4,
+   "snippet": "if not self.dirty and self._depth == depth:",
+   "status": "killed",
+   "tail": " (101982, 61), (101981, 17), (101980, 42), (101979, 6), (101978, 18), (101977, 8), (101974, 2), (101973, 52), (101972, 12), (101971, 46), (101970, 55), (1019'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.237s\n\nFAILED (failures=6, skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 137,
+   "line": 157,
+   "op": "aug",
+   "seconds": 5.3,
+   "snippet": "self.rejected += qty",
+   "status": "killed",
+   "tail": "py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 189: 630 != 228+318+71+-3\n\n----------------------------------------------------------------------\nRan 315 tests in 5.166s\n\nFAILED (failures=32, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 143,
+   "line": 168,
+   "op": "negate",
+   "seconds": 5.3,
+   "snippet": "if flags & FLAG_POST_ONLY:",
+   "status": "killed",
+   "tail": "pare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 36, 'symbol': 2, 'what': 'status', 'book': '18', 'reference': '1'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 5.083s\n\nFAILED (failures=89, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 144,
+   "line": 171,
+   "op": "negate",
+   "seconds": 5.7,
+   "snippet": "if flags & FLAG_FOK and self._fillable(side, trader, limit, qty) < qty:",
+   "status": "killed",
+   "tail": "pare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 36, 'symbol': 2, 'what': 'status', 'book': '19', 'reference': '1'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 5.544s\n\nFAILED (failures=85, skipped=2)\n"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 148,
+   "line": 182,
+   "op": "boolop",
+   "seconds": 2.3,
+   "snippet": "if stopped or flags & (FLAG_IOC | FLAG_MARKET):",
+   "status": "killed",
+   "tail": "ker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 3, 'symbol': 2, 'what': 'status', 'book': '0', 'reference': '4'} is not None\n\n----------------------------------------------------------------------\nRan 315 tests in 2.165s\n\nFAILED (failures=20, errors=2, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 157,
+   "line": 200,
+   "op": "delete",
+   "seconds": 600.1,
+   "snippet": "o[O_SLOT] = Q_FIRST",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "bool -> False",
+   "id": 164,
+   "line": 210,
+   "op": "bool",
+   "seconds": 4.6,
+   "snippet": "self.dirty = True",
+   "status": "killed",
+   "tail": "), (101981, 30), (101980, 39), (101979, 6), (101978, 23), (101977, 9), (101976, 8), (101974, 2), (101973, 52), (101972, 12), (101971, 46), (101970, 55), (101'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.399s\n\nFAILED (failures=4, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> True",
+   "id": 169,
+   "line": 219,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 23.6,
+   "snippet": "stopped = False",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.367s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 173,
+   "line": 223,
+   "op": "delete",
+   "seconds": 8.2,
+   "snippet": "rem, lq, k, stopped = self._match_level(queue, qd[key], side, trader,",
+   "status": "killed",
+   "tail": " line 203, in _match\\n    if lq == 0:\\n       ^^\\nNameError: name \\'lq\\' is not defined\\n'}\n\nDiff is 778006 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 7.967s\n\nFAILED (failures=2, errors=84, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 177,
+   "line": 238,
+   "op": "delete",
+   "seconds": 12.5,
+   "snippet": "self.band_lo, self.band_hi = ref - self.band, ref + self.band",
+   "status": "killed",
+   "tail": "me/user/qbt-bench/lob/tests/test_fuzz.py\", line 14, in test_20k_no_crash_no_violation_no_divergence\n    self.assertEqual(res['n_divergences'], 0)\nAssertionError: 357 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 12.140s\n\nFAILED (failures=4, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> True",
+   "id": 180,
+   "line": 247,
+   "op": "bool",
+   "seconds": 4.9,
+   "snippet": "stopped = False",
+   "status": "killed",
+   "tail": "mpare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 77, 'symbol': 2, 'what': 'status', 'book': '3', 'reference': '2'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.819s\n\nFAILED (failures=26, skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 181,
+   "line": 248,
+   "op": "boolop",
+   "seconds": 185.2,
+   "snippet": "while rem and head < n:",
+   "status": "killed",
+   "tail": "E...EE"
+  },
+  {
+   "desc": "negate condition",
+   "id": 187,
+   "line": 266,
+   "op": "negate",
+   "seconds": 5.6,
+   "snippet": "if side == SIDE_BUY:",
+   "status": "killed",
+   "tail": "bench/lob/invariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: aggressor id mismatch at seq 11\n\n----------------------------------------------------------------------\nRan 315 tests in 5.190s\n\nFAILED (failures=73, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 190,
+   "line": 274,
+   "op": "aug",
+   "seconds": 2.9,
+   "snippet": "filled += fill",
+   "status": "killed",
+   "tail": "ants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 11: 82 != -36+82+0+0\n\n----------------------------------------------------------------------\nRan 315 tests in 2.661s\n\nFAILED (failures=78, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 199,
+   "line": 303,
+   "op": "const",
+   "seconds": 8.8,
+   "snippet": "avail = 0",
+   "status": "killed",
+   "tail": "/qbt-bench/lob/tests/test_book.py\", line 220, in test_cli_commands\n    self.assertEqual(cli.main(['compare', '--stream', out, '--check', '100']), 0)\nAssertionError: 1 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 8.703s\n\nFAILED (failures=4, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 200,
+   "line": 305,
+   "op": "negate",
+   "seconds": 6.6,
+   "snippet": "if keys[idx] < lim_key or avail >= want:",
+   "status": "killed",
+   "tail": "are_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 329, 'symbol': 2, 'what': 'status', 'book': '19', 'reference': '1'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 6.386s\n\nFAILED (failures=12, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 203,
+   "line": 310,
+   "op": "delete",
+   "seconds": 3.4,
+   "snippet": "j = 0",
+   "status": "killed",
+   "tail": "dLocalError: cannot access local variable \\'j\\' where it is not associated with a value\\n'}\n\nDiff is 217712 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 3.215s\n\nFAILED (failures=2, errors=19, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 207,
+   "line": 331,
+   "op": "delete",
+   "seconds": 192.2,
+   "snippet": "qd, qq, keys, key = self.ask_qty, self.ask_queue, self.ask_keys, -o[O_PRICE]",
+   "status": "killed",
+   "tail": "E....................................................................E...............E........E.........................................................................................................................................................................................................sEEs"
+  },
+  {
+   "desc": "Eq -> NotEq",
+   "id": 209,
+   "line": 333,
+   "op": "cmp",
+   "seconds": 600.1,
+   "snippet": "if q == 0:",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "delete statement",
+   "id": 210,
+   "line": 337,
+   "op": "delete",
+   "rerun_with_added_tests": true,
+   "seconds": 23.3,
+   "snippet": "self.keys_dirty = True",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.035s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 213,
+   "line": 341,
+   "op": "delete",
+   "seconds": 100.3,
+   "snippet": "queue[o[O_SLOT]] = None",
+   "status": "killed",
+   "tail": ".....................................................................F...............F........F.........................................................................................................................................................................................................sFFs"
+  },
+  {
+   "desc": "delete statement",
+   "id": 220,
+   "line": 356,
+   "op": "delete",
+   "seconds": 167.9,
+   "snippet": "qd, qq, keys, key = self.ask_qty, self.ask_queue, self.ask_keys, -o[O_PRICE]",
+   "status": "killed",
+   "tail": "E........................................................E.........E..........EE...E....................................................................................................................................................................................................................sEEs"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 221,
+   "line": 357,
+   "op": "arith",
+   "seconds": 600.1,
+   "snippet": "q = qd[key] - o[O_VIS]",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "Eq -> NotEq",
+   "id": 222,
+   "line": 358,
+   "op": "cmp",
+   "seconds": 600.1,
+   "snippet": "if q == 0:",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "bool -> False",
+   "id": 229,
+   "line": 372,
+   "op": "bool",
+   "seconds": 7.5,
+   "snippet": "self.dirty = True",
+   "status": "killed",
+   "tail": " (101982, 61), (101981, 17), (101980, 42), (101979, 6), (101978, 18), (101977, 8), (101974, 2), (101973, 52), (101972, 12), (101971, 46), (101970, 55), (1019'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 7.186s\n\nFAILED (failures=5, skipped=2)\n"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 231,
+   "line": 381,
+   "op": "boolop",
+   "seconds": 4.9,
+   "snippet": "if new < self.min_qty or new > self.max_qty or new % self.lot:",
+   "status": "killed",
+   "tail": "invariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: bad quantities on order 4635 at seq 10534\n\n----------------------------------------------------------------------\nRan 315 tests in 4.768s\n\nFAILED (failures=11, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 233,
+   "line": 385,
+   "op": "aug",
+   "seconds": 3.2,
+   "snippet": "self.cancelled += rem - new",
+   "status": "killed",
+   "tail": "iants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 19: 99 != 36+52+5+0\n\n----------------------------------------------------------------------\nRan 315 tests in 3.075s\n\nFAILED (failures=16, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 238,
+   "line": 52,
+   "op": "arith",
+   "seconds": 3.0,
+   "snippet": "self.band_lo, self.band_hi = self.ref - self.band, self.ref + self.band",
+   "status": "killed",
+   "tail": "r_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 3, 'symbol': 2, 'what': 'status', 'book': '16', 'reference': '4'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 2.860s\n\nFAILED (failures=128, errors=7, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 241,
+   "line": 94,
+   "op": "usub",
+   "seconds": 2.9,
+   "snippet": "return -self.ask_keys[-1] if self.ask_keys else None",
+   "status": "killed",
+   "tail": "ob/invariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: crossed book in full check at seq 1564\n\n----------------------------------------------------------------------\nRan 315 tests in 2.645s\n\nFAILED (failures=11, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "NotEq -> Eq",
+   "id": 243,
+   "line": 102,
+   "op": "cmp",
+   "seconds": 14.2,
+   "snippet": "if self.keys_dirty or self._depth != depth:",
+   "status": "killed",
+   "tail": "3], [1001], [9])\n\nFirst differing element 2:\n[1001, 1007]\n[1001]\n\n- ([998], [3], [1001, 1007], [9, 8])\n?                   ------     ---\n\n+ ([998], [3], [1001], [9]) : 6\n\n----------------------------------------------------------------------\nRan 320 tests in 14.015s\n\nFAILED (failures=2, skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 249,
+   "line": 140,
+   "op": "boolop",
+   "seconds": 6.3,
+   "snippet": "elif flags and not flags_valid(flags):",
+   "status": "killed",
+   "tail": "er_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 3, 'symbol': 2, 'what': 'status', 'book': '12', 'reference': '4'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 6.062s\n\nFAILED (failures=66, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 251,
+   "line": 142,
+   "op": "negate",
+   "seconds": 2.6,
+   "snippet": "elif oid in self.orders:",
+   "status": "killed",
+   "tail": "r_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 3, 'symbol': 2, 'what': 'status', 'book': '13', 'reference': '4'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 2.450s\n\nFAILED (failures=141, errors=7, skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 254,
+   "line": 166,
+   "op": "boolop",
+   "seconds": 2.2,
+   "snippet": "crosses = bool(self.bid_keys) and self.bid_keys[-1] >= limit",
+   "status": "killed",
+   "tail": "                                   ~~~~~~~~~~~~~^^^^\\nIndexError: list index out of range\\n'}\n\nDiff is 1581 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 2.037s\n\nFAILED (failures=3, errors=92, skipped=2)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 261,
+   "line": 186,
+   "op": "cmp",
+   "seconds": 5.6,
+   "snippet": "return ST_PARTIAL_RESTED if rem < qty else ST_RESTED",
+   "status": "killed",
+   "tail": "mpare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 5, 'symbol': 2, 'what': 'status', 'book': '2', 'reference': '0'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 5.456s\n\nFAILED (failures=118, skipped=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 263,
+   "line": 191,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 22.5,
+   "snippet": "o = [oid, side, price, rem, vis, disp, trader, self.prio, 0]",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 22.308s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 264,
+   "line": 202,
+   "op": "bool",
+   "seconds": 2.8,
+   "snippet": "self.keys_dirty = True",
+   "status": "killed",
+   "tail": ", 80), (101008, 3), (101009, 43), (101010, 16), (101011, 7), (101012, 36),'}, 'seconds': 0.051, 'resting_orders': 319, 'full_checks': 641, 'trades_checked': 184}\n\n----------------------------------------------------------------------\nRan 315 tests in 2.720s\n\nFAILED (failures=2, errors=3, skipped=2)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 265,
+   "line": 204,
+   "op": "arith",
+   "seconds": 600.1,
+   "snippet": "qd[key] = q + vis",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "negate condition",
+   "id": 271,
+   "line": 232,
+   "op": "negate",
+   "rerun_with_added_tests": true,
+   "seconds": 23.8,
+   "snippet": "if queue[Q_HEAD] >= COMPACT_MIN_HEAD and queue[Q_HEAD] * 2 >= len(queue):",
+   "status": "killed",
+   "tail": "File \"/home/user/qbt-bench/lob/tests/test_book.py\", line 161, in test_no_premature_head_compaction\n    self.assertEqual(queue[Q_HEAD], Q_FIRST + 5)\nAssertionError: 2 != 7\n\n----------------------------------------------------------------------\nRan 333 tests in 23.559s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 272,
+   "line": 235,
+   "op": "brkcont",
+   "seconds": 600.1,
+   "snippet": "break",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "break<->continue",
+   "id": 276,
+   "line": 252,
+   "op": "brkcont",
+   "rerun_with_added_tests": true,
+   "seconds": 22.7,
+   "snippet": "continue",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 22.423s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "aug Sub -> Add",
+   "id": 280,
+   "line": 259,
+   "op": "aug",
+   "seconds": 600.1,
+   "snippet": "lq -= o[O_VIS]",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 283,
+   "line": 262,
+   "op": "aug",
+   "seconds": 8.8,
+   "snippet": "self.stp_cancels += 1",
+   "status": "killed",
+   "tail": "/qbt-bench/lob/tests/test_book.py\", line 220, in test_cli_commands\n    self.assertEqual(cli.main(['compare', '--stream', out, '--check', '100']), 0)\nAssertionError: 1 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 8.626s\n\nFAILED (failures=3, skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 284,
+   "line": 263,
+   "op": "brkcont",
+   "rerun_with_added_tests": true,
+   "seconds": 23.0,
+   "snippet": "continue",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 22.824s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 290,
+   "line": 279,
+   "op": "aug",
+   "seconds": 169.8,
+   "snippet": "head += 1",
+   "status": "killed",
+   "tail": "E...EEE..EE.E.E.EEE.E..E..E..EE..EE.E.......E.E...................E..F........E.....EF........F...E........E.......................E..E....EE...........................................................................................................................................................sEEs"
+  },
+  {
+   "desc": "negate condition",
+   "id": 291,
+   "line": 280,
+   "op": "negate",
+   "seconds": 121.1,
+   "snippet": "elif fill == vis:                       # iceberg slice exhausted",
+   "status": "killed",
+   "tail": "............"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 296,
+   "line": 305,
+   "op": "boolop",
+   "seconds": 5.2,
+   "snippet": "if keys[idx] < lim_key or avail >= want:",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_fuzz.py\", line 14, in test_20k_no_crash_no_violation_no_divergence\n    self.assertEqual(res['n_divergences'], 0)\nAssertionError: 829 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 5.041s\n\nFAILED (failures=4, skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 297,
+   "line": 306,
+   "op": "brkcont",
+   "rerun_with_added_tests": true,
+   "seconds": 23.4,
+   "snippet": "break",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.079s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 299,
+   "line": 311,
+   "op": "boolop",
+   "seconds": 2.1,
+   "snippet": "while j < len(sim) and avail < want:",
+   "status": "killed",
+   "tail": " disp, tr = sim[j]\\n                         ~~~^^^\\nIndexError: list index out of range\\n'}\n\nDiff is 37793 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 1.980s\n\nFAILED (failures=2, errors=14, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 307,
+   "line": 337,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 23.6,
+   "snippet": "self.keys_dirty = True",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.333s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 308,
+   "line": 342,
+   "op": "arith",
+   "seconds": 2.6,
+   "snippet": "dead = queue[Q_DEAD] + 1",
+   "status": "killed",
+   "tail": "variants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: dead count mismatch at price 100993 seq 1564\n\n----------------------------------------------------------------------\nRan 315 tests in 2.488s\n\nFAILED (failures=8, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 311,
+   "line": 346,
+   "op": "delete",
+   "seconds": 2.4,
+   "snippet": "queue[Q_DEAD] = dead",
+   "status": "killed",
+   "tail": "variants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: dead count mismatch at price 100993 seq 1564\n\n----------------------------------------------------------------------\nRan 315 tests in 2.299s\n\nFAILED (failures=8, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 313,
+   "line": 362,
+   "op": "bool",
+   "seconds": 4.4,
+   "snippet": "self.keys_dirty = True",
+   "status": "killed",
+   "tail": "  snap = (bp, list(map(self.bid_qty.__getitem__, bp)), ap, list(map(self.ask_qty.__getitem__, apn)))\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nKeyError: 100995\n\n----------------------------------------------------------------------\nRan 315 tests in 4.266s\n\nFAILED (errors=5, skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 315,
+   "line": 368,
+   "op": "boolop",
+   "rerun_with_added_tests": true,
+   "seconds": 23.8,
+   "snippet": "if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:",
+   "status": "killed",
+   "tail": "lds\n    self.assertEqual((queue[Q_DEAD], len(queue)), (1, Q_FIRST + 2))\nAssertionError: Tuples differ: (0, 3) != (1, 4)\n\nFirst differing element 0:\n0\n1\n\n- (0, 3)\n+ (1, 4)\n\n----------------------------------------------------------------------\nRan 334 tests in 23.542s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 319,
+   "line": 381,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 22.4,
+   "snippet": "if new < self.min_qty or new > self.max_qty or new % self.lot:",
+   "status": "killed",
+   "tail": "ionError: Lists differ: [0, 14] != [0, 6]\n\nFirst differing element 1:\n14\n6\n\n- [0, 14]\n?     ^^\n\n+ [0, 6]\n?     ^\n : Book / D14 modify to exactly max_qty accepted statuses\n\n----------------------------------------------------------------------\nRan 333 tests in 21.960s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 322,
+   "line": 386,
+   "op": "arith",
+   "seconds": 1.9,
+   "snippet": "self.resting -= rem - new",
+   "status": "killed",
+   "tail": "ants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 19: 99 != 36+46+11+0\n\n----------------------------------------------------------------------\nRan 315 tests in 1.787s\n\nFAILED (failures=16, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 325,
+   "line": 393,
+   "op": "delete",
+   "seconds": 600.1,
+   "snippet": "o[O_VIS] = new",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 328,
+   "line": 396,
+   "op": "aug",
+   "seconds": 3.0,
+   "snippet": "self.submitted += new - rem",
+   "status": "killed",
+   "tail": ".py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: conservation broken at seq 129: 400 != 108+231+68+5\n\n----------------------------------------------------------------------\nRan 315 tests in 2.855s\n\nFAILED (failures=12, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "Gt -> GtE",
+   "id": 337,
+   "line": 154,
+   "op": "cmp",
+   "seconds": 5.0,
+   "snippet": "if not rej and flags & FLAG_ICEBERG and (aux < self.lot or aux > qty or aux % self.lot):",
+   "status": "killed",
+   "tail": "pare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 880, 'symbol': 2, 'what': 'status', 'book': '17', 'reference': '0'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.844s\n\nFAILED (failures=6, skipped=2)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 343,
+   "line": 184,
+   "op": "cmp",
+   "seconds": 4.9,
+   "snippet": "return ST_PARTIAL_CANCELLED if rem < qty else ST_CANCELLED",
+   "status": "killed",
+   "tail": "ompare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 3, 'symbol': 2, 'what': 'status', 'book': '3', 'reference': '4'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.776s\n\nFAILED (failures=12, skipped=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 347,
+   "line": 201,
+   "op": "const",
+   "seconds": 2.1,
+   "snippet": "qq[key] = [Q_FIRST, 0, o]",
+   "status": "killed",
+   "tail": "ariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: dead count mismatch at price 100958 seq 1564\n\n----------------------------------------------------------------------\nRan 315 tests in 1.877s\n\nFAILED (failures=13, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 348,
+   "line": 215,
+   "op": "usub",
+   "seconds": 1.9,
+   "snippet": "keys, qd, qq, sgn, lim_key = self.ask_keys, self.ask_qty, self.ask_queue, -1, -limit",
+   "status": "killed",
+   "tail": ", in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: buy trade price -101003 outside touch (100998/101003) at seq 147\n\n----------------------------------------------------------------------\nRan 315 tests in 1.751s\n\nFAILED (failures=64, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 349,
+   "line": 215,
+   "op": "usub",
+   "seconds": 2.3,
+   "snippet": "keys, qd, qq, sgn, lim_key = self.ask_keys, self.ask_qty, self.ask_queue, -1, -limit",
+   "status": "killed",
+   "tail": "nts.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: crossed book: bid 101005 >= ask 101002 at seq 21\n\n----------------------------------------------------------------------\nRan 315 tests in 2.197s\n\nFAILED (failures=70, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 351,
+   "line": 221,
+   "op": "usub",
+   "seconds": 3.2,
+   "snippet": "key = keys[-1]",
+   "status": "killed",
+   "tail": "ench/lob/invariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: sell trade below limit at seq 25\n\n----------------------------------------------------------------------\nRan 315 tests in 3.048s\n\nFAILED (failures=7, errors=74, skipped=2)\n"
+  },
+  {
+   "desc": "Mult -> FloorDiv",
+   "id": 352,
+   "line": 224,
+   "op": "arith",
+   "seconds": 2.2,
+   "snippet": "oid, rem, sgn * key, k)",
+   "status": "killed",
+   "tail": "ench/lob/invariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: sell trade below limit at seq 11\n\n----------------------------------------------------------------------\nRan 315 tests in 2.112s\n\nFAILED (failures=77, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 358,
+   "line": 238,
+   "op": "arith",
+   "seconds": 2.7,
+   "snippet": "self.band_lo, self.band_hi = ref - self.band, ref + self.band",
+   "status": "killed",
+   "tail": "are_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 39, 'symbol': 2, 'what': 'status', 'book': '16', 'reference': '19'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 2.580s\n\nFAILED (failures=12, skipped=2)\n"
+  },
+  {
+   "desc": "Add -> Sub",
+   "id": 359,
+   "line": 238,
+   "op": "arith",
+   "seconds": 2.7,
+   "snippet": "self.band_lo, self.band_hi = ref - self.band, ref + self.band",
+   "status": "killed",
+   "tail": "are_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 39, 'symbol': 2, 'what': 'status', 'book': '16', 'reference': '19'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 2.499s\n\nFAILED (failures=15, skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 362,
+   "line": 256,
+   "op": "brkcont",
+   "seconds": 600.1,
+   "snippet": "break",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 363,
+   "line": 257,
+   "op": "const",
+   "seconds": 600.1,
+   "snippet": "head += 1",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 364,
+   "line": 262,
+   "op": "const",
+   "seconds": 6.6,
+   "snippet": "self.stp_cancels += 1",
+   "status": "killed",
+   "tail": "/qbt-bench/lob/tests/test_book.py\", line 220, in test_cli_commands\n    self.assertEqual(cli.main(['compare', '--stream', out, '--check', '100']), 0)\nAssertionError: 1 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 6.437s\n\nFAILED (failures=3, skipped=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 366,
+   "line": 277,
+   "op": "const",
+   "seconds": 158.3,
+   "snippet": "if o[O_REM] == 0:",
+   "status": "killed",
+   "tail": ""
+  },
+  {
+   "desc": "delete statement",
+   "id": 369,
+   "line": 281,
+   "op": "delete",
+   "seconds": 600.1,
+   "snippet": "o[O_VIS] = o[O_DISP] if o[O_DISP] < o[O_REM] else o[O_REM]",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 371,
+   "line": 283,
+   "op": "aug",
+   "seconds": 2.2,
+   "snippet": "self.prio += 1",
+   "status": "killed",
+   "tail": "ariants.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: time priority broken at price 100990 seq 1564\n\n----------------------------------------------------------------------\nRan 315 tests in 2.025s\n\nFAILED (failures=8, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "aug Add -> Sub",
+   "id": 375,
+   "line": 287,
+   "op": "aug",
+   "seconds": 2.8,
+   "snippet": "n += 1",
+   "status": "killed",
+   "tail": "ts.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: order 531 slot/side/price inconsistent at seq 1564\n\n----------------------------------------------------------------------\nRan 315 tests in 2.682s\n\nFAILED (failures=5, errors=1, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 378,
+   "line": 300,
+   "op": "usub",
+   "seconds": 4.7,
+   "snippet": "keys, qq, lim_key = self.ask_keys, self.ask_queue, -limit",
+   "status": "killed",
+   "tail": "are_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 329, 'symbol': 2, 'what': 'status', 'book': '19', 'reference': '1'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.533s\n\nFAILED (failures=11, skipped=2)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 380,
+   "line": 304,
+   "op": "const",
+   "seconds": 7.8,
+   "snippet": "for idx in range(len(keys) - 1, -1, -1):",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_fuzz.py\", line 14, in test_20k_no_crash_no_violation_no_divergence\n    self.assertEqual(res['n_divergences'], 0)\nAssertionError: 162 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 7.686s\n\nFAILED (failures=4, skipped=2)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 386,
+   "line": 313,
+   "op": "const",
+   "seconds": 9.2,
+   "snippet": "j += 1",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_fuzz.py\", line 14, in test_20k_no_crash_no_violation_no_divergence\n    self.assertEqual(res['n_divergences'], 0)\nAssertionError: 189 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 9.073s\n\nFAILED (failures=5, skipped=2)\n"
+  },
+  {
+   "desc": "negate condition",
+   "id": 388,
+   "line": 315,
+   "op": "negate",
+   "seconds": 5.7,
+   "snippet": "if self.stp_new:",
+   "status": "killed",
+   "tail": "pare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 930, 'symbol': 2, 'what': 'status', 'book': '3', 'reference': '19'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 5.600s\n\nFAILED (failures=6, skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 389,
+   "line": 317,
+   "op": "brkcont",
+   "seconds": 7.7,
+   "snippet": "continue",
+   "status": "killed",
+   "tail": "ome/user/qbt-bench/lob/tests/test_fuzz.py\", line 14, in test_20k_no_crash_no_violation_no_divergence\n    self.assertEqual(res['n_divergences'], 0)\nAssertionError: 151 != 0\n\n----------------------------------------------------------------------\nRan 320 tests in 7.512s\n\nFAILED (failures=3, skipped=2)\n"
+  },
+  {
+   "desc": "And -> Or",
+   "id": 390,
+   "line": 320,
+   "op": "boolop",
+   "seconds": 150.7,
+   "snippet": "if fill == vis and rem > vis:",
+   "status": "killed",
+   "tail": "...................."
+  },
+  {
+   "desc": "GtE -> Gt",
+   "id": 398,
+   "line": 368,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 25.5,
+   "snippet": "if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:",
+   "status": "killed",
+   "tail": "al((queue[Q_DEAD], len(queue)), (0, Q_FIRST + COMPACT_MIN_DEAD))\nAssertionError: Tuples differ: (32, 66) != (0, 34)\n\nFirst differing element 0:\n32\n0\n\n- (32, 66)\n+ (0, 34)\n\n----------------------------------------------------------------------\nRan 334 tests in 25.162s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "GtE -> Gt",
+   "id": 399,
+   "line": 368,
+   "op": "cmp",
+   "seconds": 10.4,
+   "snippet": "if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:",
+   "status": "killed",
+   "tail": "o_and_slots\n    self.assertLess(len(queue), Q_FIRST + n)        # compacted at least once\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 98 not less than 98\n\n----------------------------------------------------------------------\nRan 320 tests in 10.306s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 403,
+   "line": 394,
+   "op": "bool",
+   "seconds": 5.8,
+   "snippet": "self.dirty = True",
+   "status": "killed",
+   "tail": "8],\n   [1003, 1004, 1005, 1006, 1007, 1008, 1009],\n-  [24, 59, 127, 127, 134, 25, 40])\n?                -----\n\n+  [24, 59, 121, 127, 134, 25, 40])\n?          +++++\n : 1137\n\n----------------------------------------------------------------------\nRan 320 tests in 5.664s\n\nFAILED (failures=4, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 407,
+   "line": 103,
+   "op": "usub",
+   "seconds": 4.2,
+   "snippet": "bp = self.bid_keys[-1:-depth - 1:-1]",
+   "status": "killed",
+   "tail": " 41), (102006, 157), (102007, 39), (102008, 25), (102009, 60), (102010, 8), (102012, 22), (102013, 29), (102016, 1), (102017, 13), (102019, 8), (102022, 4)])'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 3.978s\n\nFAILED (failures=7, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 413,
+   "line": 105,
+   "op": "usub",
+   "seconds": 3.7,
+   "snippet": "self._keys = (bp, apn, [-k for k in apn])",
+   "status": "killed",
+   "tail": "41), (102006, 157), (102007, 39), (102008, 25), (102009, 60), (102010, 8), (102012, 22), (102013, 29), (102016, 1), (102017, 13), (102019, 8), (102022, 4)])'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 3.549s\n\nFAILED (failures=57, skipped=2)\n"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 414,
+   "line": 144,
+   "op": "boolop",
+   "seconds": 4.5,
+   "snippet": "elif qty < self.min_qty or qty > self.max_qty or qty % self.lot:",
+   "status": "killed",
+   "tail": "re_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 2623, 'symbol': 2, 'what': 'status', 'book': '1', 'reference': '14'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 4.380s\n\nFAILED (failures=12, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> True",
+   "id": 418,
+   "line": 179,
+   "op": "bool",
+   "seconds": 2.7,
+   "snippet": "rem, stopped = qty, False",
+   "status": "killed",
+   "tail": "er_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 5, 'symbol': 2, 'what': 'status', 'book': '4', 'reference': '0'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 2.540s\n\nFAILED (failures=126, errors=7, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 420,
+   "line": 220,
+   "op": "usub",
+   "seconds": 1.9,
+   "snippet": "while rem and keys and keys[-1] >= lim_key:",
+   "status": "killed",
+   "tail": "nts.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: crossed book: bid 100004 >= ask 100003 at seq 10\n\n----------------------------------------------------------------------\nRan 315 tests in 1.720s\n\nFAILED (failures=5, errors=79, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 424,
+   "line": 237,
+   "op": "usub",
+   "seconds": 2.2,
+   "snippet": "self.ref = ref = self.trades[-1][6]",
+   "status": "killed",
+   "tail": "lf.trades[1][6]\\n                     ~~~~~~~~~~~^^^\\nIndexError: list index out of range\\n'}\n\nDiff is 1007 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 2.109s\n\nFAILED (failures=2, errors=52, skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 425,
+   "line": 255,
+   "op": "bool",
+   "seconds": 600.1,
+   "snippet": "stopped = True",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "IsNot -> Is",
+   "id": 429,
+   "line": 309,
+   "op": "cmp",
+   "seconds": 3.2,
+   "snippet": "for o in queue[queue[Q_HEAD]:] if o is not None]",
+   "status": "killed",
+   "tail": "f o is None]\\n            ~^^^^^^^\\nTypeError: \\'NoneType\\' object is not subscriptable\\n'}\n\nDiff is 210314 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 3.012s\n\nFAILED (failures=11, errors=5, skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 431,
+   "line": 318,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 24.9,
+   "snippet": "fill = want - avail if want - avail < vis else vis",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 24.632s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 437,
+   "line": 368,
+   "op": "arith",
+   "seconds": 11.2,
+   "snippet": "if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:",
+   "status": "killed",
+   "tail": "o_and_slots\n    self.assertLess(len(queue), Q_FIRST + n)        # compacted at least once\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 98 not less than 98\n\n----------------------------------------------------------------------\nRan 320 tests in 11.058s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 439,
+   "line": 392,
+   "op": "arith",
+   "seconds": 600.0,
+   "snippet": "self.ask_qty[-o[O_PRICE]] -= o[O_VIS] - new",
+   "status": "timeout",
+   "tail": ""
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 442,
+   "line": 103,
+   "op": "usub",
+   "seconds": 3.7,
+   "snippet": "bp = self.bid_keys[-1:-depth - 1:-1]",
+   "status": "killed",
+   "tail": "41), (102006, 157), (102007, 39), (102008, 25), (102009, 60), (102010, 8), (102012, 22), (102013, 29), (102016, 1), (102017, 13), (102019, 8), (102022, 4)])'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 3.572s\n\nFAILED (failures=42, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 446,
+   "line": 104,
+   "op": "usub",
+   "seconds": 3.7,
+   "snippet": "apn = self.ask_keys[-1:-depth - 1:-1]",
+   "status": "killed",
+   "tail": "41), (102006, 157), (102007, 39), (102008, 25), (102009, 60), (102010, 8), (102012, 22), (102013, 29), (102016, 1), (102017, 13), (102019, 8), (102022, 4)])'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 3.621s\n\nFAILED (failures=57, skipped=2)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 457,
+   "line": 237,
+   "op": "const",
+   "seconds": 1.9,
+   "snippet": "self.ref = ref = self.trades[-1][6]",
+   "status": "killed",
+   "tail": ".trades[-2][6]\\n                     ~~~~~~~~~~~^^^^\\nIndexError: list index out of range\\n'}\n\nDiff is 1009 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 315 tests in 1.770s\n\nFAILED (failures=4, errors=52, skipped=2)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 458,
+   "line": 281,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 25.5,
+   "snippet": "o[O_VIS] = o[O_DISP] if o[O_DISP] < o[O_REM] else o[O_REM]",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 25.264s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 459,
+   "line": 318,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 25.0,
+   "snippet": "fill = want - avail if want - avail < vis else vis",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 24.760s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "const 2 -> 3",
+   "id": 461,
+   "line": 368,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 10.1,
+   "snippet": "if dead >= COMPACT_MIN_DEAD and dead * 2 >= len(queue) - Q_FIRST:",
+   "status": "killed",
+   "tail": "f.assertEqual((queue[Q_DEAD], len(queue)), (40, Q_FIRST + 100))\nAssertionError: Tuples differ: (6, 68) != (40, 102)\n\nFirst differing element 0:\n6\n40\n\n- (6, 68)\n+ (40, 102)\n\n----------------------------------------------------------------------\nRan 334 tests in 9.897s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "drop unary minus",
+   "id": 467,
+   "line": 164,
+   "op": "usub",
+   "seconds": 1.7,
+   "snippet": "crosses = bool(self.ask_keys) and -self.ask_keys[-1] <= limit",
+   "status": "killed",
+   "tail": "nts.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: crossed book: bid 100004 >= ask 100003 at seq 10\n\n----------------------------------------------------------------------\nRan 315 tests in 1.556s\n\nFAILED (failures=4, errors=67, skipped=2)\n"
+  },
+  {
+   "desc": "const 1 -> 2",
+   "id": 468,
+   "line": 166,
+   "op": "const",
+   "seconds": 1.9,
+   "snippet": "crosses = bool(self.bid_keys) and self.bid_keys[-1] >= limit",
+   "status": "killed",
+   "tail": "nts.py\", line 26, in _fail\n    raise InvariantError(msg % args if args else msg)\nlob.invariants.InvariantError: crossed book: bid 101002 >= ask 101002 at seq 11\n\n----------------------------------------------------------------------\nRan 315 tests in 1.833s\n\nFAILED (failures=5, errors=31, skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 470,
+   "line": 321,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 23.4,
+   "snippet": "sim.append((rem - vis, disp if disp < rem - vis else rem - vis, disp, tr))",
+   "status": "killed",
+   "tail": "rtionError: Lists differ: [0, 2] != [0, 19]\n\nFirst differing element 1:\n2\n19\n\n- [0, 2]\n?     ^\n\n+ [0, 19]\n?     ^^\n : Book / K13 FOK above iceberg total rejected statuses\n\n----------------------------------------------------------------------\nRan 333 tests in 23.171s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "Or -> And",
+   "id": 473,
+   "line": 150,
+   "op": "boolop",
+   "seconds": 5.9,
+   "snippet": "elif price > self.band_hi or price < self.band_lo:",
+   "status": "killed",
+   "tail": "pare_worker_in_process\n    self.assertIsNone(s['first_divergence'])\nAssertionError: {'seq': 99, 'symbol': 2, 'what': 'status', 'book': '0', 'reference': '16'} is not None\n\n----------------------------------------------------------------------\nRan 320 tests in 5.740s\n\nFAILED (failures=10, skipped=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 479,
+   "line": 148,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 23.0,
+   "snippet": "elif price <= 0 or price % self.tick:",
+   "status": "killed",
+   "tail": "e.statuses, label + ' statuses')\nAssertionError: Lists differ: [15] != [0]\n\nFirst differing element 0:\n15\n0\n\n- [15]\n+ [0] : Book / V24 price one is a valid price statuses\n\n----------------------------------------------------------------------\nRan 333 tests in 22.755s\n\nFAILED (failures=1, skipped=2)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 481,
+   "line": 150,
+   "op": "cmp",
+   "seconds": 11.0,
+   "snippet": "elif price > self.band_hi or price < self.band_lo:",
+   "status": "killed",
+   "tail": " ' statuses')\nAssertionError: Lists differ: [16, 16] != [16, 0]\n\nFirst differing element 1:\n16\n0\n\n- [16, 16]\n?      ^^\n\n+ [16, 0]\n?      ^\n : Book / V12 band low statuses\n\n----------------------------------------------------------------------\nRan 320 tests in 10.832s\n\nFAILED (failures=2, skipped=2)\n"
+  }
+ ],
+ "run": 120,
+ "seconds": 3005.9,
+ "survived": 10,
+ "survivors": [
+  {
+   "desc": "bool -> True",
+   "id": 169,
+   "line": 219,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 23.6,
+   "snippet": "stopped = False",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.367s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "delete statement",
+   "id": 210,
+   "line": 337,
+   "op": "delete",
+   "rerun_with_added_tests": true,
+   "seconds": 23.3,
+   "snippet": "self.keys_dirty = True",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.035s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "const 0 -> 1",
+   "id": 263,
+   "line": 191,
+   "op": "const",
+   "rerun_with_added_tests": true,
+   "seconds": 22.5,
+   "snippet": "o = [oid, side, price, rem, vis, disp, trader, self.prio, 0]",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 22.308s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 276,
+   "line": 252,
+   "op": "brkcont",
+   "rerun_with_added_tests": true,
+   "seconds": 22.7,
+   "snippet": "continue",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 22.423s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 284,
+   "line": 263,
+   "op": "brkcont",
+   "rerun_with_added_tests": true,
+   "seconds": 23.0,
+   "snippet": "continue",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 22.824s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "break<->continue",
+   "id": 297,
+   "line": 306,
+   "op": "brkcont",
+   "rerun_with_added_tests": true,
+   "seconds": 23.4,
+   "snippet": "break",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.079s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "bool -> False",
+   "id": 307,
+   "line": 337,
+   "op": "bool",
+   "rerun_with_added_tests": true,
+   "seconds": 23.6,
+   "snippet": "self.keys_dirty = True",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 23.333s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 431,
+   "line": 318,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 24.9,
+   "snippet": "fill = want - avail if want - avail < vis else vis",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 24.632s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "Lt -> LtE",
+   "id": 458,
+   "line": 281,
+   "op": "cmp",
+   "rerun_with_added_tests": true,
+   "seconds": 25.5,
+   "snippet": "o[O_VIS] = o[O_DISP] if o[O_DISP] < o[O_REM] else o[O_REM]",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 25.264s\n\nOK (skipped=2)\n"
+  },
+  {
+   "desc": "Sub -> Add",
+   "id": 459,
+   "line": 318,
+   "op": "arith",
+   "rerun_with_added_tests": true,
+   "seconds": 25.0,
+   "snippet": "fill = want - avail if want - avail < vis else vis",
+   "status": "survived",
+   "tail": "..............................................................................................................................................................s..s....................\n....\n----------------------------------------------------------------------\nRan 334 tests in 24.760s\n\nOK (skipped=2)\n"
+  }
+ ],
+ "target": "book",
+ "timeouts": 15
+}

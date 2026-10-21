@@ -1,0 +1,24 @@
+{
+ "mix": "insert 40% / remove 40% / pop_best 10% / best 10%",
+ "ns_per_op": {
+  "1000": {
+   "DictScan": null,
+   "LazyHeap": 310.5,
+   "SkipList": 1500.0,
+   "SortedList": 197.8
+  },
+  "200": {
+   "DictScan": 182.4,
+   "LazyHeap": 377.5,
+   "SkipList": 1471.9,
+   "SortedList": 262.8
+  },
+  "50": {
+   "DictScan": 174.6,
+   "LazyHeap": 385.9,
+   "SkipList": 1964.5,
+   "SortedList": 170.4
+  }
+ },
+ "ops": 300000
+}

@@ -1,0 +1,34 @@
+{
+ "events": 10000000,
+ "first_divergence": null,
+ "full_checks": 5006,
+ "resting_orders": 6632,
+ "seconds": 645.138,
+ "shard_seconds": [
+  598.929,
+  645.042,
+  576.455,
+  605.464
+ ],
+ "shards": [
+  [
+   0,
+   4
+  ],
+  [
+   1,
+   5
+  ],
+  [
+   2,
+   6
+  ],
+  [
+   3,
+   7
+  ]
+ ],
+ "trades": 1820774,
+ "trades_checked": 1820774,
+ "volume": 14206029
+}

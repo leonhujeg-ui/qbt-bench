@@ -1,0 +1,246 @@
+{
+ "book:106": {
+  "class": "补判据",
+  "note": "构造函数 seq 初值 0→1：test_book.test_initial_state 断言初始计数器全为 0"
+ },
+ "book:113": {
+  "class": "补判据",
+  "note": "构造函数 dirty 初值 True→False：空簿 top(0) 会返回 None；test_initial_state 断言 top(0)==([],[],[],[])"
+ },
+ "book:114": {
+  "class": "补判据",
+  "note": "构造函数 keys_dirty 初值 True→False：空簿 top(0) 解包 None 抛异常；同上判据"
+ },
+ "book:169": {
+  "class": "等价",
+  "note": "_match 中 stopped 初值：_match 只在价格交叉时被调用，循环体至少执行一次并覆盖该变量"
+ },
+ "book:210": {
+  "class": "等价",
+  "note": "_unlink 删档后漏设 keys_dirty：_unlink 现仅被增量改单调用，随后 _rest 以同价位重建档并置 keys_dirty，价格切片不变"
+ },
+ "book:263": {
+  "class": "等价",
+  "note": "订单列表 O_SLOT 占位 0→1：紧接着被 Q_FIRST 或 len(queue) 覆盖"
+ },
+ "book:271": {
+  "class": "补判据",
+  "note": "队首压实条件取反（总是/从不压实）：test_book.CompactionPolicyTest.test_no_premature_head_compaction 断言 5 次成交后未压实"
+ },
+ "book:276": {
+  "class": "等价",
+  "note": "_match_level 遇 None 槽 continue→break：外层 while 会以更新后的 head 重新进入同一档，效果相同"
+ },
+ "book:284": {
+  "class": "等价",
+  "note": "cancel_old 撤旧单后 continue→break：同上，外层循环重入同一档"
+ },
+ "book:297": {
+  "class": "等价",
+  "note": "_fillable 中 break→continue：后续档位同样不交叉或 avail 已够，只多做无效扫描"
+ },
+ "book:307": {
+  "class": "等价",
+  "note": "同 book:210（keys_dirty 布尔翻转）"
+ },
+ "book:315": {
+  "class": "补判据",
+  "note": "_cancel 内联压实条件 and→or（小队列提前压实）：test_cancel_compaction_thresholds (i) 断言 2 单档撤 1 单后 dead==1 未压实（首次补的判据误打在 _unlink 的同形条件上，已补撤单路径）"
+ },
+ "book:319": {
+  "class": "补判据",
+  "note": "改量 > max_qty 改为 >=：cases D14 改到恰好 max_qty 必须接受"
+ },
+ "book:398": {
+  "class": "补判据",
+  "note": "_cancel 压实阈值 >= 改 >：test_cancel_compaction_thresholds (ii) 断言恰好 32 个死槽时压实"
+ },
+ "book:431": {
+  "class": "等价",
+  "note": "_fillable 中 fill 值 want-avail→want+avail：仅使 avail 超过 want，而调用方只比较 avail<qty，判定不变"
+ },
+ "book:458": {
+  "class": "等价",
+  "note": "冰山露出 disp<rem 改 <=：disp==rem 时两分支取值相同"
+ },
+ "book:459": {
+  "class": "等价",
+  "note": "_fillable 条件 want-avail<vis→want+avail<vis：只改变 fill 取 vis 的时机，avail 一旦 >= want 即退出，判定不变"
+ },
+ "book:461": {
+  "class": "补判据",
+  "note": "_cancel 压实条件 dead*2 改 dead*3：test_cancel_compaction_thresholds (iii) 断言 100 单档撤 40 单后未压实"
+ },
+ "book:470": {
+  "class": "补判据",
+  "note": "FOK 纯模拟冰山露出后剩余 rem-vis 改 rem+vis（高估可成量）：cases K13 FOK 8 > 冰山总量 5 必须拒绝"
+ },
+ "book:479": {
+  "class": "补判据",
+  "note": "price<=0 改 price<=1：cases V24 价格 1 必须接受"
+ },
+ "queue_model:101": {
+  "class": "补判据",
+  "note": "predict 默认 spread 2→3：test_default_spread_is_two_ticks"
+ },
+ "queue_model:105": {
+  "class": "补判据",
+  "note": "细网格 if ll > best_ll 取反（取最差）：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax"
+ },
+ "queue_model:113": {
+  "class": "补判据",
+  "note": "W 480→481：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:115": {
+  "class": "补判据",
+  "note": "2*M 改 2//M：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:124": {
+  "class": "等价",
+  "note": "刻度 range(0,11,2) 改 range(0,12,2)：步长 2 下两者都是 0..10，集合不变（首次误判为可补判据，复跑仍漏网后改判等价）"
+ },
+ "queue_model:133": {
+  "class": "补判据",
+  "note": "失衡阈值 > 0.3 改 >=：test_bins 断言 x==0.3 落在中间桶"
+ },
+ "queue_model:167": {
+  "class": "补判据",
+  "note": "best_ll 初值 -inf 改 +inf（永不更新）：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax"
+ },
+ "queue_model:169": {
+  "class": "等价",
+  "note": "粗网格 range(-60,61,5) 改 62：步长 5 下网格点集合不变"
+ },
+ "queue_model:172": {
+  "class": "补判据",
+  "note": "粗网格 if ll > best_ll 取反：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax"
+ },
+ "queue_model:173": {
+  "class": "补判据",
+  "note": "细网格下界 a0-0.5 改 a0+0.5：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax（细网格 argmax 需等于独立重算）"
+ },
+ "queue_model:174": {
+  "class": "补判据",
+  "note": "细网格上界 a0+0.5 改 a0-0.5：同上"
+ },
+ "queue_model:176": {
+  "class": "等价",
+  "note": "细网格 > 改 >=：仅在对数似然恰好相等时取后者，浮点对数似然相等概率为零且 fit 不会对空数据调用 _grid"
+ },
+ "queue_model:179": {
+  "class": "补判据",
+  "note": "base_rate round 4→5 位：test_base_rate_rounding 用 3/7 的成交率断言 0.4286（首次判据的数据集成交率恰好不区分 4/5 位）"
+ },
+ "queue_model:180": {
+  "class": "补判据",
+  "note": "scale 中常量 2→3：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:181": {
+  "class": "补判据",
+  "note": "X(p) 的 p*scale 改 p//scale：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:182": {
+  "class": "补判据",
+  "note": "Y(p) 的减号改加号：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:188": {
+  "class": "等价",
+  "note": "max(..., default=1) 改 default=2：default 只在无桶时使用，此时也不画圆点"
+ },
+ "queue_model:193": {
+  "class": "补判据",
+  "note": "makedirs exist_ok True→False：端到端测试对已存在目录重复 run()"
+ },
+ "queue_model:211": {
+  "class": "等价",
+  "note": "粗网格 > 改 >=：同 176"
+ },
+ "queue_model:219": {
+  "class": "补判据",
+  "note": "x 轴标题 W//2 改 W*2：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:222": {
+  "class": "补判据",
+  "note": "圆点半径系数 9→10：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:225": {
+  "class": "补判据",
+  "note": "模型 JSON sort_keys True→False：端到端测试断言文件字节等于规范 dumps"
+ },
+ "queue_model:226": {
+  "class": "补判据",
+  "note": "评估 JSON indent 1→2：同上"
+ },
+ "queue_model:227": {
+  "class": "补判据",
+  "note": "评估 JSON sort_keys True→False：同上"
+ },
+ "queue_model:235": {
+  "class": "等价",
+  "note": "参数模型 range(D_MAX+1) 改 +2：多拟合一个 d=4 项，predict_row 用 min(d, D_MAX) 永不读取"
+ },
+ "queue_model:236": {
+  "class": "补判据",
+  "note": "细网格中心 a0*100 改 a0//100：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax"
+ },
+ "queue_model:237": {
+  "class": "补判据",
+  "note": "细网格上界 int(a0*100) 改 int(a0//100)：test_parametric_refinement_window 构造最优点在粗网格点之间（a=ln3）的数据，细网格必须找到它"
+ },
+ "queue_model:247": {
+  "class": "补判据",
+  "note": "对角线端点 X(0)→X(1)：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:248": {
+  "class": "补判据",
+  "note": "对角线端点 Y(1)→Y(2)：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:251": {
+  "class": "补判据",
+  "note": "x 轴线端点：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:253": {
+  "class": "补判据",
+  "note": "x 轴线端点：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:254": {
+  "class": "补判据",
+  "note": "y 轴线端点：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:259": {
+  "class": "补判据",
+  "note": "y 刻度标签 x 坐标 M-6 改 M+6：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:262": {
+  "class": "补判据",
+  "note": "x 轴标题 y 坐标 H-14 改 H-15：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:266": {
+  "class": "补判据",
+  "note": "分桶计数初值 [0,0] 改 [1,0]：test_cell_counts_cover_every_uncensored_row 断言各桶 n 之和等于未删失行数"
+ },
+ "queue_model:271": {
+  "class": "补判据",
+  "note": "按 d 取子集的 == 改 !=：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax（在正确子集上重算 argmax）"
+ },
+ "queue_model:273": {
+  "class": "补判据",
+  "note": "细网格中心 a0*100 改 a0*101：参数模型网格搜索 argmax 判据 test_parametric_fit_is_the_grid_argmax"
+ },
+ "queue_model:51": {
+  "class": "补判据",
+  "note": "reliability 默认桶数 10→11：test_evaluate_rounding_and_bins 断言桶宽 0.1、桶数 ≤ 10"
+ },
+ "queue_model:62": {
+  "class": "补判据",
+  "note": "scale = W-2M 改 W+2M：可靠性图几何判据 test_svg_geometry（坐标轴/对角线/刻度/圆点半径按公式精确核对）"
+ },
+ "queue_model:78": {
+  "class": "补判据",
+  "note": "删除 ev['brier_parametric']：端到端测试断言该键为 float"
+ },
+ "queue_model:87": {
+  "class": "补判据",
+  "note": "失衡阈值 < -0.3 改 <=：test_bins 断言 x==-0.3 落在中间桶"
+ }
+}
