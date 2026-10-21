@@ -60,14 +60,22 @@ class OutcomeTest(unittest.TestCase):
 
     def test_bins(self):
         self.assertEqual(Q.u_bin(0.0), 0)
-        self.assertEqual(Q.u_bin(0.25), 1)
-        self.assertEqual(Q.u_bin(15.9), 6)
-        self.assertEqual(Q.u_bin(16.0), 7)
-        self.assertEqual(Q.cell_key(0, 0, 0.0, 5), 0)
-        self.assertEqual(Q.cell_key(1, 0, 0.0, 5), 8)
-        self.assertEqual(Q.cell_key(9, 0, 0.0, 5), 24)          # d clipped to 3
-        self.assertEqual(Q.cell_key(0, 10, 2.0, 5), Q.u_bin(10 / 11.0))
-        self.assertEqual(Q.cell_key(0, 100, 0.0, 1), 7)
+        self.assertEqual(Q.u_bin(0.1), 1)
+        self.assertEqual(Q.u_bin(15.9), 11)
+        self.assertEqual(Q.u_bin(16.0), 12)
+        self.assertEqual(Q.imbalance_bin(10.0, 10.0), 1)
+        self.assertEqual(Q.imbalance_bin(10.0, 0.0), 2)
+        self.assertEqual(Q.imbalance_bin(0.0, 10.0), 0)
+        self.assertEqual((Q.spread_bin(1), Q.spread_bin(2), Q.spread_bin(5), Q.spread_bin(6)),
+                         (0, 0, 1, 2))
+        self.assertEqual(Q.cell_key(0, 0, 0.0, 5), (0 * 3 + 1) * 3 + 0)
+        self.assertEqual(Q.cell_key(1, 0, 0.0, 5), (Q.N_U * 3 + 1) * 3)
+        self.assertEqual(Q.cell_key(9, 0, 0.0, 5), Q.cell_key(8, 0, 0.0, 5))   # clipped
+        self.assertEqual(Q.cell_key(0, 10, 2.0, 5), (Q.u_bin(10 / 11.0) * 3 + 1) * 3)
+        self.assertEqual(Q.cell_key(0, 100, 0.0, 1, 0.0, 9), (12 * 3 + 1) * 3 + 2)
+        keys = set(Q.cell_key(d, a, 1.0, 5, o, sp) for d in range(10) for a in (0, 5, 50, 500)
+                   for o in (0.0, 1.0, 9.0) for sp in (1, 4, 9))
+        self.assertEqual(len(keys), len(set(keys)))
 
 
 class ModelTest(unittest.TestCase):
@@ -94,35 +102,36 @@ class ModelTest(unittest.TestCase):
             self.assertEqual(sum(v['n'] for v in ev['by_d'].values()), ev['n'])
 
     def test_predictions_monotone_in_queue_position(self):
-        p = [self.model.predict(a, 100, 1.0, 1.0, 10.0, 0, 5) for a in (0, 10, 40, 200)]
+        p = [self.model.predict(a, 100, 1.0, 1.0, 10.0, 0, 5, 0, 10.0, 2) for a in (0, 10, 40, 200)]
         self.assertEqual(p, sorted(p, reverse=True))
         self.assertTrue(all(0.0 <= x <= 1.0 for x in p))
-        self.assertGreater(self.model.predict(0, 1, 0, 0, 10.0, 0, 5),
-                           self.model.predict(0, 1, 0, 0, 10.0, 3, 5))
+        self.assertGreater(self.model.predict(0, 1, 0, 0, 10.0, 0, 5, 0, 10.0),
+                           self.model.predict(0, 1, 0, 0, 10.0, 3, 5, 3, 10.0))
 
     def test_unseen_cell_falls_back_to_global_rate(self):
         m = Q.QueueModel().fit(self.train[:50], (5,))
         m.tables[5] = {}
         self.assertEqual(m.predict(5, 5, 0, 0, 0, 0, 5), m.global_rate[5])
         self.assertIsNone(m.time_to_fill(5, 0, 0, 5))
+        self.assertIsNone(m.time_to_fill(5, 0, 0, 5, 0, 0.0, 2))
         self.assertEqual(m._horizon(4), 5)                     # nearest horizon
 
     def test_time_to_fill_is_cell_median(self):
         h = 5
-        key = Q.cell_key(0, 0, 10.0, h)
+        key = Q.cell_key(0, 0, 10.0, h, 10.0, 2)
         fills = sorted(r['first_fill_ns'] for r in self.train
-                       if outcome(r, h * NS) == 1
-                       and Q.cell_key(r['d'], r['ahead'], r['rate_trd'], h) == key)
-        self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h), fills[len(fills) // 2] / NS)
+                       if outcome(r, h * NS) == 1 and Q.row_key(r, h) == key)
+        self.assertEqual(self.model.time_to_fill(0, 10.0, 0, h, 0, 10.0, 2),
+                         fills[len(fills) // 2] / NS)
 
     def test_roundtrip_and_laplace_smoothing(self):
         d = json.loads(json.dumps(self.model.to_dict()))
         m2 = Q.QueueModel.from_dict(d)
         for r in self.test[:200]:
             self.assertEqual(m2.predict_row(r, 5), self.model.predict_row(r, 5))
-        n, k, _ = self.model.tables[5][Q.cell_key(0, 0, 10.0, 5)]
+        n, k, _ = self.model.tables[5][Q.cell_key(0, 0, 10.0, 5, 10.0, 2)]
         g = self.model.global_rate[5]
-        self.assertAlmostEqual(self.model.predict(0, 0, 0, 0, 10.0, 0, 5),
+        self.assertAlmostEqual(self.model.predict(0, 0, 0, 0, 10.0, 0, 5, 0, 10.0, 2),
                                (k + Q.ALPHA * g) / (n + Q.ALPHA))
 
     def test_parametric_model(self):

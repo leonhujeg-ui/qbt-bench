@@ -1,107 +1,107 @@
 {
  "per_horizon": {
   "1": {
-   "base_rate": 0.806,
-   "brier": 0.13457,
-   "brier_constant": 0.15636,
-   "brier_parametric": 0.17444,
-   "brier_train": 0.10799,
+   "base_rate": 0.5531,
+   "brier": 0.17264,
+   "brier_constant": 0.24718,
+   "brier_parametric": 0.25392,
+   "brier_train": 0.1655,
    "by_regime": {
     "normal": {
-     "base_rate": 0.778,
-     "brier": 0.14161,
-     "n": 10016
+     "base_rate": 0.5219,
+     "brier": 0.17525,
+     "n": 22347
     },
     "shock": {
-     "base_rate": 0.703,
-     "brier": 0.22315,
-     "n": 3640
+     "base_rate": 0.5241,
+     "brier": 0.19423,
+     "n": 5125
     },
     "withdraw": {
-     "base_rate": 0.8576,
-     "brier": 0.10366,
-     "n": 12710
+     "base_rate": 0.5811,
+     "brier": 0.16704,
+     "n": 30222
     }
    },
-   "n": 26366
+   "n": 57694
   },
   "10": {
-   "base_rate": 0.9236,
-   "brier": 0.07113,
-   "brier_constant": 0.07059,
-   "brier_parametric": 0.05059,
-   "brier_train": 0.03384,
+   "base_rate": 0.8511,
+   "brier": 0.11699,
+   "brier_constant": 0.12674,
+   "brier_parametric": 0.17493,
+   "brier_train": 0.10986,
    "by_regime": {
     "normal": {
-     "base_rate": 0.9317,
-     "brier": 0.06375,
-     "n": 8598
+     "base_rate": 0.8459,
+     "brier": 0.12296,
+     "n": 22074
     },
     "shock": {
-     "base_rate": 0.8707,
-     "brier": 0.11929,
-     "n": 3224
+     "base_rate": 0.7228,
+     "brier": 0.17976,
+     "n": 4953
     },
     "withdraw": {
-     "base_rate": 0.932,
-     "brier": 0.0634,
-     "n": 11871
+     "base_rate": 0.8761,
+     "brier": 0.10222,
+     "n": 29951
     }
    },
-   "n": 23693
+   "n": 56978
   },
   "2": {
-   "base_rate": 0.8952,
-   "brier": 0.09222,
-   "brier_constant": 0.0938,
-   "brier_parametric": 0.08675,
-   "brier_train": 0.05165,
+   "base_rate": 0.6639,
+   "brier": 0.1771,
+   "brier_constant": 0.22312,
+   "brier_parametric": 0.27598,
+   "brier_train": 0.16732,
    "by_regime": {
     "normal": {
-     "base_rate": 0.9053,
-     "brier": 0.08343,
-     "n": 8818
+     "base_rate": 0.6552,
+     "brier": 0.18398,
+     "n": 22306
     },
     "shock": {
-     "base_rate": 0.7886,
-     "brier": 0.18272,
-     "n": 3340
+     "base_rate": 0.5711,
+     "brier": 0.19675,
+     "n": 5118
     },
     "withdraw": {
-     "base_rate": 0.9175,
-     "brier": 0.07352,
-     "n": 12017
+     "base_rate": 0.6862,
+     "brier": 0.16868,
+     "n": 30174
     }
    },
-   "n": 24175
+   "n": 57598
   },
   "5": {
-   "base_rate": 0.9147,
-   "brier": 0.07838,
-   "brier_constant": 0.07806,
-   "brier_parametric": 0.07341,
-   "brier_train": 0.03881,
+   "base_rate": 0.7891,
+   "brier": 0.1472,
+   "brier_constant": 0.16644,
+   "brier_parametric": 0.25988,
+   "brier_train": 0.13891,
    "by_regime": {
     "normal": {
-     "base_rate": 0.9236,
-     "brier": 0.07048,
-     "n": 8665
+     "base_rate": 0.7869,
+     "brier": 0.15268,
+     "n": 22213
     },
     "shock": {
-     "base_rate": 0.8385,
-     "brier": 0.14629,
-     "n": 3257
+     "base_rate": 0.6489,
+     "brier": 0.19431,
+     "n": 5022
     },
     "withdraw": {
-     "base_rate": 0.929,
-     "brier": 0.06556,
-     "n": 11901
+     "base_rate": 0.8141,
+     "brier": 0.13528,
+     "n": 30067
     }
    },
-   "n": 23823
+   "n": 57302
   }
  },
- "probes": 192946,
- "test": 57884,
- "train": 135062
+ "probes": 192918,
+ "test": 57876,
+ "train": 135042
 }

@@ -1,19 +1,23 @@
 """Queue-position fill model.
 
 Input  : our queue position at a price level (visible lots ahead), the level's
-         total visible quantity, the level's distance from the touch (d = 0 at
-         the best), trailing arrival / cancel / trade intensities (lots/s) on
-         that side, and a horizon T.
+         total visible quantity, the level's distance from the touch (level
+         index d and distance in ticks), trailing arrival / cancel / trade
+         intensities (lots/s) on that side and on the opposite side, the
+         spread, and a horizon T.
 Output : P(our order receives its first execution within T seconds) and a
          conditional time-to-fill estimate.
 
 Calibration (chosen: binned empirical probabilities with Laplace smoothing
-towards the global rate).  The bin key is (d clipped to 0..3, u-bin) where
-u = ahead / (rate_trd * T + 1) is the queue position normalised by the lots
-expected to trade against our side over the horizon.  A parametric
-maximum-likelihood alternative p = 1 - exp(-exp(a_d) * (rate_trd*T + b_d) /
-(ahead + 1)) is fitted for comparison.  Ground truth comes from
-queue_collect.ProbeCollector (real orders of the replayed stream).
+towards the global rate).  The bin key is (distance in ticks clipped to 8,
+u-bin, trade-imbalance bin, spread bin) where u = ahead / (rate_trd*T + 1)
+is the queue position normalised by the lots expected to trade against our
+side over the horizon, and imbalance = (rate_trd - rate_trd_opp) /
+(rate_trd + rate_trd_opp + 1).  Feature set and bin edges were selected on a
+validation split taken from the TRAINING part only (tools/report: v7).  A
+parametric maximum-likelihood alternative p = 1 - exp(-exp(a_d) *
+(rate_trd*T + b_d) / (ahead + 1)) is fitted for comparison.  Ground truth
+comes from queue_collect.ProbeCollector (shadow orders in the replay).
 """
 import json
 import math
@@ -22,9 +26,11 @@ import os
 from lob import events as E
 from lob.queue_collect import read_csv, outcome, DEFAULT_HORIZONS
 
-U_EDGES = (0.25, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0)
-D_MAX = 3
+U_EDGES = (0.1, 0.2, 0.35, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0, 8.0, 16.0)
+DIST_MAX = 8
+D_MAX = 3            # parametric model: level index clipped to 0..3
 ALPHA = 2.0
+N_U = len(U_EDGES) + 1
 
 
 def u_bin(u):
@@ -34,9 +40,25 @@ def u_bin(u):
     return len(U_EDGES)
 
 
-def cell_key(d, ahead, rate_trd, horizon_s):
+def imbalance_bin(rate_trd, rate_trd_opp):
+    x = (rate_trd - rate_trd_opp) / (rate_trd + rate_trd_opp + 1.0)
+    return 0 if x < -0.3 else (2 if x > 0.3 else 1)
+
+
+def spread_bin(spread):
+    return 0 if spread <= 2 else (1 if spread <= 5 else 2)
+
+
+def cell_key(dist, ahead, rate_trd, horizon_s, rate_trd_opp=None, spread=2):
     u = ahead / (rate_trd * horizon_s + 1.0)
-    return min(d, D_MAX) * (len(U_EDGES) + 1) + u_bin(u)
+    if rate_trd_opp is None:
+        rate_trd_opp = rate_trd
+    return ((min(dist, DIST_MAX) * N_U + u_bin(u)) * 3 + imbalance_bin(rate_trd, rate_trd_opp)) \
+        * 3 + spread_bin(spread)
+
+
+def row_key(r, h):
+    return cell_key(r['dist'], r['ahead'], r['rate_trd'], h, r['rate_trd_opp'], r['spread'])
 
 
 class QueueModel:
@@ -45,7 +67,6 @@ class QueueModel:
     def __init__(self):
         self.tables = {}        # horizon_s -> {cell: [n, k, median_fill_ns]}
         self.global_rate = {}   # horizon_s -> p
-        self.n_cells = (D_MAX + 1) * (len(U_EDGES) + 1)
 
     def fit(self, rows, horizons=DEFAULT_HORIZONS):
         for h in horizons:
@@ -56,8 +77,7 @@ class QueueModel:
                 y = outcome(r, h_ns)
                 if y < 0:
                     continue
-                c = cells.setdefault(cell_key(r['d'], r['ahead'], r['rate_trd'], h),
-                                     [0, 0, []])
+                c = cells.setdefault(row_key(r, h), [0, 0, []])
                 c[0] += 1
                 c[1] += y
                 n_all += 1
@@ -73,22 +93,27 @@ class QueueModel:
             self.tables[h] = table
         return self
 
-    def predict(self, ahead, level_total, rate_arr, rate_cxl, rate_trd, d, horizon_s):
-        """P(first fill within horizon_s).  level_total / rate_arr / rate_cxl
-        are accepted for the documented interface; the binned model found
-        them uninformative beyond d and the normalised position (see REPORT)."""
+    def predict(self, ahead, level_total, rate_arr, rate_cxl, rate_trd, d, horizon_s,
+                dist=None, rate_trd_opp=None, spread=2):
+        """P(first fill within horizon_s).  `level_total`, `rate_arr`, `rate_cxl`
+        are accepted for the documented interface; the validation split found
+        them uninformative beyond distance, normalised position, trade
+        imbalance and spread (see REPORT).  dist defaults to d ticks."""
         h = self._horizon(horizon_s)
         g = self.global_rate[h]
-        cell = self.tables[h].get(cell_key(d, ahead, rate_trd, h))
+        key = cell_key(d if dist is None else dist, ahead, rate_trd, h, rate_trd_opp, spread)
+        cell = self.tables[h].get(key)
         if cell is None:
             return g
         n, k, _ = cell
         return (k + ALPHA * g) / (n + ALPHA)
 
-    def time_to_fill(self, ahead, rate_trd, d, horizon_s):
+    def time_to_fill(self, ahead, rate_trd, d, horizon_s, dist=None, rate_trd_opp=None,
+                     spread=2):
         """Median seconds-to-first-fill among filled probes of the cell, or None."""
         h = self._horizon(horizon_s)
-        cell = self.tables[h].get(cell_key(d, ahead, rate_trd, h))
+        key = cell_key(d if dist is None else dist, ahead, rate_trd, h, rate_trd_opp, spread)
+        cell = self.tables[h].get(key)
         if cell is None or cell[2] is None:
             return None
         return cell[2] / E.NS
@@ -100,10 +125,11 @@ class QueueModel:
 
     def predict_row(self, r, h):
         return self.predict(r['ahead'], r['level_total'], r['rate_arr'], r['rate_cxl'],
-                            r['rate_trd'], r['d'], h)
+                            r['rate_trd'], r['d'], h, r['dist'], r['rate_trd_opp'],
+                            r['spread'])
 
     def to_dict(self):
-        return {'u_edges': U_EDGES, 'd_max': D_MAX, 'alpha': ALPHA,
+        return {'u_edges': U_EDGES, 'dist_max': DIST_MAX, 'alpha': ALPHA,
                 'global_rate': {str(h): g for h, g in self.global_rate.items()},
                 'tables': {str(h): {str(k): v for k, v in t.items()}
                            for h, t in self.tables.items()}}
@@ -263,7 +289,7 @@ def run(probes_csv, out_dir, horizons=DEFAULT_HORIZONS, train_frac=0.7):
     param = ParametricModel().fit(train, horizons)
     os.makedirs(out_dir, exist_ok=True)
     res = {'probes': len(rows), 'train': len(train), 'test': len(test),
-           'horizons_s': list(horizons), 'u_edges': U_EDGES, 'd_max': D_MAX,
+           'horizons_s': list(horizons), 'u_edges': U_EDGES, 'dist_max': DIST_MAX,
            'alpha': ALPHA, 'per_horizon': {}}
     for h in horizons:
         ev = evaluate(model, test, h)
