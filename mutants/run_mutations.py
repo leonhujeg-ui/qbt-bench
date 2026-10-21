@@ -234,6 +234,17 @@ def run_one(mutant, source, workroot, timeout, test_args):
     return rec
 
 
+def baseline_timeout(test_args):
+    """跑一次未突变的测试套件计时；死循环突变体超过 4 倍基线即判 timeout（计入抓住并单列）。"""
+    env = dict(os.environ, PYTHONPATH="", QBT_FAST_TESTS="1", PYTHONDONTWRITEBYTECODE="1")
+    t0 = time.perf_counter()
+    proc = subprocess.run([sys.executable, "-m", "unittest"] + test_args, cwd=REPO, env=env,
+                          capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise SystemExit("baseline test run failed; fix the suite before mutating:\n" + proc.stderr[-2000:])
+    return max(30.0, 4.0 * (time.perf_counter() - t0))
+
+
 def _first_failure(stderr):
     for line in stderr.splitlines():
         if line.startswith(("FAIL: ", "ERROR: ")):
@@ -275,7 +286,8 @@ def main(argv=None):
     ap.add_argument("--per-module", type=int, default=80)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2))
-    ap.add_argument("--timeout", type=float, default=600.0)
+    ap.add_argument("--timeout", type=float, default=0.0,
+                    help="单个突变体的测试超时（秒）；0 = 自动：先跑一次未突变基线，取 max(30, 4*基线)")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--out", default=os.path.join(REPO, "mutants", "results.json"))
@@ -287,6 +299,9 @@ def main(argv=None):
         for m, (_src, muts) in plan.items():
             print(f"{m:12s} candidates(valid, capped)={len(muts)}")
         return 0
+    if args.timeout <= 0:
+        args.timeout = baseline_timeout(args.tests)
+        print(f"auto timeout = {args.timeout:.0f}s", flush=True)
     done = {}
     if args.resume and os.path.exists(args.out):
         with open(args.out, "r", encoding="utf-8") as f:
