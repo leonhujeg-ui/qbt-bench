@@ -5,6 +5,7 @@ import os
 import random
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 from lob import events as E
 from lob import queue_model as Q
@@ -66,6 +67,10 @@ class OutcomeTest(unittest.TestCase):
         self.assertEqual(Q.imbalance_bin(10.0, 10.0), 1)
         self.assertEqual(Q.imbalance_bin(10.0, 0.0), 2)
         self.assertEqual(Q.imbalance_bin(0.0, 10.0), 0)
+        self.assertEqual(Q.imbalance_bin(6.0, 3.0), 1)      # x == +0.3 exactly: middle bin
+        self.assertEqual(Q.imbalance_bin(3.0, 6.0), 1)      # x == -0.3 exactly: middle bin
+        self.assertEqual(Q.imbalance_bin(6.1, 3.0), 2)
+        self.assertEqual(Q.imbalance_bin(3.0, 6.1), 0)
         self.assertEqual((Q.spread_bin(1), Q.spread_bin(2), Q.spread_bin(5), Q.spread_bin(6)),
                          (0, 0, 1, 2))
         self.assertEqual(Q.cell_key(0, 0, 0.0, 5), (0 * 3 + 1) * 3 + 0)
@@ -100,6 +105,56 @@ class ModelTest(unittest.TestCase):
                 self.assertTrue(b['lo'] <= b['mean_pred'] <= b['hi'] or b['hi'] == 1.0)
             self.assertEqual(set(ev['by_regime']), {'normal', 'shock'})
             self.assertEqual(sum(v['n'] for v in ev['by_d'].values()), ev['n'])
+
+    def test_cell_counts_cover_every_uncensored_row(self):
+        for h in (1, 5):
+            n_rows = sum(1 for r in self.train if outcome(r, h * NS) >= 0)
+            self.assertEqual(sum(c[0] for c in self.model.tables[h].values()), n_rows)
+            self.assertEqual(sum(c[1] for c in self.model.tables[h].values()),
+                             sum(1 for r in self.train if outcome(r, h * NS) == 1))
+
+    def test_default_spread_is_two_ticks(self):
+        a = self.model.predict(3, 10, 1.0, 1.0, 4.0, 0, 5, 0, 4.0)
+        self.assertEqual(a, self.model.predict(3, 10, 1.0, 1.0, 4.0, 0, 5, 0, 4.0, 2))
+        self.assertEqual(self.model.time_to_fill(3, 4.0, 0, 5, 0, 4.0),
+                         self.model.time_to_fill(3, 4.0, 0, 5, 0, 4.0, 2))
+
+    def test_parametric_fit_is_the_grid_argmax(self):
+        h = 5
+        for d in range(Q.D_MAX + 1):
+            data = [(r['rate_trd'], r['ahead'], outcome(r, h * NS)) for r in self.train
+                    if min(r['d'], Q.D_MAX) == d]
+            data = [t for t in data if t[2] >= 0]
+            a, b = self.param.params[(h, d)]
+            best = self.param._loglik(a, b, data, h)
+            coarse = max(self.param._loglik(a10 / 10.0, bb, data, h)
+                         for a10 in range(-60, 61, 5)
+                         for bb in (0.0, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0))
+            self.assertGreaterEqual(best, coarse, d)
+            a0 = max(((a10 / 10.0, bb) for a10 in range(-60, 61, 5)
+                      for bb in (0.0, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0)),
+                     key=lambda ab: self.param._loglik(ab[0], ab[1], data, h))
+            fine = [(a100 / 100.0, a0[1]) for a100 in range(int(a0[0] * 100) - 50,
+                                                           int(a0[0] * 100) + 51, 5)]
+            fine_best = max(fine, key=lambda ab: self.param._loglik(ab[0], ab[1], data, h))
+            self.assertAlmostEqual(best, self.param._loglik(fine_best[0], fine_best[1], data, h),
+                                   places=9, msg=str(d))
+            self.assertEqual(b, a0[1])
+        self.assertEqual(set(self.param.params), {(hh, d) for hh in (1, 5)
+                                                  for d in range(Q.D_MAX + 1)})
+
+    def test_evaluate_rounding_and_bins(self):
+        rows = synthetic_rows(70, 9)
+        m = Q.QueueModel().fit(rows, (5,))
+        ev = Q.evaluate(m, rows, 5)
+        pairs = [(m.predict_row(r, 5), outcome(r, 5 * NS)) for r in rows
+                 if outcome(r, 5 * NS) >= 0]
+        self.assertEqual(ev['base_rate'], round(sum(y for _, y in pairs) / len(pairs), 4))
+        self.assertEqual(ev['brier'], round(Q.brier(pairs), 5))
+        self.assertLessEqual(len(ev['reliability']), 10)
+        for b in ev['reliability']:
+            self.assertAlmostEqual(b['hi'] - b['lo'], 0.1)
+            self.assertEqual(b['lo'], b['bin'] / 10)
 
     def test_predictions_monotone_in_queue_position(self):
         p = [self.model.predict(a, 100, 1.0, 1.0, 10.0, 0, 5, 0, 10.0, 2) for a in (0, 10, 40, 200)]
@@ -152,16 +207,57 @@ class ModelTest(unittest.TestCase):
         self.assertEqual([b['n'] for b in rel], [2, 2])
         self.assertAlmostEqual(rel[0]['mean_obs'], 0.5)
 
-    def test_svg_written(self):
+    def test_svg_geometry(self):
         tmp = tempfile.mkdtemp()
-        rel = Q.reliability([(0.1, 0), (0.2, 1), (0.8, 1), (0.9, 1)])
-        path = Q.reliability_svg(rel, 'test', os.path.join(tmp, 'r.svg'))
-        with open(path) as fh:
-            svg = fh.read()
-        self.assertTrue(svg.startswith('<svg'))
-        self.assertEqual(svg.count('<circle'), len(rel))
-        self.assertIn('observed frequency', svg)
-        self.assertIn('polyline', svg)
+        rel = [{'bin': 0, 'lo': 0.0, 'hi': 0.1, 'n': 4, 'mean_pred': 0.05, 'mean_obs': 0.25},
+               {'bin': 5, 'lo': 0.5, 'hi': 0.6, 'n': 16, 'mean_pred': 0.5, 'mean_obs': 0.5},
+               {'bin': 9, 'lo': 0.9, 'hi': 1.0, 'n': 1, 'mean_pred': 0.9, 'mean_obs': 1.0}]
+        path = Q.reliability_svg(rel, 'geometry check', os.path.join(tmp, 'r.svg'))
+        root = ET.parse(path).getroot()
+        ns = '{http://www.w3.org/2000/svg}'
+        W, H, M = 480, 480, 56
+        scale = W - 2 * M
+
+        def X(p):
+            return M + p * scale
+
+        def Y(p):
+            return H - M - p * scale
+        self.assertEqual(root.get('viewBox'), '0 0 480 480')
+        lines = root.findall(ns + 'line')
+        self.assertEqual(len(lines), 3)
+        self.assertEqual([lines[0].get(k) for k in ('x1', 'y1', 'x2', 'y2')],
+                         ['%d' % X(0), '%d' % Y(0), '%d' % X(1), '%d' % Y(1)])
+        self.assertEqual(lines[0].get('stroke-dasharray'), '4 4')
+        self.assertEqual([lines[1].get(k) for k in ('x1', 'y1', 'x2', 'y2')],
+                         ['56', '424', '424', '424'])
+        self.assertEqual([lines[2].get(k) for k in ('x1', 'y1', 'x2', 'y2')],
+                         ['56', '424', '56', '56'])
+        texts = root.findall(ns + 'text')
+        self.assertEqual(texts[0].text, 'geometry check')
+        x_ticks = [t for t in texts if t.get('text-anchor') == 'middle' and t.get('y') == '442']
+        y_ticks = [t for t in texts if t.get('text-anchor') == 'end']
+        self.assertEqual([t.get('x') for t in x_ticks], ['%.0f' % X(v / 10) for v in range(0, 11, 2)])
+        self.assertEqual([t.text for t in x_ticks], ['0.0', '0.2', '0.4', '0.6', '0.8', '1.0'])
+        self.assertEqual([(t.get('x'), t.get('y')) for t in y_ticks],
+                         [('50', '%.0f' % (Y(v / 10) + 4)) for v in range(0, 11, 2)])
+        xlabel = [t for t in texts if t.text == 'predicted probability'][0]
+        self.assertEqual((xlabel.get('x'), xlabel.get('y')), ('240', '466'))
+        ylabel = [t for t in texts if t.text == 'observed frequency'][0]
+        self.assertEqual(ylabel.get('transform'), 'translate(16,240) rotate(-90)')
+        circles = root.findall(ns + 'circle')
+        self.assertEqual(len(circles), 3)
+        for c, b in zip(circles, rel):
+            self.assertEqual((c.get('cx'), c.get('cy'), c.get('r')),
+                             ('%.1f' % X(b['mean_pred']), '%.1f' % Y(b['mean_obs']),
+                              '%.1f' % (3 + 9 * (b['n'] / 16) ** 0.5)))
+            self.assertEqual(c.find(ns + 'title').text,
+                             'n=%d pred=%.3f obs=%.3f' % (b['n'], b['mean_pred'], b['mean_obs']))
+        poly = root.find(ns + 'polyline')
+        self.assertEqual(poly.get('points'), ' '.join('%.1f,%.1f' % (X(b['mean_pred']), Y(b['mean_obs']))
+                                                      for b in rel))
+        single = Q.reliability_svg(rel[:1], 't', os.path.join(tmp, 's.svg'))
+        self.assertIsNone(ET.parse(single).getroot().find(ns + 'polyline'))
 
 
 class CollectorTest(unittest.TestCase):
@@ -317,5 +413,13 @@ class EndToEndTest(unittest.TestCase):
             ev = res['per_horizon'][h]
             self.assertGreater(ev['n'], 100)
             self.assertIsNotNone(ev['brier'])
+            self.assertIsInstance(ev['brier_parametric'], float)
+            self.assertIsInstance(ev['brier_train'], float)
             self.assertTrue(os.path.exists(ev['svg']))
-        self.assertTrue(os.path.exists(os.path.join(tmp, 'qm', 'queue_model.json')))
+        with open(os.path.join(tmp, 'qm', 'queue_model.json')) as fh:
+            text = fh.read()
+        self.assertEqual(text, json.dumps(model.to_dict(), sort_keys=True))     # canonical bytes
+        with open(os.path.join(tmp, 'qm', 'queue_model_eval.json')) as fh:
+            self.assertEqual(fh.read(), json.dumps(res, indent=1, sort_keys=True))
+        res2, _ = Q.run(csv_path, os.path.join(tmp, 'qm'), horizons=(1,))     # existing dir ok
+        self.assertEqual(res2['train'], res['train'])
