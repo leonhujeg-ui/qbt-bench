@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480" font-family="sans-serif" font-size="12">
+<rect width="100%%" height="100%%" fill="#ffffff"/>
+<text x="56" y="24" font-size="14" fill="#222">Reliability, horizon 1s (test, n=26366, Brier 0.1346)</text>
+<line x1="56" y1="424" x2="424" y2="56" stroke="#999" stroke-dasharray="4 4"/>
+<line x1="56" y1="424" x2="424" y2="424" stroke="#444"/>
+<line x1="56" y1="424" x2="56" y2="56" stroke="#444"/>
+<text x="56" y="442" text-anchor="middle" fill="#444">0.0</text>
+<text x="50" y="428" text-anchor="end" fill="#444">0.0</text>
+<text x="130" y="442" text-anchor="middle" fill="#444">0.2</text>
+<text x="50" y="354" text-anchor="end" fill="#444">0.2</text>
+<text x="203" y="442" text-anchor="middle" fill="#444">0.4</text>
+<text x="50" y="281" text-anchor="end" fill="#444">0.4</text>
+<text x="277" y="442" text-anchor="middle" fill="#444">0.6</text>
+<text x="50" y="207" text-anchor="end" fill="#444">0.6</text>
+<text x="350" y="442" text-anchor="middle" fill="#444">0.8</text>
+<text x="50" y="134" text-anchor="end" fill="#444">0.8</text>
+<text x="424" y="442" text-anchor="middle" fill="#444">1.0</text>
+<text x="50" y="60" text-anchor="end" fill="#444">1.0</text>
+<text x="240" y="466" text-anchor="middle" fill="#222">predicted probability</text>
+<text transform="translate(16,240) rotate(-90)" text-anchor="middle" fill="#222">observed frequency</text>
+<circle cx="118.5" cy="56.0" r="3.1" fill="#1f77b4" fill-opacity="0.75"><title>n=1 pred=0.170 obs=1.000</title></circle>
+<circle cx="230.7" cy="250.6" r="4.3" fill="#1f77b4" fill-opacity="0.75"><title>n=331 pred=0.475 obs=0.471</title></circle>
+<circle cx="278.7" cy="223.4" r="8.2" fill="#1f77b4" fill-opacity="0.75"><title>n=5449 pred=0.605 obs=0.545</title></circle>
+<circle cx="318.8" cy="148.0" r="3.4" fill="#1f77b4" fill-opacity="0.75"><title>n=28 pred=0.714 obs=0.750</title></circle>
+<circle cx="353.8" cy="144.6" r="7.6" fill="#1f77b4" fill-opacity="0.75"><title>n=4279 pred=0.809 obs=0.759</title></circle>
+<circle cx="403.1" cy="88.2" r="12.0" fill="#1f77b4" fill-opacity="0.75"><title>n=16278 pred=0.943 obs=0.913</title></circle>
+<polyline fill="none" stroke="#1f77b4" stroke-width="1.5" points="118.5,56.0 230.7,250.6 278.7,223.4 318.8,148.0 353.8,144.6 403.1,88.2"/>
+</svg>

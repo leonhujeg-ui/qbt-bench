@@ -30,8 +30,8 @@ def synthetic_rows(n, seed, horizons=(1, 5)):
         p = 0.9 * math.exp(-0.6 * u) * (0.75 ** d) + 0.02
         filled = rng.random() < p
         row = {'sym': 0, 't0': t0 + i * 10 ** 7, 'oid': i, 'side': 1 + (i % 2), 'd': d,
-               'dist': d, 'ahead': ahead, 'level_total': ahead + 5, 'own_vis': 5,
-               'own_rem': 5, 'spread': 2, 'opp_best_qty': 10, 'n_levels': 8,
+               'dist': d, 'ahead': ahead, 'n_ahead': ahead // 8, 'level_total': ahead + 5,
+               'own': 10, 'spread': 2, 'opp_best_qty': 10, 'n_levels': 8,
                'rate_arr': rate, 'rate_cxl': rate / 2, 'rate_trd': rate,
                'rate_trd_opp': rate, 'rate_events': 100.0,
                'regime': rng.choice(('normal', 'normal', 'shock')),
@@ -156,79 +156,111 @@ class ModelTest(unittest.TestCase):
 
 
 class CollectorTest(unittest.TestCase):
+    """Shadow-order tracking checked against hand-derived outcomes.
+    Event k has timestamp EPOCH + 1000*k ns."""
+
+    def _setup(self, evs, stp='cancel_new', **kw):
+        book = Book(BookConfig(ref_price=100, band=50, stp=stp))
+        coll = ProbeCollector([0], {'regimes': [[0, E.EPOCH_NS, E.EPOCH_NS + 10 ** 6, 'shock']],
+                                    'books': {'0': {'ref_price': 100, 'band': 50}}},
+                              sample_every=10 ** 9, seed=1, **kw)
+        self._feed(book, coll, evs)
+        return book, coll
+
     def _feed(self, book, coll, evs, start_seq=1):
-        sts = []
         for i, ev in enumerate(evs):
             rec = to_record(start_seq + i, ev)
             n0 = len(book.trades)
             st = book.process(rec)
             coll.on_event(book, rec, st, book.trades[n0:])
-            sts.append(st)
-        return sts
 
-    def test_probe_fill_and_censor_timing(self):
-        cfg = BookConfig(ref_price=100)
-        book = Book(cfg)
-        coll = ProbeCollector([0], {'regimes': [[0, E.EPOCH_NS, E.EPOCH_NS + 10 ** 6, 'shock']]},
-                              sample_every=1, seed=1)
-        # one order per side, then harmless rejected cancels so that sampling
-        # (random side) lands on both orders: every probe has d=0, ahead=0
-        self._feed(book, coll, [N(1, 1, 99, 5), N(2, 2, 101, 7)] + [C(999)] * 10)
-        oids = set(r['oid'] for r in coll.rows)
-        self.assertEqual(oids, {1, 2})
-        for r in coll.rows:
-            self.assertEqual((r['d'], r['ahead'], r['dist'], r['spread']), (0, 0, 0, 2))
-            self.assertEqual(r['regime'], 'shock')
-            self.assertEqual(r['level_total'], 5 if r['oid'] == 1 else 7)
-        # ts of seq k is EPOCH + k*1000 ns: fill the ask at seq 13, cancel the bid at seq 14
-        self._feed(book, coll, [N(3, 1, 101, 7), C(1)], start_seq=13)
-        coll.finalize()
-        for r in coll.rows:
-            if r['oid'] == 2:
-                self.assertEqual(r['first_fill_ns'], E.EPOCH_NS + 13000 - r['t0'])
-                self.assertEqual(r['full_fill_ns'], r['first_fill_ns'])
-            else:
-                self.assertIsNone(r['first_fill_ns'])
-                self.assertEqual(r['censor_ns'], E.EPOCH_NS + 14000 - r['t0'])
-        self.assertEqual(coll.state[0].active, {})
-        self.assertEqual(outcome(coll.rows[0], 10 ** 9), 1 if coll.rows[0]['oid'] == 2 else -1)
+    def test_tail_probe_filled_by_aggressor_leftover(self):
+        book, coll = self._setup([N(1, 2, 101, 5), N(2, 2, 101, 7)])
+        p = coll.place(book, 0, 2, 0, 2, E.EPOCH_NS + 2000)
+        r = p.row
+        self.assertEqual((r['ahead'], r['n_ahead'], r['oid'], r['d'], r['regime']), (12, 2, 2, 0, 'shock'))
+        self._feed(book, coll, [N(3, 1, 101, 5)], 3)          # eats order 1
+        self.assertEqual((p.ahead, p.own_rem), (7, 10))
+        self._feed(book, coll, [N(4, 1, 101, 10)], 4)         # eats order 2, 3 left -> rests
+        self.assertEqual((p.ahead, p.own_rem), (0, 7))
+        self.assertEqual(r['first_fill_ns'], 2000)             # seq 4 - t0 (seq 2)
+        self._feed(book, coll, [N(5, 1, 102, 20)], 5)         # no asks: would hit us
+        self.assertEqual(r['full_fill_ns'], 3000)
+        self.assertEqual(coll.state[0].probes, [])
+        self.assertEqual(coll.state[0].watch, {})
+        self.assertEqual(outcome(r, 2500), 1)
+        self.assertEqual(outcome(r, 2500, full=True), 0)
 
-    def test_queue_position_and_rates(self):
-        cfg = BookConfig(ref_price=100)
-        book = Book(cfg)
-        coll = ProbeCollector([0], {'regimes': []}, sample_every=10 ** 9, seed=5,
-                              window_ns=10 ** 9)
-        # cancel / modify records carry the order's side (as the generator writes them)
-        evs = [N(1, 2, 101, 3), N(2, 2, 101, 4), N(3, 2, 101, 5), N(4, 1, 101, 2),
-               N(5, 1, 99, 6), RAW(KIND_CANCEL, 1, 0, 0, 5, 0, 0),
-               RAW(KIND_MODIFY, 2, 0, 0, 2, 0, 1)]
-        self._feed(book, coll, evs)
+    def test_cancel_reduce_increase_ahead(self):
+        book, coll = self._setup([N(1, 2, 101, 5), N(2, 2, 101, 7), N(3, 2, 101, 4)])
+        p = coll.place(book, 0, 2, 0, 2, E.EPOCH_NS + 3000)
+        self.assertEqual(p.ahead, 12)
+        self._feed(book, coll, [RAW(KIND_CANCEL, 2, 0, 0, 1, 0, 0)], 4)
+        self.assertEqual((p.ahead, sorted(p.ahead_orders)), (7, [2]))
+        self._feed(book, coll, [RAW(KIND_MODIFY, 2, 0, 0, 2, 0, 3)], 5)    # reduce 7 -> 3
+        self.assertEqual((p.ahead, p.ahead_orders), (3, {2: 3}))
+        self._feed(book, coll, [RAW(KIND_MODIFY, 2, 0, 0, 2, 0, 9)], 6)    # increase: behind us
+        self.assertEqual((p.ahead, p.ahead_orders, coll.state[0].watch), (0, {}, {}))
+        self._feed(book, coll, [N(7, 1, 101, 1)], 7)          # trade with order 3 (behind us)
+        self.assertEqual(p.row['first_fill_ns'], 4000)
+        self.assertEqual(p.own_rem, 9)
+
+    def test_head_probe_and_sweep_past_level(self):
+        book, coll = self._setup([N(1, 2, 101, 5), N(2, 2, 103, 4)])
+        head = coll.place(book, 0, 2, 0, 0, E.EPOCH_NS + 2000)       # at the head of 101
+        tail = coll.place(book, 0, 2, 0, 1, E.EPOCH_NS + 2000)       # behind order 1
+        self._feed(book, coll, [N(3, 1, 103, 9)], 3)   # 5@101 then 4@103
+        self.assertEqual(head.row['first_fill_ns'], 1000)        # trade vs order 1 (behind head)
+        self.assertEqual(head.own_rem, 1)                        # 5 + 4 taken
+        self.assertEqual(tail.row['first_fill_ns'], 1000)        # swept past via 103 trade
+        self.assertEqual((tail.ahead, tail.own_rem), (0, 6))
+
+    def test_market_leftover_and_expiry(self):
+        book, coll = self._setup([N(1, 2, 101, 5)], max_horizon_s=1)
+        p = coll.place(book, 0, 2, 0, 1, E.EPOCH_NS + 1000)
+        q = coll.place(book, 0, 2, 0, 1, E.EPOCH_NS + 1000)
+        self._feed(book, coll, [N(2, 1, 0, 30, 1)], 2)         # market: 5@101, 25 cancelled
+        self.assertEqual((p.row['first_fill_ns'], p.row['full_fill_ns']), (1000, 1000))
+        self.assertEqual(q.row['full_fill_ns'], 1000)
+        coll.sample_every = 1
+        rec = to_record(3, C(999))
+        rec = tuple([3, E.EPOCH_NS + 3 * NS] + list(rec[2:]))      # 3 s later
+        coll.on_event(book, rec, book.process(rec), [])
+        self.assertEqual(coll.state[0].probes, [])                 # expired, outcome known
+        self.assertEqual(outcome(p.row, NS), 1)
+
+    def test_stp_stop_only_fills_probes_ahead_of_blocker(self):
+        book, coll = self._setup([N(1, 2, 101, 5, 0, 3), N(2, 2, 101, 6, 0, 4)])
+        ahead = coll.place(book, 0, 2, 0, 0, E.EPOCH_NS + 2000)      # ahead of order 1
+        behind = coll.place(book, 0, 2, 0, 1, E.EPOCH_NS + 2000)     # behind order 1
+        self._feed(book, coll, [N(3, 1, 101, 4, 0, 3)], 3)   # trader 3: STP stop at order 1
+        self.assertEqual(ahead.row['first_fill_ns'], 1000)
+        self.assertIsNone(behind.row['first_fill_ns'])
+        book2, coll2 = self._setup([N(1, 2, 101, 5, 0, 3)], stp='cancel_old')
+        p = coll2.place(book2, 0, 2, 0, 1, E.EPOCH_NS + 1000)
+        self._feed(book2, coll2, [N(2, 1, 101, 2, 0, 3)], 2)  # order 1 vanishes (cancel_old)
+        self.assertEqual(p.row['first_fill_ns'], 1000)
+        self.assertEqual(p.own_rem, 8)
+
+    def test_rates_and_regime(self):
+        book, coll = self._setup([N(1, 2, 101, 3), N(2, 2, 101, 4), N(3, 2, 101, 5),
+                                  N(4, 1, 101, 2), N(5, 1, 99, 6),
+                                  RAW(KIND_CANCEL, 1, 0, 0, 5, 0, 0),
+                                  RAW(KIND_MODIFY, 2, 0, 0, 2, 0, 1)], window_ns=NS)
         s = coll.state[0]
         rates = coll._rates(s, E.EPOCH_NS + 8000, 2)
-        # ask side: arrivals 3+4+5 (resting); trades 2; cancels: modify 4 -> 1 (3 lots)
-        self.assertEqual(rates['rate_arr'], 12.0)
-        self.assertEqual(rates['rate_trd'], 2.0)
-        self.assertEqual(rates['rate_cxl'], 3.0)
-        self.assertEqual(rates['rate_events'], 7.0)
-        bid_rates = coll._rates(s, E.EPOCH_NS + 8000, 1)
-        self.assertEqual(bid_rates['rate_cxl'], 6.0)
-        self.assertEqual(bid_rates['rate_arr'], 6.0)
-        self.assertEqual(bid_rates['rate_trd_opp'], 2.0)
-        self.assertEqual(coll._rates(s, E.EPOCH_NS + 10 ** 9 + 8000, 2)['rate_events'], 0.0)
-        coll.top_levels = 1
-        seen = {}
-        for k in range(80):                 # ask side only has one level: d=0
+        self.assertEqual((rates['rate_arr'], rates['rate_trd'], rates['rate_cxl'],
+                          rates['rate_events']), (12.0, 2.0, 3.0, 7.0))
+        bid = coll._rates(s, E.EPOCH_NS + 8000, 1)
+        self.assertEqual((bid['rate_cxl'], bid['rate_arr'], bid['rate_trd_opp']), (6.0, 6.0, 2.0))
+        self.assertEqual(coll._rates(s, E.EPOCH_NS + NS + 8000, 2)['rate_events'], 0.0)
+        self.assertEqual(coll._regime(s, E.EPOCH_NS + 10 ** 6), 'normal')
+        self.assertEqual(coll._regime(s, E.EPOCH_NS + 10), 'shock')
+        for k in range(20):
             s.rng = random.Random(k)
-            n0 = len(coll.rows)
             coll._sample(s, book, 0, E.EPOCH_NS + 9000)
-            if len(coll.rows) > n0 and coll.rows[-1]['side'] == 2:
-                seen[coll.rows[-1]['oid']] = coll.rows[-1]
-        self.assertEqual(set(seen), {1, 2, 3})
-        self.assertEqual(seen[1]['ahead'], 0)
-        self.assertEqual(seen[2]['ahead'], book.orders[1][4])
-        self.assertEqual(seen[3]['ahead'], book.orders[1][4] + book.orders[2][4])
-        self.assertEqual(seen[3]['level_total'], book.ask_qty[-101])
-        self.assertEqual(seen[3]['own_rem'], 5)
+        self.assertTrue(all(r['ahead'] + 0 <= r['level_total'] for r in coll.rows))
+        self.assertTrue(any(r['n_ahead'] == 0 for r in coll.rows))
 
     def test_csv_roundtrip_and_fields(self):
         rows = synthetic_rows(30, 1)
@@ -261,11 +293,15 @@ class EndToEndTest(unittest.TestCase):
         csv_path = os.path.join(tmp, 'probes.csv')
         n = coll.write_csv(csv_path)
         self.assertGreater(n, 1000)
+        self.assertEqual(coll.state[0].probes, [])
+        fills = 0
         for r in coll.rows:
-            self.assertLessEqual(r['ahead'] + r['own_vis'], r['level_total'])
+            self.assertLessEqual(r['ahead'], r['level_total'])
             self.assertLess(r['d'], 5)
             if r['full_fill_ns'] is not None:
                 self.assertLessEqual(r['first_fill_ns'], r['full_fill_ns'])
+            fills += r['first_fill_ns'] is not None
+        self.assertTrue(0 < fills < n)
         res, model = Q.run(csv_path, os.path.join(tmp, 'qm'), horizons=(1, 2))
         self.assertEqual(res['probes'], n)
         for h in ('1', '2'):
