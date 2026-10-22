@@ -7,6 +7,7 @@
 """
 import argparse
 import os
+import re
 import shutil
 import sqlite3
 import sys
@@ -14,9 +15,11 @@ import time
 
 from qdperf import common
 from qdperf import index_advisor as A
+from qdperf import profile_gate as G
 from qdperf import sqlite_doctor as D
 from qdperf import sqlplan as P
 from qdperf import synth_db
+from qdperf.examples import qbt_case
 
 WORKLOAD = os.path.join(common.PKG, "examples", "workload_trading.json")
 
@@ -130,6 +133,98 @@ def g1_ok(s):
             and any("BUSY_SNAPSHOT" in c for c in s["deferred_demo_root_cause"]))
 
 
+# ---- G2 ------------------------------------------------------------------------------
+QBT_TARGET = "qdperf.examples.qbt_case:backtest"
+
+
+def copy_tree_for_names(dst):
+    """把 qbt / strategies / qdperf（不含 results、tests）拷到临时目录：同一份代码换个路径测一遍，函数名集合应完全相同。"""
+    for name in ("qbt", "strategies", "qdperf"):
+        shutil.copytree(os.path.join(common.REPO, name), os.path.join(dst, name),
+                        ignore=shutil.ignore_patterns("__pycache__", "results", "tests", "mutants"))
+
+
+def g2(n=1_000_000, repeat=8, runs=3, out_dir=common.RESULTS, pcts=(0.05, 0.12), inner=2):
+    """臂 = [基线 A, 放慢 5%, 放慢 12%] × runs + [原样重跑 R]，所有臂按进程轮转交替取样（每轮给每个臂起一个新进程），
+    机器的慢漂移同时落在所有臂上；A / S 各 runs 遍取中位数，A 的 runs 遍相对极差 = 噪声幅度。
+    R 是单遍（像平时“基线 3 遍 + 本次 1 遍”那样）做误报检查。"""
+    args = {"n": n}
+    keys = [f"{round(p * 100)}pct" for p in pcts]
+    arm = {"target": QBT_TARGET, "args": args, "paths": (), "env": None}
+    arms = []
+    for _ in range(runs):
+        arms += [arm] + [dict(arm, env={qbt_case.SLOW_ENV: str(p)}) for p in pcts]
+    arms.append(arm)                                                      # 最后一个臂 = 原样重跑（单遍）
+    docs = G.interleaved(arms, repeat=repeat, inner=inner)
+    per = len(keys) + 1
+    a_runs = docs[0:runs * per:per]
+    s_runs = {k: docs[1 + j:runs * per:per] for j, k in enumerate(keys)}
+    rerun = docs[-1]
+    base = G.aggregate(a_runs)
+    slow = {}
+    for k in keys:
+        doc = G.aggregate(s_runs[k])
+        slow[k] = {"pct": pcts[keys.index(k)], "doc": doc, "gate_default": G.compare(base, doc),
+                   "gate_noise_only": G.compare(base, doc, wall_tol=0.0),
+                   "gate_single_run": G.compare(base, s_runs[k][0]),
+                   "per_round_single": [G.compare(base, d)["lines"][0] for d in s_runs[k]]}
+    work = common.scratch_dir("qdperf-g2-")
+    try:
+        copy_tree_for_names(work)
+        moved = G.measure(QBT_TARGET, args, repeat=1, cold=False, paths=[work])
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    out = {"summary": g2_summary(base, slow, rerun, moved), "baseline": base, "rerun": rerun,
+           "moved_copy_names": sorted(G.function_names(moved)), "moved_copy_top": moved["profile"]["top"], "order": "臂 = [A, S5pct, S12pct] × 3 + [R]，按进程轮转交替取样（G.interleaved）",
+           "slow": slow, "machine": common.machine(),
+           "commands": {"pair": f"python3.12 -m qdperf.profile_gate pair {QBT_TARGET} --args '{{\"n\": {n}}}' "
+                                f"--repeat {repeat} --inner {inner} --env-b {qbt_case.SLOW_ENV}=0.12 --out base.json "
+                                f"--out-b slow.json",
+                        "baseline": f"python3.12 -m qdperf.profile_gate baseline {QBT_TARGET} --args '{{\"n\": {n}}}' "
+                                    f"--repeat {repeat} --inner {inner} --out base.json",
+                        "run": f"python3.12 -m qdperf.profile_gate run {QBT_TARGET} --args '{{\"n\": {n}}}' "
+                               f"--repeat {repeat} --inner {inner} --out new.json",
+                        "compare": "python3.12 -m qdperf.profile_gate compare base.json slow.json"}}
+    if out_dir:
+        common.write_json(os.path.join(out_dir, "g2_profile_gate.json"), out)
+    return out
+
+
+def g2_summary(base, slow, rerun, moved):
+    tol_hot = max(0.10, 2 * base["noise"]["hot_wall_rel"])
+    rows = {}
+    for key, v in slow.items():
+        hot = next(m for m in v["gate_default"]["metrics"] if m["metric"] == "hot")
+        rows[key] = {"intended": v["pct"], "achieved_hot": hot["change"], "verdict_default": v["gate_default"]["verdict"],
+                     "first_line": v["gate_default"]["lines"][0], "verdict_noise_only": v["gate_noise_only"]["verdict"],
+                     "first_line_noise_only": v["gate_noise_only"]["lines"][0],
+                     "verdict_single_run": v["gate_single_run"]["verdict"],
+                     "first_line_single_run": v["gate_single_run"]["lines"][0],
+                     "per_round_single": v["per_round_single"],
+                     "new_top10": [t["name"] for t in v["gate_default"]["new_top"]]}
+    names_b, names_r, names_m = G.function_names(base), G.function_names(rerun), G.function_names(moved)
+    top10 = [t["name"] for t in base["profile"]["top"][:10]]
+    return {"n": base["args"]["n"], "repeat": base["repeat"], "inner": base["inner"], "runs": base["runs"],
+            "hot_wall_s": base["hot"]["wall_s"], "cold_wall_s": base["cold"]["wall_s"],
+            "peak_bytes": base["memory"]["peak_bytes"], "noise": {k: v for k, v in base["noise"].items() if k != "per_run"},
+            "tolerance_hot_default": tol_hot, "tolerance_hot_noise_only": 2 * base["noise"]["hot_wall_rel"],
+            "slow": rows, "slow12_red": rows["12pct"]["verdict_default"] == "REGRESSION",
+            "slow5_expected_by_noise": "REGRESSION" if 0.05 > tol_hot else "OK",
+            "rerun_verdict": G.compare(base, rerun)["verdict"], "rerun_first_line": G.compare(base, rerun)["lines"][0],
+            "names_identical_rerun_top10": set(top10) == {t["name"] for t in rerun["profile"]["top"][:10]},
+            "names_jaccard_rerun": len(names_b & names_r) / len(names_b | names_r),
+            "names_moved_copy_top10_equal": set(top10) == {t["name"] for t in moved["profile"]["top"][:10]},
+            "names_moved_copy_jaccard": len(names_b & names_m) / len(names_b | names_m),
+            "names_have_no_lineno_or_tmp": not any(re.search(r":\d+$|\(\d+\)|/tmp|qdperf-g2-", x)
+                                                   for x in names_b | names_r | names_m),
+            "base_top10": top10}
+
+
+def g2_ok(s):
+    return (s["slow12_red"] and s["slow"]["5pct"]["verdict_default"] == s["slow5_expected_by_noise"]
+            and s["rerun_verdict"] == "OK" and s["names_have_no_lineno_or_tmp"] and s["names_moved_copy_top10_equal"])
+
+
 def resummarize_g1(out_dir=common.RESULTS):
     """只用已入库的 g1 结果文件重算 summary（判据口径改了而实验不必重跑时用）。"""
     sv = common.read_json(os.path.join(out_dir, "g1_synth_verify.json"))
@@ -141,10 +236,20 @@ def resummarize_g1(out_dir=common.RESULTS):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3.12 -m qdperf.tools.selfcheck")
-    ap.add_argument("which", choices=["g1"])
+    ap.add_argument("which", choices=["g1", "g2"])
     ap.add_argument("--scale", type=float, default=1.0, help="g1：合成库比例")
+    ap.add_argument("--n", type=int, default=1_000_000, help="g2：K 线根数")
+    ap.add_argument("--repeat", type=int, default=8, help="g2：best-of-N（N 个进程）")
+    ap.add_argument("--inner", type=int, default=2, help="g2：每个进程热调用次数")
     ap.add_argument("--out", default=common.RESULTS)
     args = ap.parse_args(argv)
+    if args.which == "g2":
+        s = g2(n=args.n, repeat=args.repeat, out_dir=args.out, inner=args.inner)["summary"]
+        print(f"G2 {'OK' if g2_ok(s) else 'FAIL'} " + " ".join(f"{k}={v}" for k, v in s.items()
+                                                              if not isinstance(v, (dict, list))))
+        for k, v in s["slow"].items():
+            print(f"  slow {k}: {v['first_line']} | noise-only: {v['first_line_noise_only']} | new top10: {v['new_top10']}")
+        return 0 if g2_ok(s) else 1
     if args.which == "g1":
         res = g1(scale=args.scale, out_dir=args.out)
         s = res["summary"]
