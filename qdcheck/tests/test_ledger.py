@@ -120,6 +120,7 @@ class TestViolationsAreDetected(unittest.TestCase):
         led.margin += 1.0
         led.mark(0, 100.0)
         self.assertEqual({v["check"] for v in led.violations}, {"I4_margin_consistency"})
+        self.assertEqual((led.violations[0]["lhs"], led.violations[0]["rhs"]), (501.0, 500.0))
         led = L.Ledger()
         led.avg = 5.0
         led.mark(0, 100.0)
@@ -150,6 +151,13 @@ class TestViolationsAreDetected(unittest.TestCase):
         self.assertIn((1, "liquidation_not_full"), alt["issues"])
         alt = LA.run([T(0, "buy", 1000, 100.0)], [100.0, 99.0, 94.0], **base)
         self.assertEqual(alt["issues"], [(2, "missed_liquidation")])
+
+    def test_cross_bankrupt_warning_uses_remaining_position(self):
+        cfg = {"initial_cash": 10_000.0, "margin_mode": "cross", "leverage": 3, "mmr": 0.05}
+        res = L.run([T(0, "sell", 100, 100.0), T(1, "buy", 10, 300.0, kind="liquidation")], [100.0, 300.0], **cfg)
+        self.assertEqual([w["check"] for w in res["warnings"]], ["bankrupt"])
+        self.assertAlmostEqual(res["warnings"][0]["equity"], 17_000.0 - 90 * 300.0)
+        self.assertIn("liquidation_not_full", [v["check"] for v in res["violations"]])
 
     def test_wallet_erosion_caps_loss_at_wallet(self):
         """资金费把钱包侵蚀到低于逐仓保证金：有效保证金 = 钱包，强平后余额恰为 0 而不是负数。"""
@@ -187,6 +195,12 @@ class TestValidation(unittest.TestCase):
                 L.normalize_record(rec)
         self.assertEqual(L.normalize_record({"bar": 3, "kind": "funding", "funding": -2})[6], "funding")
         self.assertEqual(L.normalize_record(T(0, -1, 2, 5.0))[1], -1)
+
+    def test_bar_must_be_a_non_negative_int_even_for_valid_trades(self):
+        for bar in (-1, True, 1.0, "1", None):
+            with self.assertRaises(L.LedgerError, msg=bar):
+                L.normalize_record(T(bar, "buy", 1, 1.0))
+        self.assertEqual(L.normalize_record(T(0, "buy", 1, 1.0))[:4], (0, 1, 1, 1.0))
 
     def test_bad_config_and_order(self):
         for kw in ({"initial_cash": 0}, {"initial_cash": math.inf}, {"margin_mode": "portfolio"},
@@ -264,6 +278,21 @@ class TestAltPieces(unittest.TestCase):
         for _ in range(10):
             acc.add(0.1)
         self.assertEqual(acc.value(), 1.0)
+
+    def test_alt_accepts_integer_sides_and_snaps_like_ledger(self):
+        recs = [dict(r, side={"buy": 1, "sell": -1}.get(r.get("side"), 0)) for r in BASIC]
+        self.assertTrue(S.compare_rows(LA.run(recs, BASIC_CLOSES)["rows"], LA.run(BASIC, BASIC_CLOSES)["rows"], 1e5)["ok"])
+        tiny = [T(0, "buy", 0.5, 10.0), T(1, "sell", 0.5 - 1.2e-12, 10.0)]    # 残量 1.2e-12 > 1e-12：不归零
+        ref, alt = L.run(tiny, [10.0, 10.0]), LA.run(tiny, [10.0, 10.0])
+        self.assertNotEqual(ref["rows"][1]["qty"], 0)
+        self.assertNotEqual(alt["rows"][1]["qty"], 0)
+        self.assertTrue(S.compare_rows(ref["rows"], alt["rows"], 1e5)["ok"])
+        zeroed = [dict(r) for r in alt["rows"]]
+        zeroed[1]["qty"] = 0.0
+        self.assertEqual(S.compare_rows(ref["rows"], zeroed, 1e5)["field"], "qty")   # 数量不用金额尺度
+        snap = [T(0, "buy", 0.5, 10.0), T(1, "sell", 0.5 - 4e-13, 10.0)]
+        self.assertEqual(LA.run(snap, [10.0, 10.0])["rows"][1]["qty"], 0)
+        self.assertEqual(L.run(snap, [10.0, 10.0])["rows"][1]["qty"], 0)
 
     def test_compare_rows(self):
         rows = L.run(BASIC, BASIC_CLOSES)["rows"]

@@ -269,7 +269,7 @@ class TestProperties(unittest.TestCase):
                         self.assertNotIn(None, tail, (name, ind, variant, line))
 
     def test_constant_input_closed_forms(self):
-        for c, n in ((100.0, 80), (37.25, 120)):
+        for c, n in ((100.0, 80), (37.25, 120), (1.0, 60)):
             d = {"open": [c] * n, "high": [c] * n, "low": [c] * n, "close": [c] * n, "volume": [500.0] * n}
             for ind, variant in R.all_variants():
                 for impl in (R, A):
@@ -310,12 +310,33 @@ class TestCrossCheck(unittest.TestCase):
                                               flat_noise=0.0 if seed % 2 else 0.1))
             self._cross(data, seed)
 
+    def test_alt_rsi_balanced_window_is_fifty(self):
+        for kind in ("wilder", "ema", "sma"):
+            self.assertEqual(A._rsi([1.0, 2.0, 1.0], 2, kind, 0.0)[2], 50.0)
+            self.assertEqual(A._rsi([1.0, 1.0, 1.0], 2, kind, None)[2], None)
+
+    def test_tamper_shape(self):
+        d = SERIES["randwalk"]
+        t = P.tamper(d, 50, "s")
+        self.assertEqual(t, P.tamper(d, 50, "s"))
+        self.assertNotEqual(t["close"][50:], P.tamper(d, 50, "other")["close"][50:])
+        for k in ("open", "high", "low", "close", "volume"):
+            self.assertEqual(t[k][:50], d[k][:50])
+            self.assertTrue(all(a != b for a, b in zip(t[k][50:], d[k][50:])), k)
+        for o, h, lo, c, v in zip(*(t[k][50:] for k in ("open", "high", "low", "close", "volume"))):
+            self.assertTrue(1.0 <= o <= 301.0 and 1.0 <= c <= 301.0)
+            self.assertTrue(max(o, c) <= h <= max(o, c) * 1.05 and min(o, c) * 0.95 <= lo <= min(o, c))
+            self.assertTrue(0.0 <= v <= 5000.0)
+        self.assertIsNot(t["close"], d["close"])
+
     def test_check_against_reports_mismatch(self):
         self.assertFalse(P.check_against({"a": [1.0]}, {"b": [1.0]})["ok"])
         res = P.check_against([1.0, 2.0], [1.0, 2.0 * (1 + 1e-7)])
         self.assertFalse(res["ok"])
         self.assertEqual(res["first"]["index"], 1)
-        self.assertTrue(P.check_against([1.0, 2.0], [1.0, 2.0 * (1 + 1e-10)])["ok"])
+        ok = P.check_against([1.0, 2.0], [1.0, 2.0 * (1 + 1e-10)])
+        self.assertTrue(ok["ok"])
+        self.assertAlmostEqual(ok["max_tol_ratio"], 0.1, delta=1e-4)
 
 
 if __name__ == "__main__":

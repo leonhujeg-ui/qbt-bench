@@ -225,7 +225,7 @@ def format_report(rep):
     return "\n".join(lines)
 
 
-def main(argv=None):
+def build_parser():
     ap = argparse.ArgumentParser(description="跨进程 / 跨哈希种子一致性检查")
     ap.add_argument("target", help="模块:函数")
     ap.add_argument("--task", default="{}", help="任务 JSON 字符串，或 @文件路径")
@@ -233,7 +233,11 @@ def main(argv=None):
     ap.add_argument("--rel", type=float, default=1e-9)
     ap.add_argument("--dict-order", action="store_true")
     ap.add_argument("--json", default=None)
-    args = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     try:
         if args.task.startswith("@"):
             with open(args.task[1:], encoding="utf-8") as f:

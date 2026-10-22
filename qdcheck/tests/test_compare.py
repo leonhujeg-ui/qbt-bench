@@ -22,6 +22,19 @@ class TestCompareSeries(unittest.TestCase):
         self.assertEqual(res["max_abs_err"], 5e-13)
         self.assertLess(res["max_tol_ratio"], 1.0)
 
+    def test_error_statistics(self):
+        res = C.compare_series([0.5], [0.5 * (1 + 5e-10)])
+        self.assertAlmostEqual(res["max_rel_err"], 5e-10, delta=1e-13)          # |值| < 1 也计入相对误差
+        self.assertEqual(res["max_abs_err"], 0.0)
+        res = C.compare_series([0.5], [0.4], rel_tol=0.5, abs_tol=0.25)         # 边界：rel*scale == abs_tol
+        self.assertAlmostEqual(res["max_rel_err"], 0.2, delta=1e-12)
+        self.assertEqual(res["max_abs_err"], 0.0)
+        res = C.compare_series([1.0], [1.0 + 9e-10])
+        self.assertAlmostEqual(res["max_tol_ratio"], 0.9, delta=1e-6)
+        res = C.compare_series([0.0], [5e-13])
+        self.assertAlmostEqual(res["max_tol_ratio"], 0.5, delta=1e-9)
+        self.assertEqual((res["max_rel_err"], res["max_abs_err"]), (0.0, 5e-13))
+
     def test_value_mismatch_reports_first_index_and_both_values(self):
         e = [1.0, 2.0, 3.0, 4.0]
         a = [1.0, 2.0, 3.0 * (1 + 2e-9), 0.0]
@@ -101,6 +114,13 @@ class TestCompareFile(unittest.TestCase):
         self.assertEqual((rep["total"], rep["checked"], rep["passed"], rep["failed"]), (3, 2, 1, 1))
         self.assertEqual((rep["missing"], rep["unknown"]), (["c"], ["zzz"]))
         self.assertEqual((rep["failures"][0]["id"], rep["failures"][0]["index"]), ("b", 1))
+
+    def test_file_level_statistics(self):
+        exact = C.compare_file(self.obj, {"a": [None, 1.0], "b": [2.0, 3.0], "c": [5.0]})
+        self.assertEqual((exact["max_rel_err"], exact["max_abs_err"], exact["max_tol_ratio"]), (0.0, 0.0, 0.0))
+        near = C.compare_file(self.obj, {"b": [2.0, 3.0 * (1 + 4e-10)], "c": [5.0 * (1 + 2e-10)]})
+        self.assertAlmostEqual(near["max_rel_err"], 4e-10, delta=1e-13)
+        self.assertAlmostEqual(near["max_tol_ratio"], 0.4, delta=1e-4)
 
     def test_load_layouts(self):
         self.assertEqual(len(C.load_vectors(self.obj)), 3)

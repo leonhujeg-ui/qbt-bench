@@ -124,7 +124,6 @@ def _check_input(ohlcv):
         for v in col:
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
                 raise ValueError(f"ohlcv[{key!r}] contains a non-finite / non-numeric value {v!r}")
-    return n
 
 
 # ---- 朴素原语 ------------------------------------------------------------------
@@ -391,11 +390,9 @@ def compute(indicator, ohlcv, variant=None, params=None, warmup="none"):
     """计算一个指标的全部输出线，返回 {line: list}，每条线长度 = 输入长度。"""
     _variant, knobs, full = resolve(indicator, variant, params)
     _check_input(ohlcv)
-    if warmup not in ("none", "nan"):
-        raise ValueError("warmup must be 'none' or 'nan'")
     cols = {k: list(ohlcv[k]) for k in _COLUMNS}
     lines = _FUNCS[indicator](cols, knobs, full)
-    return apply_warmup({name: lines[name] for name in LINES[indicator]}, warmup)
+    return apply_warmup({name: lines[name] for name in LINES[indicator]}, warmup)   # 非法 warmup 在这里报 ValueError
 
 
 def all_variants():

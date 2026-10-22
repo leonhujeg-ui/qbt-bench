@@ -106,6 +106,39 @@ class TestDiff(unittest.TestCase):
         self.assertLessEqual(len(D.diff(long_a, long_b)[0]["a"]), 302)
 
 
+class TestReportDetails(unittest.TestCase):
+    def test_nan_results_survive_json_round_trip(self):
+        self.assertTrue(math.isnan(D.run_target("builtins:float", "nan")))
+        self.assertEqual(D.run_target("builtins:float", "inf"), math.inf)
+
+    def test_timing_fields_with_fake_clock(self):
+        from unittest import mock
+        ticks = iter([5.0, 6.23456])
+        with mock.patch.object(D.time, "perf_counter", lambda: next(ticks)):
+            rep = D.check(TOY, "qdcheck.examples:deterministic_engine", hash_seeds=())
+        self.assertEqual(rep["runs"][0]["seconds"], 1.235)
+        ticks = iter([5.0, 6.23456])
+        with mock.patch.object(D.time, "perf_counter", lambda: next(ticks)):
+            out = D.run_child("qdcheck.examples:deterministic_engine", TOY, 0)
+        self.assertEqual(out["seconds"], 1.235)
+
+    def test_short_values_and_key_lists(self):
+        self.assertEqual(D.diff("a" * 198, "b" * 198)[0]["a"], "a" * 198)        # repr 恰 200 字符：原样
+        self.assertEqual(D.diff("a" * 199, "b" * 199)[0]["a"], repr("a" * 199)[:200])
+        a = {f"k{i:02d}": i for i in range(25)}
+        b = dict(reversed(list(a.items())))
+        first = D.diff(a, b, dict_order=True)[0]
+        self.assertEqual((len(first["a"]), first["a"][0], first["b"][0]), (20, "k00", "k24"))
+
+    def test_defaults(self):
+        import inspect
+        self.assertEqual(inspect.signature(D.check).parameters["rel_tol"].default, 1e-9)
+        self.assertEqual(inspect.signature(D.check).parameters["hash_seeds"].default, (0, 4242))
+        self.assertEqual(inspect.signature(D.diff).parameters["rel_tol"].default, 1e-9)
+        args = D.build_parser().parse_args(["m:f"])
+        self.assertEqual((args.seeds, args.rel, args.task, args.dict_order), ([0, 4242], 1e-9, "{}", False))
+
+
 class TestErrors(unittest.TestCase):
     def test_bad_targets_tasks_and_results(self):
         for spec in ("nocolon", ":f", "m:", "qdcheck.examples:nope", "qdcheck.examples:SYMBOLS"):
@@ -121,6 +154,21 @@ class TestErrors(unittest.TestCase):
         with self.assertRaises(D.HarnessError) as ctx:
             D.run_child("time:sleep", 5, 0, timeout=0.5)
         self.assertIn("timed out", str(ctx.exception))
+
+    def test_child_entry_point_in_process(self):
+        import io
+        import sys
+        stdin, stdout = sys.stdin, sys.stdout
+        sys.stdin = io.StringIO(json.dumps({"target": "qdcheck.examples:deterministic_engine", "task": TOY}))
+        sys.stdout = io.StringIO()
+        try:
+            D._child_main()
+            out = json.loads(sys.stdout.getvalue())
+        finally:
+            sys.stdin, sys.stdout = stdin, stdout
+        self.assertEqual(out["result"], D.run_target("qdcheck.examples:deterministic_engine", TOY))
+        self.assertEqual(out["probe"], hash(D.PROBE))
+        self.assertEqual(D.diff(b"a", "a")[0]["reason"], "type bytes != str")
 
     def test_cli(self):
         tmp = tempfile.mkdtemp()

@@ -103,6 +103,26 @@ class TestSynth(unittest.TestCase):
         self.assertEqual(S._pick_kind(0.5, w), "halt")
         self.assertEqual(S._pick_kind(1.0, w), "halt")
 
+    def test_defaults_and_small_knobs(self):
+        self.assertEqual(S.generate(5), S.generate(5, 0))
+        grid = [S._pick_kind(i / 1000, S.DEFAULTS["weights"]) for i in range(1000)]
+        self.assertEqual({k: grid.count(k) for k in S.KINDS},
+                         {"random": 400, "trend_up": 200, "trend_down": 200, "flat": 100, "halt": 100})
+        tiny_seg = S.generate(30, 2, seg_min=1, seg_max=1)
+        self.assertEqual(sum(b - a for a, b, _k in tiny_seg["segments"]), 30)
+        one = S.generate(10, 4, segments=[(3, 1, "halt")], weights={"random": 1})
+        self.assertIn([3, 4, "halt"], one["segments"])
+        self.assertEqual(one["segments"][0][:2], [0, 3])
+        low = S.generate(200, 6, base_volume=0.01, weights={"random": 1})
+        self.assertEqual(set(low["volume"]), {1.0})
+        tiny = S.generate(400, 5, s0=1.5, tick=0.25, vol=0.2, gap_prob=0.2, min_price_ticks=2)
+        for i, kind in tiny["events"]:
+            if kind.startswith("gap"):
+                r = abs(tiny["open"][i] / tiny["close"][i - 1] - 1)
+                self.assertLessEqual(r, S.DEFAULTS["gap_max"] + 0.25 / tiny["close"][i - 1] + 1e-12)
+        args = S.build_parser().parse_args([])
+        self.assertEqual((args.n, args.seed, args.out), (1000, 0, "-"))
+
     def test_cli(self):
         with captured() as (out, _err):
             self.assertEqual(S.main(["--n", "5", "--seed", "2"]), 0)

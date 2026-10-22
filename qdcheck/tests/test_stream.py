@@ -138,5 +138,171 @@ class TestQbtRealCase(unittest.TestCase):
         self.assertTrue(any(r["config"] == "levered_funding" and r["records"] > r["fills"] for r in rows))
 
 
+NONE = {"initial_cash": 100_000.0, "margin_mode": "none", "leverage": 1, "mmr": 0.005}
+BARS = {"open": [100.0, 100.0, 100.0], "high": [101.0, 102.0, 101.0], "low": [99.0, 98.0, 99.0],
+        "close": [100.0, 100.5, 100.0], "volume": [1000.0, 50.0, 0.0]}
+
+
+def sim_with(cfg=None, bars=None, **kw):
+    s = S._Sim(0, 3, cfg or NONE, dict(S.SIM_DEFAULTS, **kw), {})
+    s.bars = {k: list(v) for k, v in (bars or BARS).items()}
+    return s
+
+
+def scripted(s, values):
+    it = iter(values)
+    s.rnd = lambda: next(it)
+    return it
+
+
+def trade(s, t, side, qty, price):
+    s.led.apply({"bar": t, "kind": "trade", "side": side, "qty": qty, "price": price, "fee": 0.0, "funding": 0.0})
+
+
+class TestSimulatorPieces(unittest.TestCase):
+    def test_fill_prices(self):
+        s = sim_with()
+        mk = lambda side, otype, limit=None: S._Order(1, side, 5, otype, limit, 0, 9)
+        self.assertEqual(s._fill_price(mk(1, "market"), 100.0, 102.0, 98.0), 100.0 * (1 + 0.0005))
+        self.assertEqual(s._fill_price(mk(-1, "market"), 100.0, 102.0, 98.0), 100.0 * (1 - 0.0005))
+        self.assertEqual(s._fill_price(mk(1, "limit", 98.5), 100.0, 102.0, 98.0), 98.5)
+        self.assertEqual(s._fill_price(mk(1, "limit", 98.0), 100.0, 102.0, 98.0), 98.0)
+        self.assertEqual(s._fill_price(mk(1, "limit", 101.0), 100.0, 102.0, 98.0), 100.0)
+        self.assertIsNone(s._fill_price(mk(1, "limit", 97.9), 100.0, 102.0, 98.0))
+        self.assertEqual(s._fill_price(mk(-1, "limit", 101.5), 100.0, 102.0, 98.0), 101.5)
+        self.assertEqual(s._fill_price(mk(-1, "limit", 102.0), 100.0, 102.0, 98.0), 102.0)
+        self.assertEqual(s._fill_price(mk(-1, "limit", 99.0), 100.0, 102.0, 98.0), 100.0)
+        self.assertIsNone(s._fill_price(mk(-1, "limit", 102.1), 100.0, 102.0, 98.0))
+
+    def test_matching_participation_partial_fills_expiry(self):
+        s = sim_with()
+        trade(s, 0, "buy", 1, 100.0)
+        s.led.mark(0, 100.0)
+        s.orders = [S._Order(1, 1, 4, "market", None, 0, 9), S._Order(2, 1, 2, "market", None, 0, 9),
+                    S._Order(3, -1, 7, "limit", 101.5, 0, 0), S._Order(4, 1, 3, "limit", 98.5, 0, 1)]
+        s._match(1)                                         # 本根上限 int(50 * 0.1) = 5，先到先得
+        recs = [(r["order_id"], r["qty"], r["price"]) for r in s.records]
+        self.assertEqual(recs, [(1, 4, 100.0 * 1.0005), (2, 1, 100.0 * 1.0005)])
+        self.assertAlmostEqual(s.records[0]["fee"], 0.0005 * 4 * 100.0 * 1.0005)
+        self.assertEqual((s.stats["trades"], s.stats["partial_fills"], s.stats["expired"]), (2, 1, 1))
+        self.assertEqual([o.oid for o in s.orders], [2, 4])
+        self.assertEqual(s.orders[0].remaining, 1)
+        s.led.mark(1, 100.5)
+        s._match(2)                                         # 停牌（量 0）：不成交
+        self.assertEqual(len(s.records), 2)
+        s2 = sim_with()
+        s2.orders = [S._Order(1, 1, 6, "market", None, 0, 9)]
+        s2.led.mark(0, 100.0)
+        s2._match(1)
+        self.assertEqual((s2.orders[0].remaining, s2.stats["partial_fills"]), (1, 1))
+        self.assertEqual(s2.records[0]["order_id"], 1)
+
+    def test_affordability(self):
+        iso = sim_with({"initial_cash": 10_000.0, "margin_mode": "isolated", "leverage": 10, "mmr": 0.005})
+        self.assertEqual(iso._affordable(1, 2000, 100.0, 0.0), 1000)
+        self.assertEqual(iso._affordable(1, 2000, 100.0, 0.001), int(10_000 / (10 + 0.1)))
+        trade(iso, 0, "buy", 500, 100.0)
+        self.assertEqual(iso._affordable(-1, 300, 100.0, 0.0), 300)
+        self.assertEqual(iso._affordable(-1, 800, 100.0, 0.0), 800)
+        self.assertEqual(iso._affordable(-1, 1600, 100.0, 0.0), 1000)
+        self.assertEqual(iso._affordable(1, 900, 100.0, 0.0), 500)
+        cross = sim_with({"initial_cash": 10_000.0, "margin_mode": "cross", "leverage": 2, "mmr": 0.05})
+        self.assertEqual(cross._affordable(1, 500, 100.0, 0.0), 200)
+        trade(cross, 0, "buy", 100, 100.0)
+        self.assertEqual(cross._affordable(1, 500, 100.0, 0.0), 100)
+        self.assertEqual(cross._affordable(-1, 300, 100.0, 0.0), 300)
+        self.assertEqual(cross._affordable(-1, 500, 100.0, 0.0), 300)
+        none = sim_with()
+        self.assertEqual(none._affordable(1, 10_000, 100.0, 0.0), 3000)
+        poor = sim_with({"initial_cash": 100.0, "margin_mode": "isolated", "leverage": 1, "mmr": 0.005})
+        poor.orders = [S._Order(1, 1, 10, "market", None, 0, 9)]
+        poor.led.mark(0, 100.0)
+        poor._match(1)
+        self.assertEqual((poor.stats["rejected_margin"], poor.orders, poor.records), (1, [], []))
+
+    def test_day_end_and_liquidation(self):
+        s = sim_with(settlement=True, funding=True)
+        s.led.mark(0, 100.0)
+        s._day_end(1, 105.0)
+        self.assertEqual(s.records, [])                     # 无仓：不结算、不收资金费
+        trade(s, 1, "buy", 10, 100.0)
+        s.funding_rate = 0.001
+        scripted(s, [0.75])
+        s._day_end(1, 105.0)
+        self.assertEqual([r["kind"] for r in s.records], ["settlement", "funding"])
+        self.assertEqual(s.records[0]["price"], 105.0)
+        self.assertAlmostEqual(s.records[1]["funding"], 0.001 * 10 * 105.0)
+        self.assertAlmostEqual(s.funding_rate, 0.5 * 0.0005)
+        self.assertEqual((s.stats["settlements"], s.stats["funding_records"]), (1, 1))
+        iso = sim_with({"initial_cash": 10_000.0, "margin_mode": "isolated", "leverage": 20, "mmr": 0.005})
+        trade(iso, 0, "buy", 1000, 100.0)
+        iso.orders = [S._Order(1, 1, 5, "market", None, 0, 9)]
+        iso._liquidation_check(0, 99.0)
+        self.assertEqual(iso.records, [])
+        iso._liquidation_check(0, 92.0)
+        rec = iso.records[-1]
+        self.assertEqual((rec["kind"], rec["side"], rec["qty"], rec["price"], rec["fee"]),
+                         ("liquidation", "sell", 1000, 92.0, 0.0))
+        self.assertEqual((iso.orders, iso.stats["cancelled_by_liquidation"], iso.stats["liquidations"]), ([], 1, 1))
+        mild = sim_with({"initial_cash": 10_000.0, "margin_mode": "isolated", "leverage": 20, "mmr": 0.05})
+        trade(mild, 0, "buy", 1000, 100.0)
+        mild._liquidation_check(0, 96.0)                    # 仓位权益 1000 <= 维持保证金 4800：强平费 480 未触顶
+        self.assertAlmostEqual(mild.records[-1]["fee"], 480.0)
+        capped = sim_with({"initial_cash": 10_000.0, "margin_mode": "isolated", "leverage": 20, "mmr": 0.05})
+        trade(capped, 0, "buy", 1000, 100.0)
+        capped._liquidation_check(0, 95.2)                  # 仓位权益约 200 < 强平费 476：封顶在 200
+        self.assertAlmostEqual(capped.records[-1]["fee"], 200.0, delta=1e-6)
+        flat = sim_with(dict(NONE, margin_mode="cross", leverage=2))
+        flat._liquidation_check(0, 1.0)
+        self.assertEqual(flat.records, [])
+
+    def test_new_orders_scripted(self):
+        s = sim_with()
+        scripted(s, [0.0, 0.5, 0.3, 0.2, 0.9, 0.5, 0.5])
+        s._new_orders(0, 100.0)
+        o = s.orders[0]
+        self.assertEqual((o.oid, o.side, o.remaining, o.otype, o.created, o.expire), (1, 1, 640, "limit", 0, 21))
+        self.assertAlmostEqual(o.limit, 100.0 * (1 - 0.01 * 0.5))
+        self.assertEqual((s.next_id, s.stats["submitted"], s.stats["limit"]), (2, 1, 1))
+        scripted(s, [0.0, 0.99])                            # 第一笔挂单被撤；本根不再下单
+        s._new_orders(0, 100.0)
+        self.assertEqual((s.orders, s.stats["cancelled_user"]), ([], 1))
+        trade(s, 0, "buy", 10, 100.0)
+        cases = [([0.0, 0.5, 0.5, 0.4, 0.2, 0.0], -1, 4, "reduce"), ([0.0, 0.5, 0.7, 0.2, 0.0], -1, 10, "close"),
+                 ([0.0, 0.5, 0.9, 0.2, 0.0], -1, 10 + 640, "reverse"), ([0.0, 0.5, 0.1, 0.2, 0.0], 1, 640, "add")]
+        for draws, side, qty, _name in cases:
+            s.orders = []
+            scripted(s, draws)
+            s._new_orders(1, 100.0)
+            o = s.orders[0]
+            self.assertEqual((o.side, o.remaining, o.otype), (side, qty, "market"), _name)
+            self.assertEqual(o.expire, 2)
+        scripted(s, [0.99])
+        s.orders = []
+        s._new_orders(2, 100.0)                             # 停牌那根不下单
+        self.assertEqual(s.orders, [])
+        sell_limit = sim_with()
+        scripted(sell_limit, [0.0, 0.0, 0.1, 0.9, 0.9, 1.0, 0.0])
+        sell_limit._new_orders(0, 100.0)
+        o = sell_limit.orders[0]
+        self.assertEqual((o.side, o.remaining), (-1, 40))
+        self.assertAlmostEqual(o.limit, 101.0)
+
+    def test_aggregation_exit_code_and_defaults(self):
+        from unittest import mock
+        rep = S.run_many(2, 300, seed0=5)
+        singles = [S.check_stream(S.generate(s, 300)) for s in (5, 6)]
+        for key in rep["counters"]:
+            self.assertEqual(rep["counters"][key], sum(r["counters"][key] for r in singles), key)
+        for key in rep["stats"]:
+            self.assertEqual(rep["stats"][key], sum(r["stats"][key] for r in singles), key)
+        self.assertEqual(min(r["order_id"] for r in S.generate(0, 600)["records"] if "order_id" in r), 1)
+        bad = dict(singles[0], n_violations=1)
+        with mock.patch.object(S, "check_stream", return_value=bad), captured():
+            self.assertEqual(S.main(["--streams", "1", "--bars", "50"]), 1)
+        args = S.build_parser().parse_args([])
+        self.assertEqual((args.streams, args.bars, args.seed, args.out), (200, 3000, 0, None))
+
+
 if __name__ == "__main__":
     unittest.main()

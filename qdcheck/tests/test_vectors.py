@@ -33,10 +33,25 @@ def _write_json(path, obj):
 
 class TestCommittedVectors(unittest.TestCase):
     def test_regenerates_within_tolerance(self):
-        inds = scale(list(R.INDICATORS), ["kdj", "trix", "ichimoku"])
-        summary = G.check_all(indicators=inds)
+        """全部指标向量 + 账本向量与入库文件对比（快速模式也跑满：约 2.5 s，是生成代码里所有常数的判据）。"""
+        summary = G.check_all()
         self.assertTrue(summary["ok"], summary["mismatches"][:5])
-        self.assertGreater(summary["values"], 10000 if len(inds) == 9 else 1000)
+        self.assertEqual(summary["vectors"], 1260)
+        self.assertGreater(summary["values"], 90000)
+        self.assertEqual((summary["ledger"]["vectors"], summary["ledger"]["bars"]), (7, 1227))
+        self.assertEqual(summary["ledger"]["bars"], sum(len(v["closes"]) for v in G.ledger_vectors()))
+
+    def test_file_headers(self):
+        for ind in R.INDICATORS:
+            obj = _read_json(os.path.join(G.VECTOR_DIR, f"{ind}.json"))
+            self.assertEqual((obj["format"], obj["indicator"], obj["seed"]), (G.FORMAT, ind, G.SEED))
+            self.assertEqual(obj["count"], len(obj["vectors"]))
+            self.assertEqual((obj["variants"], obj["lines"]), (list(R.VARIANTS[ind]), list(R.LINES[ind])))
+        with open(os.path.join(G.VECTOR_DIR, "manifest.json"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), json.dumps(G.manifest(), indent=1, ensure_ascii=False) + "\n")
+        led = _read_json(os.path.join(G.VECTOR_DIR, "ledger_cross_x3_liquidation.json"))
+        self.assertEqual((led["format"], led["name"]), (G.LEDGER_FORMAT, "cross_x3_liquidation"))
+        self.assertEqual(set(led["expected"]), set(G.ledger.ROW_FIELDS))
 
     def test_independent_implementation_reproduces_committed_outputs(self):
         for ind in scale(list(R.INDICATORS), ["stochrsi", "cci"]):
@@ -109,6 +124,11 @@ class TestWriterAndChecker(unittest.TestCase):
         tmp = tempfile.mkdtemp()
         try:
             counts = G.write_all(tmp)
+            with open(os.path.join(tmp, "manifest.json"), encoding="utf-8") as f:     # 刚写出的文件（不是入库的）
+                self.assertEqual(f.read(), json.dumps(G.manifest(), indent=1, ensure_ascii=False) + "\n")
+            for ind in R.INDICATORS:
+                head = _read_json(os.path.join(tmp, f"{ind}.json"))
+                self.assertEqual((head["count"], head["format"], head["indicator"]), (len(head["vectors"]), G.FORMAT, ind))
             manifest = _read_json(os.path.join(tmp, "manifest.json"))
             self.assertEqual({k: v for k, v in counts.items() if not k.startswith("ledger_")},
                              {k: v["count"] for k, v in manifest["indicators"].items()})
@@ -165,14 +185,57 @@ class TestWriterAndChecker(unittest.TestCase):
         self.assertEqual(len(res["mismatches"]), 5)
         self.assertEqual(res["vectors"], 6)
 
+    def test_inconsistent_ledger_scenario_is_refused(self):
+        from unittest import mock
+        bad = [("bad", "提前且部分强平", {"initial_cash": 10_000.0, "margin_mode": "isolated", "leverage": 20, "mmr": 0.005},
+                [100.0, 99.0], [{"bar": 0, "kind": "trade", "side": "buy", "qty": 1000, "price": 100.0},
+                                {"bar": 1, "kind": "liquidation", "side": "sell", "qty": 400, "price": 99.0}])]
+        with mock.patch("qdcheck.stream.ledger_scenarios", return_value=bad):
+            with self.assertRaises(RuntimeError) as ctx:
+                G.ledger_vectors()
+        msg = str(ctx.exception)
+        self.assertIn("'check': 'premature_liquidation'", msg)          # ledger 的前两条违背都要出现在消息里
+        self.assertIn("'check': 'liquidation_not_full'", msg)
+
+    def test_helpers_and_timing(self):
+        from unittest import mock
+        self.assertTrue(G._rec_close(1.0, 2.0, 0.5))                 # 恰在容差边界上算一致
+        self.assertFalse(G._rec_close(1.0, 2.0001, 0.5))
+        self.assertTrue(G._rec_close(None, None, 1e-9))
+        self.assertFalse(G._rec_close(None, 1.0, 1e-9))
+        ticks = iter([3.0, 4.23456])
+        with mock.patch.object(G.time, "perf_counter", lambda: next(ticks)):
+            self.assertEqual(G.check_all(indicators=["cci"])["seconds"], 1.23)
+
     def test_main_writes_and_checks(self):
         tmp = tempfile.mkdtemp()
         try:
             with captured() as (out, _err):
                 self.assertEqual(G.main(["--out", tmp]), 0)
-                self.assertEqual(G.main(["--check", "--out", tmp]), 0)
-            self.assertIn('"total": ', out.getvalue())
-            self.assertIn("mismatches 0", out.getvalue())
+            first = json.loads(out.getvalue().splitlines()[0])
+            self.assertEqual(list(first), sorted(first))
+            self.assertEqual(first["total"], 1260)
+            path = os.path.join(tmp, "dema.json")
+            obj = _read_json(path)
+            for v in obj["vectors"][:25]:
+                k = next(i for i, x in enumerate(v["output"]) if x is not None) if any(
+                    x is not None for x in v["output"]) else None
+                if k is None:
+                    v["output"].append(1.0)
+                else:
+                    v["output"][k] += 1.0
+            _write_json(path, obj)
+            rep = os.path.join(tmp, "summary.json")
+            with captured() as (out, _err):
+                self.assertEqual(G.main(["--check", "--out", tmp, "--json", rep]), 1)
+            lines = out.getvalue().splitlines()
+            self.assertEqual(len(lines), 21)                            # 最多打印 20 条不一致 + 1 行汇总
+            self.assertTrue(lines[0].startswith("dema|"))
+            self.assertIn("mismatches 25", lines[-1])
+            with open(rep, encoding="utf-8") as f:
+                text = f.read()
+            summary = json.loads(text)
+            self.assertEqual(text, json.dumps(summary, indent=1, sort_keys=True))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

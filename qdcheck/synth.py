@@ -209,12 +209,16 @@ def rows(data):
     return list(zip(data["open"], data["high"], data["low"], data["close"], data["volume"]))
 
 
-def main(argv=None):
+def build_parser():
     ap = argparse.ArgumentParser(description="合成 K 线（同 seed 同结果）")
     ap.add_argument("--n", type=int, default=1000)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="-")
-    args = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     data = generate(args.n, args.seed)
     text = json.dumps(data, sort_keys=True)
     if args.out == "-":

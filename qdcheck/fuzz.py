@@ -107,9 +107,7 @@ def _leaf_error(node, v):
         if not isinstance(v, str):
             return "expected str"
         return None if _str_ok(node, v) else "str length/charset"
-    if t == "enum":
-        return None if any(v == c and type(v) is type(c) for c in node["choices"]) else "not one of choices"
-    return None
+    return None if any(v == c and type(v) is type(c) for c in node["choices"]) else "not one of choices"   # enum
 
 
 def schema_errors(schema, obj, limit=1):
@@ -720,24 +718,12 @@ class _Shrinker:
         return obj, changed
 
     def shrink(self, obj):
-        if isinstance(obj, (list, dict)) and _chain_info(obj):
-            obj = self._shrink_chain_root(obj)
+        """make_case 从不把顶层换成深链，所以只需在各条路径上缩小。"""
         for _ in range(6):
             obj, changed = self._pass(obj)
             if not changed or self.calls >= self.budget:
                 break
         return obj
-
-    def _shrink_chain_root(self, v):
-        kind, key, depth, leaf = _chain_info(v)
-        lo, hi = 0, depth
-        while lo < hi and self.calls < self.budget:
-            mid = (lo + hi) // 2
-            if self.reproduces(deep_chain(kind, mid, leaf, key)):
-                hi = mid
-            else:
-                lo = mid + 1
-        return deep_chain(kind, self._margin(hi, depth), leaf, key)
 
 
 def _qualname(fn):
@@ -753,6 +739,7 @@ def run(validate, schema, n=20000, seed=0, controlled=None, shrink=True, shrink_
     cats = {c: {"cases": 0, "pass": 0, "controlled": 0, "bare": 0} for c in CATEGORIES}
     bare_types, groups = {}, {}
     accepted_invalid, rejected_valid, valid_cases, unrecorded = [], [], 0, 0
+    n_accepted_invalid = n_rejected_valid = 0
     t0 = time.perf_counter()
     for i in range(n):
         case = make_case(schema, seed, i)
@@ -763,10 +750,14 @@ def run(validate, schema, n=20000, seed=0, controlled=None, shrink=True, shrink_
             cats[c]["cases"] += 1
             cats[c][outcome] += 1
         valid_cases += bool(is_valid)
-        if outcome == "pass" and is_valid is False and len(accepted_invalid) < 1000:
-            accepted_invalid.append(i)
-        if outcome == "controlled" and is_valid and len(rejected_valid) < 1000:
-            rejected_valid.append(i)
+        if outcome == "pass" and is_valid is False:          # 误收：validate 放过了 schema 判为非法的输入
+            n_accepted_invalid += 1
+            if len(accepted_invalid) < 20:
+                accepted_invalid.append(i)
+        if outcome == "controlled" and is_valid:             # 误拒：validate 拒绝了 schema 判为合法的输入
+            n_rejected_valid += 1
+            if len(rejected_valid) < 20:
+                rejected_valid.append(i)
         if outcome == "bare":
             bare_types[type(exc).__name__] = bare_types.get(type(exc).__name__, 0) + 1
             top3, key = _frames(exc, repo_root)
@@ -801,8 +792,8 @@ def run(validate, schema, n=20000, seed=0, controlled=None, shrink=True, shrink_
             "elapsed_s": round(elapsed, 3), "per_case_us": round(1e6 * elapsed / n, 1) if n else 0.0,
             "outcomes": outcomes, "bare_by_type": dict(sorted(bare_types.items())), "categories": cats,
             "schema_valid_cases": valid_cases if check_accepted else None,
-            "accepted_invalid": {"count": len(accepted_invalid), "first_cases": accepted_invalid[:20]},
-            "rejected_valid": {"count": len(rejected_valid), "first_cases": rejected_valid[:20]},
+            "accepted_invalid": {"count": n_accepted_invalid, "first_cases": accepted_invalid},
+            "rejected_valid": {"count": n_rejected_valid, "first_cases": rejected_valid},
             "bare_unrecorded": unrecorded, "bare": bare}
 
 
@@ -833,7 +824,7 @@ def _load_callable(spec):
     return obj
 
 
-def main(argv=None):
+def build_parser():
     ap = argparse.ArgumentParser(description="schema 驱动的入参模糊器")
     ap.add_argument("validate", help="模块:函数，例如 qdcheck.examples:validate_good")
     ap.add_argument("--schema", required=True, help="schema JSON 文件，或 模块:变量")
@@ -842,7 +833,11 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--no-shrink", action="store_true")
     ap.add_argument("--out", default=None)
-    args = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     if os.path.exists(args.schema):
         with open(args.schema, encoding="utf-8") as f:
             schema = json.load(f)

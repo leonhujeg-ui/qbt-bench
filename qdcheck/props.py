@@ -40,7 +40,7 @@ def check_causality(fn, ohlcv, cuts, seed=0, exempt=()):
     base = _lines(fn(ohlcv))
     checked = 0
     for k, cut in enumerate(cuts):
-        moved = _lines(fn(tamper(ohlcv, cut, seed * 1000 + k)))
+        moved = _lines(fn(tamper(ohlcv, cut, f"{seed}:{k}")))
         for line, vals in base.items():
             if line in exempt:
                 continue

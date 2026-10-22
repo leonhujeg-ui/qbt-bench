@@ -294,6 +294,67 @@ class TestRunner(unittest.TestCase):
         rep = F.run(v, SCHEMA, n=50, seed=0)
         self.assertEqual(F.decode(rep["bare"][0]["minimal_input"]), {})
 
+    def test_shrinker_simplifies_nested_values(self):
+        def v(d):
+            if not isinstance(d, dict):
+                raise ValueError("not a dict")
+            if isinstance(d.get("risk"), dict):
+                raise KeyError("risk is a dict")
+            if isinstance(d.get("symbols"), list) and d["symbols"]:
+                raise IndexError("non-empty symbols")
+            lev = d.get("leverage")
+            if isinstance(lev, (int, float)) and not isinstance(lev, bool) and 2 <= lev < 1e300 and lev == int(lev):
+                raise ArithmeticError("big integral leverage")              # 20.0 应被简化成 int 20
+            if "use_stop" in d:
+                raise LookupError("use_stop present")
+            if isinstance(d.get("symbol"), str) and len(d["symbol"]) > 100:
+                raise OverflowError("long symbol")
+            return d
+        rep = F.run(v, SCHEMA, n=scale(3000, 1500), seed=4)
+        minimal = {g["exc_type"]: F.decode(g["minimal_input"]) for g in rep["bare"]}
+        self.assertEqual(minimal["KeyError"], {"risk": {}})
+        self.assertEqual(len(minimal["IndexError"]["symbols"]), 1)
+        self.assertEqual(list(minimal["IndexError"]), ["symbols"])
+        self.assertIsInstance(minimal["ArithmeticError"]["leverage"], int)
+        self.assertEqual(list(minimal["LookupError"]), ["use_stop"])
+        self.assertEqual(len(minimal["OverflowError"]["symbol"]), 101)     # 非递归异常不留余量：恰好 101
+        self.assertIn(minimal["ValueError"], (None, [], "config", 42, [{}]))
+        self.assertTrue(all(g["ratio"] <= 0.3 for g in rep["bare"] if g["exc_type"] != "ValueError"))
+
+    def test_accepted_invalid_and_zero_budget(self):
+        rep = F.run(lambda d: d, SCHEMA, n=500, seed=0)
+        self.assertEqual(rep["outcomes"]["pass"], 500)
+        self.assertGreater(rep["accepted_invalid"]["count"], 400)
+        self.assertEqual(rep["accepted_invalid"]["count"] + rep["schema_valid_cases"], 500)
+
+        def reject(d):
+            raise E.ValidationError("no")
+        rep = F.run(reject, SCHEMA, n=500, seed=0, controlled=E.ValidationError)
+        self.assertEqual(rep["rejected_valid"]["count"], rep["schema_valid_cases"])
+
+        def only_none(d):
+            if d is None:
+                raise TypeError("None config")
+        rep = F.run(only_none, SCHEMA, n=3000, seed=0)
+        self.assertIsNone(F.decode(rep["bare"][0]["minimal_input"]))
+
+        def v(d):
+            raise ValueError("x")
+        rep = F.run(v, SCHEMA, n=30, seed=0, shrink_budget=0)
+        self.assertEqual(rep["bare"][0]["shrink_calls"], 0)
+        self.assertEqual(rep["bare"][0]["minimal_size"], rep["bare"][0]["original_size"])
+
+    def test_mutate_on_empty_and_non_dict(self):
+        import random
+        obj, done = F._mutate("nan", random.Random(1), {}, SCHEMA)
+        self.assertTrue(done and len(obj) == 1 and math.isnan(next(iter(obj.values()))))
+        self.assertEqual(F._mutate("missing_key", random.Random(1), [1], SCHEMA), ([1], False))
+        self.assertEqual(F._mutate("key_case", random.Random(1), {}, SCHEMA), ({}, False))
+        noise = "".join(chr(33 + (i * 7919) % 90) for i in range(500))
+        self.assertEqual(F.encode(noise), noise)                      # 不是周期串：原样写出
+        self.assertIsNone(F._schema_at(SCHEMA, ("risk", 0)))
+        self.assertIsNone(F._schema_at(SCHEMA, ("nope", "x")))
+
     def test_cli_and_report_file(self):
         tmp = tempfile.mkdtemp()
         out = os.path.join(tmp, "r.json")
@@ -311,6 +372,158 @@ class TestRunner(unittest.TestCase):
             rep = json.load(f)
         self.assertEqual(rep["validate"], "qdcheck.examples:validate_zerodiv")
         self.assertEqual(rep["n"], 800)
+
+
+class TestGenerators(unittest.TestCase):
+    """乱喂值生成器逐类别的精确取值集合（防止某一类悄悄退化成别的值）。"""
+    INT = {"type": "int", "min": 1, "max": 500}
+    FLT = {"type": "float", "min": 0.0, "max": 0.01}
+
+    def _draws(self, fn, n=400):
+        import random
+        rnd = random.Random(11)
+        return [fn(rnd) for _ in range(n)]
+
+    def test_value_for_each_category(self):
+        def vals(cat, node=None):
+            return self._draws(lambda r: F._value_for(cat, r, node))
+        self.assertTrue(all(isinstance(v, float) and math.isnan(v) for v in vals("nan")))
+        self.assertEqual({repr(v) for v in vals("inf")}, {"inf", "-inf"})
+        self.assertTrue(all(v == 0 and math.copysign(1, v) < 0 for v in vals("neg_zero")))
+        self.assertEqual(set(map(repr, vals("huge"))), set(map(repr, (1e308, -1e308, 1.7976931348623157e308, 10 ** 30,
+                                                                       -(10 ** 30), 2 ** 63, 2 ** 64 + 1, 10 ** 400,
+                                                                       5e-324))))
+        self.assertEqual(set(map(repr, vals("negative", self.INT))), {"-1", "-0.5", "-1000000", "-1e-300", "-500.0"})
+        self.assertEqual({repr(v) for v in vals("empty")}, {"''", "[]", "{}", "'   '"})
+        longs = vals("long_string")
+        self.assertEqual({len(v) for v in longs}, {F.LONG_LEN})
+        self.assertEqual({v[:2] for v in longs}, {(u * 2)[:2] for u in F.LONG_UNITS})
+        self.assertEqual(set(vals("unicode")), set(F.UNICODE_SAMPLES))
+        self.assertEqual(set(vals("numeric_string")), set(F.NUMERIC_STRINGS))
+        self.assertTrue(all(isinstance(v, (list, dict)) for v in vals("nested_garbage")))
+
+    def test_wrong_types_never_the_right_type(self):
+        for node, bad in ((self.INT, lambda v: isinstance(v, int) and not isinstance(v, bool)),
+                          (self.FLT, lambda v: isinstance(v, (int, float)) and not isinstance(v, bool)),
+                          ({"type": "str"}, lambda v: isinstance(v, str)), ({"type": "bool"}, lambda v: isinstance(v, bool)),
+                          ({"type": "list", "items": {"type": "int"}}, lambda v: isinstance(v, list)),
+                          ({"type": "object", "fields": {}}, lambda v: isinstance(v, dict))):
+            draws = self._draws(lambda r: F._wrong_type_value(r, node))
+            self.assertFalse(any(bad(v) for v in draws), node)
+            self.assertGreaterEqual(len({type(v).__name__ for v in draws}), 5, node)
+        bools = self._draws(lambda r: F._value_for("type_wrong", r, self.INT))
+        self.assertTrue(any(v is True for v in bools) and any(v is False for v in bools))
+
+    def test_boundary_values_exact(self):
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, self.INT))), {0, 1, 500, 501})
+        eps = 1e-9
+        want = {0.0 - eps, 0.01 + eps, math.nextafter(0.01, math.inf), 0.0}
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, self.FLT))), want)
+        big = {"type": "float", "min": -2000.0, "max": 10.0}
+        self.assertIn(-2000.0 - 2e-6, set(self._draws(lambda r: F._boundary_value(r, big))))
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, {"type": "str", "min_len": 2, "max_len": 5}))),
+                         {"x" * 6, "x"})
+        self.assertEqual({len(v) for v in self._draws(lambda r: F._boundary_value(r, {"type": "list", "max_len": 3}))}, {4})
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, {"type": "enum", "choices": ["ab"]}))),
+                         {"AB", "AB "})
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, {"type": "bool"}))), {0, -1, 1})
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, None))), {0, -1, 1})
+
+    def test_garbage_shapes(self):
+        leaves, chains = set(), set()
+        for g in self._draws(F._garbage, 300):
+            info = F._chain_info(g)
+            if info:
+                chains.add((info[0], info[2]))
+                leaves.add(("chain", repr(info[3])))
+                continue
+            todo = [g]
+            while todo:
+                x = todo.pop()
+                if isinstance(x, dict):
+                    todo.extend(x.values())
+                elif isinstance(x, list):
+                    todo.extend(x)
+                else:
+                    leaves.add(("leaf", repr(x)))
+        self.assertEqual({k for k in leaves if k[0] == "leaf"}, {("leaf", r) for r in ("1", "'s'", "None", "2.5")})
+        self.assertEqual({k for k in leaves if k[0] == "chain"}, {("chain", r) for r in ("0", "'x'", "None")})
+        self.assertEqual({d for _k, d in chains}, {50, 200, 1200, 3000})
+        self.assertTrue(F._deep(F.deep_chain("list", 50, 0)) and not F._deep({"a": [1, {"b": 2}]}))
+
+    def test_case_shape_distribution(self):
+        cases = [F.make_case(SCHEMA, 9, i) for i in range(4000)]
+        nonvalid = [c for c in cases if c.categories != ("valid",)]
+        share = {k: sum(len(c.categories) == k for c in nonvalid) / len(nonvalid) for k in (1, 2, 3)}
+        self.assertLess(abs(share[1] - 0.6), 0.04, share)
+        self.assertLess(abs(share[2] - 0.3), 0.04, share)
+        self.assertLess(abs(share[3] - 0.1), 0.03, share)
+        valid_share = sum(c.categories == ("valid",) for c in cases) / len(cases)
+        self.assertLess(abs(valid_share - 0.05), 0.02)
+        top = [c for c in cases if not isinstance(c.input, dict)]
+        self.assertTrue(top)
+        self.assertTrue(all("type_wrong" in c.categories for c in top))
+
+    def test_report_timing_fields_with_fake_clock(self):
+        from unittest import mock
+        ticks = iter([10.0, 11.23456])
+        with mock.patch.object(F.time, "perf_counter", lambda: next(ticks)):
+            rep = F.run(E.validate_good, SCHEMA, n=50, seed=0, controlled=E.ValidationError)
+        self.assertEqual(rep["elapsed_s"], 1.235)
+        self.assertEqual(rep["per_case_us"], round(1e6 * 1.23456 / 50, 1))
+        self.assertEqual(F.run(E.validate_good, SCHEMA, n=0)["per_case_us"], 0.0)
+
+
+    def test_extra_keys_and_key_case(self):
+        import random
+        keys, renamed = set(), set()
+        for k in range(300):
+            obj, _done = F._mutate("extra_key", random.Random(k), {"period": 1}, SCHEMA)
+            keys |= {repr(x) for x in obj if x != "period"}
+            obj, _done = F._mutate("key_case", random.Random(k), {"period": 1}, SCHEMA)
+            renamed |= set(obj)
+        self.assertEqual(keys, {repr(x) for x in ("unexpected", "__class__", "", "x" * 300, 1, None, (1, 2))})
+        self.assertEqual(renamed, {"PERIOD", "Period", " period", "period ", "period"})
+
+    def test_encoding_boundaries(self):
+        self.assertIsInstance(F.encode("a" * 64), str)
+        self.assertEqual(F.encode("a" * 65), {"$repeat": "a", "times": 65, "tail": ""})
+        for v in (-1.5, -5e-324, -1e308, 2.5):
+            self.assertEqual(F.decode(json.loads(json.dumps(F.encode(v)))), v)
+            self.assertIsInstance(F.encode(v), float)
+        self.assertEqual(F.encode(-0.0), {"$float": "-0.0"})
+        self.assertEqual(F.encode(F.deep_chain("dict", 40, 0, "k")), {"$chain": "dict", "key": "k", "depth": 40, "leaf": 0})
+        self.assertEqual(F.encode(2 ** 53), 2 ** 53)
+        self.assertEqual(F.encode(2 ** 53 + 1), {"$int": str(2 ** 53 + 1)})
+
+    def test_shrinker_helpers(self):
+        rec = F._Shrinker(None, None, ("RecursionError", "f", "g", 0, "x"), REPO, 10)
+        self.assertEqual((rec._margin(1000, 5000), rec._margin(100, 5000), rec._margin(100, 120)), (1100, 164, 120))
+        other = F._Shrinker(None, None, ("ValueError", "f", "g", 3, "x"), REPO, 10)
+        self.assertEqual(other._margin(100, 5000), 100)
+        self.assertEqual(other._simpler(5), [0, 1, -1])
+        self.assertEqual(other._simpler(1), [0, -1])
+        self.assertEqual(other._simpler(2.0), [0, 1, -1, 2])
+        self.assertEqual(other._simpler(2.5), [0, 1, -1])
+        self.assertEqual(other._simpler(True), [])
+        self.assertEqual(other._simpler(None), [])
+        self.assertEqual(other._simpler("abc"), [])
+        self.assertEqual(other._simpler([1, 2, 3]), [[], [1], [1], [2, 3], [2, 3], [1, 3], [1, 2]])
+        self.assertEqual(other._simpler({"a": 1, "b": [2], "c": {"d": 3}, "e": [4]}), [{}, [2], {"d": 3}])
+        self.assertEqual(len(other._simpler(list(range(40)))), 4 + 16)
+
+    def test_write_report_format_and_cli_defaults(self):
+        rep = F.run(E.validate_zerodiv, SCHEMA, n=300, seed=1, controlled=E.ValidationError)
+        path = os.path.join(tempfile.mkdtemp(), "r.json")
+        F.write_report(rep, path)
+        with open(path, encoding="ascii") as f:
+            self.assertEqual(f.read(), json.dumps(rep, indent=1, sort_keys=True, ensure_ascii=True))
+        args = F.build_parser().parse_args(["m:f", "--schema", "s.json"])
+        self.assertEqual((args.n, args.seed, args.controlled, args.no_shrink, args.out), (20000, 0, None, False, None))
+        self.assertEqual(len(rep["accepted_invalid"]["first_cases"]), 0)
+        lenient = F.run(lambda d: d, SCHEMA, n=300, seed=1)
+        self.assertEqual(len(lenient["accepted_invalid"]["first_cases"]), 20)
+        self.assertGreater(lenient["accepted_invalid"]["count"], 20)
 
 
 if __name__ == "__main__":

@@ -275,7 +275,7 @@ def ledger_scenarios():
 
 
 # ---- 对拍 -------------------------------------------------------------------------
-_PRICE_FIELDS = ("close", "avg_price", "liq_price")
+_PRICE_FIELDS = ("close", "avg_price", "liq_price", "qty")      # 只用相对容差的字段（价格与浮点数量）
 
 
 def _close(a, b, rel_tol, scale):
@@ -284,7 +284,7 @@ def _close(a, b, rel_tol, scale):
 
 def compare_rows(rows_a, rows_b, initial_cash, rel_tol=1e-9):
     """逐根逐字段：整数字段（bar / fills / liquidations，及两边都是整数的 qty）完全相等；
-    None 位置一致；价格字段相对容差；金额字段容差以 max(|a|, |b|, 初始资金, |持仓市值|) 为尺度。"""
+    None 位置一致；价格与浮点数量只用相对容差；金额字段容差以 max(|a|, |b|, 初始资金, |持仓市值|) 为尺度。"""
     if len(rows_a) != len(rows_b):
         return {"ok": False, "bar": None, "field": "length", "a": len(rows_a), "b": len(rows_b)}
     checked = 0
@@ -350,13 +350,17 @@ def run_many(n_streams=200, n_bars=3000, seed0=0):
                            for r in results]}
 
 
-def main(argv=None):
+def build_parser():
     ap = argparse.ArgumentParser(description="随机订单流 x 账本对拍")
     ap.add_argument("--streams", type=int, default=200)
     ap.add_argument("--bars", type=int, default=3000)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default=None)
-    args = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     rep = run_many(args.streams, args.bars, args.seed)
     print(json.dumps({k: rep[k] for k in ("n_streams", "n_bars", "seconds", "total_bars", "total_records",
                                           "identity_violations", "alt_issues", "row_mismatches", "values_compared",
