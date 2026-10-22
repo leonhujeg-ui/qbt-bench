@@ -161,8 +161,20 @@ class TestOscillators(QBTTestCase):
         self.assertTrue(all(v == 100.0 for v in I.aroon(ramp, ramp, 10)[0][9:]))
 
     def test_cci_vs_bruteforce(self):
+        """CCI = (tp - SMA)/(0.015*MAD) 是抵消型量：tp - SMA 的绝对误差来自 SMA 滚动和的累积舍入（~n*eps*|tp|），
+        再被 0.015*MAD（~0.005）放大，在 3000 根上约 1e-9 绝对；跨机器 libm 噪声同样被放大（macOS arm64 实测 index 1895
+        相对差 1.1e-8）。因此用指标档位 IND_REL=5e-7（相对值）+ 1e-9*序列量级 的绝对下限。"""
+        from tests._compare import assert_close, perturb, ShapeMismatch, IND_REL
         d = self.d
-        self.assertCloseList(I.cci(d.high, d.low, d.close, 20), B.cci(d.high, d.low, d.close, 20), rel=1e-8)
+        mine, ref = I.cci(d.high, d.low, d.close, 20), B.cci(d.high, d.low, d.close, 20)
+        assert_close(mine, ref, IND_REL, what="cci")
+        with self.assertRaises(ShapeMismatch):                            # 放水判据：实现改错 1e-6（相对）必红
+            assert_close(perturb(mine, 1e-6), ref, IND_REL)
+        with self.assertRaises(ShapeMismatch):                            # 单个元素改错 1e-6 也必红
+            bad = list(mine)
+            k = max(range(len(bad)), key=lambda i: abs(bad[i] or 0.0))
+            bad[k] = bad[k] * (1 + 1e-6)
+            assert_close(bad, ref, IND_REL)
         flat = [2.0] * 30
         self.assertEqual(I.cci(flat, flat, flat, 5)[10], 0.0)
 

@@ -64,9 +64,19 @@ def cmd_backtest(args):
     return 0
 
 
+QUICK_MODULES = ("test_limits", "test_golden", "test_broker", "test_engine", "test_boundaries", "test_contract")
+
+
 def cmd_test(args):
+    """退出码：0 全部通过；1 有失败/错误；2 参数错误（argparse）。默认跑 tests/ 全量；--quick 只跑冒烟子集。"""
     import unittest
-    suite = unittest.defaultTestLoader.discover(os.path.join(REPO, "tests"), pattern=args.pattern)
+    loader = unittest.defaultTestLoader
+    if args.quick:
+        os.environ["QBT_FAST_TESTS"] = "1"                    # 冒烟：缩短随机判据的数据规模，性能阈值判据跳过
+        names = [f"tests.{m}" for m in QUICK_MODULES if os.path.exists(os.path.join(REPO, "tests", m + ".py"))]
+        suite = loader.loadTestsFromNames(names)
+    else:
+        suite = loader.discover(os.path.join(REPO, "tests"), pattern=args.pattern)
     result = unittest.TextTestRunner(verbosity=1, stream=sys.stderr).run(suite)
     return 0 if result.wasSuccessful() else 1
 
@@ -90,8 +100,9 @@ def build_parser():
                                 ("bench", "bench.bench", "性能基准"), ("fuzz", "fuzz.fuzz", "模糊测试")):
         p = sub.add_parser(name, help=help_, add_help=False)
         p.set_defaults(fn=_delegate(module))
-    t = sub.add_parser("test", help="运行单元测试（默认全部）")
+    t = sub.add_parser("test", help="运行单元测试（默认全量；--quick 冒烟子集）")
     t.add_argument("--pattern", default="test_*.py")
+    t.add_argument("--quick", action="store_true", help="冒烟：只跑 " + ", ".join(QUICK_MODULES))
     t.set_defaults(fn=cmd_test)
     return ap
 
@@ -107,6 +118,8 @@ def _delegate(module_name):
 def main(argv=None):
     ap = build_parser()
     args, rest = ap.parse_known_args(argv)
+    if rest and args.cmd not in ("optimize", "bench", "fuzz"):     # 只有委托子命令才透传未知参数
+        ap.error(f"unrecognized arguments: {' '.join(rest)}")       # argparse => 退出码 2
     args.rest = rest
     t0 = time.perf_counter()
     code = args.fn(args)

@@ -312,10 +312,33 @@ class TestGeneratorInternals(QBTTestCase):
         big = sum(d.volume[i] for i in order[-q:]) / q
         self.assertGreater(big, 1.5 * small)
 
-    def test_pinned_fingerprints(self):
-        """黄金指纹：生成器任何字节级改动（含随机数消耗顺序、seed 派生）都会改变它。"""
-        self.assertEqual(generate(n=2000, seed=123).fingerprint(), "38ae5513c8f1c93b42e65e73604b986cce5ea5631f78fcfa7a49f6c4e5d530ea")
-        self.assertEqual(generate_universe(["A", "B"], 500, 9)["B"].fingerprint(), "d6c9d47d6ba0d40debd28a6d63733c14a4b441e85b607f95458fb83ae683f493")
+    def test_pinned_same_machine_bytewise(self):
+        """同机：进程内两次 + 一个子进程，指纹（sha256 of raw doubles）逐字节相同。"""
+        import subprocess
+        import sys
+        fp = generate(n=2000, seed=123).fingerprint()
+        self.assertEqual(generate(n=2000, seed=123).fingerprint(), fp)
+        code = "import sys; sys.path.insert(0, %r); from qbt.data import generate; print(generate(n=2000, seed=123).fingerprint())"
+        out = subprocess.run([sys.executable, "-c", code % os.path.dirname(os.path.dirname(os.path.abspath(__file__)))],
+                             capture_output=True, text=True, check=True).stdout.strip()
+        self.assertEqual(out, fp)
+
+    def test_pinned_cross_machine_within_tolerance(self):
+        """跨机：与黄金文件里存的前 200 根逐列对比，时间戳精确、价格/成交量相对 1e-9（libm 的 1 ulp 远小于此）。"""
+        import json
+        from tests._compare import assert_close, perturb, ShapeMismatch, MONEY_REL
+        from tools.make_golden import GOLDEN_PATH
+        with open(GOLDEN_PATH, encoding="utf-8") as f:
+            pinned = json.load(f)["pinned_data"]
+        gen = generate(n=2000, seed=123)
+        uni = generate_universe(["A", "B"], 500, 9)["B"]
+        for key, d in (("gen_n2000_seed123_head", gen), ("universe_B_n500_seed9_head", uni)):
+            g = pinned[key]
+            self.assertEqual(d.ts[:len(g["ts"])], g["ts"])
+            for col in ("open", "high", "low", "close", "volume"):
+                assert_close(getattr(d, col)[:len(g[col])], g[col], MONEY_REL, 0.0, what=f"{key}.{col}")
+            with self.assertRaises(ShapeMismatch):                       # 放水判据：改错 1e-6 必红
+                assert_close(perturb(g["close"], 1e-6), g["close"], MONEY_REL, 0.0)
 
     def test_defaults_pinned(self):
         self.assertEqual(GenSpec().to_dict(), {

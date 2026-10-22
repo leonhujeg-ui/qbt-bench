@@ -68,13 +68,19 @@ class TestParamSpace(QBTTestCase):
 
 
 class TestSearch(QBTTestCase):
-    def test_serial_vs_parallel_bytewise_identical(self):
+    def test_serial_vs_parallel_shape_and_tolerance(self):
+        """1 vs 2 vs 8 进程：形状 + 容差比较（整数 / 键 / 顺序精确，浮点相对 1e-9）；这是跨机器也成立的判据。"""
+        from tests._compare import assert_close, perturb, ShapeMismatch, MONEY_REL
         t = task()
         combos = O.grid(SPACE)
         r1 = O.run_search(t, combos, workers=1)
         r2 = O.run_search(t, list(reversed(combos)), workers=2)          # 不同提交顺序 + 多进程
         r8 = O.run_search(t, combos, workers=8, chunksize=1)
-        self.assertEqual(json.dumps(r1, sort_keys=True), json.dumps(r2, sort_keys=True))
+        assert_close(r2, r1, MONEY_REL, 0.0, what="workers=2")
+        assert_close(r8, r1, MONEY_REL, 0.0, what="workers=8")
+        with self.assertRaises(ShapeMismatch):                            # 放水判据
+            assert_close(perturb(r8, 1e-6), r1, MONEY_REL, 0.0)
+        # 同一机器上还应逐字节相同（共享同一 libm）；跨机器不要求
         self.assertEqual(json.dumps(r1, sort_keys=True), json.dumps(r8, sort_keys=True))
         self.assertEqual([r["key"] for r in r1], sorted(r["key"] for r in r1))
         self.assertEqual(len(r1), 8)
@@ -154,7 +160,7 @@ class TestSearch(QBTTestCase):
                            stdout=subprocess.DEVNULL)
             subprocess.run(cmd + ["--out", out_clean], cwd=REPO, env=env, check=True, stdout=subprocess.DEVNULL)
             with open(out_resumed, "rb") as f1, open(out_clean, "rb") as f2:
-                self.assertEqual(f1.read(), f2.read())
+                self.assertEqual(f1.read(), f2.read())                  # 同机：逐字节（两次运行共享 libm）
             with open(out_clean) as f:
                 self.assertEqual(json.load(f)["n_results"], limit)
 

@@ -1,5 +1,10 @@
 # qbt — 纯标准库的事件驱动回测与参数优化引擎
 
+**怎么把我接到你的系统（三行）**：
+1. 数据：把你的 K 线转成 `qbt.data.OHLCV(symbol, ts, open, high, low, close, volume)`（列式 list，ts 严格递增的秒级整数，价格 > 0，volume ≥ 0）或 `OHLCV.from_csv(path)`（表头 `ts,open,high,low,close,volume`），然后 `.validate()`。
+2. 策略：继承 `qbt.engine.Strategy`，实现 `on_start(ctx)` / `on_bar(ctx, i)`，只读下标 ≤ i 的数据，用 `ctx.order(...)` / `ctx.target(...)` 下单（订单最早在 i+1 成交）；字段、符号约定与错误码见 `qbt/CONTRACT.md`。
+3. 结果：`run_backtest(data, strategy, BrokerConfig(...))` 返回 `Result`（`equity`、`fills`、`trades`），`qbt.report.write_report(result, out_dir, name)` 写出 `<name>.json`（`summary` + `metrics`，字段表见 `qbt/CONTRACT.md`）。
+
 Python 3.12，零第三方依赖，零网络。目标：**正确（确定性）、够快、够硬（测试/突变/模糊）、够诚实（所有数字可复现）**。
 详细结论见 [REPORT.md](REPORT.md)，实施计划见 [PLAN.md](PLAN.md)。
 
@@ -16,12 +21,18 @@ python3.12 -m qbt.cli demo --n 100000 --seed 7 --out out/demo7
 python3.12 -m qbt.cli backtest --strategy donchian_breakout --params '{"entry_n": 55}' --n 50000 --out out/bt
 python3.12 -m qbt.cli optimize --strategy rsi_reversion --n 20000 --random 200 --workers 8 --checkpoint out/ck.db --out out/opt.json
 python3.12 -m qbt.cli optimize --strategy ma_cross --n 60000 --walk-forward 3 --workers 4 --out out/wf.json
-python3.12 -m qbt.cli test                                   # = python -m unittest discover -s tests
+python3.12 -m qbt.cli test                                   # 全量 = python -m unittest discover -s tests（约 25 s）
+python3.12 -m qbt.cli test --quick                           # 冒烟子集（limits/golden/broker/engine/boundaries/contract，约 5 s）
 python3.12 tools/cov.py --fail-under 90                      # 语句覆盖率（sys.monitoring，纯标准库）
 python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --tests "-f tests.test_golden tests.test_indicators tests.test_broker tests.test_engine tests.test_metrics tests.test_optimizer tests.test_strategies tests.test_data tests.test_report tests.test_cli tests.test_limits tests.test_perf"   # 突变测试（失败即停 + 先跑最能抓的模块）-> mutants/results.json, survivors.md
 python3.12 fuzz/fuzz.py --iterations 100000 --workers 4      # 模糊测试 -> fuzz/results.json
 python3.12 bench/bench.py --out bench/results/xx.json        # 性能基准 -> JSON
 ```
+
+## 退出码
+
+`python3.12 -m qbt.cli test [--quick]`：**0** 全部通过；**1** 有失败或错误（unittest 的汇总）；**2** 命令行参数错误（argparse）。
+其他子命令：`demo` / `backtest` / `optimize` / `bench` 正常结束返回 0；`fuzz` 有未捕获异常返回 1；内部受控错误抛 `qbt.errors.QBTError` 子类（错误码表见 `qbt/CONTRACT.md`）。
 
 ## 目录
 

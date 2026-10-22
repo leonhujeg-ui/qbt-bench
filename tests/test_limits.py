@@ -49,7 +49,7 @@ class TestCodeLimits(unittest.TestCase):
         self.assertEqual(bad, [], "\n".join(bad))
 
     def test_no_third_party_imports(self):
-        allowed_prefix = ("qbt", "strategies", "tests", "tools", "mutants", "fuzz", "bench")
+        allowed_prefix = ("qbt", "strategies", "tests", "tools", "mutants", "fuzz", "bench", "qdcheck", "lob")   # 仓库内包
         import sys
         std = set(sys.stdlib_module_names)
         bad = []
