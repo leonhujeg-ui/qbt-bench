@@ -96,7 +96,10 @@ class TestBackendLogic(unittest.TestCase):
         c = B.load_config(cfg({"/a": {}}))
         self.assertEqual(c["routes"]["/a"]["latency"], {"kind": "fixed", "ms": 0})
         self.assertIn("*", c["routes"])
+        self.assertEqual(c["routes"]["*"]["latency"], {"kind": "fixed", "ms": 0})   # 没配 default：未匹配路径零延迟
         self.assertEqual((c["seed"], c["max_concurrency"]), (1, 0))               # 缺省：不限全局并发
+        sub_ms = B.load_config(cfg({"/a": {"latency": {"kind": "lognormal", "p50_ms": 0.5, "p99_ms": 2}}}))
+        self.assertEqual(sub_ms["routes"]["/a"]["latency"]["p50_ms"], 0.5)       # 亚毫秒的中位数合法（只要求 > 0）
         self.assertIsNone(B.Backend(cfg({"/a": {}})).sem)
         self.assertEqual((c["routes"]["/a"]["error_rate"], c["routes"]["/a"]["max_concurrency"],
                           c["routes"]["/a"]["body_bytes"], c["routes"]["/a"]["schedule"]), (0.0, 0, 64, "stratified"))
@@ -226,11 +229,47 @@ class TestServer(unittest.TestCase):
                 B.start(cfg({"/a": {}}), timeout=20.0)
         self.assertIn("boom on stderr", str(cm.exception))
 
+    def test_stop_escalation(self):
+        """停不下来的子进程：SIGTERM → 最多等 10 s → SIGKILL → 再等（回收，避免僵尸、returncode 有值）。"""
+        import subprocess
+        calls = []
+
+        class Stubborn:
+            stdout = stderr = None
+
+            def terminate(self):
+                calls.append("term")
+
+            def kill(self):
+                calls.append("kill")
+
+            def wait(self, timeout):
+                calls.append(("wait", timeout))
+                if "kill" not in calls:
+                    raise subprocess.TimeoutExpired("backend", timeout)
+
+        B.stop(Stubborn())
+        self.assertEqual(calls, ["term", ("wait", 10), "kill", ("wait", 10)])
+
+    def test_stop_is_graceful_and_child_flushes(self):
+        """stop：先 SIGTERM（子进程把它转成 KeyboardInterrupt，走 finally 关服务器、写出覆盖率），秒级退出、退出码 0。"""
+        import time
+        from unittest import mock
+        d = tmpdir(self)
+        with mock.patch.dict(os.environ, {"QDPERF_COV_DIR": d}):
+            proc, _url = B.start(cfg({"/a": {}}))
+            t0 = time.monotonic()
+            B.stop(proc)
+        self.assertEqual(proc.returncode, 0)                                 # 不是被 SIGKILL（-9）
+        self.assertLess(time.monotonic() - t0, 5.0)
+        self.assertTrue(any(n.endswith(".json") for n in os.listdir(d)))      # 子进程的 child_finish 写出了覆盖率
+
     def test_subprocess_backend_and_main_errors(self):
         proc, url = B.start(cfg({"/a": {}}))
         try:
             self.assertTrue(url.startswith("http://127.0.0.1:"))
             host, port, _p = H.parse_base(url)
+            self.assertGreaterEqual(port, 1024)                              # --port 缺省 0：由系统分配临时端口
             c = http.client.HTTPConnection(host, port, timeout=5)
             c.request("GET", "/a")
             self.assertEqual(c.getresponse().status, 200)
