@@ -14,6 +14,8 @@ import sys
 import time
 
 from qdperf import common
+from qdperf import fake_backend as B
+from qdperf import http_load as H
 from qdperf import index_advisor as A
 from qdperf import profile_gate as G
 from qdperf import sqlite_doctor as D
@@ -280,6 +282,60 @@ def g3_ok(s):
     return s["q0_ok"] and s["knee_found"] and len(s["effective_mitigations"]) >= 2
 
 
+# ---- G4 ------------------------------------------------------------------------------
+def _backend(routes):
+    return {"format": B.FORMAT, "seed": 7, "routes": routes}
+
+
+def _manifest(paths):
+    return {"format": H.FORMAT, "targets": [{"name": p.strip("/"), "path": p} for p in paths]}
+
+
+def g4(out_dir=common.RESULTS, seconds=6.0, ramp_seconds=3.0, ab_seconds=4.0):
+    out = {"machine": common.machine()}
+    procs = []
+    try:
+        pa, ua = B.start(_backend({"/p99": {"latency": {"kind": "lognormal", "p50_ms": 30, "p99_ms": 120}},
+                                   "/limited": {"latency": {"kind": "lognormal", "p50_ms": 50, "p99_ms": 60},
+                                                "max_concurrency": 8},
+                                   "/a1": {"latency": {"kind": "lognormal", "p50_ms": 20, "p99_ms": 60}},
+                                   "/a2": {"latency": {"kind": "uniform", "lo_ms": 8, "hi_ms": 12}}}))
+        procs.append(pa)
+        pb, ub = B.start(_backend({"/a1": {"latency": {"kind": "lognormal", "p50_ms": 26, "p99_ms": 78}},
+                                   "/a2": {"latency": {"kind": "uniform", "lo_ms": 10.4, "hi_ms": 15.6}}}))
+        procs.append(pb)
+        pc, uc = B.start(_backend({"/a1": {"latency": {"kind": "lognormal", "p50_ms": 20, "p99_ms": 60}},
+                                   "/a2": {"latency": {"kind": "uniform", "lo_ms": 8, "hi_ms": 12}}}))
+        procs.append(pc)
+        out["p99"] = H.run_step(ua, _manifest(["/p99"]), c=8, seconds=seconds)
+        out["knee"] = H.ramp(ua, _manifest(["/limited"]), cmax=32, seconds=ramp_seconds)
+        out["ab_slow"] = H.ab(ua, ub, _manifest(["/a1", "/a2"]), c=8, seconds=ab_seconds)
+        out["ab_same"] = H.ab(ua, uc, _manifest(["/a1", "/a2"]), c=8, seconds=ab_seconds)
+    finally:
+        for p in procs:
+            B.stop(p)
+    out["summary"] = g4_summary(out)
+    if out_dir:
+        common.write_json(os.path.join(out_dir, "g4_http_load.json"), out)
+    return out
+
+
+def g4_summary(out):
+    p99 = out["p99"]["per_target"]["p99"]["latency_ms"]["p99"]
+    knee = out["knee"]["knee"]
+    return {"p99_injected_ms": 120.0, "p99_measured_ms": p99, "p99_error": (p99 - 120.0) / 120.0,
+            "p99_in_108_132": p99 is not None and 108.0 <= p99 <= 132.0, "p99_requests": out["p99"]["total"]["requests"],
+            "knee_injected": 8, "knee_measured": knee, "knee_in_6_10": knee is not None and 6 <= knee <= 10,
+            "knee_rps_by_c": {str(st["c"]): round(st["total"]["ok_rps"], 1) for st in out["knee"]["steps"]},
+            "ab_slow_verdict": out["ab_slow"]["verdict"], "ab_slow_first_line": out["ab_slow"]["first_line"],
+            "ab_slow_red_rows": sum(r["red"] for r in out["ab_slow"]["rows"]), "ab_rows": len(out["ab_slow"]["rows"]),
+            "ab_same_verdict": out["ab_same"]["verdict"], "ab_same_first_line": out["ab_same"]["first_line"]}
+
+
+def g4_ok(s):
+    return s["p99_in_108_132"] and s["knee_in_6_10"] and s["ab_slow_verdict"] == "REGRESSION" and s["ab_same_verdict"] == "OK"
+
+
 def resummarize_g1(out_dir=common.RESULTS):
     """只用已入库的 g1 结果文件重算 summary（判据口径改了而实验不必重跑时用）。"""
     sv = common.read_json(os.path.join(out_dir, "g1_synth_verify.json"))
@@ -291,7 +347,7 @@ def resummarize_g1(out_dir=common.RESULTS):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3.12 -m qdperf.tools.selfcheck")
-    ap.add_argument("which", choices=["g1", "g2", "g3"])
+    ap.add_argument("which", choices=["g1", "g2", "g3", "g4"])
     ap.add_argument("--quick", action="store_true", help="g3：缩小扫描网格")
     ap.add_argument("--scale", type=float, default=1.0, help="g1：合成库比例")
     ap.add_argument("--n", type=int, default=1_000_000, help="g2：K 线根数")
@@ -311,6 +367,10 @@ def main(argv=None):
         print(f"G3 {'OK' if g3_ok(s) else 'FAIL'} {s['first_line']} q0_ok={s['q0_ok']} knee_found={s['knee_found']} "
               f"effective={s['effective_mitigations']}")
         return 0 if g3_ok(s) else 1
+    if args.which == "g4":
+        s = g4(out_dir=args.out)["summary"]
+        print(f"G4 {'OK' if g4_ok(s) else 'FAIL'} " + " ".join(f"{k}={v}" for k, v in s.items() if not isinstance(v, dict)))
+        return 0 if g4_ok(s) else 1
     if args.which == "g1":
         res = g1(scale=args.scale, out_dir=args.out)
         s = res["summary"]
