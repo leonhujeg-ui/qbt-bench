@@ -23,7 +23,8 @@ REPO = os.path.dirname(ROOT)
 TARGETS = {
     'book': ('lob.book', os.path.join(ROOT, 'book.py'),
              ['lob.tests.test_cases', 'lob.tests.test_invariants', 'lob.tests.test_compare',
-              'lob.tests.test_fuzz', 'lob.tests.test_replay', 'lob.tests.test_book']),
+              'lob.tests.test_fuzz', 'lob.tests.test_replay', 'lob.tests.test_book',
+              'lob.tests.test_boundaries', 'lob.tests.test_contract']),
     'queue_model': ('lob.queue_model', os.path.join(ROOT, 'queue_model.py'),
                     ['lob.tests.test_queue_model']),
 }
@@ -202,16 +203,26 @@ def run_one(target, mutant, timeout, tmpdir):
         'status': status, 'seconds': round(time.perf_counter() - t0, 1), 'tail': tail}
 
 
-def run_target(target, max_per_file=120, seed=1, workers=4, timeout=300, out=None):
+def run_target(target, max_per_file=120, seed=1, workers=4, timeout=300, out=None, ids=None):
+    """ids: re-run exactly these mutant ids (from a results JSON) instead of sampling."""
     _mod, path, _tests = TARGETS[target]
     mutants = make_mutants(path)
-    chosen = sample_mutants(mutants, max_per_file, seed)
+    if ids:
+        by_id = {m['id']: m for m in mutants}
+        missing = [i for i in ids if i not in by_id]
+        if missing:
+            raise SystemExit('unknown mutant ids for %s: %s' % (target, missing))
+        chosen = [by_id[i] for i in ids]
+    else:
+        chosen = sample_mutants(mutants, max_per_file, seed)
     tmpdir = tempfile.mkdtemp(prefix='lobmut_')
     t0 = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(workers) as ex:
         results = list(ex.map(lambda m: run_one(target, m, timeout, tmpdir), chosen))
     killed = sum(r['status'] != 'survived' for r in results)
     summary = {'target': target, 'file': os.path.relpath(path, REPO), 'candidates': len(mutants),
+               'seed': None if ids else seed, 'ids': list(ids) if ids else None,
+               'tests': list(_tests), 'machine_note': 'seconds are wall-clock on the running machine',
                'run': len(results), 'killed': killed, 'survived': len(results) - killed,
                'timeouts': sum(r['status'] == 'timeout' for r in results),
                'kill_rate': round(100.0 * killed / len(results), 1) if results else 0.0,
@@ -243,8 +254,10 @@ def main(argv=None):
     ap.add_argument('--workers', type=int, default=4)
     ap.add_argument('--timeout', type=int, default=300)
     ap.add_argument('--json', default=None)
+    ap.add_argument('--ids', type=int, nargs='*', default=None,
+                    help='re-run exactly these mutant ids (as listed in a results JSON) instead of sampling')
     args = ap.parse_args(argv)
-    s = run_target(args.target, args.max, args.seed, args.workers, args.timeout, args.json)
+    s = run_target(args.target, args.max, args.seed, args.workers, args.timeout, args.json, ids=args.ids)
     print(json.dumps({k: v for k, v in s.items() if k != 'results'}, indent=1))
     return 0
 

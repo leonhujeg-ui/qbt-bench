@@ -7,7 +7,10 @@ import time
 
 from lob import events as E
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+DATA_DIR = os.environ.get('LOB_DATA_DIR') or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+# `test --quick`: smoke set only (engine internals, event format, CLI end to end,
+# boundaries, contract) at LOB_TEST_SCALE=quick; the default runs everything.
+QUICK_TESTS = ('test_book', 'test_events', 'test_cli', 'test_boundaries', 'test_contract')
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
 
 
@@ -115,7 +118,8 @@ def cmd_mutate(args):
     from lob.mutants import run_mutations
     return run_mutations.main(['--target', args.target, '--max', str(args.max),
                                '--seed', str(args.seed), '--workers', str(args.workers)]
-                              + (['--json', args.json] if args.json else []))
+                              + (['--json', args.json] if args.json else [])
+                              + (['--ids'] + [str(i) for i in args.ids] if args.ids else []))
 
 
 def cmd_coverage(args):
@@ -129,12 +133,28 @@ def cmd_bench(args):
 
 
 def cmd_test(args):
+    """Exit code: 0 = every test passed, 1 = any failure / error (or no test ran),
+    2 = usage error.  Default = unittest discover over the whole tests/ directory at
+    --scale standard (or $LOB_TEST_SCALE); --quick = QUICK_TESTS only at scale quick."""
     import subprocess
-    env = dict(os.environ, LOB_TEST_SCALE=args.scale)
-    cmd = [sys.executable, '-m', 'unittest', 'discover', '-s',
-           os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tests'), '-t',
-           os.path.dirname(os.path.dirname(os.path.abspath(__file__)))]
-    return subprocess.call(cmd + (['-v'] if args.verbose else []), env=env)
+    scale = args.scale or os.environ.get('LOB_TEST_SCALE') or 'standard'
+    if args.quick and args.scale not in (None, 'quick'):
+        sys.stderr.write('usage error: --quick already implies --scale quick\n')
+        return 2
+    if scale not in ('quick', 'standard', 'full'):
+        sys.stderr.write('usage error: LOB_TEST_SCALE must be quick, standard or full\n')
+        return 2
+    here = os.path.dirname(os.path.abspath(__file__))
+    repo = os.path.dirname(here)
+    if args.quick:
+        scale = 'quick'
+        cmd = [sys.executable, '-m', 'unittest'] + ['lob.tests.' + t for t in QUICK_TESTS]
+    else:
+        cmd = [sys.executable, '-m', 'unittest', 'discover', '-s', os.path.join(here, 'tests'),
+               '-t', repo]
+    env = dict(os.environ, LOB_TEST_SCALE=scale)
+    rc = subprocess.call(cmd + (['-v'] if args.verbose else []), env=env, cwd=repo)
+    return 0 if rc == 0 else 1
 
 
 def cmd_demo(args):
@@ -247,6 +267,8 @@ def _add_analysis_commands(sub):
     mu.add_argument('--seed', type=int, default=1)
     mu.add_argument('--workers', type=int, default=4)
     mu.add_argument('--json', default=None)
+    mu.add_argument('--ids', type=int, nargs='*', default=None,
+                    help='re-run exactly these mutant ids from a results JSON (audit)')
     mu.set_defaults(func=cmd_mutate)
     cv = sub.add_parser('coverage', help='statement coverage of the test suite')
     cv.add_argument('--json', default=None)
@@ -256,8 +278,11 @@ def _add_analysis_commands(sub):
     be.add_argument('--ops', type=int, default=300000)
     be.add_argument('--json', default=None)
     be.set_defaults(func=cmd_bench)
-    te = sub.add_parser('test', help='run the unittest suite')
-    te.add_argument('--scale', default='standard', choices=['quick', 'standard', 'full'])
+    te = sub.add_parser('test', help='run the unittest suite (exit 0 pass / 1 fail / 2 usage)')
+    te.add_argument('--scale', default=None, choices=['quick', 'standard', 'full'],
+                    help='compare scale (default: $LOB_TEST_SCALE or standard = 10k + 1M)')
+    te.add_argument('--quick', action='store_true',
+                    help='smoke run at scale quick: only ' + ', '.join(QUICK_TESTS))
     te.add_argument('-v', '--verbose', action='store_true')
     te.set_defaults(func=cmd_test)
     de = sub.add_parser('demo', help='one-command end-to-end demonstration')

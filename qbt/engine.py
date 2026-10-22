@@ -15,7 +15,7 @@ import time
 
 from qbt.broker import Broker, BrokerConfig, MARKET, round_trips
 from qbt.data import OHLCV
-from qbt.errors import ConfigError, QBTError
+from qbt.errors import ConfigError, OrderError, QBTError
 from qbt import indicators as _ind
 
 
@@ -116,8 +116,13 @@ class Context:
         self.cache = cache or INDICATOR_CACHE
 
     # ---- 账户 ----
+    def _known(self, symbol):
+        if symbol not in self.raw:
+            raise OrderError(f"unknown symbol {symbol!r} (data has {sorted(self.raw)})")
+        return symbol
+
     def position(self, symbol):
-        return self.broker.positions[symbol].qty
+        return self.broker.positions[self._known(symbol)].qty
 
     @property
     def equity(self):
@@ -129,6 +134,8 @@ class Context:
 
     # ---- 指标（因果、带缓存） ----
     def indicator(self, name, *args, symbol=None):
+        if symbol is not None and symbol not in self.raw:
+            raise ConfigError(f"unknown symbol {symbol!r} (data has {sorted(self.raw)})")
         d = self.raw[symbol or self.symbols[0]]
         return self.cache.get(d, name, tuple(args))
 
@@ -151,7 +158,7 @@ class Context:
 
     def target(self, symbol, qty, tag=""):
         """把（持仓 + 未成交市价单）调整到目标数量，差额以市价单提交。"""
-        delta = qty - self.broker.positions[symbol].qty - self.pending_signed(symbol)
+        delta = qty - self.broker.positions[self._known(symbol)].qty - self.pending_signed(symbol)
         if delta > 1e-9:
             return self.broker.submit(symbol, 1, delta, MARKET, tag=tag)
         if delta < -1e-9:

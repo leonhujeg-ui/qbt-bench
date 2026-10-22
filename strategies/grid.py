@@ -1,6 +1,7 @@
 """网格交易：围绕中枢（SMA）在上下各 levels 档挂限价单，每 recenter_n 根重铺网格；
 买入档成交后在上一档挂对应的卖出限价单（反之亦然）；库存超限时停止加仓。"""
 from qbt.broker import LIMIT
+from qbt.errors import ConfigError
 from qbt.engine import Strategy
 
 
@@ -13,6 +14,8 @@ class GridTrading(Strategy):
     def on_start(self, ctx):
         super().on_start(ctx)
         p = self.params
+        if p["levels"] < 1 or not p["spacing"] > 0:                   # qty_frac=0 合法：只是永不下单
+            raise ConfigError(f"grid: need levels >= 1 and spacing > 0, got levels={p['levels']} spacing={p['spacing']}")
         self.center = ctx.indicator("sma", "close", p["recenter_n"], symbol=self.symbol)
         self.close = ctx.data[self.symbol].close
         self.orders = []

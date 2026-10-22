@@ -300,8 +300,9 @@ def run(probes_csv, out_dir, horizons=DEFAULT_HORIZONS, train_frac=0.7):
         ev['brier_train'] = ev_train['brier']
         ev['brier_parametric'] = ev_param['brier']
         ev['parametric_params'] = {str(d): param.params[(h, d)] for d in range(D_MAX + 1)}
+        brier_txt = 'n/a' if ev['brier'] is None else '%.4f' % ev['brier']   # empty test split
         ev['svg'] = reliability_svg(ev['reliability'], 'Reliability, horizon %ds (test, n=%d, '
-                                    'Brier %.4f)' % (h, ev['n'], ev['brier']),
+                                    'Brier %s)' % (h, ev['n'], brier_txt),
                                     os.path.join(out_dir, 'reliability_h%d.svg' % h))
         res['per_horizon'][str(h)] = ev
     with open(os.path.join(out_dir, 'queue_model.json'), 'w') as fh:

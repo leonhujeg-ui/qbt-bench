@@ -1,5 +1,10 @@
 # lob — 限价订单簿撮合引擎、回放、排队成交模型
 
+**怎么把我接到你的系统（三行）**：
+1. 数据：把你的订单流写成 56 字节定长记录（`lob.events.pack(seq, ts_ns, symbol, kind, side, flags, trader, oid, price, qty)`，字节布局 / 枚举 / 状态码见 [CONTRACT.md](CONTRACT.md) §1–2；价格 = 整数 tick，数量 = 整数 lot），旁边放一个 `<stream>.meta.json`（§1.5），或先用 `python3.12 -m lob.cli gen` 生成合成流；
+2. 引擎：`lob.book.Book(lob.common.BookConfig(...))` 对 `lob.events.iter_records(path)` 解出的每条 12 元组调用 `process(rec)`，返回 1 字节状态码（0–6 成功、10–20 拒绝，§2），成交落在 `book.trades`；或者直接 `python3.12 -m lob.cli replay --stream <stream> --out <dir> --json <stats.json>`；
+3. 结果：`<dir>/stats.json`（键见 §6.2：events / trades / volume / 状态码计数…）、`trades.bin`（48 字节成交记录，§4.4）、`status.bin`（每事件 1 字节状态码，下标 = seq − 1）、`snapshots.jsonl`（每品种每秒 Top-10）。
+
 纯 Python 3.12 标准库，无第三方依赖。价格 = 整数 tick，数量 = 整数 lot。
 
 ## 一键演示（约 1–2 分钟）
@@ -12,8 +17,9 @@ python3.12 -m lob.cli demo            # 生成 20 万事件 → 对拍 → 回�
 ## 常用命令
 
 ```bash
-python3.12 -m lob.cli test                      # 单元测试（standard: 1 万 + 100 万对拍）
-LOB_TEST_SCALE=full python3.12 -m lob.cli test  # 含 1,000 万对拍（约 10 分钟，4 进程）
+python3.12 -m lob.cli test                      # 全量：discover 整个 lob/tests/（standard: 1 万 + 100 万对拍）
+python3.12 -m lob.cli test --quick              # 冒烟：LOB_TEST_SCALE=quick，只跑 test_book / test_events / test_cli / test_boundaries / test_contract
+python3.12 -m lob.cli test --scale full         # 含 1,000 万对拍（约 10 分钟，4 进程）；等价于 LOB_TEST_SCALE=full python3.12 -m lob.cli test
 python3.12 -m lob.cli gen --n 10000000 --symbols 8 --seed 12345 --out lob/data/events_10m.bin
 python3.12 -m lob.cli compare --stream lob/data/events_10m.bin --processes 4 --json lob/results/compare_10m.json
 python3.12 -m lob.cli replay  --stream lob/data/events_10m.bin --out lob/data/replay --check 10000
@@ -27,6 +33,17 @@ python3.12 -m lob.cli mutate --target queue_model --json lob/results/mutations_q
 python3.12 -m lob.cli coverage --json lob/results/coverage.json
 python3.12 -m lob.cli bench --json lob/results/bench_structures.json
 ```
+
+### 退出码
+
+| 命令 | 0 | 1 | 2 |
+|---|---|---|---|
+| `test` / `test --quick` | 跑到的判据全部通过 | 任一失败或错误（一个判据都没跑到也算 1） | 用法错误：argparse 拒绝的参数、`--quick` 与非 quick 的 `--scale` 同用、`LOB_TEST_SCALE` 取值非法 |
+| `compare` | 两套引擎无分歧（`first_divergence` 为 None） | 有分歧 | 用法错误 |
+| 其他子命令 | 正常结束 | 未捕获异常（Python 解释器默认退出码） | 用法错误 |
+
+`test` 不带参数跑的是 `lob/tests/` 的**全量** discover（standard 规模，本机约 90 s）；`--quick` 只跑五个模块（约 10 s），用于冒烟，不替代全量。
+接口契约（事件二进制格式、状态码表、字段表、错误表）见 `CONTRACT.md`，每张表都由 `tests/test_contract.py` 对照代码核对。
 
 ## 目录
 

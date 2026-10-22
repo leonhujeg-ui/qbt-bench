@@ -10,7 +10,9 @@ is disabled after its first hit so the overhead stays small.
 import ast
 import json
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -85,6 +87,18 @@ def measured_files():
     return core, sorted(extra)
 
 
+def _forget_measured_modules():
+    """`python -m lob.cli coverage` imports lob.events (and friends) before the collector
+    starts, so their module-level statements would never be seen.  Drop every already
+    imported measured module so the suite's imports re-execute them under monitoring."""
+    core, extra = measured_files()
+    paths = {os.path.abspath(p) for p in core + extra}
+    for name, mod in list(sys.modules.items()):
+        f = getattr(mod, '__file__', None)
+        if f and os.path.abspath(f) in paths and name != __name__:
+            del sys.modules[name]
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     out = None
@@ -93,12 +107,16 @@ def main(argv=None):
         argv = argv[2:]
     if argv and argv[0] == '--':
         argv = argv[1:]
+    tmp_data = tempfile.mkdtemp(prefix='lobcov_data_')
+    os.environ['LOB_DATA_DIR'] = tmp_data          # 流文件在临时目录重新生成：生成器路径每次都计入
+    _forget_measured_modules()
     col = Collector()
     col.start()
     suite_argv = ['python -m unittest'] + (argv or ['discover', '-s', os.path.join(ROOT, 'tests'),
                                                     '-t', os.path.dirname(ROOT)])
     result = unittest.main(module=None, argv=suite_argv, exit=False).result
     col.stop()
+    shutil.rmtree(tmp_data, ignore_errors=True)
     core, extra = measured_files()
     rows, total = col.report(core)
     rows_x, total_x = col.report(extra)

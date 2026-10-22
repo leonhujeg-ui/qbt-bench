@@ -11,7 +11,7 @@
 
 记录口径（审核要求）：machine 里有平台 / Python / CPU 型号 / os.cpu_count() / 1 分钟负载 / 完整命令行；
 每个计时都是 best-of-N（`--repeat`，默认 1，JSON 里 `samples` 给出全部样本，表里取最小值）；
-"冷缓存" = 进程内指标缓存清空后第一次回测（数据已在内存，不涉及磁盘），"热缓存" = 紧接着第二次；
+"冷缓存" = 进程内指标缓存清空、数据指纹未算（含 sha256 指纹 + 指标计算；数据已在内存，不涉及磁盘），"热缓存" = 紧接着第二次；
 网格的进程数同时记录进程池上限（`workers`）与运行中实际观察到的最大子进程数（`processes_observed_max`）。
 """
 from __future__ import annotations
@@ -132,11 +132,13 @@ def bench_data_and_indicators(n, repeats=1):
 
 def bench_single_core(d, strategy="ma_cross", repeats=1):
     out = {"bars": len(d), "strategy": strategy, "best_of": max(1, repeats), "processes": 1,
-           "cache_semantics": "cold = INDICATOR_CACHE.clear() 后第一次回测（数据已在内存）；warm = 紧接着的第二次"}
+           "cache_semantics": "cold = INDICATOR_CACHE.clear() 且数据指纹（OHLCV._fingerprint，sha256）未算：含指纹 + 指标计算，"
+                              "数据已在内存，不涉及磁盘；warm = 紧接着的第二次（指纹与指标全部命中）"}
     cfg = BrokerConfig(max_participation=1.0)
 
     def cold():
         INDICATOR_CACHE.clear()
+        d._fingerprint = None            # 否则 best-of-N 的第 2 次起指纹已记忆，"冷"只剩指标，与 01–04 的单次冷口径不一致
         return _timed(run_backtest, d, REGISTRY[strategy](), cfg, cache=INDICATOR_CACHE)
 
     def warm():

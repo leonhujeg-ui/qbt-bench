@@ -29,6 +29,8 @@ from lob.invariants import Checker
 
 
 def machine_info():
+    """Provenance for every timing in the JSON: CPU model, os.cpu_count(), Python,
+    1-minute load at start and the exact command line (audit requirement)."""
     cpu = 'unknown'
     try:
         with open('/proc/cpuinfo') as fh:
@@ -37,9 +39,18 @@ def machine_info():
                     cpu = line.split(':', 1)[1].strip()
                     break
     except OSError:
-        pass
+        if sys.platform == 'darwin':
+            try:
+                cpu = subprocess.run(['sysctl', '-n', 'machdep.cpu.brand_string'], capture_output=True,
+                                     text=True, timeout=10).stdout.strip() or cpu
+            except (OSError, subprocess.SubprocessError):
+                pass
+    load = os.getloadavg()[0] if hasattr(os, 'getloadavg') else None
     return {'python': platform.python_version(), 'implementation': platform.python_implementation(),
-            'platform': platform.platform(), 'cpu': cpu, 'cpus': os.cpu_count()}
+            'platform': platform.platform(), 'machine': platform.machine(), 'cpu': cpu,
+            'cpus': os.cpu_count(), 'load_avg_1m_at_start': load,
+            'command': ' '.join([os.path.basename(sys.executable), '-m', 'lob.cli'] + sys.argv[1:])
+            if sys.argv and sys.argv[0].endswith('cli.py') else ' '.join(sys.argv)}
 
 
 def percentiles(values, ps=(50, 90, 99, 99.9)):

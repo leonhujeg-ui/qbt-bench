@@ -61,16 +61,60 @@ def queue_table():
     return head + '\n' + '\n'.join(rows)
 
 
+MUTATION_FILES = (('历史（原 VM）', 'mutations_book.json', 'mutations_queue_model.json'),
+                  ('本机复测（审核：判定集 + 新判据，queue_model 源码已改）',
+                   'mutations_book_audit.json', 'mutations_queue_model_audit.json'))
+
+
 def mutation_table():
     rows = []
-    for name in ('mutations_book.json', 'mutations_queue_model.json'):
-        if not os.path.exists(os.path.join(RESULTS, name)):
-            continue
-        r = load(name)
-        rows.append('| %s | %d | %d | %d | %d | %d | %.1f%% |' % (
-            r['file'], r['candidates'], r['run'], r['killed'], r['survived'], r['timeouts'],
-            r['kill_rate']))
-    head = '| 文件 | 候选 | 运行 | 抓住 | 漏网 | 超时 | 抓住率 |\n|---|---|---|---|---|---|---|'
+    for label, *names in MUTATION_FILES:
+        for name in names:
+            if not os.path.exists(os.path.join(RESULTS, name)):
+                continue
+            r = load(name)
+            rows.append('| %s | %s | %d | %d | %d | %d | %d | %.1f%% |' % (
+                label, r['file'], r['candidates'], r['run'], r['killed'], r['survived'], r['timeouts'],
+                r['kill_rate']))
+    head = ('| 运行 | 文件 | 候选位点 | 抽样运行（= 抓住率分母） | 抓住 | 漏网 | 超时（计入抓住） '
+            '| 抓住率 = 抓住 / 抽样 |\n|---|---|---|---|---|---|---|---|')
+    return head + '\n' + '\n'.join(rows)
+
+
+def mutation_mapping_table():
+    """module -> candidate sites -> sampled (the denominator) -> run 1 / re-run / final.
+    Survivors of run 1 were re-run after adding tests (killed mutants kept);
+    `rerun.survivor_ids` is the survivor set after the first re-run."""
+    rows = []
+    for name in ('book', 'queue_model'):
+        fin, r1 = load('mutations_%s.json' % name), load('mutations_%s_run1.json' % name)
+        rr = fin.get('rerun', {}).get('survivor_ids', [])
+        rows.append('| %s | %d | %d | %d / %d / %d | %d | %d / %d / %d | %d/%d = %.1f%% |' % (
+            fin['file'], fin['candidates'], fin['run'], r1['killed'], r1['survived'], r1['timeouts'],
+            len(rr), fin['killed'], fin['survived'], fin['timeouts'], fin['killed'], fin['run'],
+            fin['kill_rate']))
+    head = ('| 模块 | 候选位点 | 抽样运行（分母） | 第一轮 抓住 / 漏网 / 超时 | 第一次复跑后漏网 '
+            '| 最终 抓住 / 漏网 / 超时 | 最终抓住率 |\n|---|---|---|---|---|---|---|')
+    return head + '\n' + '\n'.join(rows)
+
+
+def mutation_operator_table():
+    """Sampled mutants per operator and module: run / killed in run 1 -> killed finally."""
+    data = [(n, load('mutations_%s.json' % n), load('mutations_%s_run1.json' % n))
+            for n in ('book', 'queue_model')]
+    ops = sorted({op for _n, fin, _r in data for op in fin['by_operator']})
+    rows = []
+    for op in ops:
+        cells = []
+        for _n, fin, r1 in data:
+            f = fin['by_operator'].get(op, {'run': 0, 'killed': 0})
+            a = r1['by_operator'].get(op, {'run': 0, 'killed': 0})
+            cells.append('%d / %d → %d' % (f['run'], a['killed'], f['killed']))
+        rows.append('| %s | %s |' % (op, ' | '.join(cells)))
+    rows.append('| **合计** | %s |' % ' | '.join(
+        '**%d / %d → %d**' % (fin['run'], r1['killed'], fin['killed']) for _n, fin, r1 in data))
+    head = ('| 算子 | ' + ' | '.join(fin['file'] for _n, fin, _r in data) + ' |\n|---|'
+            + '---|' * len(data))
     return head + '\n' + '\n'.join(rows)
 
 
@@ -82,17 +126,18 @@ def survivor_table():
     if os.path.exists(tp):
         triage = load('mutation_triage.json')
     rows = []
-    for name in ('mutations_book.json', 'mutations_queue_model.json'):
-        if not os.path.exists(os.path.join(RESULTS, name)):
-            continue
-        r = load(name)
-        for m in r['survivors']:
-            key = '%s:%d' % (r['target'], m['id'])
-            t = triage.get(key, {'class': '未分类', 'note': ''})
-            rows.append('| %s | %d | %s | %d | `%s` | %s | %s |' % (
-                r['target'], m['id'], m['desc'], m['line'], m['snippet'].replace('|', '\\|'),
-                t['class'], t['note']))
-    head = ('| 文件 | id | 突变 | 行 | 代码 | 判定 | 说明 |\n|---|---|---|---|---|---|---|')
+    for label, *names in MUTATION_FILES:
+        for name in names:
+            if not os.path.exists(os.path.join(RESULTS, name)):
+                continue
+            r = load(name)
+            for m in r['survivors']:
+                key = '%s:%d' % (r['target'], m['id'])
+                t = triage.get(key, {'class': '未分类', 'note': ''})
+                rows.append('| %s | %s | %d | %s | %d | `%s` | %s | %s |' % (
+                    label.split('（')[0], r['target'], m['id'], m['desc'], m['line'],
+                    m['snippet'].replace('|', '\\|'), t['class'], t['note']))
+    head = ('| 运行 | 文件 | id | 突变 | 行 | 代码 | 判定 | 说明 |\n|---|---|---|---|---|---|---|---|')
     return head + '\n' + '\n'.join(rows)
 
 
@@ -111,12 +156,22 @@ def fuzz_table():
 
 
 def coverage_table():
+    """历史（原 VM，coverage.json）与本机复测（coverage_audit.json，采集器修复后）并列；后者缺省时只有历史列。"""
     r = load('coverage.json')
-    rows = ['| %s | %d | %d | %.1f%% |' % (f, v['statements'], v['executed'], v['percent'])
-            for f, v in sorted(r['files'].items())]
-    rows.append('| **核心合计** | | | **%.2f%%** |' % r['core_percent'])
-    rows.append('| 其余（tools / tests 之外）| | | %.2f%% |' % r['extras_percent'])
-    return '| 文件 | 语句 | 执行 | 覆盖 |\n|---|---|---|---|\n' + '\n'.join(rows)
+    a = load('coverage_audit.json') if os.path.exists(os.path.join(RESULTS, 'coverage_audit.json')) else None
+
+    def cell(d, f):
+        v = d['files'].get(f) if d else None
+        return '%d / %d / %.1f%%' % (v['statements'], v['executed'], v['percent']) if v else '—'
+    files = sorted(set(r['files']) | set(a['files'] if a else []))
+    rows = ['| %s | %s | %s |' % (f, cell(r, f), cell(a, f)) for f in files]
+    rows.append('| **核心合计** | **%.2f%%**（%d tests） | %s |' % (
+        r['core_percent'], r['tests_run'],
+        '**%.2f%%**（%d tests）' % (a['core_percent'], a['tests_run']) if a else '—'))
+    rows.append('| 其余（tools / tests 之外）| %.2f%% | %s |' % (
+        r['extras_percent'], '%.2f%%' % a['extras_percent'] if a else '—'))
+    return ('| 文件（语句 / 执行 / 覆盖） | 历史（原 VM，`coverage.json`） | 本机复测（采集器修复后，`coverage_audit.json`） |'
+            '\n|---|---|---|\n' + '\n'.join(rows))
 
 
 def bench_table():

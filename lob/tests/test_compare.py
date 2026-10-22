@@ -14,7 +14,7 @@ from lob.compare import compare_stream, compare_sharded
 
 SCALE = os.environ.get('LOB_TEST_SCALE', 'standard')
 RESULTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'results')
-DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+DATA = os.environ.get('LOB_DATA_DIR') or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
 
 
 def stream(n, symbols, seed, name):

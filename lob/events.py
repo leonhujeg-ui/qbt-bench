@@ -29,11 +29,19 @@ FLAG_MARKET, FLAG_IOC, FLAG_FOK, FLAG_POST_ONLY, FLAG_ICEBERG = 1, 2, 4, 8, 16
 
 EPOCH_NS = 1_700_000_000 * 1_000_000_000
 NS = 1_000_000_000
+GEN_INT_FIELDS = ('n_events', 'n_symbols', 'tick_size', 'lot_size', 'min_qty', 'max_qty',
+                  'band', 'base_price', 'n_traders', 'target_resting')
+GEN_MAX_QTY = (2 ** 63 - 1) // 1000    # the "absurd quantity" malformed event is max_qty * 1000
+GEN_MAX_PRICE = 2 ** 60
 
 
 def pack(seq, ts, symbol, kind, side, flags, trader, oid, price, qty, aux=0):
-    return RECORD.pack(seq, ts, symbol, kind, side, flags, 0, trader, oid,
-                       price, qty, aux)
+    """Encode one record; a field outside its fixed-width range is a ValueError."""
+    try:
+        return RECORD.pack(seq, ts, symbol, kind, side, flags, 0, trader, oid,
+                           price, qty, aux)
+    except struct.error as e:
+        raise ValueError('event field out of range: %s' % e) from None
 
 
 CHUNK_RECORDS = 1 << 16
@@ -41,6 +49,8 @@ CHUNK_RECORDS = 1 << 16
 
 def iter_chunks(path, start=0, stop=None):
     """Yield raw byte chunks holding whole records (no mmap: small RSS)."""
+    if start < 0 or (stop is not None and stop < 0):
+        raise ValueError('start / stop must be >= 0, got %r / %r' % (start, stop))
     with open(path, 'rb') as fh:
         size = os.fstat(fh.fileno()).st_size
         lo = start * RECORD_SIZE
@@ -116,6 +126,30 @@ class GenParams:
             if not hasattr(self, k):
                 raise KeyError('unknown generator parameter: %s' % k)
             setattr(self, k, v)
+        self.validate()
+
+    def validate(self):
+        """Values that would crash the generator or overflow a record field -> ValueError."""
+        p = self
+        bad = [k for k in GEN_INT_FIELDS if not isinstance(getattr(p, k), int)]
+        if bad:
+            raise ValueError('generator parameters must be int: %s' % bad)
+        rules = (
+            (p.n_events >= 0, 'n_events >= 0'),
+            (1 <= p.n_symbols <= 65536, '1 <= n_symbols <= 65536 (symbol is u16)'),
+            (p.rate > 0 and p.depth_scale > 0, 'rate > 0 and depth_scale > 0'),
+            (p.tick_size >= 1 and p.lot_size >= 1, 'tick_size >= 1 and lot_size >= 1'),
+            (p.lot_size >= 1 and 1 <= p.min_qty <= p.max_qty <= GEN_MAX_QTY
+             and p.min_qty % p.lot_size == 0,
+             '1 <= min_qty <= max_qty <= %d and min_qty %% lot_size == 0' % GEN_MAX_QTY),
+            (0 <= p.band <= GEN_MAX_PRICE and 1 <= p.base_price <= GEN_MAX_PRICE,
+             '0 <= band <= 2**60 and 1 <= base_price <= 2**60'),
+            (1 <= p.n_traders <= 65536 and p.target_resting >= 1,
+             '1 <= n_traders <= 65536 (trader is u16) and target_resting >= 1'),
+        )
+        for ok, rule in rules:
+            if not ok:
+                raise ValueError('generator parameter out of range: ' + rule)
 
     def to_dict(self):
         return dict(sorted(self.__dict__.items()))

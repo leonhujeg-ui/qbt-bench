@@ -22,7 +22,7 @@ python3.12 -m qbt.cli backtest --strategy donchian_breakout --params '{"entry_n"
 python3.12 -m qbt.cli optimize --strategy rsi_reversion --n 20000 --random 200 --workers 8 --checkpoint out/ck.db --out out/opt.json
 python3.12 -m qbt.cli optimize --strategy ma_cross --n 60000 --walk-forward 3 --workers 4 --out out/wf.json
 python3.12 -m qbt.cli test                                   # 全量 = python -m unittest discover -s tests（约 25 s）
-python3.12 -m qbt.cli test --quick                           # 冒烟子集（limits/golden/broker/engine/boundaries/contract，约 5 s）
+python3.12 -m qbt.cli test --quick                           # 冒烟子集（limits/golden/broker/engine/boundaries/contract，本机约 1.5 s）
 python3.12 tools/cov.py --fail-under 90                      # 语句覆盖率（sys.monitoring，纯标准库）
 python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --tests "-f tests.test_golden tests.test_indicators tests.test_broker tests.test_engine tests.test_metrics tests.test_optimizer tests.test_strategies tests.test_data tests.test_report tests.test_cli tests.test_limits tests.test_perf"   # 突变测试（失败即停 + 先跑最能抓的模块）-> mutants/results.json, survivors.md
 python3.12 fuzz/fuzz.py --iterations 100000 --workers 4      # 模糊测试 -> fuzz/results.json

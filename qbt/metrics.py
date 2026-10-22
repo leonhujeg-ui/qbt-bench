@@ -22,6 +22,10 @@ def returns_from_equity(equity):
 
 
 def periods_per_year(bar_seconds):
+    if not isinstance(bar_seconds, (int, float)) or isinstance(bar_seconds, bool) \
+            or not math.isfinite(bar_seconds) or bar_seconds <= 0:
+        raise ConfigError(f"bar_seconds must be a finite positive number, got {bar_seconds!r} "
+                          "(single-bar or CSV data cannot infer it; pass bar_seconds explicitly)")
     return SECONDS_PER_YEAR / bar_seconds
 
 

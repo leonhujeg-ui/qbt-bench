@@ -52,6 +52,8 @@ def grid(space):
 
 def random_search(space, n, seed):
     """无放回随机抽 n 组（不足则取全部），显式 seed。"""
+    if not isinstance(n, int) or isinstance(n, bool) or n < 0:
+        raise ConfigError(f"random_search: n must be a non-negative int, got {n!r}")
     full = grid(space)
     rng = random.Random(seed)
     if n >= len(full):
@@ -73,6 +75,11 @@ def dedupe(combos):
 # ---- 任务描述 ------------------------------------------------------------------
 def make_task(strategy, data_spec, broker=None, objective="sharpe", symbol=None, slice_=None):
     """data_spec: GenSpec dict 或 {"csv": path, "symbol": ...}；slice_: [a, b) 可选。"""
+    from strategies import REGISTRY
+    if strategy not in REGISTRY:
+        raise ConfigError(f"unknown strategy {strategy!r} (known: {sorted(REGISTRY)})")
+    if objective not in _metrics.compute([100.0, 101.0], [0, 60], 60):
+        raise ConfigError(f"unknown objective {objective!r} (must be a metrics.compute key)")
     task = {"strategy": strategy, "data_spec": dict(data_spec), "broker": (broker or BrokerConfig()).to_dict(),
             "objective": objective, "symbol": symbol, "slice": list(slice_) if slice_ else None}
     task["id"] = hashlib.sha256(json.dumps(task, sort_keys=True).encode()).hexdigest()[:16]
@@ -198,6 +205,8 @@ def walk_forward(task, combos, n_folds=3, train_frac=0.7, workers=1, checkpoint=
           "oos_mean_objective": ..., "is_mean_objective": ...}"""
     if not isinstance(n_folds, int) or n_folds < 1 or not 0 < train_frac < 1:
         raise ConfigError("n_folds >= 1 and 0 < train_frac < 1 required")
+    if not dedupe(combos):
+        raise ConfigError("walk_forward: no parameter combinations to evaluate")
     n = len(load_data(task["data_spec"]))
     fold_len = n // n_folds
     if fold_len < 10:

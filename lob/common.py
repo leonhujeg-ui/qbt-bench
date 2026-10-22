@@ -64,6 +64,9 @@ class BookConfig:
 
     @classmethod
     def from_dict(cls, d, symbol=0):
+        missing = [k for k in cls.__slots__ if k != 'symbol' and k not in d]
+        if missing:
+            raise ValueError('BookConfig.from_dict: missing keys %s' % missing)
         return cls(tick_size=d['tick_size'], lot_size=d['lot_size'],
                    min_qty=d['min_qty'], max_qty=d['max_qty'], band=d['band'],
                    ref_price=d['ref_price'], stp=d['stp'], symbol=symbol)

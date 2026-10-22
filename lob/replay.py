@@ -69,6 +69,18 @@ class Core:
         self.max_resting = 0
 
     def run(self, path, symbols, limit=None):
+        """Feed the stream.  A record that cannot be replayed (symbol without a
+        book in unfiltered mode, seq outside 1..len(status)) is a ValueError."""
+        try:
+            return self._run(path, symbols, limit)
+        except (KeyError, IndexError):
+            bad = _first_bad_record(path, limit, self.books, len(self.status),
+                                    self.filter_symbols)
+            if bad is None:
+                raise
+            raise ValueError('cannot replay record seq=%d symbol=%d: %s' % bad) from None
+
+    def _run(self, path, symbols, limit):
         books, shared, status = self.books, self.shared, self.status
         checkers, snap_ns = self.checkers, self.snapshot_ns
         boundary = {s: E.EPOCH_NS + snap_ns for s in books}
@@ -152,6 +164,27 @@ class Core:
         return out
 
 
+def _first_bad_record(path, limit, books, n_status, filtered):
+    """Slow path, taken only after a failure: the first record replay cannot place."""
+    for rec in E.iter_records(path, stop=limit):
+        if rec[2] not in books:
+            if not filtered:
+                return rec[0], rec[2], 'symbol has no book (meta lists %s)' % sorted(books)
+            continue
+        if not 1 <= rec[0] <= n_status:
+            return rec[0], rec[2], 'seq outside 1..%d (status slots)' % n_status
+    return None
+
+
+def _check_stream(path, meta):
+    """The stream must hold exactly meta['n_events'] whole records."""
+    size = os.path.getsize(path)
+    if size % E.RECORD_SIZE or size // E.RECORD_SIZE != meta['n_events']:
+        raise ValueError('%s: %d bytes = %d records + %d stray bytes, but meta says '
+                         'n_events=%d' % (path, size, size // E.RECORD_SIZE,
+                                          size % E.RECORD_SIZE, meta['n_events']))
+
+
 def _status_counts(status):
     counts = {}
     for code, name in STATUS_NAMES.items():
@@ -176,6 +209,7 @@ def replay(path, out_dir, symbols=None, check_every=0, snapshot_ns=E.NS, depth=1
            limit=None, timing=None):
     """Single-process replay.  Returns the stats dict."""
     meta = E.load_meta(path)
+    _check_stream(path, meta)
     n = meta['n_events'] if limit is None else min(limit, meta['n_events'])
     symbols = list(symbols) if symbols is not None else list(range(meta['params']['n_symbols']))
     os.makedirs(out_dir, exist_ok=True)
@@ -237,6 +271,7 @@ def replay_sharded(path, out_dir, processes=4, check_every=0, snapshot_ns=E.NS,
                    depth=10, limit=None):
     """Symbol-sharded multi-process replay; outputs identical to replay()."""
     meta = E.load_meta(path)
+    _check_stream(path, meta)
     n = meta['n_events'] if limit is None else min(limit, meta['n_events'])
     n_sym = meta['params']['n_symbols']
     shards = [s for s in (list(range(i, n_sym, processes)) for i in range(processes)) if s]
@@ -252,6 +287,11 @@ def replay_sharded(path, out_dir, processes=4, check_every=0, snapshot_ns=E.NS,
         status = bytearray(_SHARED['status'])
     finally:
         _SHARED.clear()
+    done = sum(p['events'] for p in parts)
+    if done != n:
+        for p in parts:
+            os.remove(p['trades_path'])
+        raise ValueError('%d of %d records name a symbol with no book' % (n - done, n))
     _merge_trade_files([p['trades_path'] for p in parts],
                        os.path.join(out_dir, 'trades.bin'))
     dt = time.perf_counter() - t0

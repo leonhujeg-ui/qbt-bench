@@ -111,13 +111,16 @@ class OHLCV:
             header = f.readline()
             if header.strip() != "ts,open,high,low,close,volume":
                 raise DataError("bad csv header")
-            for line in f:
+            for lineno, line in enumerate(f, 2):
                 parts = line.strip().split(",")
                 if len(parts) != 6:
-                    raise DataError("bad csv row")
-                cols[0].append(int(float(parts[0])))
-                for k in range(1, 6):
-                    cols[k].append(float(parts[k]))
+                    raise DataError(f"bad csv row (line {lineno}): expected 6 fields, got {len(parts)}")
+                try:
+                    cols[0].append(int(float(parts[0])))
+                    for k in range(1, 6):
+                        cols[k].append(float(parts[k]))
+                except (ValueError, OverflowError) as e:           # 'abc' / '' / ts=nan / ts=1e400
+                    raise DataError(f"bad csv value (line {lineno}): {e}") from None
         return cls(symbol, *cols, bar_seconds=bar_seconds)
 
 
