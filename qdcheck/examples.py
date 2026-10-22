@@ -11,9 +11,9 @@ G4：determinism harness 的被测对象（全部接收一个可 JSON 序列化�
                           -> 成交顺序 / 数量随 PYTHONHASHSEED 变化（harness 必须抓到）
     deterministic_engine  同一引擎，只是按 sorted(set) 迭代（harness 必须通过）
     noisy_engine          确定性引擎 + 与哈希相关的相对噪声 task["noise"]（1e-12 应通过，1e-6 应抓到）
+    seeded_engine         确定性引擎 + 与任务无关的进程级随机性（结果只由 task["seed"] 决定，必须通过）
     qbt_backtest          本仓 qbt 回测引擎的适配器（真实用例）
 """
-from __future__ import annotations
 
 import math
 
@@ -208,6 +208,20 @@ def noisy_engine(task):
     out["final_equity"] *= 1.0 + eps
     for tr in out["trades"]:
         tr["price"] *= 1.0 + eps
+    return out
+
+
+def seeded_engine(task):
+    """确定性引擎 + 与任务无关的随机性：每次调用都用进程相关的种子重设全局 random 并做无关计算，
+    结果只由 task["seed"] 决定 -> harness 必须通过（证明它只对哈希顺序 / 结果敏感，不被无关随机性干扰）。"""
+    import os
+    import random
+    import time
+    random.seed(f"{os.getpid()}:{time.perf_counter_ns()}")
+    scratch = list(range(1000))
+    random.shuffle(scratch)                                   # 无关的随机工作，不进结果
+    out = _toy_engine(task, sorted)
+    out["scratch_sum"] = sum(scratch)                          # 与顺序无关：恒为 499500
     return out
 
 

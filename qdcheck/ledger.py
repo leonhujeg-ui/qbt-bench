@@ -32,11 +32,11 @@
     from qdcheck import ledger
     rep = ledger.check_engine(my_records, my_closes, my_engine_equity, initial_cash=1e5, margin_mode="cross",
                               leverage=3, mmr=0.05)            # 引擎报的权益 vs 参考账本，逐根
+    violations = ledger.check(records, closes, **config)        # [] = 每根恒等式都成立
     res = ledger.run(records, closes, **config)                 # {"rows", "violations", "warnings", "counters"}
     ledger.check_vector(vec, {"equity": my_ledger_equity})      # 用 qdcheck/vectors/ledger_*.json 测别人的账本
 浮点比较：|a-b| <= rel_tol * max(1, 各项的绝对值)，rel_tol 默认 1e-9；数量 |x| <= 1e-12*参考量 视为 0。
 """
-from __future__ import annotations
 
 import math
 
@@ -48,6 +48,10 @@ ROW_FIELDS = ("bar", "close", "cash", "qty", "avg_price", "unrealized", "realize
               "liquidations")
 INT_FIELDS = ("bar", "fills", "liquidations")
 QTY_EPS = 1e-12
+CHECKS = ("I1_equity_eq_initial_realized_unrealized_fees_funding", "I2_equity_eq_cash_plus_mark", "I3_flat_state",
+          "I4_margin_consistency", "I4_missed_liquidation", "premature_liquidation", "liquidation_not_full",
+          "negative_balance_after_liquidation")          # violations[*]["check"] 的全部取值；warnings 只有 "bankrupt"
+WARNINGS = ("bankrupt",)
 
 
 class LedgerError(ValueError):
@@ -315,6 +319,12 @@ def run(records, closes, **config):
                           f"is beyond the last close (n={len(closes)})")
     return {"rows": rows, "violations": led.violations, "warnings": led.warnings, "counters": led.counters,
             "config": led.cfg}
+
+
+def check(records, closes, **config):
+    """只要违背列表：``[{"bar": int, "check": str, "lhs": ..., "rhs": ..., "detail": str}, ...]``，空列表 = 全部恒等式成立。
+    与 ``run()`` 相同的参数；记录格式 / 符号约定见模块文档与 CONTRACT.md。"""
+    return run(records, closes, **config)["violations"]
 
 
 def _money_close(a, b, rel_tol, scale):

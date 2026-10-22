@@ -6,10 +6,9 @@ sys.monitoring 语句覆盖，纯标准库），只是把统计范围换成 qdch
 （以脚本方式运行，与 tools/cov.py 一样：若用 -m 运行，qdcheck/__init__.py 会在开始监控之前被导入而被误记为未覆盖。）
 
 口径：
-- 计入判据的是库模块 qdcheck/*.py；qdcheck/tools/*.py（报告 / 自检脚本）单独列出、不计入；测试文件不统计。
+- 计入判据的是库模块 qdcheck/*.py（selftest.py 除外：它只调度各步）；qdcheck/tools/*.py 与 selftest.py 单独列出、不计入；测试文件不统计。
 - 与 tools/cov.py 相同：只统计主进程，子进程（determinism 的 PYTHONHASHSEED 子进程等）里执行的行不计入。
 """
-from __future__ import annotations
 
 import argparse
 import json
@@ -26,13 +25,17 @@ from tools import cov as base        # noqa: E402  本仓已有的覆盖率工�
 PKG = os.path.join(REPO, "qdcheck")
 
 
+ORCHESTRATORS = ("selftest.py",)          # 只调度各步、在子进程里跑测试的脚本，与 tools/ 一样单列不计入
+
+
 def library_files():
-    return sorted(os.path.join(PKG, f) for f in os.listdir(PKG) if f.endswith(".py"))
+    return sorted(os.path.join(PKG, f) for f in os.listdir(PKG) if f.endswith(".py") and f not in ORCHESTRATORS)
 
 
 def tool_files():
     d = os.path.join(PKG, "tools")
-    return sorted(os.path.join(d, f) for f in os.listdir(d) if f.endswith(".py"))
+    return sorted(os.path.join(d, f) for f in os.listdir(d) if f.endswith(".py")) + \
+        [os.path.join(PKG, f) for f in ORCHESTRATORS]
 
 
 def summarize(collector, paths):

@@ -21,7 +21,6 @@
     adjusted = sum((1-a)^k x[t-k]) / sum((1-a)^k)（pandas adjust=True，无预热）。
 EMA 的输入序列只允许“前导”缺值；有效段中间出现缺值时该点及之后输出 None（不跨越缺值）。
 """
-from __future__ import annotations
 
 import math
 

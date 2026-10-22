@@ -6,7 +6,6 @@
 （(i+1) % funding_interval == 0 时 pay = qty * close * funding_rate），最后是强平成交（tag == "liquidation"）；
 qbt 是全仓（cross），维持保证金 = maintenance_margin * 名义额。
 """
-from __future__ import annotations
 
 import argparse
 import json

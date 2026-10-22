@@ -17,8 +17,8 @@ schema（可 JSON 序列化）::
 用法::
 
     from qdcheck import fuzz
-    report = fuzz.run(my_validate, schema, n=20000, seed=0, controlled=MyValidationError)
-    fuzz.write_report(report, "fuzz_report.json")
+    report = fuzz.run(my_validate, schema, n=20000, seed=0, is_controlled=MyValidationError)   # -> Report（dict 子类）
+    report.ok; report["outcomes"]; report.to_json("fuzz_report.json")        # 字段清单见 Report.FIELDS / CONTRACT.md
     obj = fuzz.decode(report["bare"][0]["minimal_input"])      # 精确还原最小复现输入
     case = fuzz.make_case(schema, seed=0, index=123)           # 单独重放第 123 个用例
 
@@ -26,12 +26,9 @@ schema（可 JSON 序列化）::
 超大数（含 10**400 这类转 float 会溢出的整数）、负数、边界 ±1、空串 / 空容器、缺键、多键（含非 str 键）、
 键名大小写 / 首尾空格、嵌套乱（含 50~3000 层深链）、超长字符串（1e6）、Unicode 怪字符、数字字符串。
 """
-from __future__ import annotations
 
 import argparse
-import importlib
 import json
-import linecache
 import math
 import os
 import random
@@ -39,6 +36,7 @@ import re
 import sys
 import threading
 import time
+import traceback
 
 CATEGORIES = ("valid", "type_wrong", "nan", "inf", "neg_zero", "huge", "negative", "boundary", "empty",
               "missing_key", "extra_key", "key_case", "nested_garbage", "long_string", "unicode", "numeric_string")
@@ -249,10 +247,44 @@ def deep_chain(kind, depth, leaf, key="k"):
 
 # ---- 乱喂 ----------------------------------------------------------------------------
 class Case:
-    __slots__ = ("index", "categories", "input")
+    """一个用例：index（重放用）、categories（施加的乱喂类别）、paths（每个类别乱在哪个 schema 路径上）、input。"""
+    __slots__ = ("index", "categories", "paths", "input")
 
-    def __init__(self, index, categories, value):
-        self.index, self.categories, self.input = index, categories, value
+    def __init__(self, index, categories, value, paths=()):
+        self.index, self.categories, self.input, self.paths = index, categories, value, tuple(paths)
+
+
+def path_str(path):
+    """路径元组 -> "$.risk.window" / "$.symbols[0]" 这种 schema 路径（list 下标统一写成 []）。"""
+    return "$" + "".join(f".{p}" if isinstance(p, str) else "[]" for p in path)
+
+
+def schema_path_for(schema, path):
+    """实际对象里的路径 -> 最近的 schema 路径：沿 schema 能走多深算多深（乱出来的结构 / 改名的键算在包含它的那个字段上）。"""
+    node, out = schema, ()
+    for step in path:
+        if node["type"] == "object" and isinstance(step, str) and step in node["fields"]:
+            node, out = node["fields"][step], out + (step,)
+        elif node["type"] == "list" and isinstance(step, int):
+            node, out = node["items"], out + (0,)
+        else:
+            break
+    return path_str(out)
+
+
+def schema_paths(schema):
+    """schema 里全部字段路径（含嵌套；list 的元素记为 [...]）；"$" 代表顶层对象本身。"""
+    out, todo = ["$"], [(schema, ())]
+    while todo:
+        node, path = todo.pop()
+        if node["type"] == "object":
+            for k, sub in node["fields"].items():
+                out.append(path_str(path + (k,)))
+                todo.append((sub, path + (k,)))
+        elif node["type"] == "list":
+            out.append(path_str(path + (0,)))
+            todo.append((node["items"], path + (0,)))
+    return sorted(set(out))
 
 
 def _pick_path(rnd, obj, schema, want_types):
@@ -337,15 +369,15 @@ _PREFERRED = {"nan": ("float", "int"), "inf": ("float", "int"), "neg_zero": ("fl
 
 
 def _mutate(cat, rnd, obj, schema):
-    """对 obj 施加一次 cat 类乱喂，返回 (新的顶层对象, 是否真的施加了)。"""
+    """对 obj 施加一次 cat 类乱喂，返回 (新的顶层对象, 乱在哪个 schema 路径上；None = 没施加)。"""
     if cat == "type_wrong" and rnd.random() < 0.05:
-        return rnd.choice((None, [], "config", 42, [obj])), True  # 顶层就不是 dict
+        return rnd.choice((None, [], "config", 42, [obj])), "$"      # 顶层就不是 dict
     if not isinstance(obj, dict):
-        return obj, False
+        return obj, None
     if cat in ("missing_key", "key_case"):
         keys = [p for p in value_paths(obj) if isinstance(p[-1], str) and isinstance(get_at(obj, p[:-1]), dict)]
         if not keys:
-            return obj, False
+            return obj, None
         path = rnd.choice(keys)
         parent, key = get_at(obj, path[:-1]), path[-1]
         val = parent.pop(key)
@@ -354,18 +386,20 @@ def _mutate(cat, rnd, obj, schema):
             parent[new if new != key else key + "_"] = val
             if rnd.random() < 0.3:
                 parent[key] = val                                 # 同时存在大小写两个版本
-        return obj, True
+        return obj, schema_path_for(schema, path)
     if cat == "extra_key":
         objs = [()] + [p for p in value_paths(obj) if isinstance(get_at(obj, p), dict)]
-        target = get_at(obj, rnd.choice(objs))
+        where = rnd.choice(objs)
+        target = get_at(obj, where)
         key = rnd.choice(("unexpected", "__class__", "", "x" * 300, 1, None, (1, 2)))
         target[key] = rnd.choice((1, "v", None, [1], {"a": 1}))
-        return obj, True
+        return obj, schema_path_for(schema, where)
     path = _pick_path(rnd, obj, schema, _PREFERRED[cat])
     if path is None:
-        obj[rnd.choice(sorted(schema["fields"]) or ["k"])] = _value_for(cat, rnd, None)
-        return obj, True
-    return set_at(obj, path, _value_for(cat, rnd, _schema_at(schema, path))), True
+        key = rnd.choice(sorted(schema["fields"]) or ["k"])
+        obj[key] = _value_for(cat, rnd, None)
+        return obj, schema_path_for(schema, (key,))
+    return set_at(obj, path, _value_for(cat, rnd, _schema_at(schema, path))), schema_path_for(schema, path)
 
 
 def make_case(schema, seed, index):
@@ -375,12 +409,13 @@ def make_case(schema, seed, index):
     if rnd.random() < 0.05:
         return Case(index, ("valid",), obj)
     k = rnd.choice((1, 1, 1, 1, 1, 1, 2, 2, 2, 3))
-    applied = []
+    applied, paths = [], []
     for cat in (rnd.choice(CATEGORIES[1:]) for _ in range(k)):
-        obj, done = _mutate(cat, rnd, obj, schema)
-        if done:
+        obj, where = _mutate(cat, rnd, obj, schema)
+        if where is not None:
             applied.append(cat)
-    return Case(index, tuple(applied) or ("valid",), obj)
+            paths.append(where)
+    return Case(index, tuple(applied) or ("valid",), obj, paths)
 
 
 def iter_cases(schema, seed, n):
@@ -570,26 +605,20 @@ def _is_controlled(controlled, exc):
 
 
 def _frames(exc, repo_root):
-    """栈顶三行 + 签名键。只遍历 traceback 链表、只为最后 3 帧取源码行（RecursionError 有上千帧）。"""
-    tb, last = exc.__traceback__, []
-    tb = tb.tb_next if tb is not None else None              # 去掉运行器 call() 自己那一帧
-    while tb is not None:
-        last.append(tb)
-        if len(last) > 3:
-            last.pop(0)
-        tb = tb.tb_next
+    """栈顶三行 + 签名键。去掉运行器 call() 自己那一帧后只取最后 3 帧（RecursionError 有上千帧，limit=-3 只保留末尾）。"""
+    tb = exc.__traceback__
+    tb = tb.tb_next if tb is not None else None
+    last = traceback.extract_tb(tb, limit=-3) if tb is not None else []
     out = []
-    for t in last:
-        code = t.tb_frame.f_code
-        fn = os.path.relpath(code.co_filename, repo_root) if code.co_filename.startswith(repo_root) else code.co_filename
-        line = linecache.getline(code.co_filename, t.tb_lineno).strip()
-        out.append(f"{fn}:{t.tb_lineno} in {code.co_name}: {line[:120]}")
+    for fr in last:
+        fn = os.path.relpath(fr.filename, repo_root) if fr.filename.startswith(repo_root) else fr.filename
+        out.append(f"{fn}:{fr.lineno} in {fr.name}: {(fr.line or '').strip()[:120]}")
     shape = message_shape(exc)
     if not last:
         return out, (type(exc).__name__, "", "", 0, shape)
-    code = last[-1].tb_frame.f_code
-    lineno = 0 if isinstance(exc, RecursionError) else last[-1].tb_lineno
-    return out, (type(exc).__name__, code.co_filename, code.co_name, lineno, shape)
+    fr = last[-1]
+    lineno = 0 if isinstance(exc, RecursionError) else fr.lineno
+    return out, (type(exc).__name__, fr.filename, fr.name, lineno, shape)
 
 
 _QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"|\d+")
@@ -736,13 +765,39 @@ def _qualname(fn):
     return f"{getattr(fn, '__module__', '?')}:{getattr(fn, '__qualname__', repr(fn))}"
 
 
-def run(validate, schema, n=20000, seed=0, controlled=None, shrink=True, shrink_budget=3000, max_signatures=50,
-        repo_root=None, check_accepted=True):
-    """跑 n 个用例并返回报告 dict（见模块文档）。"""
+class Report(dict):
+    """``run`` 的返回值：普通 dict（字段见 ``FIELDS``，每个字段的含义见 CONTRACT.md）+ ``to_json()``。"""
+
+    FIELDS = ("tool", "format", "validate", "seed", "n", "elapsed_s", "per_case_us", "outcomes", "bare_by_type",
+              "categories", "field_coverage", "fields_under_4_kinds", "schema_valid_cases", "accepted_invalid",
+              "rejected_valid", "bare_unrecorded", "bare")
+
+    @property
+    def ok(self):
+        """没有任何裸异常。"""
+        return self["outcomes"]["bare"] == 0
+
+    def to_json(self, path=None):
+        """ASCII、键排序、缩进 1 的 JSON 文本（NaN 等特殊值已在 encode 时打标签，所以是严格 JSON）；给 path 则同时写文件。"""
+        text = json.dumps(self, indent=1, sort_keys=True, ensure_ascii=True, allow_nan=False)
+        if path is not None:
+            with open(path, "w", encoding="ascii") as f:
+                f.write(text)
+        return text
+
+
+def run(validate, schema, n=20000, seed=0, is_controlled=None, shrink=True, shrink_budget=3000, max_signatures=50,
+        repo_root=None, check_accepted=True, controlled=None):
+    """跑 n 个用例并返回 Report（见模块文档与 CONTRACT.md）。``is_controlled``：受控异常的类 / 元组 / 判定函数；
+    ``controlled`` 是同一参数的旧名。"""
+    if controlled is not None:
+        is_controlled = controlled
+    controlled = is_controlled
     check_schema(schema)
     repo_root = repo_root or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     outcomes = {"pass": 0, "controlled": 0, "bare": 0}
     cats = {c: {"cases": 0, "pass": 0, "controlled": 0, "bare": 0} for c in CATEGORIES}
+    field_cov = {p: {} for p in schema_paths(schema)}
     bare_types, groups = {}, {}
     accepted_invalid, rejected_valid, valid_cases, unrecorded = [], [], 0, 0
     n_accepted_invalid = n_rejected_valid = 0
@@ -755,6 +810,9 @@ def run(validate, schema, n=20000, seed=0, controlled=None, shrink=True, shrink_
         for c in set(case.categories):
             cats[c]["cases"] += 1
             cats[c][outcome] += 1
+        for c, where in zip(case.categories, case.paths):
+            per = field_cov.setdefault(where, {})
+            per[c] = per.get(c, 0) + 1
         valid_cases += bool(is_valid)
         if outcome == "pass" and is_valid is False:          # 误收：validate 放过了 schema 判为非法的输入
             n_accepted_invalid += 1
@@ -794,13 +852,16 @@ def run(validate, schema, n=20000, seed=0, controlled=None, shrink=True, shrink_
         del g["_key"]
         bare.append(g)
     bare.sort(key=lambda g: (-g["count"], g["first_case"]))
-    return {"tool": "qdcheck.fuzz", "format": 1, "validate": _qualname(validate), "seed": seed, "n": n,
+    field_cov = {k: dict(sorted(v.items())) for k, v in sorted(field_cov.items())}
+    return Report({"tool": "qdcheck.fuzz", "format": 2, "validate": _qualname(validate), "seed": seed, "n": n,
             "elapsed_s": round(elapsed, 3), "per_case_us": round(1e6 * elapsed / n, 1) if n else 0.0,
             "outcomes": outcomes, "bare_by_type": dict(sorted(bare_types.items())), "categories": cats,
+            "field_coverage": field_cov,
+            "fields_under_4_kinds": [p for p in schema_paths(schema) if p != "$" and len(field_cov.get(p, {})) < 4],
             "schema_valid_cases": valid_cases if check_accepted else None,
             "accepted_invalid": {"count": n_accepted_invalid, "first_cases": accepted_invalid},
             "rejected_valid": {"count": n_rejected_valid, "first_cases": rejected_valid},
-            "bare_unrecorded": unrecorded, "bare": bare}
+            "bare_unrecorded": unrecorded, "bare": bare})
 
 
 def _deep(v):
@@ -818,13 +879,15 @@ def _deep(v):
 
 
 def write_report(report, path):
-    with open(path, "w", encoding="ascii") as f:
-        json.dump(report, f, indent=1, sort_keys=True, ensure_ascii=True)
+    """= Report.to_json(path)（兼容旧调用）。"""
+    Report(report).to_json(path)
 
 
 def _load_callable(spec):
+    """``模块:对象.属性`` -> 对象（只用内建 __import__，不引入 importlib）。"""
     mod, _, name = spec.partition(":")
-    obj = importlib.import_module(mod)
+    __import__(mod)
+    obj = sys.modules[mod]
     for part in name.split("."):
         obj = getattr(obj, part)
     return obj
@@ -850,7 +913,7 @@ def main(argv=None):
     else:
         schema = _load_callable(args.schema)
     controlled = _load_callable(args.controlled) if args.controlled else None
-    rep = run(_load_callable(args.validate), schema, args.n, args.seed, controlled, not args.no_shrink)
+    rep = run(_load_callable(args.validate), schema, args.n, args.seed, is_controlled=controlled, shrink=not args.no_shrink)
     print(json.dumps({k: rep[k] for k in ("validate", "n", "elapsed_s", "outcomes", "bare_by_type")}, sort_keys=True))
     for g in rep["bare"][:10]:
         print(f"  {g['exc_type']} x{g['count']} first case {g['first_case']} min {g['minimal_size']}/"

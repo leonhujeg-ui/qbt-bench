@@ -141,38 +141,74 @@ class TestCompareFile(unittest.TestCase):
             json.dump(actual, f)
         return tmp, vp, ap
 
-    def test_cli_exit_codes_and_first_mismatch(self):
+    def test_cli_exit_codes_and_first_line_contract(self):
+        import re
+        head = re.compile(r"^(OK n=\d+ max_rel=\d\.\d{3}e[-+]\d{2}|MISMATCH idx=\d+ expected=\S+ actual=\S+ rel=\S+ "
+                          r"reason=(length|warmup|type|value))( id=\S+)?$")
         tmp, vp, ap = self._files({"a": [None, 1.0], "b": [2.0, 3.5], "c": [5.0]})
         rp = os.path.join(tmp, "rep.json")
         with captured() as (out, _err):
-            code = C.main([vp, ap, "--json", rp])
+            code = C.main(["--vector", vp, "--actual", ap, "--json", rp])
+        lines = out.getvalue().splitlines()
         self.assertEqual(code, 1)
-        self.assertIn("b: MISMATCH [value] first index 1: expected 3.0, actual 3.5", out.getvalue())
+        self.assertEqual(lines[0], "MISMATCH idx=1 expected=3.0 actual=3.5 rel=1.429e-01 reason=value id=b")
+        self.assertTrue(head.match(lines[0]))
         with open(rp) as f:
             self.assertEqual(json.load(f)["failed"], 1)
         tmp, vp, ap = self._files({"a": [None, 1.0], "b": [2.0, 3.0]})
         with captured() as (out, _err):
-            self.assertEqual(C.main([vp, ap]), 0)
-            self.assertEqual(C.main([vp, ap, "--strict"]), 1)
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 0)
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap, "--strict"]), 1)
+        lines = out.getvalue().splitlines()
+        self.assertTrue(head.match(lines[0]), lines[0])
+        self.assertTrue(lines[0].startswith("OK n=1 max_rel=0.000e+00 id="))
         self.assertIn("checked 2/3  passed 2  failed 0  missing 1", out.getvalue())
 
-    def test_cli_bare_array_and_errors(self):
+    def test_cli_first_line_for_each_reason(self):
+        cases = [([None, 1.0, 2.0], [None, 1.0], "MISMATCH idx=2 expected=3 actual=2 rel=nan reason=length"),
+                 ([None, 1.0], [0.0, 1.0], "MISMATCH idx=0 expected=null actual=0.0 rel=nan reason=warmup"),
+                 ([None, 1.0], [None, None], "MISMATCH idx=1 expected=1.0 actual=null rel=nan reason=warmup"),
+                 ([2.0], ["2"], "MISMATCH idx=0 expected=2.0 actual='2' rel=nan reason=type"),
+                 ([2.0], [math.inf], "MISMATCH idx=0 expected=2.0 actual=inf rel=nan reason=value"),
+                 ([2.0], [2.5], "MISMATCH idx=0 expected=2.0 actual=2.5 rel=2.000e-01 reason=value"),
+                 ([0.1], [0.1], "OK n=1 max_rel=0.000e+00")]
+        for expected, actual, want in cases:
+            self.assertEqual(C.first_line(C.compare_series(expected, actual)), want)
+        self.assertEqual(C.first_line(C.compare_series([1.0], [2.0]), "x|y"), "MISMATCH idx=0 expected=1.0 actual=2.0 rel=5.000e-01 reason=value id=x|y")
+
+    def test_cli_bare_array_stdin_and_invalid_input(self):
+        import io
+        import sys
         tmp, vp, ap = self._files([2.0, 3.0])
         with captured() as (out, err):
-            self.assertEqual(C.main([vp, ap, "--id", "b"]), 0)
-            self.assertEqual(C.main([vp, ap]), 2)                      # 多条向量 + 裸数组 + 没给 --id
-            self.assertEqual(C.main([vp, os.path.join(tmp, "missing.json")]), 2)
-            self.assertEqual(C.main([vp, ap, "--id", "nope"]), 1)      # 一条都没比上 => 失败
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap, "--id", "b"]), 0)
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 2)                  # 多条向量 + 裸数组 + 没给 --id
+            self.assertEqual(C.main(["--vector", vp, "--actual", os.path.join(tmp, "missing.json")]), 2)
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap, "--id", "nope"]), 2)   # 未知 id
+            self.assertEqual(C.main(["--vector", os.path.join(tmp, "nope.json"), "--actual", ap]), 2)
         self.assertIn("pass --id", err.getvalue())
+        self.assertIn("unknown vector id", err.getvalue())
         single = {"vectors": [_vec("only", [1.0, None])]}
         with open(vp, "w") as f:
             json.dump(single, f)
         with open(ap, "w") as f:
             f.write("[1.0, NaN]")
-        with captured():
-            self.assertEqual(C.main([vp, ap]), 0)
-            self.assertEqual(C.main([vp, ap, "--warmup", "none"]), 1)
-            self.assertEqual(C.main([vp, ap, "--rel", "0", "--abs", "0"]), 0)
+        with captured() as (out, _err):
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 0)
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap, "--warmup", "none"]), 1)
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap, "--rel", "0", "--abs", "0"]), 0)
+        self.assertEqual(out.getvalue().splitlines()[0], "OK n=1 max_rel=0.000e+00")
+        stdin = sys.stdin
+        for text, code in (("[1.0, null]", 0), ("[1.0, 2.0]", 1), ("{bad json", 2), ('"str"', 2), ("{}", 2),
+                           ('{"only": 5}', 2), ("[]", 1)):
+            sys.stdin = io.StringIO(text)
+            try:
+                with captured() as (out, _err):
+                    self.assertEqual(C.main(["--vector", vp, "--actual", "-"]), code, text)
+            finally:
+                sys.stdin = stdin
+        args = C.build_parser().parse_args(["--vector", "v", "--actual", "-"])
+        self.assertEqual((args.rel, args.abs, args.warmup, args.strict, args.id), (1e-9, 1e-12, "either", False, None))
 
 
 if __name__ == "__main__":

@@ -39,6 +39,13 @@ class TestReport(unittest.TestCase):
         self.assertEqual(cov["tests_failed"], 0)
         self.assertGreaterEqual(mut["summary"]["kill_rate"], 85.0)
         self.assertTrue(all(m["total"] >= 40 for m in mut["summary"]["modules"].values()))
+        perf = _load("perf.json")
+        by = {r["block"]: r for r in perf["rows"]}
+        self.assertLessEqual(by["fuzz_20k"]["wall_seconds"], 20.0)
+        self.assertLessEqual(by["streams_200x3000"]["wall_seconds"], 180.0)
+        self.assertTrue(all(r["error"] is None for r in perf["rows"]))
+        replay = _load("mutation_replay.json")
+        self.assertGreaterEqual(replay["replayed"], 100)
         triage = _load("mutation_triage.json")
         survivors = {r["id"] for r in mut["mutants"] if r["status"] == "survived"}
         self.assertEqual(survivors, set(triage), "every surviving mutant needs a written verdict")

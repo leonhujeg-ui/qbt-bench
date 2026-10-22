@@ -13,7 +13,6 @@
 （``[start, stop, kind]``，stop 不含）+ ``events``（``[index, kind]``）+ ``spec``（实际使用的参数）。
 所有数据都是合成的，不构成任何交易结论。
 """
-from __future__ import annotations
 
 import argparse
 import json

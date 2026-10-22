@@ -9,7 +9,6 @@
     qbt.ichimoku(h, l, c, 9, 26, 52, 26) 的前四条线 -> ichimoku "shift=forward"
     qbt.ichimoku 的 chikou（qbt 定义为 close[i] - close[i-26]，与传统迟行线不同）-> 预期不一致，用来展示报错格式
 """
-from __future__ import annotations
 
 import argparse
 import json

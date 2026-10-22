@@ -6,7 +6,6 @@
 占位符：``{{文件:点路径|格式}}``，例如 ``{{g3_streams.json:seconds|.1f}}``、``{{coverage.json:library.total_percent|.2f}}``；
 格式缺省为原样，``,`` 为千分位，其余按 format() 规格。``{{@名字}}`` 为生成的表格（见 BLOCKS）。
 """
-from __future__ import annotations
 
 import argparse
 import json
@@ -100,7 +99,24 @@ def triage_table(cache):
     return "\n".join(rows)
 
 
-BLOCKS = {"variant_table": lambda c: variant_table(), "coverage_table": coverage_table,
+def perf_table(cache):
+    perf = _load("perf.json", cache)
+    rows = ["| 块 | 规模 | 耗时（墙钟） | 峰值内存 | 目标 | 命令 |", "|---|---|---:|---:|---|---|"]
+    cmd = {"vectors_regen": "`python3.12 -m qdcheck.gen_vectors --check`", "indicator_props": "`python3.12 -m qdcheck.tools.selfcheck g1`",
+           "fuzz_20k": "`python3.12 -m qdcheck.tools.selfcheck g2`", "fuzz_broken_3": "`python3.12 -m qdcheck.tools.selfcheck g2`",
+           "streams_200x3000": "`python3.12 -m qdcheck.stream --streams 200 --bars 3000`",
+           "qbt_ledger_54": "`python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000`", "harness_16": "`python3.12 -m qdcheck.tools.selfcheck g4`",
+           "unittest": "`python3.12 -m unittest discover -s qdcheck/tests`",
+           "mutation_720": "`python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4`"}
+    for r in perf["rows"]:
+        mem = f"{r['max_rss_mb']:.0f} MB" if r.get("max_rss_mb") is not None else r.get("note", "未测")
+        secs = f"{r['wall_seconds']:.1f} s" if r.get("wall_seconds") is not None else "?"
+        rows.append(f"| {r['block']} | {r['scale']} | {secs} | {mem} | {r['target']} | {cmd.get(r['block'], '')} |")
+    rows.append(f"| （测量方式） | 每块独立子进程，`resource.getrusage(RUSAGE_SELF).ru_maxrss`，含解释器基线；Python {perf['python']}，{perf['cpu_count']} 核 | | | | `python3.12 -m qdcheck.tools.perf` |")
+    return "\n".join(rows)
+
+
+BLOCKS = {"variant_table": lambda c: variant_table(), "coverage_table": coverage_table, "perf_table": perf_table,
           "mutation_table": mutation_table, "triage_table": triage_table,
           "n_variants": lambda c: str(sum(len(v) for v in R.VARIANTS.values())),
           "n_variant_lines": lambda c: str(sum(len(v) * len(R.LINES[k]) for k, v in R.VARIANTS.items()))}

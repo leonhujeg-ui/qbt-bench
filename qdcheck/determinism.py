@@ -18,10 +18,8 @@
 函数的返回值必须能被 json.dumps 序列化（tuple 视为 list；set / bytes / 自定义对象直接报错，
 因为把 set 排序后再比会掩盖的恰恰就是迭代顺序问题）。
 """
-from __future__ import annotations
 
 import argparse
-import importlib
 import json
 import math
 import os
@@ -43,7 +41,8 @@ def load_target(spec):
     mod, sep, name = spec.partition(":")
     if not sep or not mod or not name:
         raise HarnessError(f"target must look like 'package.module:function', got {spec!r}")
-    obj = importlib.import_module(mod)
+    __import__(mod)                       # 子进程通过 PYTHONPATH=<仓库根>（+ paths）找到被测模块
+    obj = sys.modules[mod]
     for part in name.split("."):
         obj = getattr(obj, part)
     if not callable(obj):
@@ -88,6 +87,8 @@ def run_child(target, task, hash_seed, timeout=600.0, python=None, paths=()):
         raise HarnessError(f"child with PYTHONHASHSEED={hash_seed} failed (exit {proc.returncode}):\n"
                            + proc.stderr[-3000:])
     out = json.loads(proc.stdout)
+    if out.get("seed_env") != str(hash_seed):            # 子进程自己报告它看到的 PYTHONHASHSEED，必须是我们设的
+        raise HarnessError(f"child reports PYTHONHASHSEED={out.get('seed_env')!r}, expected {hash_seed!r}")
     out["seconds"] = round(time.perf_counter() - t0, 3)
     return out
 

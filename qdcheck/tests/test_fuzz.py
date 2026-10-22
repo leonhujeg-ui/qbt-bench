@@ -19,7 +19,7 @@ N = scale(20000, 4000)
 
 
 def _run(fn, n=N, seed=0, **kw):
-    return F.run(fn, SCHEMA, n=n, seed=seed, controlled=E.ValidationError, **kw)
+    return F.run(fn, SCHEMA, n=n, seed=seed, is_controlled=E.ValidationError, **kw)
 
 
 class TestCoverageAndGoodValidate(unittest.TestCase):
@@ -248,9 +248,9 @@ class TestRunner(unittest.TestCase):
                 raise ValueError("bad")
             return d
         as_none = F.run(v, SCHEMA, n=300, seed=2, shrink=False)
-        as_cls = F.run(v, SCHEMA, n=300, seed=2, controlled=ValueError, shrink=False)
-        as_tuple = F.run(v, SCHEMA, n=300, seed=2, controlled=(KeyError, ValueError), shrink=False)
-        as_fn = F.run(v, SCHEMA, n=300, seed=2, controlled=lambda e: str(e) == "bad", shrink=False)
+        as_cls = F.run(v, SCHEMA, n=300, seed=2, is_controlled=ValueError, shrink=False)
+        as_tuple = F.run(v, SCHEMA, n=300, seed=2, is_controlled=(KeyError, ValueError), shrink=False)
+        as_fn = F.run(v, SCHEMA, n=300, seed=2, is_controlled=lambda e: str(e) == "bad", shrink=False)
         self.assertGreater(as_none["outcomes"]["bare"], 0)
         self.assertEqual(as_none["outcomes"]["bare"], as_cls["outcomes"]["controlled"])
         for rep in (as_cls, as_tuple, as_fn):
@@ -333,7 +333,7 @@ class TestRunner(unittest.TestCase):
 
         def reject(d):
             raise E.ValidationError("no")
-        rep = F.run(reject, SCHEMA, n=500, seed=0, controlled=E.ValidationError)
+        rep = F.run(reject, SCHEMA, n=500, seed=0, is_controlled=E.ValidationError)
         self.assertEqual(rep["rejected_valid"]["count"], rep["schema_valid_cases"])
 
         def only_none(d):
@@ -350,10 +350,10 @@ class TestRunner(unittest.TestCase):
 
     def test_mutate_on_empty_and_non_dict(self):
         import random
-        obj, done = F._mutate("nan", random.Random(1), {}, SCHEMA)
-        self.assertTrue(done and len(obj) == 1 and math.isnan(next(iter(obj.values()))))
-        self.assertEqual(F._mutate("missing_key", random.Random(1), [1], SCHEMA), ([1], False))
-        self.assertEqual(F._mutate("key_case", random.Random(1), {}, SCHEMA), ({}, False))
+        obj, where = F._mutate("nan", random.Random(1), {}, SCHEMA)
+        self.assertTrue(where.startswith("$.") and len(obj) == 1 and math.isnan(next(iter(obj.values()))))
+        self.assertEqual(F._mutate("missing_key", random.Random(1), [1], SCHEMA), ([1], None))
+        self.assertEqual(F._mutate("key_case", random.Random(1), {}, SCHEMA), ({}, None))
         noise = "".join(chr(33 + (i * 7919) % 90) for i in range(500))
         self.assertEqual(F.encode(noise), noise)                      # 不是周期串：原样写出
         self.assertIsNone(F._schema_at(SCHEMA, ("risk", 0)))
@@ -475,7 +475,7 @@ class TestGenerators(unittest.TestCase):
         from unittest import mock
         ticks = iter([10.0, 11.23456])
         with mock.patch.object(F.time, "perf_counter", lambda: next(ticks)):
-            rep = F.run(E.validate_good, SCHEMA, n=7, seed=0, controlled=E.ValidationError)
+            rep = F.run(E.validate_good, SCHEMA, n=7, seed=0, is_controlled=E.ValidationError)
         self.assertEqual(rep["elapsed_s"], 1.235)
         self.assertEqual(rep["per_case_us"], 176365.7)                    # 1e6 * 1.23456 / 7 = 176365.714...
         self.assertEqual(F.run(E.validate_good, SCHEMA, n=0)["per_case_us"], 0.0)
@@ -617,7 +617,7 @@ class TestGenerators(unittest.TestCase):
         self.assertEqual(len(other._simpler(list(range(40)))), 4 + 16)
 
     def test_write_report_format_and_cli_defaults(self):
-        rep = F.run(E.validate_zerodiv, SCHEMA, n=300, seed=1, controlled=E.ValidationError)
+        rep = F.run(E.validate_zerodiv, SCHEMA, n=300, seed=1, is_controlled=E.ValidationError)
         path = os.path.join(tempfile.mkdtemp(), "r.json")
         F.write_report(rep, path)
         with open(path, encoding="ascii") as f:
@@ -628,6 +628,66 @@ class TestGenerators(unittest.TestCase):
         lenient = F.run(lambda d: d, SCHEMA, n=300, seed=1)
         self.assertEqual(len(lenient["accepted_invalid"]["first_cases"]), 20)
         self.assertGreater(lenient["accepted_invalid"]["count"], 20)
+
+
+class TestContractAndDeterminism(unittest.TestCase):
+    def test_same_seed_gives_byte_identical_case_sequence(self):
+        a = json.dumps([[list(c.categories), list(c.paths), F.encode(c.input)] for c in F.iter_cases(SCHEMA, 7, 3000)],
+                       sort_keys=True, ensure_ascii=True).encode("ascii")
+        b = json.dumps([[list(c.categories), list(c.paths), F.encode(c.input)] for c in F.iter_cases(SCHEMA, 7, 3000)],
+                       sort_keys=True, ensure_ascii=True).encode("ascii")
+        self.assertEqual(a, b)
+        self.assertGreater(len(a), 100_000)
+        r1 = F.run(E.validate_zerodiv, SCHEMA, n=2000, seed=7, is_controlled=E.ValidationError)
+        r2 = F.run(E.validate_zerodiv, SCHEMA, n=2000, seed=7, is_controlled=E.ValidationError)
+        strip = lambda r: {k: v for k, v in r.items() if k not in ("elapsed_s", "per_case_us")}
+        self.assertEqual(json.dumps(strip(r1), sort_keys=True), json.dumps(strip(r2), sort_keys=True))
+
+    def test_every_schema_key_is_mutated_in_at_least_4_ways(self):
+        rep = F.run(E.validate_good, SCHEMA, n=N, seed=0, is_controlled=E.ValidationError, shrink=False)
+        self.assertEqual(rep["fields_under_4_kinds"], [])
+        paths = F.schema_paths(SCHEMA)
+        self.assertIn("$.risk.max_drawdown", paths)
+        self.assertIn("$.symbols[]", paths)
+        self.assertIn("$", paths)
+        for p in paths:
+            if p != "$":                                        # "$" 是顶层对象本身，只有“整体换类型 / 多键”两种乱法
+                self.assertGreaterEqual(len(rep["field_coverage"][p]), 4, (p, rep["field_coverage"][p]))
+        self.assertTrue({"type_wrong", "extra_key"} <= set(rep["field_coverage"]["$"]))
+        self.assertEqual(set(rep["field_coverage"]), set(paths))             # 只按 schema 路径归档
+        self.assertEqual(F.schema_path_for(SCHEMA, ("risk", "window", "k", "k")), "$.risk.window")
+        self.assertEqual(F.schema_path_for(SCHEMA, ("PERIOD",)), "$")
+        self.assertEqual(F.schema_path_for(SCHEMA, ("symbols", 3, "z")), "$.symbols[]")
+        self.assertGreaterEqual(len(rep["field_coverage"]["$.period"]), 10)
+
+    def test_report_type_fields_and_json(self):
+        rep = F.run(E.validate_keyerror, SCHEMA, n=500, seed=3, is_controlled=E.ValidationError)
+        self.assertIsInstance(rep, F.Report)
+        self.assertEqual(set(rep), set(F.Report.FIELDS))
+        self.assertFalse(rep.ok)
+        self.assertTrue(F.run(E.validate_good, SCHEMA, n=200, seed=3, is_controlled=E.ValidationError).ok)
+        text = rep.to_json()
+        self.assertTrue(text.isascii())
+        back = json.loads(text)                                   # 严格 JSON（无 NaN 字面量）
+        self.assertEqual(set(back), set(F.Report.FIELDS))
+        self.assertEqual(text, json.dumps(back, indent=1, sort_keys=True, ensure_ascii=True))
+        legacy = F.run(E.validate_keyerror, SCHEMA, n=500, seed=3, controlled=E.ValidationError)
+        self.assertEqual(legacy["outcomes"], rep["outcomes"])
+        path = os.path.join(tempfile.mkdtemp(), "r.json")
+        self.assertEqual(rep.to_json(path), text)
+        with open(path, encoding="ascii") as f:
+            self.assertEqual(f.read(), text)
+
+    def test_minimal_repros_are_human_readable(self):
+        minimal = {}
+        for fn in (E.validate_keyerror, E.validate_zerodiv, E.validate_recursion):
+            rep = F.run(fn, SCHEMA, n=scale(20000, 4000), seed=0, is_controlled=E.ValidationError)
+            minimal[fn.__name__] = F.decode(rep["bare"][0]["minimal_input"])
+        self.assertEqual(minimal["validate_keyerror"], {})                   # 空配置 -> KeyError：缺了必填键
+        self.assertEqual(minimal["validate_zerodiv"], {"period": 0})         # 只剩 period=0 -> 除零
+        rec = minimal["validate_recursion"]
+        self.assertEqual(list(rec), ["symbol"])                              # 只剩一个超长 symbol
+        self.assertTrue(set(rec["symbol"]) <= set("ab") and len(rec["symbol"]) > 900)
 
 
 if __name__ == "__main__":

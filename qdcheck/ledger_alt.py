@@ -8,7 +8,6 @@
 - 强平合法性、漏强平、强平后余额在这里独立重判。
 记录格式与 ledger 相同（ledger.normalize_record 只做格式校验，这里另写一份）。
 """
-from __future__ import annotations
 
 import math
 

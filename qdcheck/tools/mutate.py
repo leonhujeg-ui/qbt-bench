@@ -6,10 +6,9 @@
     python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4            # -> qdcheck/results/mutation.json
     python3.12 qdcheck/tools/mutate.py --ids fuzz:1234:compare ... --merge  # 补判据后只重跑指定突变体
 
-每个突变体：在独立工作目录里复制 qdcheck/（被突变的模块换成突变源码），vectors/ 与仓库其余顶层包软链进去，
+每个突变体：在 tempfile 下的独立工作目录里复制 qdcheck/（被突变的模块换成突变源码），vectors/ 与仓库其余顶层包软链进去，
 子进程跑 QDCHECK_FAST=1 python -m unittest -f <模块顺序>；失败 = 抓住，超时 = 抓住（单列），通过 = 漏网。
 """
-from __future__ import annotations
 
 import argparse
 import ast
@@ -20,6 +19,7 @@ import random
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -30,21 +30,22 @@ from mutants import run_mutations as base      # noqa: E402  本仓已有的突�
 
 PKG = os.path.join(REPO, "qdcheck")
 RESULTS = os.path.join(PKG, "results")
-WORK = os.path.join(REPO, "mutants", "_work", "qdcheck")      # mutants/_work/ 已在 .gitignore 里
+WORK = tempfile.mkdtemp(prefix="qdcheck-mutants-")             # 工作目录在 tempfile 下，不写仓库
 T = "qdcheck.tests."
-ALL_TESTS = ["test_compare", "test_synth", "test_ledger", "test_examples", "test_stream", "test_determinism",
-             "test_fuzz", "test_indicators", "test_vectors"]
+ALL_TESTS = ["test_compare", "test_synth", "test_ledger", "test_examples", "test_contract", "test_decimal", "test_stream",
+             "test_determinism", "test_fuzz", "test_indicators", "test_vectors"]
 FIRST = {   # 每个模块最先跑的测试（其余测试随后，保证漏网的突变体跑过整套）
-    "compare": ["test_compare", "test_indicators"], "determinism": ["test_determinism"],
+    "compare": ["test_compare", "test_contract", "test_indicators"], "determinism": ["test_determinism"],
     "examples": ["test_examples", "test_fuzz", "test_determinism"], "fuzz": ["test_fuzz"], "gen_vectors": ["test_vectors"],
-    "indicators_alt": ["test_indicators"], "indicators_ref": ["test_indicators"], "ledger": ["test_ledger", "test_stream"],
+    "indicators_alt": ["test_indicators", "test_decimal"], "indicators_ref": ["test_indicators", "test_decimal"],
+    "vector_schema": ["test_contract", "test_vectors"], "ledger": ["test_ledger", "test_stream"],
     "ledger_alt": ["test_ledger", "test_stream"], "props": ["test_indicators"],
     "stream": ["test_stream", "test_ledger", "test_vectors"], "synth": ["test_synth", "test_vectors"],
 }
 
 
 def modules():
-    return sorted(f[:-3] for f in os.listdir(PKG) if f.endswith(".py") and f != "__init__.py")
+    return sorted(f[:-3] for f in os.listdir(PKG) if f.endswith(".py") and f not in ("__init__.py", "selftest.py"))
 
 
 def test_order(module):
@@ -196,6 +197,7 @@ def main(argv=None):
             if k % 20 == 0:
                 write(records, meta, args.out, args.md)
     meta["elapsed_seconds"] = round(time.perf_counter() - t0, 1)
+    shutil.rmtree(WORK, ignore_errors=True)
     summary = write(records, meta, args.out, args.md)
     print(json.dumps(summary, indent=1))
     return 0

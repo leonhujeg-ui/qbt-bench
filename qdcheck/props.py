@@ -8,7 +8,6 @@
 - ``check_against``：两份实现逐点对拍（默认相对容差 1e-9）。
 每个函数返回 ``{"ok": bool, ...}``，失败时带第一处不一致。
 """
-from __future__ import annotations
 
 import random
 

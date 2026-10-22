@@ -16,13 +16,15 @@ Python 用法::
 
 命令行::
 
-    python3.12 -m qdcheck.compare qdcheck/vectors/dema.json mine.json [--id ID] [--rel 1e-9] [--abs 1e-12]
-           [--warmup either|none|nan] [--strict] [--json report.json]
+    python3.12 -m qdcheck.compare --vector qdcheck/vectors/dema.json --actual mine.json [--id ID]
+           [--rel 1e-9] [--abs 1e-12] [--warmup either|none|nan] [--strict] [--json report.json]
+    cat mine.json | python3.12 -m qdcheck.compare --vector one_vector.json --actual -
 
 ``mine.json`` 是 ``{vector_id: [..]}``；或者一个裸数组（此时用 --id 指定向量，或向量文件里只有一条）。
-退出码：0 = 全部一致（--strict 时还要求没有缺失的向量），1 = 有不一致，2 = 用法 / 文件错误。
+退出码：0 = 全部一致（--strict 时还要求没有缺失的向量），1 = 有不一致，2 = 输入不合法。
+stdout 第一行固定格式（见 first_line）：``OK n=<k> max_rel=<r>`` 或
+``MISMATCH idx=<n> expected=<x> actual=<y> rel=<r> reason=<length|warmup|type|value>``。
 """
-from __future__ import annotations
 
 import argparse
 import json
@@ -173,6 +175,8 @@ def format_result(res):
 def _actual_map(actual, vectors, chosen_id):
     if isinstance(actual, dict):
         return actual
+    if not isinstance(actual, list):
+        raise ValueError("actual must be a JSON array or an object {vector_id: array}")
     if chosen_id is None:
         if len(vectors) != 1:
             raise ValueError("actual is a bare array: pass --id to choose the vector")
@@ -180,34 +184,82 @@ def _actual_map(actual, vectors, chosen_id):
     return {chosen_id: actual}
 
 
-def main(argv=None):
-    ap = argparse.ArgumentParser(description="对拍：别人的指标输出 vs qdcheck 向量")
-    ap.add_argument("vectors")
-    ap.add_argument("actual", help="JSON: {vector_id: [...]} 或裸数组（配合 --id）")
-    ap.add_argument("--id", default=None)
+def _fmt_num(v):
+    if v is None or (isinstance(v, float) and math.isnan(v)):
+        return "null"
+    return repr(v)
+
+
+def first_line(res, vid=None):
+    """stdout 第一行的固定格式。
+
+    一致:   ``OK n=<有值点数> max_rel=<最大相对误差>``
+    不一致: ``MISMATCH idx=<下标> expected=<期望> actual=<实际> rel=<相对误差> reason=<length|warmup|type|value>``
+    多条向量时末尾附 ``id=<向量 id>``。长度不一致时 idx = 较短的长度，expected/actual = 两边的长度，rel=nan；
+    无值位置不一致 / 非数值时 rel=nan。数值按 repr（最短可往返的十进制）打印。"""
+    tail = f" id={vid}" if vid is not None else ""
+    if res["ok"]:
+        return f"OK n={res['checked']} max_rel={res['max_rel_err']:.3e}{tail}"
+    e, a = res["expected"], res["actual"]
+    if res["reason"] == "value" and isinstance(a, (int, float)) and not isinstance(a, bool) and math.isfinite(a):
+        rel = f"{rel_err(e, a):.3e}"
+    else:
+        rel = "nan"
+    return f"MISMATCH idx={res['index']} expected={_fmt_num(e)} actual={_fmt_num(a)} rel={rel} reason={res['reason']}{tail}"
+
+
+def build_parser():
+    ap = argparse.ArgumentParser(description="对拍：别人的指标输出 vs qdcheck 向量",
+                                 epilog="退出码：0 一致 / 1 不一致 / 2 输入不合法。stdout 第一行固定格式见 CONTRACT.md。")
+    ap.add_argument("--vector", required=True, help="向量 JSON 文件：单条向量、{\"vectors\": [...]} 或数组")
+    ap.add_argument("--actual", required=True, help="实际输出 JSON 文件，或 - 读 stdin：裸数组（配合 --id）或 {vector_id: 数组}")
+    ap.add_argument("--id", default=None, help="--actual 为裸数组且向量文件里有多条向量时，选哪一条")
     ap.add_argument("--rel", type=float, default=REL_TOL)
     ap.add_argument("--abs", type=float, default=ABS_TOL)
     ap.add_argument("--warmup", choices=WARMUP_MODES, default="either")
     ap.add_argument("--strict", action="store_true", help="向量文件里的每一条都必须给出实际输出")
     ap.add_argument("--json", default=None, help="把汇总写到这个 JSON 文件")
-    args = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     try:
-        vectors = load_vectors(args.vectors)
-        with open(args.actual, "r", encoding="utf-8") as f:
-            actual = json.load(f)
+        vectors = load_vectors(args.vector)
+        if args.actual == "-":
+            actual = json.loads(sys.stdin.read())
+        else:
+            with open(args.actual, "r", encoding="utf-8") as f:
+                actual = json.load(f)
         amap = _actual_map(actual, vectors, args.id)
-    except (OSError, ValueError) as exc:
+        if args.id is not None and args.id not in {vector_id(v) for v in vectors}:
+            raise ValueError(f"unknown vector id {args.id!r}")
+        if not amap:
+            raise ValueError("actual is empty")
+        for vid, arr in amap.items():
+            if not isinstance(arr, list):
+                raise ValueError(f"actual[{vid!r}] is not an array")
+    except (OSError, ValueError, TypeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
     rep = compare_file(vectors, amap, args.rel, args.abs, args.warmup)
-    for res in rep["failures"]:
-        print(f"{res['id']}: {format_result(res)}")
+    results = [compare_vector(v, amap[vector_id(v)], args.rel, args.abs, args.warmup)
+               for v in vectors if vector_id(v) in amap]
+    if not results:
+        print("error: none of the actual ids match a vector", file=sys.stderr)
+        return 2
+    multi = len(results) > 1
+    failures = [r for r in results if not r["ok"]]
+    head = failures[0] if failures else results[0]
+    print(first_line(head, head["id"] if multi else None))
+    for r in (failures[1:] if failures else results[1:]):
+        print(first_line(r, r["id"] if multi else None))
     print(f"checked {rep['checked']}/{rep['total']}  passed {rep['passed']}  failed {rep['failed']}  "
           f"missing {len(rep['missing'])}  unknown {len(rep['unknown'])}  max_rel_err {rep['max_rel_err']:.3e}")
     if args.json:
         with open(args.json, "w", encoding="utf-8") as f:
             json.dump(rep, f, indent=1, sort_keys=True)
-    bad = rep["failed"] > 0 or rep["checked"] == 0 or (args.strict and rep["missing"])
+    bad = rep["failed"] > 0 or (args.strict and rep["missing"])
     return 1 if bad else 0
 
 

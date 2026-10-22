@@ -11,7 +11,6 @@
 
 数值写成 ``%.17g``（17 位有效数字，可精确往返；整数值补 ".0"），预热期 / 未定义写 null。
 """
-from __future__ import annotations
 
 import argparse
 import json

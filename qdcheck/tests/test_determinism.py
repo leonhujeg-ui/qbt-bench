@@ -52,6 +52,52 @@ class TestFakeEngines(unittest.TestCase):
         self.assertEqual(len(rep["pairs"]), 1)
 
 
+class TestHashSeedIsReallyDifferent(unittest.TestCase):
+    def test_children_report_the_seed_we_set_and_hash_differently(self):
+        rep = D.check(TOY, "qdcheck.examples:deterministic_engine")
+        kids = [r for r in rep["runs"] if r["name"] != "in_process"]
+        self.assertEqual([k["seed_env"] for k in kids], ["0", "4242"])          # 子进程自己打印的 PYTHONHASHSEED
+        self.assertNotEqual(kids[0]["probe"], kids[1]["probe"])                 # 同一字符串在两边 hash 不同
+        self.assertTrue(rep["hash_seeds_effective"])
+        for seed in (0, 4242):
+            out = D.run_child("qdcheck.examples:deterministic_engine", TOY, seed)
+            self.assertEqual(out["seed_env"], str(seed))
+
+    def test_child_with_wrong_seed_is_rejected(self):
+        from unittest import mock
+        real = subprocess_run = D.subprocess.run
+
+        def fake(cmd, **kw):
+            proc = real(cmd, **kw)
+            proc.stdout = proc.stdout.replace('"seed_env": "0"', '"seed_env": "77"')
+            return proc
+        with mock.patch.object(D.subprocess, "run", fake):
+            with self.assertRaises(D.HarnessError) as ctx:
+                D.run_child("qdcheck.examples:deterministic_engine", TOY, 0)
+        self.assertIn("PYTHONHASHSEED='77'", str(ctx.exception))
+
+    def test_unrelated_process_randomness_does_not_trip_the_harness(self):
+        """第三份结果：引擎每次都用进程相关的随机种子做无关计算，结果只由 task["seed"] 决定 -> 必须通过。"""
+        rep = D.check(dict(TOY, seed=5), "qdcheck.examples:seeded_engine")
+        self.assertTrue(rep["ok"], D.format_report(rep))
+        a = D.run_target("qdcheck.examples:seeded_engine", dict(TOY, seed=5))
+        b = D.run_target("qdcheck.examples:seeded_engine", dict(TOY, seed=6))
+        self.assertEqual(a["scratch_sum"], 499500)
+        self.assertNotEqual(a["trades"], b["trades"])                           # 任务自己的 seed 才改变结果
+        self.assertEqual(a, D.run_target("qdcheck.examples:deterministic_engine", dict(TOY, seed=5)) | {"scratch_sum": 499500})
+
+    def test_child_finds_modules_via_pythonpath_paths(self):
+        import tempfile
+        d = tempfile.mkdtemp()
+        with open(os.path.join(d, "mytarget_mod.py"), "w") as f:
+            f.write("def f(task):\n    return {'x': task['v'] * 2}\n")
+        out = D.run_child("mytarget_mod:f", {"v": 21}, 0, paths=(d,))
+        self.assertEqual(out["result"], {"x": 42})
+        with self.assertRaises(D.HarnessError) as ctx:
+            D.run_child("mytarget_mod:f", {"v": 21}, 0)                          # 没给 paths：子进程找不到
+        self.assertIn("ModuleNotFoundError", str(ctx.exception))
+
+
 class TestDiff(unittest.TestCase):
     def test_equal_and_tolerance(self):
         self.assertEqual(D.diff({"a": [1, 2.0, "x", None, True]}, {"a": [1, 2.0, "x", None, True]}), (None, 5))

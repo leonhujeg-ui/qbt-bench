@@ -182,6 +182,115 @@ class TestViolationsAreDetected(unittest.TestCase):
         self.assertAlmostEqual(alt["rows"][-1]["cash"], 0.0, delta=1e-9)
 
 
+class TestEdgeCases(unittest.TestCase):
+    """多次反手 / 同根开平 / 数量为 0 / 手续费为 0 / 强平恰在边界。"""
+
+    def _both(self, recs, closes, **cfg):
+        ref = L.run(recs, closes, **cfg)
+        alt = LA.run(recs, closes, **cfg)
+        self.assertEqual(ref["violations"], [])
+        self.assertEqual(alt["issues"], [])
+        self.assertTrue(S.compare_rows(ref["rows"], alt["rows"], cfg.get("initial_cash", 1e5))["ok"])
+        return ref
+
+    def test_multiple_reversals(self):
+        recs = [T(0, "buy", 10, 100.0, 1.0), T(1, "sell", 25, 101.0, 1.0), T(2, "buy", 40, 99.0, 1.0),
+                T(3, "sell", 55, 102.0, 1.0), T(4, "buy", 70, 98.0, 1.0), T(5, "sell", 30, 100.0, 1.0)]
+        ref = self._both(recs, [100.0, 101.0, 99.0, 102.0, 98.0, 100.0])
+        self.assertEqual([r["qty"] for r in ref["rows"]], [10, -15, 25, -30, 40, 10])
+        self.assertEqual([r["avg_price"] for r in ref["rows"]], [100.0, 101.0, 99.0, 102.0, 98.0, 98.0])
+        self.assertEqual(ref["counters"]["reverse"], 4)
+        realized = 10 * 1 + 15 * (101 - 99) + 25 * (102 - 99) + 30 * (102 - 98) + 30 * (100 - 98)
+        self.assertAlmostEqual(ref["rows"][-1]["realized"], realized)
+        self.assertAlmostEqual(ref["rows"][-1]["equity"], 1e5 + realized - 6.0 + 10 * (100 - 98))
+
+    def test_open_and_close_in_the_same_bar(self):
+        recs = [T(0, "buy", 10, 100.0, 0.5), T(0, "sell", 10, 101.0, 0.5), T(1, "sell", 5, 50.0), T(1, "buy", 5, 49.0)]
+        ref = self._both(recs, [97.0, 52.0])
+        rows = ref["rows"]
+        self.assertEqual((rows[0]["qty"], rows[0]["avg_price"], rows[0]["unrealized"]), (0, 0.0, 0.0))
+        self.assertAlmostEqual(rows[0]["cash"], 1e5 + 10.0 - 1.0)
+        self.assertAlmostEqual(rows[0]["equity"], rows[0]["cash"])
+        self.assertAlmostEqual(rows[1]["realized"], 10.0 + 5.0)
+        self.assertEqual(ref["counters"], {**ref["counters"], "open": 2, "close": 2, "long": 1, "short": 1})
+
+    def test_zero_quantity_trade_is_rejected(self):
+        for rec in (T(0, "buy", 0, 100.0), T(0, "sell", 0.0, 100.0), T(0, "buy", 0, 100.0, kind="liquidation")):
+            with self.assertRaises(L.LedgerError, msg=rec):
+                L.normalize_record(rec)
+            with self.assertRaises(L.LedgerError):
+                L.run([rec], [100.0])
+        # 数量为 0 的“成交”不是成交：引擎若产出这样的记录，参考账本拒绝而不是默默跳过
+
+    def test_zero_fees_everywhere(self):
+        recs = [T(0, "buy", 10, 100.0, 0.0), T(1, "sell", 10, 110.0, 0.0), T(1, "sell", 3, 110.0, 0.0),
+                {"bar": 2, "kind": "funding", "funding": 0.0}, T(3, "buy", 3, 100.0, 0.0)]
+        ref = self._both(recs, [100.0, 110.0, 105.0, 100.0])
+        self.assertEqual([r["fees"] for r in ref["rows"]], [0.0, 0.0, 0.0, 0.0])
+        self.assertAlmostEqual(ref["rows"][-1]["equity"], 1e5 + 100.0 + 30.0)
+        self.assertAlmostEqual(ref["rows"][-1]["cash"], ref["rows"][-1]["equity"])
+
+    def test_liquidation_exactly_at_the_boundary(self):
+        """仓位权益 == 维持保证金：强平与不强平都在容差带内被接受。"""
+        cfg = {"initial_cash": 10_000.0, "margin_mode": "isolated", "leverage": 10, "mmr": 0.1}
+        # 多头 100 @ 100，保证金 1000；p 使 1000 + 100(p-100) == 0.1*100*p  =>  p = 9000/90 = 100  (恰好开仓价)
+        led = L.Ledger(**cfg)
+        led.apply(T(0, "buy", 100, 100.0))
+        self.assertAlmostEqual(led.position_equity(100.0), led.maint_margin(100.0))
+        self.assertAlmostEqual(led.liq_price(), 100.0)
+        self.assertEqual(L.run([T(0, "buy", 100, 100.0)], [100.0], **cfg)["violations"], [])                  # 不强平：不算漏
+        with_liq = L.run([T(0, "buy", 100, 100.0), T(0, "sell", 100, 100.0, kind="liquidation")], [100.0], **cfg)
+        self.assertEqual(with_liq["violations"], [])                                                           # 强平：不算提前
+        self.assertEqual(with_liq["rows"][0]["cash"], 10_000.0)
+        just_above = L.run([T(0, "buy", 100, 100.0), T(0, "sell", 100, 100.0 + 1e-3, kind="liquidation")], [100.0], **cfg)
+        self.assertEqual([v["check"] for v in just_above["violations"]], ["premature_liquidation"])
+        just_below = L.run([T(0, "buy", 100, 100.0)], [100.0 - 1e-3], **cfg)
+        self.assertEqual([v["check"] for v in just_below["violations"]], ["I4_missed_liquidation"])
+        alt_ok = LA.run([T(0, "buy", 100, 100.0), T(0, "sell", 100, 100.0, kind="liquidation")], [100.0], **cfg)
+        self.assertEqual(alt_ok["issues"], [])
+        self.assertEqual(LA.run([T(0, "buy", 100, 100.0)], [100.0 - 1e-3], **cfg)["issues"], [(0, "missed_liquidation")])
+
+    def test_second_implementation_does_not_import_the_first(self):
+        import ast
+        for alt in ("ledger_alt", "indicators_alt"):
+            with open(os.path.join(os.path.dirname(L.__file__), alt + ".py"), encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+            mods = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    mods |= {a.name for a in node.names}
+                elif isinstance(node, ast.ImportFrom):
+                    mods.add(node.module)
+            self.assertNotIn("qdcheck.ledger", mods)
+            self.assertFalse({m for m in mods if "ledger" in m and "alt" not in m}, (alt, mods))
+        # indicators_alt 只复用 indicators_ref.resolve（口径字符串与参数解析，不含计算）与 LINES / apply_warmup
+        import qdcheck.indicators_alt as IA
+        import inspect
+        src = inspect.getsource(IA)
+        self.assertIn("from qdcheck.indicators_ref import LINES, apply_warmup, resolve", src)
+        self.assertNotIn("indicators_ref.ma_series", src)
+        self.assertNotIn("indicators_ref.compute", src)
+
+    def test_check_returns_violation_list(self):
+        self.assertEqual(L.check(BASIC, BASIC_CLOSES), [])
+        viol = L.check([T(0, "buy", 1000, 100.0)], [100.0, 94.0], initial_cash=10_000.0, margin_mode="isolated",
+                       leverage=20, mmr=0.005)
+        self.assertEqual(len(viol), 1)
+        self.assertEqual(set(viol[0]), {"bar", "check", "lhs", "rhs", "detail"})
+        self.assertEqual((viol[0]["bar"], viol[0]["check"]), (1, "I4_missed_liquidation"))
+
+    def test_sign_conventions(self):
+        rows = L.run([T(0, "buy", 2, 10.0, 0.5), T(1, "sell", 5, 12.0, -0.25), {"bar": 2, "kind": "funding", "funding": 1.5},
+                      {"bar": 3, "kind": "funding", "funding": -0.5}], [10.0, 12.0, 12.0, 12.0])["rows"]
+        self.assertAlmostEqual(rows[0]["cash"], 1e5 - 20.0 - 0.5)          # 买入：现金减少 qty*price + fee
+        self.assertEqual(rows[1]["qty"], -3)                                # 空头持仓为负
+        self.assertAlmostEqual(rows[1]["cash"], rows[0]["cash"] + 60.0 + 0.25)   # 卖出加现金；负手续费 = 返佣
+        self.assertAlmostEqual(rows[1]["fees"], 0.25)
+        self.assertAlmostEqual(rows[2]["cash"], rows[1]["cash"] - 1.5)     # funding 正数 = 账户支付
+        self.assertAlmostEqual(rows[3]["cash"], rows[2]["cash"] + 0.5)     # 负数 = 账户收取
+        self.assertAlmostEqual(rows[3]["funding"], 1.0)
+
+
 class TestValidation(unittest.TestCase):
     def test_bad_records(self):
         bad = ["x", {"bar": -1}, {"bar": 1.0}, {"bar": True}, {"bar": 0, "kind": "swap"}, {"bar": 0, "side": "long"},

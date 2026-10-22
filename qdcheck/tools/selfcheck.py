@@ -2,7 +2,6 @@
 
     python3.12 -m qdcheck.tools.selfcheck g1        # -> qdcheck/results/g1_selfcheck.json
 """
-from __future__ import annotations
 
 import argparse
 import json
@@ -122,7 +121,7 @@ def g2():
              ("validate_recursion", E.validate_recursion, "RecursionError")]
     for name, fn, must in cases:
         t = time.perf_counter()
-        rep = F.run(fn, E.BACKTEST_SCHEMA, n=20000, seed=0, controlled=E.ValidationError)
+        rep = F.run(fn, E.BACKTEST_SCHEMA, n=20000, seed=0, is_controlled=E.ValidationError)
         wall = time.perf_counter() - t
         groups = [g for g in rep["bare"] if must and g["exc_type"] == must]
         runs[name] = {"wall_seconds_incl_shrink": round(wall, 2), "report": rep,
@@ -133,7 +132,7 @@ def g2():
     cov = runs["validate_good"]["report"]["categories"]
     from qdcheck.examples import ValidationError
     from qbt.errors import QBTError
-    qbt_rep = F.run(_qbt_genspec_validate, QBT_GENSPEC_SCHEMA, n=20000, seed=0, controlled=QBTError)
+    qbt_rep = F.run(_qbt_genspec_validate, QBT_GENSPEC_SCHEMA, n=20000, seed=0, is_controlled=QBTError)
     del ValidationError
     return {"command": "python3.12 -m qdcheck.tools.selfcheck g2", "machine": machine(),
             "seconds": round(time.perf_counter() - t0, 1),

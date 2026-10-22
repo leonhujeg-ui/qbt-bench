@@ -13,7 +13,6 @@
 
 只用 random.random() 与四则运算：同 seed 同结果。所有数据都是合成的，不构成任何交易结论。
 """
-from __future__ import annotations
 
 import argparse
 import json

@@ -1,0 +1,124 @@
+{
+ "$comment": "qdcheck 向量文件的结构契约（由 qdcheck/vector_schema.py 用标准库校验；方言见该文件文档）。数值文本必须是 %.17g（<= 17 位有效数字、可精确往返）；预热期 / 未定义写 null。",
+ "indicator_file": {
+  "type": "object",
+  "required": ["format", "indicator", "generator", "seed", "variants", "lines", "count", "vectors"],
+  "additionalProperties": false,
+  "properties": {
+   "format": {"const": "qdcheck.indicator-vectors.v1"},
+   "indicator": {"enum": ["dema", "tema", "trix", "stochrsi", "cci", "ao", "force", "kdj", "ichimoku"]},
+   "generator": {"type": "string"},
+   "seed": {"type": "integer"},
+   "variants": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+   "lines": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+   "count": {"type": "integer", "minimum": 1},
+   "vectors": {"type": "array", "items": {"$ref": "indicator_vector"}, "minItems": 1}
+  }
+ },
+ "indicator_vector": {
+  "type": "object",
+  "required": ["id", "indicator", "variant", "line", "series", "params", "input", "output"],
+  "additionalProperties": false,
+  "properties": {
+   "id": {"type": "string", "pattern": "^[a-z]+\\|[a-z0-9_=;]+\\|[a-z_]+\\|[a-z0-9_]+(\\|[a-z_]+=[0-9]+(,[a-z_]+=[0-9]+)*)?$"},
+   "indicator": {"enum": ["dema", "tema", "trix", "stochrsi", "cci", "ao", "force", "kdj", "ichimoku"]},
+   "variant": {"type": "string", "pattern": "^[a-z_]+=[a-z0-9_]+(;[a-z_]+=[a-z0-9_]+)*$"},
+   "line": {"enum": ["value", "k", "d", "j", "tenkan", "kijun", "senkou_a", "senkou_b", "chikou"]},
+   "series": {"type": "string"},
+   "params": {"type": "object", "additionalProperties": {"type": "number"},
+              "propertyNames": {"enum": ["period", "scale", "rsi_period", "stoch_period", "k_period", "d_period",
+                                         "range_eps", "constant", "fast", "slow", "n", "m1", "m2",
+                                         "tenkan", "kijun", "senkou_b", "displacement"]}},
+   "input": {"$ref": "ohlcv"},
+   "output": {"type": "array", "items": {"type": ["number", "null"]}}
+  },
+  "$comment": "output 长度 == input 各列长度；null 只表示预热期 / 未定义（compare 把 None 与 NaN 都当无值）"
+ },
+ "ohlcv": {
+  "type": "object",
+  "required": ["open", "high", "low", "close", "volume"],
+  "additionalProperties": false,
+  "properties": {
+   "open": {"type": "array", "items": {"type": "number"}},
+   "high": {"type": "array", "items": {"type": "number"}},
+   "low": {"type": "array", "items": {"type": "number"}},
+   "close": {"type": "array", "items": {"type": "number"}},
+   "volume": {"type": "array", "items": {"type": "number", "minimum": 0}}
+  },
+  "$comment": "五列等长；low <= min(open, close) <= max(open, close) <= high；volume >= 0（停牌为 0）"
+ },
+ "ledger_file": {
+  "type": "object",
+  "required": ["format", "name", "description", "generator", "config", "counters", "closes", "records", "expected"],
+  "additionalProperties": false,
+  "properties": {
+   "format": {"const": "qdcheck.ledger-vector.v1"},
+   "name": {"type": "string"},
+   "description": {"type": "string"},
+   "generator": {"type": "string"},
+   "config": {"type": "object", "required": ["initial_cash", "margin_mode", "leverage", "mmr"], "additionalProperties": false,
+              "properties": {"initial_cash": {"type": "number", "exclusiveMinimum": 0},
+                             "margin_mode": {"enum": ["none", "isolated", "cross"]},
+                             "leverage": {"type": "number", "exclusiveMinimum": 0},
+                             "mmr": {"type": "number", "minimum": 0}}},
+   "counters": {"type": "object", "additionalProperties": {"type": "integer"}},
+   "closes": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 1},
+   "records": {"type": "array", "items": {"$ref": "ledger_record"}},
+   "expected": {"type": "object", "additionalProperties": false,
+                "required": ["bar", "close", "cash", "qty", "avg_price", "unrealized", "realized", "fees", "funding",
+                             "insurance", "equity", "market_value", "margin_used", "maint_margin", "position_equity",
+                             "liq_price", "fills", "liquidations"],
+                "properties": {
+                 "bar": {"type": "array", "items": {"type": "integer"}},
+                 "close": {"type": "array", "items": {"type": "number"}},
+                 "cash": {"type": "array", "items": {"type": "number"}},
+                 "qty": {"type": "array", "items": {"type": "number"}},
+                 "avg_price": {"type": "array", "items": {"type": "number"}},
+                 "unrealized": {"type": "array", "items": {"type": "number"}},
+                 "realized": {"type": "array", "items": {"type": "number"}},
+                 "fees": {"type": "array", "items": {"type": "number"}},
+                 "funding": {"type": "array", "items": {"type": "number"}},
+                 "insurance": {"type": "array", "items": {"type": "number"}},
+                 "equity": {"type": "array", "items": {"type": "number"}},
+                 "market_value": {"type": "array", "items": {"type": "number"}},
+                 "margin_used": {"type": "array", "items": {"type": "number"}},
+                 "maint_margin": {"type": "array", "items": {"type": "number"}},
+                 "position_equity": {"type": "array", "items": {"type": ["number", "null"]}},
+                 "liq_price": {"type": "array", "items": {"type": ["number", "null"]}},
+                 "fills": {"type": "array", "items": {"type": "integer"}},
+                 "liquidations": {"type": "array", "items": {"type": "integer"}}
+                }}
+  },
+  "$comment": "expected 的每一列长度 == len(closes)；records 按 bar 非降序且 bar < len(closes)"
+ },
+ "ledger_record": {
+  "type": "object",
+  "required": ["bar", "kind", "side", "qty", "price", "fee", "funding"],
+  "additionalProperties": false,
+  "properties": {
+   "bar": {"type": "integer", "minimum": 0},
+   "kind": {"enum": ["trade", "funding", "settlement", "liquidation"]},
+   "side": {"enum": ["buy", "sell", "none"]},
+   "qty": {"type": "number", "minimum": 0},
+   "price": {"type": ["number", "null"]},
+   "fee": {"type": "number"},
+   "funding": {"type": "number"},
+   "order_id": {"type": "integer"}
+  },
+  "$comment": "trade / liquidation：side buy|sell、qty > 0、price > 0；funding / settlement：side none、qty 0；settlement 需 price > 0；fee 正数 = 扣减（负数 = 返佣）；funding 正数 = 账户支付"
+ },
+ "manifest": {
+  "type": "object",
+  "required": ["format", "seed", "generator", "series", "indicators", "ledger", "tolerance"],
+  "additionalProperties": false,
+  "properties": {
+   "format": {"const": "qdcheck.indicator-vectors.v1"},
+   "seed": {"type": "integer"},
+   "generator": {"type": "string"},
+   "series": {"type": "array", "items": {"type": "object"}},
+   "indicators": {"type": "object"},
+   "ledger": {"type": "array", "items": {"type": "object"}},
+   "tolerance": {"type": "object", "required": ["rel_tol", "abs_tol"], "properties": {"rel_tol": {"const": 1e-9}, "abs_tol": {"const": 1e-12}}}
+  }
+ }
+}

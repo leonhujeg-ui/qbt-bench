@@ -11,6 +11,8 @@
 ## 0. 复现命令
 
 ```bash
+python3.12 -m qdcheck.selftest                             # 一条命令：unittest + 覆盖率 + 向量复现 / 契约 + 指标性质 + 模糊器 + 账本 + harness，总表 + 退出码
+python3.12 -m qdcheck.selftest --refresh                   # 同上，并把结果写回 qdcheck/results/、重建本报告（REPORT 的数字就是这样来的）
 python3.12 -m unittest discover -s qdcheck/tests            # 全部测试（unittest；不用 pytest）
 python3.12 -m qdcheck.gen_vectors --check                  # 在本机重新生成全部向量，与入库向量逐点比较（1e-9）
 python3.12 -m qdcheck.tools.selfcheck g1                   # -> results/g1_selfcheck.json（因果性 / 长度 / 预热期 / 闭式解 / 对拍）
@@ -21,8 +23,13 @@ python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000 --json qdcheck/results/g3
 python3.12 -m qdcheck.tools.selfcheck g4                   # -> results/g4_selfcheck.json（假引擎 + qbt 跨进程）
 python3.12 qdcheck/tools/cov.py --fail-under 90 --json qdcheck/results/coverage.json
 python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4                    # -> results/mutation.json
+python3.12 -m qdcheck.tools.triage --replay                # 历次漏网在最终测试上重跑 -> results/mutation_replay.json + mutants/triage.md
+python3.12 -m qdcheck.tools.perf                           # 性能表 -> results/perf.json
+python3.12 -m qdcheck.vector_schema                        # 向量文件契约校验（schema.json）
 python3.12 qdcheck/tools/build_report.py                   # 由结果文件重新生成本报告
 ```
+
+接口契约（字段 / 单位 / 符号 / 退出码 / 第一行格式）在 `CONTRACT.md`；评审清单与逐条实测在 `REVIEW.md`。
 
 ## 1. 目标达成表
 
@@ -198,6 +205,13 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 
 {{@coverage_table}}
 
+## 5b. 性能表（规模 / 耗时 / 峰值内存）
+
+{{@perf_table}}
+
+两个有目标的块（fuzz 2 万次 ≤ 20 s、随机流 200 × 3000 ≤ 3 分钟）都在目标内；其余块无目标。unittest 的峰值取其子进程最大值
+（它自己再起 determinism 子进程，不计入）。
+
 ## 6. 突变测试
 
 复用本仓 `mutants/run_mutations.py` 的突变算子、候选枚举、按 `seed:模块` 抽样与校验，被测包换成 qdcheck，每模块
@@ -214,9 +228,34 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 
 {{@mutation_table}}
 
+历次（round1 → final）每一处漏网的去向——补了哪条判据后被抓住 / 判等价的理由 / 代码已删除——逐条列在
+`qdcheck/mutants/triage.md`（由 `python3.12 -m qdcheck.tools.triage --replay` 在最终测试上重跑历史漏网生成，
+{{mutation_replay.json:replayed}} 处重跑，{{mutation_replay.json:unique_survivors}} 处去重后的历史漏网）。
 最终仍漏网的突变体逐条判定（判定写在 `results/mutation_triage.json`）：
 
 {{@triage_table}}
+
+## 6b. 这套验法抓到过什么：G1–G5 与评审期间修过的缺陷
+
+接入方可以把这张表当“判据有效性”的证据：每一条都是某个判据先失败、再改代码。
+
+| # | 位置 | 发现方式 | 现象 | 修法 |
+|---|---|---|---|---|
+| 1 | `compare.compare_series` | 因果性判据（容差 0）跑到两边都为 0 的点 | `ZeroDivisionError` | 统计相对误差前先判 scale > 0 |
+| 2 | `compare.compare_series` | `test_types_and_non_finite` | 实际值为 inf 时允许误差也变成 inf，误判一致 | 显式 `isfinite` 判定 |
+| 3 | `synth` | `test_regimes_present_and_have_their_shape` | ±8% 跳跃落进横盘段，横盘不再横 | 横盘 / 停牌段内不注入事件 |
+| 4 | `fuzz` 缩小器 | 最小复现单独调用时不再触发 RecursionError | 递归阈值随调用栈深度漂移 | 每次尝试在新线程里跑（栈深一致）+ 二分后留 max(64, 10%) 余量 |
+| 5 | `fuzz.decode` | 给键为 `""` 的深链写测试 | 还原成键 `"k"` | 去掉 `key or "k"` |
+| 6 | `fuzz.run` | 突变 `< 1000 → < 1001` 漏网 | 误收 / 误拒计数被样本上限 1000 截断 | 计数与样本分开 |
+| 7 | `stream.compare_rows` | 突变漏网（数量字段容差） | 浮点数量用了金额尺度，1.2e-12 vs 0 被放过 | 数量只用相对容差 |
+| 8 | `ledger` 逐仓 | 随机流 `negative_balance_after_liquidation` | 资金费 / 结算侵蚀钱包后强平出现负余额 | 有效保证金 = min(逐仓保证金, 钱包) |
+| 9 | `ledger` 逐仓 | 随机流 `I4_margin_consistency`（一条流 2011 处） | 结算后保证金 ≠ \|q\|·A/L | 结算时按结算价重算保证金 |
+| 10 | `ledger.liq_price` | 与 `ledger_alt` 对拍 | 1 倍逐仓多头的强平价数学为 0，浮点给出 ~1e-13 的“正价格” | 阈值 rel_tol·均价 以下视为不可触发 |
+| 11 | `stream._affordable` | 代码走查（随机流首轮失败后排查） | 反手单按原仓位算保证金基数，被过度缩量 | 反手时基数取 0 |
+| 12 | `fuzz._Shrinker._simpler` | 突变 `const 1 → 2` 漏网 | 候选里有与当前值相同的项（`[] → []`），被当成“有变化”白跑 6 轮 | 去重并去掉等于当前值的候选 |
+| 13 | `fuzz.valid_instance` / `stream._Order` | 突变漏网 | 死参数 `depth`、死字段 `filled` | 删除 |
+| 14 | `CONTRACT.md` 一目均衡表例子（评审期间） | `test_decimal` + `test_ichimoku_example_in_contract_matches_code` | 手算的 tenkan[1] 写成 2.0（应为 1.75） | 改文档；例子由 Decimal 复算 |
+| — | `qbt`（未修改，只记录） | 向量对拍 / 模糊 | CCI 长横盘输出 66.67；`GenSpec.from_dict` 裸 TypeError；chikou 口径不同 | 见第 4 节 |
 
 ## 7. 已知限制
 
@@ -247,6 +286,9 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | `qdcheck/fuzz.py`、`qdcheck/examples.py` | 模糊器；示例 schema、validate（1 好 3 坏）与 G4 假引擎、qbt 适配器 |
 | `qdcheck/synth.py`、`qdcheck/ledger.py`、`qdcheck/ledger_alt.py`、`qdcheck/stream.py` | 合成 K 线、参考账本、独立重算账本、随机订单流 |
 | `qdcheck/determinism.py` | 跨进程一致性 harness |
+| `qdcheck/selftest.py` | 一键自检（`python3.12 -m qdcheck.selftest`） |
+| `qdcheck/CONTRACT.md`、`qdcheck/vectors/schema.json`、`qdcheck/vector_schema.py` | 接口契约、向量文件 schema 与校验器 |
+| `qdcheck/REVIEW.md`、`qdcheck/mutants/triage.md` | 接入方视角的评审清单（检查命令 → 实际输出 → 改了什么）、历次漏网逐条判定 |
 | `qdcheck/tests/` | unittest（{{coverage.json:tests_run}} 个） |
 | `qdcheck/tools/` | 自检、qbt 真实用例、覆盖率、突变、报告生成脚本 |
 | `qdcheck/results/` | 本报告引用的全部 JSON（含 `mutation_history/`） |

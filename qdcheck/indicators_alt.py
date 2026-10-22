@@ -10,7 +10,6 @@
 - Ichimoku 位移用切片拼接。
 口径字符串与参数的解析复用 ``indicators_ref.resolve``（那是配置，不是计算）。
 """
-from __future__ import annotations
 
 import math
 from collections import deque
