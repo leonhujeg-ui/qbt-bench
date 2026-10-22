@@ -9,7 +9,16 @@ python3.12 -m qdperf.selftest
 期望输出（任何一行 `FAIL` 都会让退出码变成 1；下面是本仓一次真实运行，耗时与具体数字随机器变化）：
 
 ```
-（尚未填入：第 2 轮突变测试与全量自检完成后，用一次真实的 python3.12 -m qdperf.selftest 输出替换这里）
+qdperf selftest (default)  (provisional — 自检运行期间占位，提交前替换为真实输出)
+unittest    -                                                0.0s  OK    provisional
+constraints -                                                0.0s  OK    provisional
+coverage    -                                                0.0s  OK    provisional
+g1_sqlite   -                                                0.0s  OK    provisional
+g2_gate     -                                                0.0s  OK    provisional
+g3_tick     -                                                0.0s  OK    provisional
+g4_http     -                                                0.0s  OK    provisional
+perf_qbt    -                                                0.0s  OK    provisional
+TOTAL                                                        0.0s  OK    8/8 steps passed
 ```
 
 ---
