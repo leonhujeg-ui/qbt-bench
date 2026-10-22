@@ -175,12 +175,39 @@ def block_g3_mitig_list(cache):
 
 def block_g3_gil(cache):
     res = _load("g3_tick_jitter.json", cache)
-    rows = ["| 算段 | 引擎进程里的忙线程 | 算段耗时 p50 ms | 算段 p99 ms | tick 间隔 p99 |", "|---|---:|---:|---:|---:|"]
+    rows = ["| 算段 | 引擎进程里的忙线程 | 读段 p50 ms | 算段 p50 ms | 算段 p99 ms | 写段 p50 ms | tick 间隔 p99 |",
+            "|---|---:|---:|---:|---:|---:|---:|"]
     for r in res["gil"]:
-        seg = r["segments_ms"]["compute"]
-        rows.append(f"| {r['config']['compute']} | {r['config']['bg_threads']} | {seg['p50']:.1f} | {seg['p99']:.1f} | "
+        seg = r["segments_ms"]
+        rows.append(f"| {r['config']['compute']} | {r['config']['bg_threads']} | {seg['read']['p50']:.1f} | "
+                    f"{seg['compute']['p50']:.1f} | {seg['compute']['p99']:.1f} | {seg['write']['p50']:.1f} | "
                     f"{r['interval_T']['p99']:.2f}T |")
     return "\n".join(rows)
+
+
+SEGMENT_NAMES = {"read": "读段", "compute": "算段", "write": "写段"}
+
+
+def block_g3_gil_note(cache):
+    """§3.3 的结论由本次结果算出：忙线程把哪一段拖得最多、算段挪到子进程后 tick 是否回到 2T 以内。"""
+    g = {(r["config"]["compute"], r["config"]["bg_threads"]): r for r in _load("g3_tick_jitter.json", cache)["gil"]}
+
+    def seg(c, b, s):
+        return g[(c, b)]["segments_ms"][s]["p50"]
+
+    def p99(c, b):
+        return g[(c, b)]["interval_T"]["p99"]
+    growth = {s: seg("inline", 1, s) - seg("inline", 0, s) for s in SEGMENT_NAMES}
+    top = max(growth, key=growth.get)
+    text = (f"引擎进程里加 1 个纯 Python 忙线程后，tick 间隔 p99 从 {p99('inline', 0):.2f}T 变成 {p99('inline', 1):.2f}T"
+            f"（算段在进程内）/ {p99('subprocess', 1):.2f}T（算段在子进程）。p50 增长最多的是{SEGMENT_NAMES[top]}：" +
+            "、".join(f"{SEGMENT_NAMES[s]} {seg('inline', 0, s):.1f} → {seg('inline', 1, s):.1f} ms" for s in SEGMENT_NAMES) + "。")
+    if p99("subprocess", 1) <= 2.0 < p99("inline", 1):
+        return text + "把算段挪到子进程让 tick 回到了 2T 以内。"
+    return text + (f"把算段挪到子进程没有让 tick 回到 2T 以内（{p99('subprocess', 1):.2f}T）：被拖慢的不只是算段——"
+                   "sqlite3 模块每取一行（sqlite3_step）都先放开 GIL 再拿回，写段的每次 execute / commit 也一样，"
+                   "而纯 Python 忙线程只在切换间隔（sys.getswitchinterval()，缺省 5 ms）到点时才让出 GIL；"
+                   "子进程算完回传后，引擎线程收结果同样要等 GIL。")
 
 
 def block_g4_knee(cache):
@@ -286,7 +313,7 @@ def block_mutation_first(cache):
 
 BLOCKS = {"machines": block_machines, "g1_top": block_g1_top, "g1_suggestions": block_g1_suggestions,
           "g1_contention": block_g1_contention, "g1_wal": block_g1_wal, "g2_slow": block_g2_slow, "g2_noise": block_g2_noise,
-          "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g3_mitig_list": block_g3_mitig_list, "g3_gil": block_g3_gil,
+          "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g3_mitig_list": block_g3_mitig_list, "g3_gil": block_g3_gil, "g3_gil_note": block_g3_gil_note,
           "g4_knee": block_g4_knee, "g4_ab": block_g4_ab, "coverage": block_coverage, "mutation": block_mutation,
           "mutation_first": block_mutation_first, "g3_panel_T": block_g3_panel_T, "g3_knee_cfg": block_g3_knee_cfg,
           "g2_slow5_note": block_g2_slow5_note, "g2_noise_probe": block_g2_noise_probe,

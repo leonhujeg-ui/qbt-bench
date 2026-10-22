@@ -92,8 +92,9 @@
 
 {{@g3_gil}}
 
-引擎进程里只有 tick 一个 Python 线程时，算段放子进程只多出 IPC 往返；引擎进程里还有别的纯 Python 忙线程（bg=1）时，
-GIL 让进程内算段变慢，放到子进程算则不受影响。
+{{@g3_gil_note}}
+
+复现：`python3.12 -m qdperf.tick_jitter run --q 0 --wal on --bg-threads 1 --compute subprocess`（`--compute inline` / `--bg-threads 0` 对照）。
 
 ## 4. G4 HTTP
 
