@@ -97,6 +97,15 @@ def check_db_file(path):
     return head
 
 
+def check_statements(conn, wl):
+    """每条语句在原库的只读连接上 EXPLAIN QUERY PLAN 一遍（只编译不执行）：编译不过就是输入错误。"""
+    for st in wl["statements"]:
+        try:
+            conn.execute("EXPLAIN QUERY PLAN " + st["sql"], st["param_samples"][0]).fetchall()
+        except sqlite3.Error as exc:                           # 语法错、表 / 列不存在、参数个数不对（ProgrammingError）
+            raise DoctorError(f"statement {st['id']}: {exc}") from exc
+
+
 def open_readonly(path):
     """只读打开原库：不存在 / 不是 SQLite 抛 DoctorError；WAL 库且无 -wal 文件 → immutable=1（不生成旁路文件）。"""
     wal = check_db_file(path)[18] == 2
@@ -449,6 +458,11 @@ def diagnose(db_path, workload, **kw):
     check_db_file(db_path)
     before = file_state(db_path)
     ro, how = open_readonly(db_path)
+    try:
+        check_statements(ro, wl)
+    except DoctorError:
+        ro.close()
+        raise
     work = common.scratch_dir("qdperf-doctor-")
     t0 = time.perf_counter()
     rep = {"format": REPORT_FORMAT, "machine": common.machine(), "workload_name": wl.get("name", ""),

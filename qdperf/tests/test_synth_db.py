@@ -77,6 +77,34 @@ class TestGenerate(unittest.TestCase):
         import shutil
         shutil.rmtree(cls.dir, ignore_errors=True)
 
+    def test_golden_fingerprint(self):
+        """“同 seed 同结果”跨版本、跨平台也成立：生成器只用 random() 与四则运算 / round()（不用 libm），所以缺省 seed、
+        0.4% 规模（20 个交易对、6 种策略都出现）的逻辑指纹可以钉死。合成数据的任何改动（价格、权重、分布、顺序）都会让它变——改了就必须同时重算
+        results/ 里的 G1 实测，再更新这里。"""
+        p = os.path.join(tmpdir(self), "g.db")
+        S.generate(p, seed=S.DEFAULT_SEED, scale=0.004)
+        fp = S.fingerprint(p)
+        self.assertEqual({t: v["rows"] for t, v in fp.items() if t != "all"},
+                         {"users": 40, "bots": 200, "settings": 300, "orders": 8000, "trades": 20000, "events": 3680})
+        self.assertEqual(fp["all"], "5fe7ca526430d139f3e64fc851e6164d494dfff01c60497d1f542dc8eae48963")
+
+    def test_integer_columns_and_notified_rule(self):
+        """声明为 INTEGER 的列（时间戳、外键、计数）存的都是整数——用 bots = 65 这种除不尽 300 天秒数的规模；
+        事件的 notified：只有最后 2% 里的 alert 未通知（给通知进程留活），40 个 seed 逐条核对。"""
+        p = os.path.join(tmpdir(self), "i.db")
+        S.generate(p, seed=3, scale=0.0013)
+        c = sqlite3.connect(p)
+        for t in S.TABLES:
+            for _cid, col, typ, *_r in c.execute(f"PRAGMA table_info({t})"):
+                if typ == "INTEGER":
+                    bad = c.execute(f"SELECT count(*) FROM {t} WHERE typeof({col}) NOT IN ('integer', 'null')").fetchone()[0]
+                    self.assertEqual(bad, 0, (t, col))
+        c.close()
+        for seed in range(40):
+            n = 1000
+            for ev in S.gen_events(seed, n, 50, 200):
+                self.assertEqual(ev[5], 0 if (ev[4] == "alert" and ev[0] > int(n * 0.98)) else 1, (seed, ev[0]))
+
     def test_same_seed_same_result(self):
         b = os.path.join(tmpdir(self), "b.db")
         S.generate(b, seed=11, scale=TINY_SCALE)

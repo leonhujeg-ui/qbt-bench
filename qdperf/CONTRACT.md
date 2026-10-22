@@ -52,7 +52,7 @@ python3.12 -m qdperf.sqlite_doctor DB --workload WL.json [选项]
 ^SQLITE_DOCTOR (OK|FAIL) statements=\d+ full_scan=\d+ temp_btree=\d+ suggestions=(\d+/\d+|-) contention_p99_ms=([\d.]+|-) busy=(\d+|-) wal_max_mb=([\d.]+|-) red=\d+ yellow=\d+$
 ```
 
-`suggestions=已验证/候选`；`contention_p99_ms` 与 `busy` 取判据场景（`gate=true`）里最差的；输入错误时第一行为 `SQLITE_DOCTOR ERROR <原因>`。
+`suggestions=已验证/候选`；`contention_p99_ms` 与 `busy` 取判据场景（`gate=true`）里最差的；输入错误时第一行为 `SQLITE_DOCTOR ERROR <原因>`（退出码 2）——包括工作负载里有语句在原库上编译不过（语法错、表 / 列不存在、参数个数不对）：体检开始前每条语句先在只读连接上 EXPLAIN 一遍，报 `SQLITE_DOCTOR ERROR statement <id>: <原因>`。
 
 **红色发现**：`HOT_FULL_SCAN`（全表扫描且 `频次×行数 ≥ --scan-cost-red`）、`CONTENTION`（判据场景 p99 > 预算或出现 SQLITE_BUSY，附根因）、
 `ORIGINAL_MODIFIED`（原库或其旁路文件前后不一致）。**黄色**：`FULL_SCAN`、`TEMP_BTREE`、`CONTENTION_DEMO`、`WAL_GROWTH`、`FRAGMENTED`（freelist ≥ 5%）、
@@ -299,6 +299,7 @@ A/B 按 A、B、A 交替各跑一档；每个路径的 p50 / p99 与 A 两遍均
 ```python
 from qdperf import http_load as H, fake_backend as B
 proc, url = B.start(config); B.stop(proc)                     # 子进程假后端；B.serve(config) 为进程内线程版
+                                                              # 起不来（配置非法等）→ RuntimeError，消息里带子进程报的原因
 step = H.run_step(base, manifest, c, seconds=3.0, warmup=0.3, seed=0, timeout=10.0, allow_remote=False)
 r    = H.ramp(base, manifest, cmax=32, seconds=3.0, steps=None, growth=0.10, warmup=0.3, seed=0, allow_remote=False)
 res  = H.ab(base_a, base_b, manifest, c=8, seconds=3.0, tol=0.10, warmup=0.3, seed=0, allow_remote=False)

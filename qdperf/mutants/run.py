@@ -224,9 +224,11 @@ def main(argv=None):
     meta = {"command": "python3.12 qdperf/mutants/run.py " + " ".join(argv if argv is not None else sys.argv[1:]),
             "per_module": args.per_module, "seed": args.seed, "jobs": args.jobs, "baseline_seconds": round(base_s, 1),
             "timeout_seconds": round(timeout, 1), "candidates": {m: n for m, (_s, _muts, n) in plan.items()}}
-    if args.ids and prev_meta is not None:                 # 补判据后的重跑：保留首轮的 meta，重跑记进 reruns
-        rerun = {"command": meta["command"], "ids": len(todo), "baseline_seconds": meta["baseline_seconds"]}
-        meta = dict(prev_meta, reruns=prev_meta.get("reruns", []) + [rerun])
+    rerun = (args.ids or args.module) and prev_meta is not None
+    if rerun:                      # 补判据 / 改库后的重跑：保留首轮的 meta，重跑记进 reruns（--module 时该模块重新抽样）
+        entry = {"command": meta["command"], "mutants": len(todo), "baseline_seconds": meta["baseline_seconds"]}
+        cands = dict(prev_meta.get("candidates", {}), **({} if args.ids else meta["candidates"]))
+        meta = dict(prev_meta, candidates=cands, reruns=prev_meta.get("reruns", []) + [entry])
     records = list(done.values())
     t0 = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
@@ -240,7 +242,7 @@ def main(argv=None):
                   f"{rec['detail'][:70]}", flush=True)
             if k % 20 == 0:
                 write(records, meta, args.out, args.md)
-    (meta["reruns"][-1] if args.ids and prev_meta is not None else meta)["elapsed_seconds"] = \
+    (meta["reruns"][-1] if rerun else meta)["elapsed_seconds"] = \
         round(time.perf_counter() - t0, 1)
     shutil.rmtree(work, ignore_errors=True)
     summary = write(records, meta, args.out, args.md)

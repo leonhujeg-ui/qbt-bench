@@ -123,6 +123,8 @@ class TestParse(unittest.TestCase):
                                  ("events", "kind", "eq")])
         self.assertEqual(p["group_by"], [("events", "kind", False)])
         self.assertFalse(p["select_star"])
+        self.assertEqual(p["unusable"], [])                                     # BETWEEN 里的 AND 不切开
+        self.assertEqual(p["terms"][0]["text"], "ts BETWEEN ? AND ?")
 
     def test_unusable_terms(self):
         terms, p = self.terms("SELECT * FROM users WHERE email LIKE ? AND (name = ? OR tier = ?) AND date(created_at) = ? "
@@ -137,6 +139,27 @@ class TestParse(unittest.TestCase):
         self.assertIn("IS NOT", reasons[4])
         self.assertIn("COLLATE", reasons[5])
         self.assertIn("右侧", reasons[6])
+
+    def test_top_level_or_and_bare_terms(self):
+        terms, p = self.terms("SELECT * FROM orders WHERE user_id = ? OR status = ?")       # 不带括号的顶层 OR
+        self.assertEqual((terms, [u["reason"] for u in p["unusable"]]), ([], ["顶层 OR（单个索引无法覆盖）"]))
+        terms, p = self.terms("SELECT * FROM orders WHERE user_id IN (SELECT id FROM users WHERE name = 'a' OR tier = 'b')")
+        self.assertEqual((terms, p["unusable"]), ([("orders", "user_id", "eq")], []))   # 子查询里的 OR 不是顶层
+        terms, p = self.terms("SELECT * FROM orders WHERE status AND 1 AND user_id = ?")   # 裸列 / 字面量：不可用，不崩
+        self.assertEqual((terms, [u["text"] for u in p["unusable"]]), ([("orders", "user_id", "eq")], ["status", "1"]))
+
+    def test_join_unaliased_subquery_on(self):
+        """JOIN 一个不带别名的子查询再 ON（合法 SQL）：子查询记不可用，ON 条件照常切出来；在线程里跑，防止解析卡死拖住整套测试。"""
+        import threading
+        box = {}
+        sql = "SELECT * FROM orders JOIN (SELECT id AS bid FROM bots) ON bid = orders.bot_id WHERE orders.user_id = ?"
+        t = threading.Thread(target=lambda: box.update(p=P.parse_statement(sql, SCHEMA)), daemon=True)
+        t.start()
+        t.join(10)
+        self.assertIn("p", box, "parse_statement did not return")
+        p = box["p"]
+        self.assertEqual([(x["table"], x["column"], x["kind"]) for x in p["terms"]], [("orders", "user_id", "eq")])
+        self.assertEqual([u["text"] for u in p["unusable"]], ["FROM (subquery)", "bid = orders . bot_id"])
 
     def test_parenthesized_term_and_negative_number(self):
         terms, _p = self.terms("SELECT id FROM trades WHERE (user_id = ?) AND price > -5 AND qty = NULL")
@@ -274,6 +297,14 @@ class TestRecordBytes(unittest.TestCase):
         self.assertEqual(sum(P.record_bytes(r) for r in idx), payload["ix"])
         self.assertEqual(P.index_entry_bytes(("ab", 5), 300), P.record_bytes(("ab", 5, 300)) + 1 + 2)
         self.assertEqual(P.index_entry_bytes(("x" * 200,), 1), P.record_bytes(("x" * 200, 1)) + 2 + 2)
+        for n in (126, 127):                       # 头长 varint 把自己也算进去：127 列时头长 129，varint 要 2 字节
+            conn.execute(f"CREATE TABLE w{n}({', '.join(f'c{i}' for i in range(n))})")
+            conn.execute(f"INSERT INTO w{n} VALUES ({', '.join('?' * n)})", [None] * n)
+            conn.execute(f"INSERT INTO w{n} VALUES ({', '.join('?' * n)})", list(range(n)))
+        conn.commit()
+        payload = dict(conn.execute("SELECT name, sum(payload) FROM dbstat GROUP BY name"))
+        for n in (126, 127):
+            self.assertEqual(sum(P.record_bytes(r) for r in conn.execute(f"SELECT * FROM w{n}")), payload[f"w{n}"], n)
         conn.close()
 
 

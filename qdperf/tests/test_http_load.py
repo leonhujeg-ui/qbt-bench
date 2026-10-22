@@ -96,6 +96,10 @@ class TestBackendLogic(unittest.TestCase):
         c = B.load_config(cfg({"/a": {}}))
         self.assertEqual(c["routes"]["/a"]["latency"], {"kind": "fixed", "ms": 0})
         self.assertIn("*", c["routes"])
+        self.assertEqual((c["seed"], c["max_concurrency"]), (1, 0))               # 缺省：不限全局并发
+        self.assertIsNone(B.Backend(cfg({"/a": {}})).sem)
+        self.assertEqual((c["routes"]["/a"]["error_rate"], c["routes"]["/a"]["max_concurrency"],
+                          c["routes"]["/a"]["body_bytes"], c["routes"]["/a"]["schedule"]), (0.0, 0, 64, "stratified"))
         bad = [{"format": "x", "routes": {}}, cfg({"a": {}}), cfg([]), cfg({"/a": 3}),
                cfg({"/a": {"latency": {"kind": "fixed"}}}), cfg({"/a": {"latency": {"kind": "fixed", "ms": -1}}}),
                cfg({"/a": {"latency": {"kind": "fixed", "ms": True}}}),
@@ -131,6 +135,7 @@ class TestServer(unittest.TestCase):
             data = r.read()
             if path == "/err":
                 self.assertEqual(r.status, 500)
+                self.assertEqual(json.loads(data), {"ok": False, "route": "/err", "n": 0})     # 错误响应体也是约定的一部分
             else:
                 self.assertEqual(r.status, 200)
                 self.assertEqual(len(data), 300)
@@ -165,6 +170,22 @@ class TestServer(unittest.TestCase):
             t.join()
         self.assertGreaterEqual(max(done) - t0, 0.18)                  # 3 × 60 ms 串行
 
+    def test_subprocess_backend_start_failure(self):
+        """子进程起不来（配置非法）→ start 立即抛错并带上子进程的 stderr，不能一直等。"""
+        box = {}
+
+        def go():
+            try:
+                B.start({"format": "x"}, timeout=20.0)
+            except RuntimeError as exc:
+                box["err"] = str(exc)
+
+        t = threading.Thread(target=go, daemon=True)
+        t.start()
+        t.join(30)
+        self.assertIn("fake backend failed to start", box.get("err", "(still waiting)"))
+        self.assertIn("config.format must be", box.get("err", ""))                # 带上子进程报的原因
+
     def test_subprocess_backend_and_main_errors(self):
         proc, url = B.start(cfg({"/a": {}}))
         try:
@@ -177,6 +198,8 @@ class TestServer(unittest.TestCase):
         finally:
             B.stop(proc)
         self.assertIsNotNone(proc.returncode)
+        self.assertTrue(proc.stdout.closed and proc.stderr.closed)             # stop 收尾：管道关掉、临时目录删掉
+        self.assertFalse(os.path.exists(proc.qdperf_work))
         p = os.path.join(tmpdir(self), "bad.json")
         with open(p, "w") as f:
             json.dump({"format": "x"}, f)

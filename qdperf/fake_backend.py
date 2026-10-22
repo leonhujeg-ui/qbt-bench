@@ -203,13 +203,14 @@ def start(config, timeout=20.0):
     cfg_path, ready = os.path.join(work, "cfg.json"), os.path.join(work, "ready")
     common.write_json(cfg_path, config)
     proc = subprocess.Popen([sys.executable, "-m", "qdperf.fake_backend", "--config", cfg_path, "--ready-file", ready],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)     # 只有一行 LISTENING，不会写满管道
     proc.qdperf_work = work
     deadline = time.monotonic() + timeout
     while not os.path.exists(ready):
         if proc.poll() is not None or time.monotonic() > deadline:
             proc.kill()
-            raise RuntimeError("fake backend failed to start: " + (proc.stderr.read() or "")[-500:])
+            out, err = proc.communicate()                   # 原因在子进程 stdout（FAKE_BACKEND ERROR ...）或 stderr
+            raise RuntimeError("fake backend failed to start: " + ((out or "") + (err or "")).strip()[-500:])
         time.sleep(0.02)
     with open(ready, encoding="utf-8") as f:
         url = f.read().strip()
@@ -223,8 +224,9 @@ def stop(proc):
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait(10)
-    if proc.stderr:
-        proc.stderr.close()
+    for pipe in (proc.stdout, proc.stderr):
+        if pipe:
+            pipe.close()
     shutil.rmtree(getattr(proc, "qdperf_work", ""), ignore_errors=True)
 
 

@@ -51,6 +51,7 @@ class TestPureLogic(unittest.TestCase):
         self.assertAlmostEqual(s["achieved_rate"], 1.0)
         self.assertAlmostEqual(s["wait_ms"]["max"], 4.0)
         self.assertAlmostEqual(s["hold_ms"]["p50"], 2.0)
+        self.assertEqual((s["late_ms"]["n"], s["late_ms"]["max"]), (5, 1.0))     # 迟到也按毫秒、含失败的尝试
         self.assertAlmostEqual(s["lock_share"], 0.002)
         self.assertIsNone(s["crash"])
         c = L.summarize_writer({"name": "y", "error": "boom"})
@@ -85,6 +86,7 @@ class TestPureLogic(unittest.TestCase):
         self.assertIn("busy_timeout=5.0", L.root_cause([busy], cfg)[0])
         self.assertIn("持锁过长", L.root_cause([self.summary("a", 1.0, hold=51.0)], cfg)[0])
         self.assertEqual(len(L.root_cause([self.summary("a", 1.0, hold=50.0)], cfg)), 1)
+        self.assertIn("退避粒度", L.root_cause([self.summary("a", 1.0, hold=50.0)], cfg)[0])   # 恰好 = 预算/4 不算“持锁过长”
         self.assertIn("利用率", L.root_cause([self.summary("a", 1.0, share=0.3), self.summary("b", 1, share=0.21)],
                                               cfg)[0])
         self.assertIn("退避", L.root_cause([self.summary("a", 1.0, share=0.5)], cfg)[0])
@@ -137,6 +139,9 @@ class TestRealProcesses(unittest.TestCase):
             self.assertEqual(w["committed"], w["planned"])
             self.assertGreater(w["committed"], 0)
         self.assertEqual(r["overall"]["committed"], sum(w["committed"] for w in r["writers"]))
+        ow = r["overall"]["wait_ms"]                                       # 总体等待 = 各写者成功事务等待的并集（同为毫秒）
+        self.assertEqual(ow["n"], sum(w["wait_ms"]["n"] for w in r["writers"]))
+        self.assertAlmostEqual(ow["max"], max(w["wait_ms"]["max"] for w in r["writers"]), places=9)
         self.assertNotIn("root_cause", r)
         self.assertFalse(r["starvation"]["starved"])
         conn = sqlite3.connect(db)
@@ -166,10 +171,14 @@ class TestRealProcesses(unittest.TestCase):
             made.append(real(prefix))
             return made[-1]
 
+        def fake_start(target, spec, out, name=None):
+            if target is L.wal_writer_main:                                    # 假写者：两笔提交 2 ms、4 ms
+                L.common.write_json(out, {"commits": [0.002, 0.004]})
+
         db = os.path.join(tmpdir(self), "w.db")
         sqlite3.connect(db).close()
         with mock.patch.object(L.common, "scratch_dir", side_effect=track), \
-                mock.patch.object(L.common, "start_process", return_value=None), \
+                mock.patch.object(L.common, "start_process", side_effect=fake_start), \
                 mock.patch.object(L.common, "join_all", return_value=[]), \
                 mock.patch.object(L, "_sample_wal", return_value=[]):
             r = L.contention(db, writers(1, 20.0))
@@ -178,8 +187,18 @@ class TestRealProcesses(unittest.TestCase):
         self.assertEqual((cfg["duration"], cfg["busy_timeout"], cfg["begin"], cfg["synchronous"], cfg["budget_ms"],
                           cfg["poisson"], cfg["think_ms"]), (5.0, 5.0, "immediate", "NORMAL", 200.0, False, 0.0))
         self.assertEqual(g["config"]["autocheckpoint"], 1000)
+        self.assertEqual((g["curve"], g["max_bytes"], g["final_bytes"], g["max_live_frames"], g["final_live_frames"],
+                          g["resets"]), ([], 0, 0, 0, 0, 0))                  # 一个采样点都没有时各量为 0（不是缺省 1）
+        self.assertEqual((g["commit_ms"]["n"], g["commit_ms"]["max"], g["crashed"], g["read_txns"]), (2, 4.0, [], 0))   # 提交耗时按毫秒；没有长读者 → 读事务 0
         self.assertEqual(len(made), 2)
         self.assertEqual([os.path.exists(d) for d in made], [False, False])
+        curve = [[0.0, 4096, 1, 0], [0.1, 900_000, 220, 100], [0.2, 900_000, 5, 5], [0.3, 950_000, 9, 5]]
+        with mock.patch.object(L.common, "start_process", side_effect=fake_start), \
+                mock.patch.object(L.common, "join_all", return_value=[]), \
+                mock.patch.object(L, "_sample_wal", return_value=curve):
+            g = L.wal_growth(db)
+        self.assertEqual((g["max_bytes"], g["final_bytes"], g["max_live_frames"], g["final_live_frames"], g["resets"]),
+                         (950_000, 950_000, 220, 9, 1))                      # 末值取最后一个采样点
 
     def test_failed_statements_and_crashed_writer(self):
         d = tmpdir(self)
@@ -213,9 +232,12 @@ class TestRealProcesses(unittest.TestCase):
         self.assertEqual(held["resets"], 0)
         self.assertGreater(held["max_live_frames"], 3 * free["max_live_frames"])
         self.assertGreater(held["read_txns"], 1)
+        # 两条读连接错开 hold/2 轮转：读者跑 duration + 0.5 s，开读事务约 (duration + 0.5) / (hold/2) 次（留 1 次余量）
+        self.assertGreaterEqual(held["read_txns"], (scale(2.5, 2.0) + 0.5) / (1.0 / 2) - 1)
         self.assertEqual(held["crashed"], [])
         self.assertEqual(held["curve_fields"], ["t_s", "wal_file_bytes", "wal_live_frames", "backfilled_frames"])
         live = [c[2] for c in held["curve"]]
+        self.assertTrue(all(c[0] == round(c[0], 3) for c in held["curve"]))      # 曲线时刻：秒，3 位小数
         self.assertEqual(held["max_live_frames"], max(live))
         self.assertEqual(held["final_live_frames"], live[-1])
         self.assertGreater(free["commit_ms"]["n"], 300)
@@ -235,6 +257,7 @@ class TestDoctorLoadSections(unittest.TestCase):
         names = [s["name"] for s in rep["contention"]["scenarios"]]
         self.assertEqual(names, ["workload", "3x40/s", "3x40/s deferred+think5ms"])
         self.assertEqual([s["gate"] for s in rep["contention"]["scenarios"]], [True, True, False])
+        self.assertEqual(rep["contention"]["scenarios"][2]["config"]["think_ms"], 5.0)   # 与场景名 think5ms 一致
         crit = rep["contention"]["scenarios"][1]
         self.assertEqual([w["name"] for w in crit["writers"]], ["http", "engine", "notifier"])
         self.assertTrue(crit["ok"])

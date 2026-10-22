@@ -140,12 +140,30 @@ class TestEstimates(unittest.TestCase):
         self.assertEqual(D.statement_rows(nodes, counts, {}), 1000 + 1000 * 1)
         auto = P.parse_eqp([(3, 0, 0, "SCAN t"), (5, 0, 0, "SEARCH u USING AUTOMATIC COVERING INDEX (k=?)")])
         self.assertEqual(D.statement_rows(auto, counts, {}), 1000 + 1000 * 10 + 50)
+        ghost = P.parse_eqp([(3, 0, 0, "SEARCH v USING AUTOMATIC COVERING INDEX (k=?)")])
+        self.assertEqual(D.statement_rows(ghost, counts, {}), 10.0)               # 表行数未知：建索引扫描按 0 行计
         two = P.parse_eqp([(3, 0, 0, "SCAN t"), (7, 1, 0, "SCAN u")])
         self.assertEqual(D.statement_rows(two, counts, {}), 1050)
         empty_scan = P.parse_eqp([(3, 0, 0, "SCAN t"), (5, 0, 0, "SCAN u")])
         self.assertEqual(D.statement_rows(empty_scan, {"t": 0, "u": 9}, {}), 0)
         self.assertEqual(D.top_by_cost([{"id": "b", "cost": 5}, {"id": "a", "cost": 5}, {"id": "c", "cost": 9}], 2),
                          ["c", "a"])
+        many = [{"id": f"s{i:02d}", "cost": float(i)} for i in range(25)]
+        self.assertEqual(D.top_by_cost(many), [f"s{i:02d}" for i in range(24, 4, -1)])     # 缺省前 20
+
+    def test_measure_timeout_and_harvest_sample(self):
+        from unittest import mock
+        c = sqlite3.connect(":memory:")
+        c.execute("CREATE TABLE t(a)")
+        c.executemany("INSERT INTO t VALUES (?)", [(i,) for i in range(3000)])
+        m = D.measure(c, {"sql": "SELECT count(*) FROM t x, t y", "param_samples": [[]]}, "select", timeout_s=0.0)
+        self.assertTrue(m["timed_out"])                                          # 进度回调打断 → 记为超时
+        wl_ = {"statements": [{"id": "q", "sql": "SELECT * FROM t WHERE a = ?", "param_samples": [[1], [2]]}]}
+        seen, real = [], D.explain
+        with mock.patch.object(D, "explain", side_effect=lambda conn, sql, params: seen.append(params) or real(conn, sql, params)):
+            _fresh, after, _s = D.harvest_stats(c, wl_, {"t": ["a"]})
+        self.assertEqual((seen, after), ([[1]], {"q": "full_scan"}))            # ANALYZE 后的判定与之前用同一个样例参数
+        c.close()
 
 
 class TestDiagnoseStatic(unittest.TestCase):
@@ -250,6 +268,9 @@ class TestDiagnoseStatic(unittest.TestCase):
                                ("trades", "user_id"), ("trades", "bot_id")})
         self.assertTrue(fc["analyzed"])
         self.assertEqual([s["object"] for s in fc["stats_stale"]], ["idx_orders_user"])
+        stale = fc["stats_stale"][0]                                             # ANALYZE 做在订单生成一半时
+        self.assertAlmostEqual(stale["stat_rows"] / stale["actual_rows"], 0.5, delta=0.05)
+        self.assertEqual(stale["drift"], round((stale["actual_rows"] - stale["stat_rows"]) / stale["stat_rows"], 3))
         self.assertIn("idx_trades_order", fc["stats_missing"])
         self.assertEqual(fc["journal_mode_header"], "wal")
         self.assertTrue(fc["opened_immutable"])
@@ -259,6 +280,30 @@ class TestDiagnoseStatic(unittest.TestCase):
         text = D.format_text(self.rep)
         for word in ("体检表", "索引建议", "库文件体检", "发现", "CREATE INDEX qdperf_orders_bot_id_status"):
             self.assertIn(word, text)
+        self.assertIn(f"碎片率 {fc['fragmentation'] * 100:.2f}%", text)
+        big = max(self.rep["indexes"]["suggestions"], key=lambda s: s["size_est_bytes"])
+        row = next(ln for ln in text.splitlines() if f" {big['name']} " in f" {ln} " and ln.lstrip()[:1].isdigit())
+        self.assertEqual(row.split()[-4:-2], [f"{big['size_est_bytes'] / 1e6:.2f}", f"{big['size_bytes'] / 1e6:.2f}"])
+
+    def test_file_checkup_without_dbstat(self):
+        """dbstat 不可用（某些 SQLite 构建）时，体检照常出结果，只是没有“最大对象”。"""
+        from unittest import mock
+
+        class NoDbstat:
+            def __init__(self, conn):
+                self.conn = conn
+
+            def execute(self, sql, *a):
+                if "dbstat" in sql:
+                    raise sqlite3.OperationalError("no such table: dbstat")
+                return self.conn.execute(sql, *a)
+
+        real = D.file_checkup
+        with mock.patch.object(D, "file_checkup",
+                               side_effect=lambda ro, sch, cnt, cc, how, *a, **k: real(ro, sch, cnt, NoDbstat(cc), how, *a, **k)):
+            rep = D.diagnose(tiny_db(self), WORKLOAD, sections=("plans", "file"))
+        self.assertEqual(rep["file"]["largest_objects"], [])
+        self.assertEqual(rep["file"]["no_primary_key"], ["settings"])
 
 
 class TestFindingsAndCli(unittest.TestCase):
@@ -295,8 +340,27 @@ class TestFindingsAndCli(unittest.TestCase):
         self.assertEqual(got, [("yellow", "FULL_SCAN"), ("yellow", "TEMP_BTREE"), ("info", "SUGGESTION_REJECTED"),
                                ("red", "CONTENTION"), ("yellow", "CONTENTION_DEMO"), ("yellow", "WAL_GROWTH"),
                                ("yellow", "FRAGMENTED"), ("yellow", "NEVER_ANALYZED"), ("red", "ORIGINAL_MODIFIED")])
+        frag = next(x for x in f if x["code"] == "FRAGMENTED")
+        self.assertTrue(frag["message"].startswith("碎片率 5.0%（freelist 5 页）"), frag["message"])
         rep["file"]["fragmentation"] = 0.0499
         self.assertNotIn("FRAGMENTED", {x["code"] for x in D.build_findings(rep, D.DEFAULTS)})
+        rep["file"]["fragmentation"] = 0.2
+        frag = next(x for x in D.build_findings(rep, D.DEFAULTS) if x["code"] == "FRAGMENTED")
+        self.assertTrue(frag["message"].startswith("碎片率 20.0%"), frag["message"])
+        hot = self.base_rep()
+        hot["statements"][0]["cost"] = 10_000.0                                  # 缺省红线：频次 × 行数 ≥ 1 万（含）
+        self.assertEqual(D.build_findings(hot, D.DEFAULTS)[0]["code"], "HOT_FULL_SCAN")
+        hot["statements"][0]["cost"] = 9_999.0
+        self.assertNotIn("HOT_FULL_SCAN", {x["code"] for x in D.build_findings(hot, D.DEFAULTS)})
+
+    def test_wal_conclusion_boundary(self):
+        free = {"config": {"long_reader": False, "autocheckpoint": 100}, "max_live_frames": 160, "max_bytes": 1e6,
+                "resets": 3}
+        held = {"config": {"long_reader": True, "autocheckpoint": 100}, "max_live_frames": 900, "max_bytes": 5e6,
+                "resets": 0}
+        self.assertIn("都被 autocheckpoint 截住", D.wal_conclusion({"scenarios": [free, held]}))   # 160 = 1.1 × 100 + 50：仍算截住
+        self.assertNotIn("没有都被", D.wal_conclusion({"scenarios": [free, held]}))
+        self.assertIn("没有都被", D.wal_conclusion({"scenarios": [dict(free, max_live_frames=161), held]}))
 
     def test_first_line_values(self):
         rep = self.base_rep()
@@ -337,6 +401,16 @@ class TestFindingsAndCli(unittest.TestCase):
         with captured() as (o, _e):
             rc = D.main([db, "--workload", WORKLOAD, "--sections", "plans,nope"])
         self.assertEqual(rc, 2)
+        for sid, sql, params in (("bad_sql", "DELETE orders WHERE id = ?", [1]),          # SQLite 要求 DELETE FROM
+                                 ("no_table", "SELECT * FROM nope WHERE id = ?", [1]),
+                                 ("bad_params", "SELECT * FROM orders WHERE id = ?", [1, 2])):
+            w2 = wl()
+            w2["statements"] = w2["statements"][:1] + [dict(w2["statements"][0], id=sid, sql=sql, param_samples=[params])]
+            wp = os.path.join(d, f"{sid}.json")
+            common.write_json(wp, w2)
+            with captured() as (o, _e):
+                self.assertEqual(D.main([db, "--workload", wp, "--sections", "plans"]), 2)   # 输入错误，不是崩溃
+            self.assertTrue(o.getvalue().startswith(f"SQLITE_DOCTOR ERROR statement {sid}: "), o.getvalue()[:200])
         bad = os.path.join(d, "bad.json")
         with open(bad, "w") as f:
             json.dump({"format": "nope"}, f)

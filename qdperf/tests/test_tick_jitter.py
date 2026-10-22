@@ -80,6 +80,7 @@ class TestPure(unittest.TestCase):
         self.assertTrue(r["starved"])
         self.assertEqual(r["tick_errors"], {"read": {"SQLITE_BUSY": 1}, "write": {"SQLITE_BUSY": 1}})
         self.assertAlmostEqual(r["segments_ms"]["write"]["max"], 200.0)
+        self.assertEqual((r["segments_ms"]["read"]["max"], r["segments_ms"]["compute"]["max"]), (1.0, 30.0))   # 各段取各自那一列
         self.assertEqual(r["panel"]["polls"], 2)
         self.assertAlmostEqual(r["panel"]["achieved_q"], 2.0)
         self.assertEqual((r["panel"]["dropped"], r["panel"]["replica_refreshes"]), (2, 3))
@@ -121,7 +122,63 @@ class TestPure(unittest.TestCase):
         self.assertIn("mitigations=-", J.first_line_scan(s2))
         self.assertRegex(J.first_line_run(dict(res[0], starved=False)), RUN_LINE)
         self.assertEqual(len(J.scan_grid(False)), 2 * 2 * 2 * 4)
-        self.assertEqual(len(J.scan_grid(True)), 6)
+        self.assertEqual(J.scan_grid(True), [{"wal": True, "busy": 5.0, "compute": "inline", "q": 0.0},
+                                             {"wal": True, "busy": 5.0, "compute": "inline", "q": 5.0},
+                                             {"wal": False, "busy": 5.0, "compute": "inline", "q": 0.0},
+                                             {"wal": False, "busy": 5.0, "compute": "inline", "q": 5.0},
+                                             {"wal": False, "busy": 0.5, "compute": "subprocess", "q": 0.0},
+                                             {"wal": False, "busy": 0.5, "compute": "subprocess", "q": 5.0}])
+        order = J.find_knees([fake_result(False, 0.5, "inline", 0, 1.0), fake_result(False, 5.0, "subprocess", 0, 1.0)])
+        self.assertEqual([(x["busy"], x["compute"]) for x in order], [(5.0, "subprocess"), (0.5, "inline")])  # busy 大的在前
+        self.assertIn("单线程 2000 ms", J.format_scan(dict(s, panel_calibration={"rows": 10, "seconds": 2.0})))
+        blank = dict(res[0], starved=False, segments_ms={k: {"p99": None} for k in ("read", "compute", "write")},
+                     wake_late_ms={"max": None})
+        self.assertIn("read_p99_ms=0.00 compute_p99_ms=0.00 write_p99_ms=0.00", J.first_line_run(blank))   # 没有样本记 0
+        self.assertIn("读/算/写 p99 0.0/0.0/0.0 ms  唤醒迟到 max 0 ms", J.row_text(blank))
+
+
+class TestPanelParts(unittest.TestCase):
+    def test_replica_refresh_sees_new_rows(self):
+        d = tmpdir(self)
+        main = os.path.join(d, "m.db")
+        c = sqlite3.connect(main)
+        c.execute("CREATE TABLE t(a)")
+        c.execute("INSERT INTO t VALUES (1)")
+        c.commit()
+        r = J.Replica(main, [os.path.join(d, "a.db"), os.path.join(d, "b.db")], 5.0)
+        c.execute("INSERT INTO t VALUES (2)")
+        c.commit()
+        c.close()
+        r.refresh()                                                          # 刷新的是“不在用的那一份”，然后切过去
+        k = r.acquire()
+        try:
+            rc = sqlite3.connect(r.paths[k])
+            n = rc.execute("SELECT count(*) FROM t").fetchone()[0]
+            rc.close()
+        finally:
+            r.release(k)
+        self.assertEqual((n, r.refreshes, r.cur), (2, 1, 1))
+
+    def test_open_loop_caps_inflight(self):
+        """开环轮询：在途最多 2 × 线程数，其余记为丢弃（不无限排队）。_poll 换成卡住直到放行的假查询。"""
+        from unittest import mock
+        import threading
+        gate = threading.Event()
+        threading.Timer(0.6, gate.set).start()
+        with mock.patch.object(J, "_poll", side_effect=lambda spec, local, replica: (gate.wait(5) and 0.001, None)):
+            durs, errs, dropped = J._poll_open_loop({"q": 200.0, "seconds": 0.3, "panel_threads": 1, "seed": 0}, None, None)
+        self.assertEqual((len(durs), errs), (2, {}))
+        self.assertGreater(dropped, 20)
+
+    def test_backoff_sleep(self):
+        """退避：下一次至少等 max(1/Q, k × 上次耗时)。"""
+        from unittest import mock
+        slept, durs = [], iter([0.05, 0.01] * 1000)
+        with mock.patch.object(J, "_poll", side_effect=lambda spec, local, replica: (next(durs), None)), \
+                mock.patch.object(J.time, "sleep", side_effect=slept.append):
+            J._poll_backoff({"q": 10.0, "backoff_k": 4.0, "seconds": 0.01}, None)
+        self.assertGreater(len(slept), 1)
+        self.assertEqual([round(x, 9) for x in slept[:2]], [0.2, 0.1])
 
 
 class TestScanCleanup(unittest.TestCase):
@@ -162,6 +219,10 @@ class TestRealProcesses(unittest.TestCase):
         return J.run_once(self.master, cfg, self.work, self.cal)
 
     def test_calibration(self):
+        capped = J.calibrate_panel(self.master, 1000.0)                      # 目标远超整表耗时 → 行数封顶为整表
+        self.assertTrue(capped["capped"])
+        self.assertEqual(capped["rows"], capped["range"][1] - 1)
+        self.assertFalse(self.cal["capped"])
         c = self.cal
         self.assertEqual(c["range"][1] - c["range"][0], c["rows"])
         self.assertGreater(c["rows"], 100)
@@ -178,6 +239,8 @@ class TestRealProcesses(unittest.TestCase):
         if TIMING:
             self.assertFalse(quiet["starved"])
         self.assertGreater(quiet["notifier"]["writes"], 0)
+        self.assertEqual(quiet["tick_errors"]["write"], {})                 # 每个 tick 的写事务都提交了
+        self.assertLess(quiet["wake_late_ms"]["max"] or 0.0, 10_000.0)      # tick 起点相对引擎起跑时刻（不是绝对时钟）
         starved = self.starved
         self.assertTrue(starved["starved"], starved["interval_T"])
         self.assertGreater(starved["over_2T"], 0)
@@ -196,7 +259,8 @@ class TestRealProcesses(unittest.TestCase):
         rep = self.run_cfg(q=10.0, wal=False, mitigation="replica", replica_every=0.5)
         self.assertLess(rep["interval_T"]["p99"], 0.5 * self.starved["interval_T"]["p99"])
         self.assertGreater(rep["panel"]["replica_refreshes"], 0)
-        bo = self.run_cfg(q=10.0, wal=False, mitigation="backoff", backoff_k=4.0)
+        bo = self.run_cfg(q=10.0, wal=False, mitigation="backoff", backoff_k=4.0, notifier_rate=0.5)
+        self.assertIn("notifier", bo)                                        # 通知速率 ≤ 1 次/秒时也照样起通知进程
         self.assertLess(bo["panel"]["achieved_q"], 10.0)
         sp = self.run_cfg(q=0.0, wal=True, compute="subprocess", bg_threads=1, notifier_rate=0.0)
         self.assertEqual(sp["crashed"], [])
@@ -206,11 +270,20 @@ class TestRealProcesses(unittest.TestCase):
 
     def test_cli(self):
         d = tmpdir(self)
-        with captured() as (o, _e):
+        from unittest import mock
+        real_rmtree = shutil.rmtree
+
+        def picky(path, ignore_errors=False, *a, **k):                      # 收尾删目录失败不能让 run 丢结果
+            if not ignore_errors:
+                raise OSError("directory busy")
+            return real_rmtree(path, ignore_errors=True)
+
+        with captured() as (o, _e), mock.patch.object(J.shutil, "rmtree", side_effect=picky):
             rc = J.main(["run", "--q", "0", "--seconds", "1.0", "--T", "0.05", "--scale", "0.002",
                          "--json", os.path.join(d, "r.json")])
         self.assertIn(rc, (0, 1))
         self.assertRegex(o.getvalue().splitlines()[0], RUN_LINE)
+        self.assertTrue(o.getvalue().splitlines()[1].startswith("WAL "))     # 首行之后是这一配置的明细行（人读）
         self.assertTrue(os.path.exists(os.path.join(d, "r.json")))
         with captured() as (o, _e):
             self.assertEqual(J.main(["run", "--T", "0"]), 2)
