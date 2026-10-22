@@ -203,7 +203,7 @@ def run_one(target, mutant, timeout, tmpdir):
         'status': status, 'seconds': round(time.perf_counter() - t0, 1), 'tail': tail}
 
 
-def run_target(target, max_per_file=120, seed=1, workers=4, timeout=300, out=None, ids=None):
+def run_target(target, max_per_file=120, seed=1, workers=4, timeout=300, out=None, ids=None, merge=False):
     """ids: re-run exactly these mutant ids (from a results JSON) instead of sampling."""
     _mod, path, _tests = TARGETS[target]
     mutants = make_mutants(path)
@@ -230,10 +230,29 @@ def run_target(target, max_per_file=120, seed=1, workers=4, timeout=300, out=Non
                'by_operator': _by_op(results),
                'survivors': [r for r in results if r['status'] == 'survived'],
                'results': results}
+    if out and ids and merge and os.path.exists(out):
+        summary = merge_into(out, summary)
     if out:
         with open(out, 'w') as fh:
             json.dump(summary, fh, indent=1, sort_keys=True)
     return summary
+
+
+def merge_into(out, part):
+    """--ids --merge: replace the re-run mutants inside an existing results JSON and
+    recompute its counters (the sampled set, seed and candidates stay those of the base run)."""
+    with open(out) as fh:
+        base = json.load(fh)
+    new = {r['id']: r for r in part['results']}
+    results = [new.get(r['id'], r) for r in base['results']]
+    killed = sum(r['status'] != 'survived' for r in results)
+    base.update({'results': results, 'killed': killed, 'survived': len(results) - killed,
+                 'timeouts': sum(r['status'] == 'timeout' for r in results),
+                 'kill_rate': round(100.0 * killed / len(results), 1) if results else 0.0,
+                 'by_operator': _by_op(results), 'survivors': [r for r in results if r['status'] == 'survived'],
+                 'reruns': (base.get('reruns') or []) + [{'ids': part['ids'], 'seconds': part['seconds'],
+                                                          'tests': part['tests']}]})
+    return base
 
 
 def _by_op(results):
@@ -256,8 +275,11 @@ def main(argv=None):
     ap.add_argument('--json', default=None)
     ap.add_argument('--ids', type=int, nargs='*', default=None,
                     help='re-run exactly these mutant ids (as listed in a results JSON) instead of sampling')
+    ap.add_argument('--merge', action='store_true',
+                    help='with --ids: replace those mutants inside the existing --json file and recompute its counters')
     args = ap.parse_args(argv)
-    s = run_target(args.target, args.max, args.seed, args.workers, args.timeout, args.json, ids=args.ids)
+    s = run_target(args.target, args.max, args.seed, args.workers, args.timeout, args.json, ids=args.ids,
+                   merge=args.merge)
     print(json.dumps({k: v for k, v in s.items() if k != 'results'}, indent=1))
     return 0
 

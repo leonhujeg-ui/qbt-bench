@@ -119,7 +119,9 @@ def cmd_mutate(args):
     return run_mutations.main(['--target', args.target, '--max', str(args.max),
                                '--seed', str(args.seed), '--workers', str(args.workers)]
                               + (['--json', args.json] if args.json else [])
-                              + (['--ids'] + [str(i) for i in args.ids] if args.ids else []))
+                              + (['--ids'] + [str(i) for i in args.ids] if args.ids else [])
+                              + (['--merge'] if args.merge else [])
+                              + (['--timeout', str(args.timeout)] if args.timeout else []))
 
 
 def cmd_coverage(args):
@@ -269,6 +271,9 @@ def _add_analysis_commands(sub):
     mu.add_argument('--json', default=None)
     mu.add_argument('--ids', type=int, nargs='*', default=None,
                     help='re-run exactly these mutant ids from a results JSON (audit)')
+    mu.add_argument('--merge', action='store_true', help='with --ids: merge into the existing --json file')
+    mu.add_argument('--timeout', type=int, default=None,
+                    help='seconds per mutant before it counts as a (killed) timeout; default 300')
     mu.set_defaults(func=cmd_mutate)
     cv = sub.add_parser('coverage', help='statement coverage of the test suite')
     cv.add_argument('--json', default=None)

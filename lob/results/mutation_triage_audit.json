@@ -1,0 +1,26 @@
+{
+ "queue_model:125": {
+  "class": "等价",
+  "note": "reliability_svg 的刻度循环 range(0, 11, 2) 与 range(0, 12, 2) 生成同一组刻度 0,2,…,10"
+ },
+ "queue_model:189": {
+  "class": "等价",
+  "note": "nmax 的 default 只在 rel 为空时生效，此时没有圆点要画，nmax 不被使用"
+ },
+ "queue_model:195": {
+  "class": "补判据",
+  "note": "SVG 标题的 Brier 文本从未被检查：test_collect_fit_evaluate_on_small_stream 现在断言标题含 \"Brier %.4f\" % ev[brier]"
+ },
+ "queue_model:247": {
+  "class": "补判据",
+  "note": "by_regime 的 base_rate 四位舍入未被检查：test_evaluate_rounding_and_bins 现在逐 regime 核对 round(·, 4) 与 n"
+ },
+ "queue_model:267": {
+  "class": "补判据",
+  "note": "parametric_params 的键集合未被检查：现在断言 == {0..D_MAX}"
+ },
+ "queue_model:272": {
+  "class": "补判据",
+  "note": "_horizon 的最近表选择未被检查：test_nearest_horizon_table（|h − horizon| 最小，而非最小 h）"
+ }
+}

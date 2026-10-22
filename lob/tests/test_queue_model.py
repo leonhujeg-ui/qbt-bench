@@ -183,6 +183,14 @@ class ModelTest(unittest.TestCase):
                  if outcome(r, 5 * NS) >= 0]
         self.assertEqual(ev['base_rate'], round(sum(y for _, y in pairs) / len(pairs), 4))
         self.assertEqual(ev['brier'], round(Q.brier(pairs), 5))
+        by_regime = {}
+        for r in rows:                                                        # by_regime base_rate 也是 4 位
+            if outcome(r, 5 * NS) >= 0:
+                by_regime.setdefault(r['regime'], []).append(outcome(r, 5 * NS))
+        self.assertEqual(sorted(ev['by_regime']), sorted(by_regime))
+        for k, ys in by_regime.items():
+            self.assertEqual(ev['by_regime'][k]['base_rate'], round(sum(ys) / len(ys), 4), k)
+            self.assertEqual(ev['by_regime'][k]['n'], len(ys))
         self.assertLessEqual(len(ev['reliability']), 10)
         for b in ev['reliability']:
             self.assertAlmostEqual(b['hi'] - b['lo'], 0.1)
@@ -194,6 +202,14 @@ class ModelTest(unittest.TestCase):
         self.assertTrue(all(0.0 <= x <= 1.0 for x in p))
         self.assertGreater(self.model.predict(0, 1, 0, 0, 10.0, 0, 5, 0, 10.0),
                            self.model.predict(0, 1, 0, 0, 10.0, 3, 5, 3, 10.0))
+
+    def test_nearest_horizon_table(self):
+        """查询的 horizon 不在表里时取最近的表（|h − horizon| 最小），不是最小的 h。"""
+        m = self.model                                                       # horizons (1, 5)
+        self.assertEqual(m._horizon(5), 5)
+        self.assertEqual(m._horizon(4), 5)
+        self.assertEqual(m._horizon(2), 1)
+        self.assertEqual(m._horizon(100), 5)
 
     def test_unseen_cell_falls_back_to_global_rate(self):
         m = Q.QueueModel().fit(self.train[:50], (5,))
@@ -448,6 +464,9 @@ class EndToEndTest(unittest.TestCase):
             self.assertIsInstance(ev['brier_parametric'], float)
             self.assertIsInstance(ev['brier_train'], float)
             self.assertTrue(os.path.exists(ev['svg']))
+            with open(ev['svg']) as sfh:
+                self.assertIn('Brier %.4f' % ev['brier'], sfh.read())            # 标题写的是真实 Brier，不是 n/a
+            self.assertEqual(set(ev['parametric_params']), {str(d) for d in range(Q.D_MAX + 1)})
         with open(os.path.join(tmp, 'qm', 'queue_model.json')) as fh:
             text = fh.read()
         self.assertEqual(text, json.dumps(model.to_dict(), sort_keys=True))     # canonical bytes

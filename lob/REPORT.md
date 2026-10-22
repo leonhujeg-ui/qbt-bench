@@ -205,6 +205,7 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 |---|---|---|---|---|---|---|---|
 | 历史（原 VM） | lob/book.py | 484 | 120 | 110 | 10 | 15 | 91.7% |
 | 历史（原 VM） | lob/queue_model.py | 292 | 120 | 115 | 5 | 0 | 95.8% |
+| 本机复测（审核：判定集 + 新判据，queue_model 源码已改） | lob/queue_model.py | 295 | 120 | 118 | 2 | 0 | 98.3% |
 
 模块 → 候选位点 → 抽样 → 第一轮 / 复跑 / 最终（复跑只重跑漏网者，已抓住的保留）：
 
@@ -248,6 +249,8 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 | 历史 | queue_model | 176 | Gt -> GtE | 176 | `if ll > best_ll:` | 等价 | 细网格 > 改 >=：仅在对数似然恰好相等时取后者，浮点对数似然相等概率为零且 fit 不会对空数据调用 _grid |
 | 历史 | queue_model | 188 | const 1 -> 2 | 266 | `nmax = max((b['n'] for b in rel), default=1)` | 等价 | max(..., default=1) 改 default=2：default 只在无桶时使用，此时也不画圆点 |
 | 历史 | queue_model | 211 | Gt -> GtE | 171 | `if ll > best_ll:` | 等价 | 粗网格 > 改 >=：同 176 |
+| 本机复测 | queue_model | 125 | const 11 -> 12 | 256 | `for t in range(0, 11, 2):` | 等价 | reliability_svg 的刻度循环 range(0, 11, 2) 与 range(0, 12, 2) 生成同一组刻度 0,2,…,10 |
+| 本机复测 | queue_model | 189 | const 1 -> 2 | 266 | `nmax = max((b['n'] for b in rel), default=1)` | 等价 | nmax 的 default 只在 rel 为空时生效，此时没有圆点要画，nmax 不被使用 |
 
 **抽样与分母**：两个模块各运行 `python3.12 -m lob.cli mutate --target <book|queue_model> --max 120 --seed 1 --workers 4`（`--seed 1` 是 CLI 默认值）。结果 JSON 没有 `seed` 字段，审核时用 `run_mutations.make_mutants` + `sample_mutants(…, 120, seed=1)` 对 HEAD 源码重新枚举：候选数 484 / 292 与 JSON 一致，抽中的 120 个 id 与 JSON 的 `results` 逐一相同（seed=0 / 2 分别只重合 43 / 44 与 62 / 66 个），即表中样本确由 seed=1 产生。**抓住率的分母始终是抽样运行的 120 个突变体，不是候选总数**（book 484 / queue_model 292）；上面的「模块 → 候选位点 → 抽样 → 结果」表与「按算子」表给出模块、算子与突变体数量的对应关系。
 

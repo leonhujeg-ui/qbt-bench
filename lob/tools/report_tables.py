@@ -121,12 +121,10 @@ def mutation_operator_table():
 def survivor_table():
     """Surviving mutants with the hand-written triage from mutation_triage.json
     (class: equivalent | killed_by_new_test | survived)."""
-    triage = {}
-    tp = os.path.join(RESULTS, 'mutation_triage.json')
-    if os.path.exists(tp):
-        triage = load('mutation_triage.json')
     rows = []
     for label, *names in MUTATION_FILES:
+        tname = 'mutation_triage_audit.json' if 'audit' in names[0] else 'mutation_triage.json'
+        triage = load(tname) if os.path.exists(os.path.join(RESULTS, tname)) else {}
         for name in names:
             if not os.path.exists(os.path.join(RESULTS, name)):
                 continue
