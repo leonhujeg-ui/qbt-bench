@@ -107,7 +107,11 @@ class TestBackendLogic(unittest.TestCase):
                cfg({"/a": {"latency": {"kind": "lognormal", "p50_ms": 50, "p99_ms": 10}}}),
                cfg({"/a": {"latency": {"kind": "lognormal", "p50_ms": 0, "p99_ms": 10}}}),
                cfg({"/a": {"latency": "fast"}}), cfg({"/a": {"error_rate": 1.5}}), cfg({"/a": {"error_rate": True}}),
-               cfg({"/a": {"max_concurrency": -1}}), cfg({"/a": {"max_concurrency": 2.5}})]
+               cfg({"/a": {"max_concurrency": -1}}), cfg({"/a": {"max_concurrency": 2.5}}),
+               cfg({"/a": {"latency": {"kind": "fixed", "ms": 1_000_000}}}),                     # 上界 1e6 ms 不含
+               cfg({"/a": {"error_rate": -0.1}}),                                                  # 错误率不能为负
+               cfg({"/a": {"body_bytes": -1}}), cfg({"/a": {"body_bytes": "x"}}), cfg({"/a": {"body_bytes": [1]}}),
+               cfg({"/a": {"body_bytes": True}}), cfg({"/a": {"schedule": "zigzag"}})]
         for x in bad:
             with self.assertRaises(B.ConfigError, msg=x):
                 B.load_config(x)
@@ -148,6 +152,30 @@ class TestServer(unittest.TestCase):
         self.assertEqual(c.getresponse().status, 200)
         c.close()
 
+    def test_body_padding_bounds(self):
+        """body_bytes：能补就补到恰好这么多；差不到 9 字节（pad 字段的最小开销）就不补，绝不比要求的长。"""
+        natural = len(json.dumps({"ok": True, "route": "/e", "n": 0, "method": "GET"}).encode())
+        srv, url = B.serve(cfg({"/e": {"body_bytes": natural}, "/s": {"body_bytes": natural + 4},
+                                "/p": {"body_bytes": natural + 9}, "/q": {"body_bytes": natural + 40}}))
+        self.addCleanup(srv.server_close)
+        self.addCleanup(srv.shutdown)
+        host, port, _p = H.parse_base(url)
+        c = http.client.HTTPConnection(host, port, timeout=5)
+        got = []
+        for path in ("/e", "/s", "/p", "/q"):
+            c.request("GET", path)
+            data = c.getresponse().read()
+            json.loads(data)                                                 # 补过的也仍是合法 JSON
+            got.append(len(data))
+        c.close()
+        self.assertEqual(got, [natural, natural, natural + 9, natural + 40])
+
+    def test_cli_requires_config(self):
+        with captured() as (_o, e), self.assertRaises(SystemExit) as cm:
+            B.main([])
+        self.assertEqual(cm.exception.code, 2)                               # argparse：缺必填的 --config
+        self.assertIn("required", e.getvalue())
+
     def test_concurrency_limit_serializes(self):
         srv, url = B.serve(cfg({"/one": {"latency": {"kind": "fixed", "ms": 60}, "max_concurrency": 1}}))
         self.addCleanup(srv.server_close)
@@ -185,6 +213,18 @@ class TestServer(unittest.TestCase):
         t.join(30)
         self.assertIn("fake backend failed to start", box.get("err", "(still waiting)"))
         self.assertIn("config.format must be", box.get("err", ""))                # 带上子进程报的原因
+
+    def test_start_failure_carries_stderr(self):
+        """子进程起不来时，异常里带上它的 stdout 与 stderr（崩溃的 Traceback 在 stderr 上）。"""
+        import subprocess
+        import sys
+        from unittest import mock
+        real = subprocess.Popen
+        crash = [sys.executable, "-c", "import sys; sys.stderr.write('boom on stderr'); sys.exit(3)"]
+        with mock.patch.object(B.subprocess, "Popen", side_effect=lambda args, **kw: real(crash, **kw)):
+            with self.assertRaises(RuntimeError) as cm:
+                B.start(cfg({"/a": {}}), timeout=20.0)
+        self.assertIn("boom on stderr", str(cm.exception))
 
     def test_subprocess_backend_and_main_errors(self):
         proc, url = B.start(cfg({"/a": {}}))

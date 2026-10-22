@@ -86,11 +86,16 @@ def load_config(cfg):
         er = r.get("error_rate", 0.0)
         if isinstance(er, bool) or not isinstance(er, (int, float)) or not 0 <= er <= 1:
             raise ConfigError(f"route {path}: error_rate must be in [0, 1]")
+        bb = r.get("body_bytes", 64)
+        if isinstance(bb, bool) or not isinstance(bb, int) or bb < 0:
+            raise ConfigError(f"route {path}: body_bytes must be an int >= 0")
+        if r.get("schedule", "stratified") not in ("stratified", "random"):
+            raise ConfigError(f"route {path}: schedule must be 'stratified' or 'random'")
         mc = r.get("max_concurrency", 0)
         if isinstance(mc, bool) or not isinstance(mc, int) or mc < 0:
             raise ConfigError(f"route {path}: max_concurrency must be an int >= 0")
         out["routes"][path] = {"latency": r.get("latency", {"kind": "fixed", "ms": 0}), "error_rate": er,
-                               "max_concurrency": mc, "body_bytes": int(r.get("body_bytes", 64)),
+                               "max_concurrency": mc, "body_bytes": r.get("body_bytes", 64),
                                "schedule": r.get("schedule", "stratified")}
     return out
 
@@ -149,7 +154,7 @@ def make_handler(backend):
 
         def _reply(self, code, obj, size=0):
             body = json.dumps(obj).encode()
-            if len(body) < size:
+            if len(body) + 9 <= size:                   # 补一个 pad 字段至少多 9 字节（,"pad":""）；差不到 9 字节就不补（宁短勿长）
                 body = body[:-1] + b',"pad":"' + b"x" * (size - len(body) - 9) + b'"}'
             self.send_response(code)
             self.send_header("Content-Type", "application/json")

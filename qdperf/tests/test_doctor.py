@@ -151,6 +151,36 @@ class TestEstimates(unittest.TestCase):
         many = [{"id": f"s{i:02d}", "cost": float(i)} for i in range(25)]
         self.assertEqual(D.top_by_cost(many), [f"s{i:02d}" for i in range(24, 4, -1)])     # 缺省前 20
 
+    def test_schema_info(self):
+        c = sqlite3.connect(":memory:")
+        c.executescript("""
+            CREATE TABLE a(code TEXT PRIMARY KEY, email TEXT UNIQUE, n INTEGER, flag INTEGER);
+            CREATE INDEX ia_n ON a(n, flag);
+            CREATE INDEX ia_part ON a(flag) WHERE flag = 1;
+            CREATE TABLE b(id INTEGER PRIMARY KEY, a_code TEXT REFERENCES a(code));
+        """)
+        s = D.schema_info(c)
+        self.assertEqual((s["a"]["pk"], s["a"]["integer_pk"], s["b"]["pk"], s["b"]["integer_pk"]),
+                         (["code"], False, ["id"], True))                    # 主键列名；INTEGER 主键 = rowid 别名
+        origins = {k: (v["origin"], v["partial"], v["unique"], v["columns"]) for k, v in s["a"]["indexes"].items()}
+        self.assertEqual(origins["ia_n"], ("c", False, False, ["n", "flag"]))
+        self.assertEqual(origins["ia_part"], ("c", True, False, ["flag"]))
+        self.assertEqual(sorted(o[0] for k, o in origins.items() if k.startswith("sqlite_autoindex")), ["pk", "u"])
+        self.assertEqual(s["b"]["foreign_keys"], [{"column": "a_code", "ref_table": "a", "ref_column": "code"}])
+        c.close()
+
+    def test_restore_stat1_when_absent(self):
+        c = sqlite3.connect(":memory:")
+        c.execute("CREATE TABLE t(a)")
+        c.execute("CREATE INDEX ia ON t(a)")
+        c.executemany("INSERT INTO t VALUES (?)", [(i % 7,) for i in range(50)])
+        saved = D.stat1_rows(c)                                              # 原来没做过 ANALYZE：没有 sqlite_stat1
+        c.execute("ANALYZE")
+        self.assertTrue(D.stat1_rows(c))                                     # 临时 ANALYZE 确实写了统计
+        D.restore_stat1(c, saved)
+        self.assertIn(D.stat1_rows(c), (None, []))                           # 恢复成“没有统计”（空表与无表对规划器等价）
+        c.close()
+
     def test_measure_timeout_and_harvest_sample(self):
         from unittest import mock
         c = sqlite3.connect(":memory:")
@@ -284,6 +314,21 @@ class TestDiagnoseStatic(unittest.TestCase):
         big = max(self.rep["indexes"]["suggestions"], key=lambda s: s["size_est_bytes"])
         row = next(ln for ln in text.splitlines() if f" {big['name']} " in f" {ln} " and ln.lstrip()[:1].isdigit())
         self.assertEqual(row.split()[-4:-2], [f"{big['size_est_bytes'] / 1e6:.2f}", f"{big['size_bytes'] / 1e6:.2f}"])
+
+    def test_unmeasured_load_and_rounding(self):
+        """不测量（measure_timeout=0）时语句没有“占库 ms/秒”，合计按 0 算；行数估算与成本保留 1 位小数。"""
+        rep = D.diagnose(tiny_db(self), WORKLOAD, sections=("plans",), measure_timeout=0)
+        self.assertNotIn("db_ms_per_second", rep["statements"][0])
+        self.assertIn("全部语句合计占库 0.0 ms/秒", D.format_text(rep))
+        c = sqlite3.connect(":memory:")                                      # 1001 行、无统计的范围扫描：1001/4 = 250.25 行
+        c.execute("CREATE TABLE t(id INTEGER PRIMARY KEY, a)")
+        c.execute("CREATE INDEX ia ON t(a)")
+        c.executemany("INSERT INTO t(a) VALUES (?)", [(i,) for i in range(1001)])
+        wl_ = {"statements": [{"id": "q", "sql": "SELECT * FROM t WHERE a > ?", "param_samples": [[1]], "per_second": 1.5,
+                               "process": "p"}]}
+        r = D.analyze_statements(c, wl_, D.schema_info(c), {"t": 1001}, {}, measure_timeout=0)[0]
+        self.assertEqual((r["rows_est"], r["cost"]), (250.2, 375.4))           # 1 位小数（250.25 → 250.2，375.375 → 375.4）
+        c.close()
 
     def test_file_checkup_without_dbstat(self):
         """dbstat 不可用（某些 SQLite 构建）时，体检照常出结果，只是没有“最大对象”。"""

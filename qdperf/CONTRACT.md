@@ -292,7 +292,7 @@ A/B 按 A、B、A 交替各跑一档；每个路径的 p50 / p99 与 A 两遍均
 ```
 
 延迟 `kind`：`fixed{ms}` / `uniform{lo_ms, hi_ms}` / `lognormal{p50_ms, p99_ms}`；`schedule`：`stratified`（缺省，每 1000 个请求恰好是分布的 1000 个分层点）
-或 `random`；`max_concurrency`：0 = 不限，超出排队。路径按“完全相同 → 最长前缀 → default”匹配。特殊路径 `/__health`、`/__stats`。
+或 `random`；`max_concurrency`：0 = 不限，超出排队；`error_rate` ∈ [0, 1]；延迟参数 ∈ [0, 1e6) ms；`body_bytes`（非负整数，缺省 64）：响应体用 JSON 的 `pad` 字段补到恰好这么多字节，差不到 9 字节（`,"pad":""` 的最小开销）时不补——体只会比它短、不会比它长。以上任何一项不合法都报配置错误（`FAKE_BACKEND ERROR …`，退出码 2）。路径按“完全相同 → 最长前缀 → default”匹配。特殊路径 `/__health`、`/__stats`。
 
 ### 4.3 Python 接口与字段
 

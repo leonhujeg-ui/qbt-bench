@@ -240,7 +240,8 @@ class TestRealProcesses(unittest.TestCase):
             self.assertFalse(quiet["starved"])
         self.assertGreater(quiet["notifier"]["writes"], 0)
         self.assertEqual(quiet["tick_errors"]["write"], {})                 # 每个 tick 的写事务都提交了
-        self.assertLess(quiet["wake_late_ms"]["max"] or 0.0, 10_000.0)      # tick 起点相对引擎起跑时刻（不是绝对时钟）
+        self.assertGreater(quiet["wake_late_ms"]["n"], 0)                   # 安静时引擎按时睡下：唤醒迟到有样本
+        self.assertLess(quiet["wake_late_ms"]["max"], 10_000.0)             # tick 起点相对引擎起跑时刻（不是绝对时钟）
         starved = self.starved
         self.assertTrue(starved["starved"], starved["interval_T"])
         self.assertGreater(starved["over_2T"], 0)

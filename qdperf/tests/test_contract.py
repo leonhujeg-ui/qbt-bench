@@ -95,6 +95,17 @@ class TestOptions(unittest.TestCase):
             self.assertIn(fmt, CONTRACT)
 
 
+class TestApiDefaults(unittest.TestCase):
+    def test_diagnose_defaults_match_contract(self):
+        """CONTRACT 里 diagnose(...) 签名写的缺省值 = 代码里的 DEFAULTS（预算 200 ms、测量超时 5 s、红线 1 万 ……）。"""
+        block = CONTRACT[CONTRACT.index("rep = sqlite_doctor.diagnose("):]
+        call = ast.parse(block[block.index("sqlite_doctor.diagnose("):block.index(")", block.index("top=")) + 1]).body[0].value
+        documented = {kw.arg: ast.literal_eval(kw.value) for kw in call.keywords}
+        self.assertEqual(set(documented), set(D.DEFAULTS))
+        for k, v in documented.items():
+            self.assertEqual(tuple(D.DEFAULTS[k]) if isinstance(v, tuple) else D.DEFAULTS[k], v, k)
+
+
 class TestFirstLines(unittest.TestCase):
     def test_regexes_present(self):
         prefixes = ["^SQLITE_DOCTOR", "^SYNTH_DB", "^PROFILE target", "^REGRESSION (hot", "^OK hot", "^TICK_JITTER",
