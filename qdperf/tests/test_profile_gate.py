@@ -11,6 +11,12 @@ from qdperf import profile_gate as G
 from qdperf.tests._util import TIMING, captured, tmpdir
 
 DEMO = "qdperf.examples.demo_work:spin"
+CALLS = []
+
+
+def count_calls(n=0):
+    """测试用目标：记下每次调用（worker 在本进程内运行时可数调用次数）。"""
+    CALLS.append(n)
 REG_LINE = re.compile(r"^REGRESSION (hot\.wall_s|cold\.wall_s|memory\.peak_bytes)=[\d.e+-]+→[\d.e+-]+ \(\+[\d.]+%\)$")
 OK_LINE = re.compile(r"^OK hot\.wall_s=[\d.e+-]+→[\d.e+-]+ \([+-][\d.]+%\) tol=[\d.]+%$")
 PROFILE_LINE = re.compile(r"^PROFILE target=\S+ hot_wall_s=[\d.e+-]+ cold_wall_s=([\d.e+-]+|-) peak_bytes=\d+ runs=\d+ "
@@ -345,6 +351,12 @@ class TestCli(unittest.TestCase):
         self.assertLessEqual(len(res["top"]), 4)
         with self.assertRaises(G.GateError):
             G.worker("cold", DEMO, {}, 1, 5)
+
+    def test_worker_call_count(self):
+        del CALLS[:]
+        res = G.worker("sample", "qdperf.tests.test_profile_gate:count_calls", {"n": 1}, 3, 5)
+        self.assertEqual(len(CALLS), 1 + 3)                                     # 冷样本 = 导入 + 第一次调用；热样本 3 次
+        self.assertEqual(len(res["hot_inner_samples"]), 3)
 
     def test_runs_defaults(self):
         from unittest import mock

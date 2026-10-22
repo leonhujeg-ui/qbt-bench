@@ -27,6 +27,12 @@ def py_files():
                 yield os.path.join(dirpath, f)
 
 
+def canonical(path):
+    """ast.unparse(ast.parse(源码))：同一段代码不论原来怎么排版（引号、换行、注释），得到同一份文本。"""
+    with open(path, encoding="utf-8") as f:
+        return ast.unparse(ast.parse(f.read()))
+
+
 def imports(path):
     with open(path, encoding="utf-8") as f:
         tree = ast.parse(f.read())
@@ -79,12 +85,10 @@ class TestNoNetwork(unittest.TestCase):
                 self.assertIn(rel, ("http_load.py", "tests/test_http_load.py"), rel)
             if "http.server" in mods:
                 self.assertEqual(rel, "fake_backend.py")
-        with open(os.path.join(PKG, "http_load.py"), encoding="utf-8") as f:
-            src = f.read()
+        src = canonical(os.path.join(PKG, "http_load.py"))                   # 规范化后再比：与引号 / 换行 / 注释无关
         self.assertEqual(src.count("http.client.HTTPConnection("), 2)
         self.assertIn("host, port, prefix = parse_base(base, allow_remote)", src)
-        with open(os.path.join(PKG, "fake_backend.py"), encoding="utf-8") as f:
-            self.assertIn('Server(("127.0.0.1", port)', f.read())
+        self.assertIn("Server(('127.0.0.1', port)", canonical(os.path.join(PKG, "fake_backend.py")))
 
 
 def _allowed_path(p):

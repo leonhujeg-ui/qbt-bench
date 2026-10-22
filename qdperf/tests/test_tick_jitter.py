@@ -124,6 +124,27 @@ class TestPure(unittest.TestCase):
         self.assertEqual(len(J.scan_grid(True)), 6)
 
 
+class TestScanCleanup(unittest.TestCase):
+    def test_scan_cleanup_never_loses_results(self):
+        """扫描跑几十分钟：收尾删临时目录失败（例如子进程还占着文件）不能把结果一起丢掉。"""
+        from unittest import mock
+        work, calls = tmpdir(self), []
+
+        def rmtree(path, ignore_errors=False):
+            calls.append((path, ignore_errors))
+            if not ignore_errors:
+                raise OSError("directory busy")
+
+        with mock.patch.object(J, "prepare", return_value=(work, os.path.join(work, "m.db"))), \
+                mock.patch.object(J, "calibrate_panel", return_value={"rows": 1}), \
+                mock.patch.object(J, "scan_grid", return_value=[]), \
+                mock.patch.object(J, "run_once", side_effect=lambda master, cfg, w, cal: {"config": cfg}), \
+                mock.patch.object(J.shutil, "rmtree", side_effect=rmtree):
+            res = J.scan(quick=True)
+        self.assertEqual(calls, [(work, True)])
+        self.assertEqual((res["knee"], res["mitigations"], len(res["gil"])), (None, [], 4))
+
+
 class TestRealProcesses(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -237,6 +237,30 @@ class TestLoad(unittest.TestCase):
         self.assertEqual(s["total"]["statuses"], {"error": s["total"]["requests"]})
         self.assertIsNone(s["total"]["latency_ms"]["p99"])
 
+    def test_ab_loopback_only_by_default(self):
+        from unittest import mock
+        seen = []
+
+        def fake_step(base, m, c, seconds, warmup, seed, allow_remote=None):
+            seen.append(allow_remote)
+            raise H.LoadError("stop before any socket")
+
+        with mock.patch.object(H, "run_step", side_effect=fake_step):
+            with self.assertRaises(H.LoadError):
+                H.ab("http://192.0.2.1:9", "http://192.0.2.2:9", MANIFEST)
+            with self.assertRaises(H.LoadError):
+                H.ramp("http://192.0.2.1:9", MANIFEST, steps=[1])
+        self.assertEqual(seen, [False, False])                           # 缺省只许打本机（allow_remote 要显式打开）
+
+    def test_cli_required_args(self):
+        for argv in (["ramp", "--manifest", "missing.json"],
+                     ["ab", "--b", "http://127.0.0.1:9", "--manifest", "missing.json"],
+                     ["ab", "--a", "http://127.0.0.1:9", "--manifest", "missing.json"]):
+            with captured() as (_o, e), self.assertRaises(SystemExit) as cm:
+                H.main(argv)
+            self.assertEqual(cm.exception.code, 2)                       # argparse 拒绝：缺必填参数（不走到读清单）
+            self.assertIn("required", e.getvalue())
+
     def test_find_knee(self):
         def st(c, rps):
             return {"c": c, "total": {"ok_rps": rps}}
@@ -325,12 +349,22 @@ class TestLoad(unittest.TestCase):
             self.assertEqual(H.main(["ramp", "--base", url, "--manifest", os.path.join(d, "missing.json")]), 2)
         with captured() as (o, _e):
             self.assertEqual(H.main(["ramp", "--base", url, "--manifest", mpath, "--steps", "1,x"]), 2)
+
+    def test_cli_error_rate_limit(self):
+        """ramp 的退出码 1 = 某路径错误率超过 --max-error-rate（错误是注入的，与负载无关）。"""
+        d = tmpdir(self)
+        mpath = os.path.join(d, "m.json")
+        with open(mpath, "w") as f:
+            json.dump(MANIFEST, f)
         err_srv, err_url = B.serve(cfg({"/fast": {"error_rate": 1.0}, "/post": {}}))
         self.addCleanup(err_srv.server_close)
         self.addCleanup(err_srv.shutdown)
         with captured() as (o, _e):
             self.assertEqual(H.main(["ramp", "--base", err_url, "--manifest", mpath, "--steps", "1", "--seconds", "0.2"]),
                              1)
+        with captured() as (o, _e):                                      # /fast 错误率恰好 100% = 上限 → 不算超限
+            self.assertEqual(H.main(["ramp", "--base", err_url, "--manifest", mpath, "--steps", "1", "--seconds", "0.2",
+                                     "--max-error-rate", "1.0"]), 0)
 
 
 if __name__ == "__main__":

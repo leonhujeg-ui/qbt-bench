@@ -30,6 +30,13 @@ class TestPure(unittest.TestCase):
         plain = A.resolve_aliases(P.parse_eqp([(2, 0, 0, "SCAN t")]), P.parse_statement("SELECT * FROM t", SCHEMA_COLS))
         self.assertEqual((plain[0]["table"], plain[0]["alias"]), ("t", "t"))
 
+    def test_merge_kind_scan_wins(self):
+        def cand(cols, kind, sid):
+            return {"table": "t", "columns": cols, "kind": kind, "statements": [sid], "why": {sid: {}}}
+        self.assertEqual(A._merge([cand(["x", "y"], "sort", "s1"), cand(["x"], "sort", "s2")])[0]["kind"], "sort")
+        self.assertEqual(A._merge([cand(["x", "y"], "sort", "s1"), cand(["x"], "scan", "s2")])[0]["kind"], "scan")
+        self.assertEqual(A._merge([cand(["x", "y"], "scan", "s1"), cand(["x"], "sort", "s2")])[0]["kind"], "scan")
+
     def test_merge_and_names(self):
         cands = [{"table": "t", "columns": ["a"], "kind": "sort", "statements": ["s1"], "why": {"s1": {"eq": ["a"]}}},
                  {"table": "t", "columns": ["a", "b"], "kind": "scan", "statements": ["s2"], "why": {"s2": {"eq": ["a", "b"]}}},
@@ -54,7 +61,9 @@ class TestPure(unittest.TestCase):
                 {"id": "q4", "kind": "insert", "sql": "INSERT INTO u(c) VALUES (?)", "scan_tables": [], "temp_btree": []},
                 {"id": "q5", "kind": "select", "sql": "SELECT * FROM t WHERE id = ?", "scan_tables": [], "temp_btree": []},
                 {"id": "q6", "kind": "select", "sql": "SELECT * FROM t x JOIN u ON u.t_id = x.id ORDER BY u.c, x.a",
-                 "scan_tables": [], "temp_btree": ["ORDER BY"]}]
+                 "scan_tables": [], "temp_btree": ["ORDER BY"]},
+                {"id": "q7", "kind": "select", "sql": "SELECT * FROM u WHERE c = ? ORDER BY id", "scan_tables": [],
+                 "temp_btree": []}]                                              # 排序已被索引消掉：不该再出排序建议
         sugs, unsolvable, already = A.propose(recs, schema, SCHEMA_COLS)
         self.assertEqual(already, [{"statement": "q1", "table": "t", "columns": ["a"], "index": "ix_a_b"}])
         self.assertEqual([(s["name"], s["statements"], s["kind"]) for s in sugs], [("qdperf_u_c_id", ["q2"], "scan")])
@@ -71,10 +80,21 @@ class TestPure(unittest.TestCase):
         ids = A.sample_rowids(c, "t", 5)
         self.assertEqual(ids, [10, 34, 59, 84, 109])
         self.assertEqual(A.sample_rowids(c, "t", 100), list(range(10, 110)))
+        self.assertEqual(len(A.sample_rowids(c, "t", 99)), 99)                  # 行数比 k 多 1：等距抽 k 个，不是全取
         self.assertEqual(A.sample_rowids(c, "t", 200), list(range(10, 110)))
         ids = A.sample_rowids(c, "t", 7)
         self.assertEqual((len(ids), ids[0], ids[-1]), (7, 10, 109))
         self.assertEqual(ids, sorted(ids))
+        c.close()
+
+    def test_estimate_counts_each_sampled_row_once(self):
+        c = sqlite3.connect(os.path.join(tmpdir(self), "o.db"))
+        c.execute("CREATE TABLE t(id INTEGER PRIMARY KEY, a)")
+        c.executemany("INSERT INTO t(id, a) VALUES (?, ?)", [(i, i * 7) for i in range(1, 1201)])   # 跨 500 一块的边界
+        seen = []
+        with mock.patch.object(P, "index_entry_bytes", side_effect=lambda vals, rid: seen.append(rid) or 10):
+            A.estimate_size(c, "t", ["a"], 1200, 4096)
+        self.assertEqual(sorted(seen), A.sample_rowids(c, "t"))               # 每个抽样行恰好计一次（分块不重叠、不漏）
         c.close()
 
     def test_estimate_size_matches_hand_computation(self):
@@ -125,6 +145,26 @@ class TestPure(unittest.TestCase):
         self.assertTrue(A.affected("update", ["x", "y"], ["y"]))
         self.assertFalse(A.affected("update", ["x"], ["y"]))
         self.assertFalse(A.affected("select", ["x"], ["x"]))
+
+
+class TestSizeAgainstBuilt(unittest.TestCase):
+    def test_estimate_close_to_built_index(self):
+        """FILL 系数的判据：2 万行的表上，估算与真建出来的索引（dbstat）相差 ≤ 10%（实测 ≤ 2%）。"""
+        import random
+        c = sqlite3.connect(os.path.join(tmpdir(self), "f.db"))
+        c.execute("CREATE TABLE t(id INTEGER PRIMARY KEY, a INTEGER, b TEXT)")
+        rnd = random.Random(1)
+        c.executemany("INSERT INTO t VALUES (?,?,?)",
+                      [(i, rnd.randrange(10 ** 6), "s%05d" % rnd.randrange(10 ** 5)) for i in range(1, 20001)])
+        c.commit()
+        for k, cols in enumerate((["a"], ["a", "b"])):
+            est = A.estimate_size(c, "t", cols, 20000, 4096)
+            c.execute(f"CREATE INDEX ix{k} ON t({', '.join(cols)})")
+            act = A.object_size(c, f"ix{k}")
+            if act is None:
+                self.skipTest("this SQLite build has no dbstat")
+            self.assertLessEqual(abs(est / act - 1.0), 0.10, (cols, est, act))
+        c.close()
 
 
 class TestVerify(unittest.TestCase):

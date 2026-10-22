@@ -1,4 +1,5 @@
 """CONTRACT.md 与代码一致：命令行参数都存在、第一行正则能匹配真实输出、退出码、JSON 字段名。"""
+import ast
 import os
 import re
 import unittest
@@ -15,6 +16,7 @@ with open(os.path.join(PKG, "CONTRACT.md"), encoding="utf-8") as _f:
     CONTRACT = _f.read()
 with open(os.path.join(PKG, "sqlite_doctor.py"), encoding="utf-8") as _f:
     DOCTOR_SRC = _f.read()
+DOCTOR_STRINGS = {n.value for n in ast.walk(ast.parse(DOCTOR_SRC)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
 
 
 def regexes():
@@ -88,7 +90,7 @@ class TestOptions(unittest.TestCase):
                      "WAL_GROWTH", "FRAGMENTED", "NO_PRIMARY_KEY", "FK_WITHOUT_INDEX", "NEVER_ANALYZED", "STATS_STALE",
                      "STATS_MISSING", "SUGGESTION_REJECTED"):
             self.assertIn(f"`{code}`", CONTRACT)
-            self.assertIn(f'"{code}"', DOCTOR_SRC)
+            self.assertIn(code, DOCTOR_STRINGS)                                # 代码里的字符串常量（与引号 / 排版无关）
         for fmt in (D.FORMAT, D.REPORT_FORMAT, G.FORMAT, J.FORMAT, H.FORMAT, B.FORMAT, "qdperf.http_load.v1"):
             self.assertIn(fmt, CONTRACT)
 

@@ -4,6 +4,7 @@ QDPERF_FAST=1（突变测试子进程里设置）只缩短实验时长 / 次数�
 QDPERF_COVERAGE=1（tools/cov.py 设置）或 QDPERF_NO_TIMING=1（突变测试设置：4 个突变体并行时机器很忙）时，
 依赖绝对时长 / 机器空闲的断言跳过（TIMING = False），形状 / 结构类判据照跑。
 """
+import atexit
 import contextlib
 import io
 import os
@@ -37,6 +38,7 @@ def tiny_db(test, seed=7):
     key = ("tiny", seed)
     if key not in _CACHE:
         d = tempfile.mkdtemp(prefix="qdperf-tiny-")
+        atexit.register(shutil.rmtree, d, True)                     # 进程退出时删掉缓存的母库
         path = os.path.join(d, "tiny.db")
         synth_db.generate(path, seed=seed, scale=TINY_SCALE)
         _CACHE[key] = path

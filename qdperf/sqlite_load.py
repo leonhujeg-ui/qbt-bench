@@ -16,6 +16,7 @@ wal_growth(db, ...)
 import json
 import os
 import random
+import shutil
 import sqlite3
 import struct
 import time
@@ -186,18 +187,21 @@ def contention(db, writers, duration=5.0, busy_timeout=5.0, begin="immediate", s
                budget_ms=200.0, seed=0, poisson=False, think_ms=0.0):
     """writers = [{name, rate, txns: [{name, weight, statements, read_table}]}]。返回汇总 dict。"""
     work = common.scratch_dir("qdperf-contention-")
-    start = time.time() + 1.5 + 0.2 * len(writers)              # 给 spawn 留出导入时间，全部写者同一时刻起跑
-    procs, outs = [], []
-    for k, w in enumerate(writers):
-        spec = {"name": w["name"], "db": db, "busy_timeout": busy_timeout, "synchronous": synchronous,
-                "begin": begin, "rate": w["rate"], "duration": duration, "start_wall": start, "seed": seed * 1000 + k,
-                "txns": w["txns"], "poisson": poisson, "think": think_ms / 1000.0}
-        out = os.path.join(work, f"w{k}.json")
-        outs.append(out)
-        procs.append(common.start_process(writer_main, spec, out, name=w["name"]))
-    late = common.join_all(procs, timeout=duration + 60)
-    raw = [common.read_json(o) if os.path.exists(o) else {"name": w["name"], "error": "no output"}
-           for o, w in zip(outs, writers)]
+    try:
+        start = time.time() + 1.5 + 0.2 * len(writers)          # 给 spawn 留出导入时间，全部写者同一时刻起跑
+        procs, outs = [], []
+        for k, w in enumerate(writers):
+            spec = {"name": w["name"], "db": db, "busy_timeout": busy_timeout, "synchronous": synchronous,
+                    "begin": begin, "rate": w["rate"], "duration": duration, "start_wall": start,
+                    "seed": seed * 1000 + k, "txns": w["txns"], "poisson": poisson, "think": think_ms / 1000.0}
+            out = os.path.join(work, f"w{k}.json")
+            outs.append(out)
+            procs.append(common.start_process(writer_main, spec, out, name=w["name"]))
+        late = common.join_all(procs, timeout=duration + 60)
+        raw = [common.read_json(o) if os.path.exists(o) else {"name": w["name"], "error": "no output"}
+               for o, w in zip(outs, writers)]
+    finally:
+        shutil.rmtree(work, ignore_errors=True)                   # 写者的输出读完即删，不在 tempfile 里堆积
     per = [summarize_writer(r) for r in raw]
     waits = [r[2] for res in raw for r in res.get("records", []) if r[4] is None]
     cfg = {"busy_timeout": busy_timeout, "begin": begin, "synchronous": synchronous, "duration": duration,
@@ -280,17 +284,20 @@ def wal_growth(db, autocheckpoint=1000, long_reader=False, duration=8.0, rate=20
     conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")                # 起点：WAL 清零
     conn.close()
     work = common.scratch_dir("qdperf-wal-")
-    start = time.time() + 1.5
-    wspec = {"db": db, "synchronous": synchronous, "autocheckpoint": autocheckpoint, "rows_per_txn": rows_per_txn,
-             "rate": rate, "duration": duration, "start_wall": start, "seed": seed}
-    procs = [common.start_process(wal_writer_main, wspec, os.path.join(work, "w.json"), name="writer")]
-    if long_reader:
-        rspec = {"db": db, "hold": hold, "duration": duration + 0.5, "start_wall": start - 0.2}
-        procs.append(common.start_process(long_reader_main, rspec, os.path.join(work, "r.json"), name="panel"))
-    curve = _sample_wal(db, start, duration, sample)
-    late = common.join_all(procs, timeout=duration + 60)
-    w = common.read_json(os.path.join(work, "w.json")) if os.path.exists(os.path.join(work, "w.json")) else {}
-    r = common.read_json(os.path.join(work, "r.json")) if os.path.exists(os.path.join(work, "r.json")) else {}
+    try:
+        start = time.time() + 1.5
+        wspec = {"db": db, "synchronous": synchronous, "autocheckpoint": autocheckpoint, "rows_per_txn": rows_per_txn,
+                 "rate": rate, "duration": duration, "start_wall": start, "seed": seed}
+        procs = [common.start_process(wal_writer_main, wspec, os.path.join(work, "w.json"), name="writer")]
+        if long_reader:
+            rspec = {"db": db, "hold": hold, "duration": duration + 0.5, "start_wall": start - 0.2}
+            procs.append(common.start_process(long_reader_main, rspec, os.path.join(work, "r.json"), name="panel"))
+        curve = _sample_wal(db, start, duration, sample)
+        late = common.join_all(procs, timeout=duration + 60)
+        w = common.read_json(os.path.join(work, "w.json")) if os.path.exists(os.path.join(work, "w.json")) else {}
+        r = common.read_json(os.path.join(work, "r.json")) if os.path.exists(os.path.join(work, "r.json")) else {}
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
     sizes = [c[1] for c in curve]
     live = [c[2] for c in curve]
     return {"config": {"autocheckpoint": autocheckpoint, "long_reader": long_reader, "duration": duration,

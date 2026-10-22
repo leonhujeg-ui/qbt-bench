@@ -157,12 +157,39 @@ class TestRealProcesses(unittest.TestCase):
         self.assertTrue(any("BUSY_SNAPSHOT" in c for c in r["root_cause"]))
         self.assertEqual(r["config"]["think_ms"], 5.0)
 
+    def test_defaults_and_scratch_cleanup(self):
+        """不起真进程：contention 的缺省口径；contention / wal_growth 用完的 tempfile 目录都删掉（不堆积）。"""
+        from unittest import mock
+        made, real = [], L.common.scratch_dir
+
+        def track(prefix="qdperf-"):
+            made.append(real(prefix))
+            return made[-1]
+
+        db = os.path.join(tmpdir(self), "w.db")
+        sqlite3.connect(db).close()
+        with mock.patch.object(L.common, "scratch_dir", side_effect=track), \
+                mock.patch.object(L.common, "start_process", return_value=None), \
+                mock.patch.object(L.common, "join_all", return_value=[]), \
+                mock.patch.object(L, "_sample_wal", return_value=[]):
+            r = L.contention(db, writers(1, 20.0))
+            g = L.wal_growth(db)
+        cfg = r["config"]
+        self.assertEqual((cfg["duration"], cfg["busy_timeout"], cfg["begin"], cfg["synchronous"], cfg["budget_ms"],
+                          cfg["poisson"], cfg["think_ms"]), (5.0, 5.0, "immediate", "NORMAL", 200.0, False, 0.0))
+        self.assertEqual(g["config"]["autocheckpoint"], 1000)
+        self.assertEqual(len(made), 2)
+        self.assertEqual([os.path.exists(d) for d in made], [False, False])
+
     def test_failed_statements_and_crashed_writer(self):
         d = tmpdir(self)
         p = os.path.join(d, "empty.db")
         sqlite3.connect(p).close()
         r = L.contention(p, writers(1, 20.0), duration=0.5, seed=3)          # 表不存在：每笔事务失败、逐笔记录
         self.assertFalse(r["ok"])
+        cfg = r["config"]                                                    # 缺省口径：busy_timeout 5 s、IMMEDIATE、NORMAL、预算 200 ms
+        self.assertEqual((cfg["busy_timeout"], cfg["begin"], cfg["synchronous"], cfg["budget_ms"], cfg["poisson"],
+                          cfg["think_ms"]), (5.0, "immediate", "NORMAL", 200.0, False, 0.0))
         self.assertEqual(r["overall"]["crashed"], [])
         self.assertEqual(r["writers"][0]["committed"], 0)
         self.assertEqual(r["writers"][0]["errors"], {"SQLITE_ERROR": r["writers"][0]["attempts"]})
@@ -194,6 +221,8 @@ class TestRealProcesses(unittest.TestCase):
         self.assertGreater(free["commit_ms"]["n"], 300)
         conn = sqlite3.connect(db)
         self.assertGreater(conn.execute(f"SELECT count(*) FROM {L.PROBE}").fetchone()[0], 0)
+        self.assertEqual(conn.execute(f"SELECT min(length(payload)), max(length(payload)) FROM {L.PROBE}").fetchone(),
+                         (200, 200))                                         # 实验负载口径：每行 200 字节（曲线跨版本可比）
         conn.close()
 
 
