@@ -129,9 +129,13 @@ class TestRuntimeAudit(unittest.TestCase):
         self.assertTrue(_allowed_path(os.path.join(PKG, "results", "g1.json")))
         self.assertTrue(_allowed_path("/dev/null"))
         self.assertTrue(_allowed_path(":memory:"))
-        self.assertFalse(_allowed_path(os.path.join(PKG, "x.json")))
-        self.assertFalse(_allowed_path(os.path.join(REPO, "qbt", "x")))
-        self.assertFalse(_allowed_path(os.path.join(PKG, "results") + "_evil/x"))
+        outside = os.path.join(os.path.abspath(os.sep), "qdperf-outside-check", "x.json")
+        self.assertFalse(_allowed_path(outside))
+        self.assertFalse(_allowed_path("file:" + outside + "?mode=ro"))
+        if not os.path.realpath(PKG).startswith(os.path.realpath(tmp) + os.sep):   # 突变测试时仓库副本本身就在 tempfile 里
+            self.assertFalse(_allowed_path(os.path.join(PKG, "x.json")))
+            self.assertFalse(_allowed_path(os.path.join(REPO, "qbt", "x")))
+            self.assertFalse(_allowed_path(os.path.join(PKG, "results") + "_evil/x"))
 
 
 class TestLimits(unittest.TestCase):

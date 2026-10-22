@@ -7,6 +7,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 from qdperf import common as C
 from qdperf.tests._util import REPO, tmpdir
@@ -69,13 +70,17 @@ class TestText(unittest.TestCase):
         self.assertEqual(lines[2], "ab      1")
         self.assertEqual(lines[3], "中文字  22")
         self.assertEqual(C._width("a中"), 3)
+        self.assertEqual(C._width(chr(0x2E7F)), 1)                     # 边界：0x2E80 起算宽字符
+        self.assertEqual(C._width(chr(0x2E80)), 2)
 
     def test_sparkline(self):
         self.assertEqual(C.sparkline([]), "")
         self.assertEqual(C.sparkline([0, 0, 0]), "   ")
         self.assertEqual(C.sparkline([0, 4, 8]), " ▄█")
         self.assertEqual(len(C.sparkline(list(range(1000)), 50)), 50)
-        self.assertEqual(C.sparkline([1, 8, 1, 1], 2), "█▁")         # 每格取该段最大值：[1, 8] → 8，[1, 1] → 1
+        self.assertEqual(C.sparkline([1, 8, 1, 1], 2), "█▁")
+        self.assertEqual(len(C.sparkline(list(range(61)))), 31)        # 缺省宽 60：61 个点 → 每格 2 个
+        self.assertEqual(len(C.sparkline(list(range(60)))), 60)         # 每格取该段最大值：[1, 8] → 8，[1, 1] → 1
 
 
 class TestFiles(unittest.TestCase):
@@ -98,6 +103,13 @@ class TestFiles(unittest.TestCase):
                         ("http://[::1]:80/", True), ("http://example.com", False), ("http://10.0.0.1", False),
                         ("http://", False)):
             self.assertEqual(C.is_loopback_url(url), ok, url)
+
+    def test_cpu_model(self):
+        fake = "processor\t: 0\nvendor_id\t: X\nmodel name\t: Fancy: CPU 9 @ 3GHz\nmodel name\t: second\n"
+        with mock.patch("builtins.open", mock.mock_open(read_data=fake)):
+            self.assertEqual(C.cpu_model(), "Fancy: CPU 9 @ 3GHz")     # 取第一个 model name 行、冒号后的全部
+        with mock.patch("builtins.open", side_effect=OSError("no proc")):
+            self.assertTrue(C.cpu_model())
 
     def test_machine(self):
         m = C.machine()
@@ -144,10 +156,11 @@ class TestAudit(unittest.TestCase):
             os.close(fd)
         C._audit_event("os.remove", ("g.db", 99999), emit)                 # 解析不了的目录 fd：跳过（外层事件有全路径）
         C._audit_event("os.rename", ("/x/a", "/x/b", -1, -1), emit)
+        C._audit_event("os.rename", ("rel", "/x/c", 99999, -1), emit)   # 源是解析不了的 fd 相对名：跳过它，但目标照记
         self.assertEqual(got, [("write", "/x/y"), ("os.remove", "/x/r"), ("sqlite3.connect", "/x/db"),
                                ("socket.connect", ["127.0.0.1", 80]), ("socket.connect", "/run/sock"),
                                ("os.remove", os.path.join(os.path.realpath(d), "f.db")), ("os.rename", "/x/a"),
-                               ("os.rename", "/x/b")])
+                               ("os.rename", "/x/b"), ("os.rename", "/x/c")])
         self.assertIsNone(C._fd_dir(99999))
 
     def test_child_hooks_in_subprocess(self):
@@ -168,6 +181,9 @@ class TestAudit(unittest.TestCase):
         self.assertIn(("write", os.path.join(d, "w.txt")), kinds)
         self.assertIn(("sqlite3.connect", os.path.join(d, "a.db")), kinds)
         self.assertIn(("socket.connect", str(["127.0.0.1", 9])), kinds)
+        umask = os.umask(0)
+        os.umask(umask)
+        self.assertEqual(os.stat(log).st_mode & 0o777, 0o644 & ~umask)
         dumps = os.listdir(cov)
         self.assertEqual(len(dumps), 1)
         with open(os.path.join(cov, dumps[0])) as f:
@@ -187,6 +203,9 @@ class TestSpawn(unittest.TestCase):
         self.assertLess(time.monotonic() - t0, 20)
         self.assertFalse(slow.is_alive())
         self.assertEqual(C.spawn_context().get_start_method(), "spawn")
+        dflt = C.start_process(_sleeper, 0.01, name="dflt")
+        self.assertTrue(dflt.daemon)                                     # 缺省 daemon（父进程退出时不留孤儿）
+        self.assertEqual(C.join_all([dflt], timeout=30), [])
         nd = C.start_process(_sleeper, 0.01, name="nd", daemon=False)
         self.assertFalse(nd.daemon)
         self.assertEqual(C.join_all([nd], timeout=30), [])

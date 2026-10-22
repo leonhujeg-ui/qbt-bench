@@ -8,9 +8,10 @@
 
 每个突变体：在 tempfile 下的独立工作目录里复制 qdperf/（被突变的模块换成突变源码；results/ 不复制），仓库其余顶层包
 （qbt / strategies / tools / mutants）软链进去，子进程跑 QDPERF_FAST=1 QDPERF_NO_TIMING=1 python -m unittest -f
-<模块顺序>；失败 = 抓住，超时 = 抓住（单列），通过 = 漏网。
+<模块顺序>；失败且经确认 = 抓住，超时 = 抓住（单列），通过 = 漏网。确认：报失败的那个测试在同一突变体上单独重跑仍失败才算；
+单独重跑通过的失败是并行负载下的抖动，记进 unconfirmed 并整套再跑一遍（见 run_one）。
 QDPERF_NO_TIMING=1 让依赖绝对时长的断言跳过（4 个突变体并行时机器忙，计时断言会误杀，虚增抓住率）；开跑前先在
-同样的并行度下跑 jobs 份未突变基线，全部通过才开始（证明剩下的判据在并行下不抖）。
+同样的并行度下跑 jobs 份未突变基线，全部通过才开始；基线只能说明“通常不抖”，长时间满载下的偶发失败由上面的确认挡住。
 """
 import argparse
 import ast
@@ -18,6 +19,7 @@ import concurrent.futures
 import json
 import os
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -33,11 +35,11 @@ from mutants import run_mutations as base      # noqa: E402  本仓已有的突�
 PKG = os.path.join(REPO, "qdperf")
 RESULTS = os.path.join(PKG, "results")
 T = "qdperf.tests."
-ALL_TESTS = ["test_sqlplan", "test_synth_db", "test_contract", "test_common", "test_doctor", "test_profile_gate",
+ALL_TESTS = ["test_sqlplan", "test_index_advisor", "test_synth_db", "test_contract", "test_common", "test_doctor", "test_profile_gate",
              "test_constraints", "test_http_load", "test_load", "test_tick_jitter"]     # 快的在前；test_report 只查文档，不算
 FIRST = {
     "common": ["test_common", "test_constraints"], "synth_db": ["test_synth_db"], "sqlplan": ["test_sqlplan", "test_doctor"],
-    "index_advisor": ["test_doctor"], "sqlite_doctor": ["test_doctor", "test_load"], "sqlite_load": ["test_load"],
+    "index_advisor": ["test_index_advisor", "test_doctor"], "sqlite_doctor": ["test_doctor", "test_load"], "sqlite_load": ["test_load"],
     "profile_gate": ["test_profile_gate", "test_contract"], "tick_jitter": ["test_tick_jitter"],
     "http_load": ["test_http_load", "test_contract"],
     "fake_backend": ["test_http_load"],
@@ -97,22 +99,44 @@ def _env():
     return env
 
 
-def run_one(mutant, source, timeout, work):
+FAILED_TEST = re.compile(r"^(?:FAIL|ERROR): \S+ \(([\w.]+)\)")
+
+
+def _run(cmd, workdir, env, timeout):
+    """→ (状态, 首个失败行)；状态 survived / killed / timeout。"""
+    try:
+        proc = subprocess.run(cmd, cwd=workdir, env=env, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return "timeout", ""
+    return ("survived" if proc.returncode == 0 else "killed"), base._first_failure(proc.stderr)
+
+
+def run_one(mutant, source, timeout, work, attempts=2):
+    """跑一个突变体。“抓住”要经确认：把报失败的那个测试在同一突变体上单独再跑一遍，仍失败才算（并行负载下偶发失败的
+    测试不能把突变体“误杀”）；单独重跑通过 → 记为一次抖动，整套再跑一遍（最多 attempts 遍），都没有确认的失败 → 漏网。
+    失败行里没有测试名（导入即崩、解释器报错）的属确定性失败，直接算抓住。"""
     mutated, _b, _a = base.apply_mutation(source, mutant["idx"], mutant["op"], mutant["extra"])
     workdir = os.path.join(work, mutant["id"].replace(":", "_"))
     prepare(workdir, mutant["module"], mutated)
+    env = dict(_env(), QDPERF_MUTANT=mutant["id"])
     cmd = [sys.executable, "-m", "unittest", "-f"] + test_order(mutant["module"])
     t0 = time.perf_counter()
-    try:
-        proc = subprocess.run(cmd, cwd=workdir, env=dict(_env(), QDPERF_MUTANT=mutant["id"]), capture_output=True,
-                              text=True, timeout=timeout)
-        status = "survived" if proc.returncode == 0 else "killed"
-        detail = base._first_failure(proc.stderr)
-    except subprocess.TimeoutExpired:
-        status, detail = "timeout", ""
+    flaky = []
+    status, detail = "survived", "OK"
+    for _ in range(attempts):
+        status, detail = _run(cmd, workdir, env, timeout)
+        if status != "killed":
+            break
+        m = FAILED_TEST.match(detail)
+        if m is None or _run([sys.executable, "-m", "unittest", m.group(1)], workdir, env, timeout)[0] != "survived":
+            break                                                  # 确认：单独重跑仍失败（或超时）
+        flaky.append(detail)
+        status, detail = "survived", "OK (unconfirmed failures only)"
     shutil.rmtree(workdir, ignore_errors=True)
     rec = {k: v for k, v in mutant.items() if k not in ("idx", "extra")}
     rec.update(status=status, detail=detail, seconds=round(time.perf_counter() - t0, 2))
+    if flaky:
+        rec["unconfirmed"] = flaky
     return rec
 
 
@@ -153,6 +177,26 @@ def write(records, meta, out_json, out_md):
     return summary
 
 
+def _previous(args, plan):
+    """--ids / --module 时读回已有结果：→ (只剩要跑的 plan, 保留的旧记录, {id: 首轮状态}, 旧 meta)。"""
+    done, prev_meta, first = {}, None, {}
+    if os.path.exists(args.out) and (args.ids or args.module):
+        with open(args.out, encoding="utf-8") as f:
+            prev = json.load(f)
+        done, prev_meta = {r["id"]: r for r in prev["mutants"]}, prev["meta"]
+    if args.ids:
+        wanted = set(args.ids)
+        plan = {m: (s, [x for x in muts if x["id"] in wanted], n) for m, (s, muts, n) in plan.items()}
+        missing = wanted - {x["id"] for _s, muts, _n in plan.values() for x in muts}
+        if missing:
+            raise SystemExit(f"unknown mutant ids: {sorted(missing)}")
+        first = {k: v.get("first_run", v["status"]) for k, v in done.items() if k in wanted}
+        done = {k: v for k, v in done.items() if k not in wanted}
+    else:
+        done = {k: v for k, v in done.items() if v["module"] not in plan}
+    return plan, done, first, prev_meta
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--module", nargs="*", default=None)
@@ -175,35 +219,29 @@ def main(argv=None):
     base_s, timeout = baseline(work, args.jobs)
     timeout = args.timeout or timeout
     print(f"baseline {base_s:.1f}s x{args.jobs} parallel copies OK, timeout {timeout:.0f}s", flush=True)
-    done = {}
-    if os.path.exists(args.out) and (args.ids or args.module):
-        with open(args.out, encoding="utf-8") as f:
-            done = {r["id"]: r for r in json.load(f)["mutants"]}
-    if args.ids:
-        wanted = set(args.ids)
-        plan = {m: (s, [x for x in muts if x["id"] in wanted], n) for m, (s, muts, n) in plan.items()}
-        missing = wanted - {x["id"] for _s, muts, _n in plan.values() for x in muts}
-        if missing:
-            raise SystemExit(f"unknown mutant ids: {sorted(missing)}")
-        done = {k: v for k, v in done.items() if k not in wanted}
-    else:
-        done = {k: v for k, v in done.items() if v["module"] not in plan}
+    plan, done, first, prev_meta = _previous(args, plan)
     todo = [(m, src) for _mod, (src, muts, _n) in plan.items() for m in muts]
     meta = {"command": "python3.12 qdperf/mutants/run.py " + " ".join(argv if argv is not None else sys.argv[1:]),
             "per_module": args.per_module, "seed": args.seed, "jobs": args.jobs, "baseline_seconds": round(base_s, 1),
             "timeout_seconds": round(timeout, 1), "candidates": {m: n for m, (_s, _muts, n) in plan.items()}}
+    if args.ids and prev_meta is not None:                 # 补判据后的重跑：保留首轮的 meta，重跑记进 reruns
+        rerun = {"command": meta["command"], "ids": len(todo), "baseline_seconds": meta["baseline_seconds"]}
+        meta = dict(prev_meta, reruns=prev_meta.get("reruns", []) + [rerun])
     records = list(done.values())
     t0 = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futs = [pool.submit(run_one, m, src, timeout, work) for m, src in todo]
         for k, fut in enumerate(concurrent.futures.as_completed(futs), 1):
             rec = fut.result()
+            if rec["id"] in first:
+                rec["first_run"] = first[rec["id"]]        # 首轮结果（survived → 补判据后 killed 的可追溯）
             records.append(rec)
             print(f"[{k}/{len(todo)}] {rec['status']:8s} {rec['id']} line {rec['line']} ({rec['seconds']}s) "
                   f"{rec['detail'][:70]}", flush=True)
             if k % 20 == 0:
                 write(records, meta, args.out, args.md)
-    meta["elapsed_seconds"] = round(time.perf_counter() - t0, 1)
+    (meta["reruns"][-1] if args.ids and prev_meta is not None else meta)["elapsed_seconds"] = \
+        round(time.perf_counter() - t0, 1)
     shutil.rmtree(work, ignore_errors=True)
     summary = write(records, meta, args.out, args.md)
     print(json.dumps(summary, indent=1))

@@ -103,6 +103,21 @@ class TestNames(unittest.TestCase):
         self.assertLessEqual(len(G.top_functions(prof, 2)[0]), 2)
         self.assertFalse(any(re.search(r":\d+\(", n) for n in names))
 
+    def test_top_defaults_and_rounding(self):
+        import cProfile
+        ns = {}
+        exec("\n".join(f"def f{i}(): return sum(range({i} * 50))" for i in range(40)), ns)
+        prof = cProfile.Profile()
+        prof.enable()
+        for i in range(40):
+            ns[f"f{i}"]()
+        prof.disable()
+        top, total = G.top_functions(prof)
+        self.assertGreaterEqual(total, 40)
+        self.assertEqual(len(top), 30)                                         # 缺省前 30（契约）
+        for t in top:                                                          # 秒，6 位小数（JSON 可读、可 diff）
+            self.assertEqual((t["tottime"], t["cumtime"]), (round(t["tottime"], 6), round(t["cumtime"], 6)))
+
 
 class TestCompare(unittest.TestCase):
     def test_ok_and_first_line(self):
@@ -139,7 +154,7 @@ class TestCompare(unittest.TestCase):
         self.assertAlmostEqual(hot["tolerance"], 0.16)
         self.assertAlmostEqual(hot["noise"], 0.08)
         self.assertEqual(r["verdict"], "OK")
-        self.assertIn("2×noise 16.0%", r["lines"][1])
+        self.assertEqual(r["lines"][1], "ok  hot.wall_s 1→1.15 +15.0% tol=16.0% (manual 10.0%, 2×noise 16.0%)")
         self.assertAlmostEqual(r["metrics"][1]["tolerance"], 0.10)
         self.assertAlmostEqual(r["metrics"][2]["tolerance"], 0.30)
         self.assertEqual(G.compare(doc(1.0, noise=noise), doc(1.17))["verdict"], "REGRESSION")
@@ -157,6 +172,9 @@ class TestCompare(unittest.TestCase):
         self.assertEqual(r["lines"][-1], "NEW_TOP3 x cum=0.5s")
         self.assertEqual([t["name"] for t in G.compare(base, new, top_new=10)["new_top"]], ["x", "y"])
         self.assertEqual(G.function_names(new), {"a", "x", "b", "y", "c"})
+        names = [f"f{i}" for i in range(12)]
+        late = doc(top=names[:9] + ["n10", "n11"] + names[9:])                # n10 排第 10、n11 排第 11
+        self.assertEqual([t["name"] for t in G.compare(doc(top=names), late)["new_top"]], ["n10"])   # 缺省只看前 10
 
     def test_errors_and_missing(self):
         with self.assertRaises(G.GateError):
@@ -234,7 +252,7 @@ class TestMeasure(unittest.TestCase):
         same = G.measure(DEMO, {"n": 200_000}, repeat=3)
         self.assertEqual(G.function_names(same), G.function_names(base))
         slow_args = {"n": 200_000, "burn": 0}
-        slow = G.measure(DEMO, dict(slow_args, burn=600_000), repeat=3)
+        slow = G.measure(DEMO, dict(slow_args, burn=3_000_000), repeat=3)
         slow["args"] = base["args"]                         # 放慢版本加了参数；闸只看测量值
         r = G.compare(base, slow)
         self.assertEqual(r["verdict"], "REGRESSION")
@@ -253,17 +271,21 @@ class TestCli(unittest.TestCase):
                                      "--out", base]), 0)
         self.assertRegex(o.getvalue().splitlines()[0], PROFILE_LINE)
         self.assertIn("runs=2", o.getvalue().splitlines()[0])
+        self.assertRegex(o.getvalue(), r"累计s +自身s +调用 +函数")                  # 首行之后是函数表（人读）
+        self.assertIn("qdperf/examples/demo_work.py:spin", o.getvalue())
         with captured() as (o, _e):
             self.assertEqual(G.main(["run", DEMO, "--args", '{"n": 30000}', "--repeat", "2", "--no-cold", "--out", new]), 0)
         self.assertIn("cold_wall_s=- ", o.getvalue())
+        self.assertIn(" runs=1 ", o.getvalue().splitlines()[0])               # run 缺省只跑 1 遍（baseline / pair 缺省 3）
         with captured() as (o, _e):
-            rc = G.main(["compare", base, new, "--wall-tol", "5", "--gate", "hot,mem", "--json", os.path.join(d, "c.json")])
+            rc = G.main(["compare", base, new, "--wall-tol", "1000", "--gate", "hot,mem", "--json",
+                         os.path.join(d, "c.json")])                    # 只验退出码与首行格式：容差放到无穷大
         self.assertEqual(rc, 0)
         self.assertRegex(o.getvalue().splitlines()[0], OK_LINE)
         self.assertTrue(os.path.exists(os.path.join(d, "c.json")))
         with open(new) as f:
             slow = json.load(f)
-        slow["hot"]["wall_s"] *= 3
+        slow["hot"]["wall_s"] *= 100                                     # 远超任何噪声撑开的容差
         slow_path = os.path.join(d, "s.json")
         with open(slow_path, "w") as f:
             json.dump(slow, f)
@@ -288,6 +310,24 @@ class TestCli(unittest.TestCase):
         with captured() as (o, _e):
             self.assertEqual(G.main(["run", DEMO, "--args", "{bad", "--out", new]), 2)
 
+    def test_cli_pair(self):
+        d = tmpdir(self)
+        a, b = os.path.join(d, "a.json"), os.path.join(d, "b.json")
+        with captured() as (o, _e):
+            self.assertEqual(G.main(["pair", DEMO, "--args", '{"n": 20000}', "--runs", "1", "--repeat", "1",
+                                     "--env-b", "QDPERF_DEMO_BURN=200000", "--out", a, "--out-b", b]), 0)
+        lines = o.getvalue().splitlines()
+        self.assertTrue(lines[0].startswith("PROFILE_B "))                      # 首行是 B（本次），见 CONTRACT
+        self.assertRegex(lines[0].replace("PROFILE_B ", "PROFILE ", 1), PROFILE_LINE)
+        self.assertRegex(lines[1], PROFILE_LINE)
+        with open(a) as f:
+            da = json.load(f)
+        with open(b) as f:
+            db = json.load(f)
+        self.assertTrue("cold" in da and "cold" in db)                          # pair 两边都量冷启动
+        self.assertIn("qdperf/examples/demo_work.py:extra", G.function_names(db))
+        self.assertNotIn("qdperf/examples/demo_work.py:extra", G.function_names(da))
+
     def test_worker_entry(self):
         d = tmpdir(self)
         out = os.path.join(d, "w.json")
@@ -305,6 +345,19 @@ class TestCli(unittest.TestCase):
         self.assertLessEqual(len(res["top"]), 4)
         with self.assertRaises(G.GateError):
             G.worker("cold", DEMO, {}, 1, 5)
+
+    def test_runs_defaults(self):
+        from unittest import mock
+        with mock.patch.object(G, "measure", side_effect=lambda *a, **k: "m"), \
+                mock.patch.object(G, "aggregate", side_effect=list):
+            self.assertEqual(len(G.baseline(DEMO)), 3)                         # 缺省同机连跑 3 遍（噪声口径）
+            self.assertEqual(len(G.baseline(DEMO, runs=1)), 1)
+            with self.assertRaises(G.GateError):
+                G.baseline(DEMO, runs=0)
+        with mock.patch.object(G, "interleaved", side_effect=lambda arms, *a, **k: list(range(len(arms)))), \
+                mock.patch.object(G, "aggregate", side_effect=list):
+            self.assertEqual(G.pair(DEMO), ([0, 2, 4], [1, 3, 5]))             # 缺省各 3 遍，A B 交替
+            self.assertEqual(G.pair(DEMO, runs=1), ([0], [1]))
 
     def test_aggregate_and_pair(self):
         def m(hot, cold, peak):
@@ -330,15 +383,17 @@ class TestCli(unittest.TestCase):
         with self.assertRaises(G.GateError):
             G.interleaved([{"target": DEMO, "args": {}}], repeat=0)
         arm = {"target": DEMO, "args": {"n": 20_000}}
-        docs = G.interleaved([arm, dict(arm, env={"QDPERF_DEMO_SLOW": "1.0"}), arm], repeat=2, cold=False, top=5)
+        docs = G.interleaved([arm, dict(arm, env={"QDPERF_DEMO_SLOW": "3.0"}), arm], repeat=2, cold=False, top=5)
         self.assertEqual(len(docs), 3)
         self.assertTrue(all("cold" not in d and d["hot"]["processes"] == 2 for d in docs))
-        self.assertGreater(docs[1]["hot"]["wall_s"], 1.4 * max(docs[0]["hot"]["wall_s"], docs[2]["hot"]["wall_s"]))
+        if TIMING:                                                             # 机器满载时（突变测试并行）不比时长
+            self.assertGreater(docs[1]["hot"]["wall_s"], 2.0 * max(docs[0]["hot"]["wall_s"], docs[2]["hot"]["wall_s"]))
         self.assertIn("qdperf/examples/demo_work.py:spin_until", G.function_names(docs[1]))
         a, b = G.pair(DEMO, {"n": 20_000}, runs=2, repeat=2, env_b={"QDPERF_DEMO_BURN": "200000"})
         self.assertEqual((a["runs"], b["runs"]), (2, 2))
         self.assertEqual(len(a["noise"]["per_run"]), 2)
-        self.assertGreater(b["hot"]["wall_s"], a["hot"]["wall_s"])
+        if TIMING:
+            self.assertGreater(b["hot"]["wall_s"], a["hot"]["wall_s"])
         self.assertIn("qdperf/examples/demo_work.py:extra", G.function_names(b))
         self.assertNotIn("qdperf/examples/demo_work.py:extra", G.function_names(a))
 

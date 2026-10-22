@@ -56,6 +56,8 @@ class TestManifest(unittest.TestCase):
         cum = H.cumulative(ts)
         self.assertEqual(cum, [0.25, 1.0])
         self.assertEqual([H.pick(ts, cum, r)["name"] for r in (0.0, 0.2499, 0.25, 0.999, 1.0)], ["a", "a", "b", "b", "b"])
+        three = [{"name": n, "weight": 1} for n in "xyz"]
+        self.assertEqual(H.pick(three, H.cumulative(three), 1.0)["name"], "z")      # 累计权重的浮点尾差：兜底取最后一个
         body, headers = H._encode({"body": {"x": 1}, "headers": {"X": "1"}})
         self.assertEqual((body, headers), (b'{"x": 1}', {"X": "1", "Content-Type": "application/json"}))
         self.assertEqual(H._encode({"body": "raw", "headers": {}}), (b"raw", {}))
@@ -257,6 +259,8 @@ class TestLoad(unittest.TestCase):
         self.assertEqual(v["verdict"], "REGRESSION")
         self.assertEqual(v["first_line"], "REGRESSION x.p50_ms=10.00→13.00 (+30.0%)")
         self.assertRegex(v["first_line"], r"^REGRESSION \S+\.(p50|p99)_ms=[\d.]+→[\d.]+ \(\+[\d.]+%\)$")
+        edge = H.judge(run(x=(10, 100)), run(x=(10, 100)), run(x=(10, 110)), 0.10)
+        self.assertEqual(edge["verdict"], "OK")                                   # 变化恰好等于容差：不判红
         noisy = H.judge(run(x=(10, 100)), run(x=(10, 130)), run(x=(10, 140)), 0.10)
         row = next(r for r in noisy["rows"] if r["q"] == "p99")
         self.assertAlmostEqual(row["tolerance"], 0.6)
@@ -292,7 +296,9 @@ class TestLoad(unittest.TestCase):
         self.addCleanup(slow.shutdown)
         res = H.ab(url, slow_url, MANIFEST, c=2, seconds=0.6, warmup=0.1)
         self.assertEqual(res["verdict"], "REGRESSION")
-        self.assertTrue(res["first_line"].startswith("REGRESSION fast."))
+        self.assertRegex(res["first_line"], r"^REGRESSION (fast|post)\.p(50|95|99)_ms=[\d.]+→[\d.]+ \(\+[\d.]+%\)$")
+        p50 = next(r for r in res["rows"] if (r["target"], r["q"]) == ("fast", "p50"))
+        self.assertTrue(p50["red"])                                       # 20 → 40 ms：中位数翻倍（不受偶发长尾左右）
         self.assertEqual(set(res["runs"]), {"a1", "b", "a2"})
         d = tmpdir(self)
         mpath = os.path.join(d, "m.json")
@@ -309,7 +315,7 @@ class TestLoad(unittest.TestCase):
         self.assertRegex(o.getvalue().splitlines()[0], r"^REGRESSION ")
         with captured() as (o, _e):
             rc = H.main(["ab", "--a", url, "--b", url, "--manifest", mpath, "--c", "2", "--seconds", "0.4",
-                         "--tol", "1.0"])
+                         "--tol", "1000"])                                # A/A：只验退出码与首行格式（容差放到无穷大）
         self.assertEqual(rc, 0)
         self.assertTrue(o.getvalue().startswith("OK "))
         with captured() as (o, _e):

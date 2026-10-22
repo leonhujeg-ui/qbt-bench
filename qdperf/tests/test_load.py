@@ -7,7 +7,7 @@ import unittest
 
 from qdperf import sqlite_doctor as D
 from qdperf import sqlite_load as L
-from qdperf.tests._util import WORKLOAD, captured, scale, tiny_db, tmpdir
+from qdperf.tests._util import TIMING, WORKLOAD, captured, scale, tiny_db, tmpdir
 
 INS = ["INSERT INTO events(user_id, bot_id, kind, level, notified, ts, payload) VALUES (?,?,?,?,?,?,?)",
        [7, 42, "login", "info", 1, 1720000000, "{}"]]
@@ -177,7 +177,11 @@ class TestRealProcesses(unittest.TestCase):
                             rows_per_txn=20, hold=1.0)
         held = L.wal_growth(db, autocheckpoint=100, long_reader=True, duration=scale(2.5, 2.0), rate=200,
                             rows_per_txn=20, hold=1.0)
-        self.assertGreaterEqual(free["resets"], 2)
+        # 无长读：检查点完成后 WAL 从头重写。每次提交至少 1 帧，WAL 若从不重置，有效帧会 ≥ 提交数；实际被截在 ~100，
+        # 所以必然重置过（这个推断不依赖采样恰好落在重置前后；采样数到的 resets 在机器满载、采样变稀时会漏数）
+        self.assertGreater(free["commit_ms"]["n"], 2 * free["max_live_frames"])
+        if TIMING:
+            self.assertGreaterEqual(free["resets"], 1)
         self.assertLessEqual(free["max_live_frames"], 100 + 60)
         self.assertEqual(held["resets"], 0)
         self.assertGreater(held["max_live_frames"], 3 * free["max_live_frames"])

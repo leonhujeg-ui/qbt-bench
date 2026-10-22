@@ -13,6 +13,8 @@ from qdperf.tests._util import PKG, captured
 
 with open(os.path.join(PKG, "CONTRACT.md"), encoding="utf-8") as _f:
     CONTRACT = _f.read()
+with open(os.path.join(PKG, "sqlite_doctor.py"), encoding="utf-8") as _f:
+    DOCTOR_SRC = _f.read()
 
 
 def regexes():
@@ -86,7 +88,7 @@ class TestOptions(unittest.TestCase):
                      "WAL_GROWTH", "FRAGMENTED", "NO_PRIMARY_KEY", "FK_WITHOUT_INDEX", "NEVER_ANALYZED", "STATS_STALE",
                      "STATS_MISSING", "SUGGESTION_REJECTED"):
             self.assertIn(f"`{code}`", CONTRACT)
-            self.assertIn(f'"{code}"', open(os.path.join(PKG, "sqlite_doctor.py"), encoding="utf-8").read())
+            self.assertIn(f'"{code}"', DOCTOR_SRC)
         for fmt in (D.FORMAT, D.REPORT_FORMAT, G.FORMAT, J.FORMAT, H.FORMAT, B.FORMAT, "qdperf.http_load.v1"):
             self.assertIn(fmt, CONTRACT)
 
