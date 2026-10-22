@@ -234,6 +234,15 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(res["ok"])
         self.assertEqual((res["line"], res["cut"], res["first"]["index"]), ("value", 20, 19))
 
+    def test_causality_counts_checked_lines(self):
+        import inspect
+        self.assertEqual(inspect.signature(P.check_causality).parameters["seed"].default, 0)
+        d = SERIES["randwalk"]
+        res = P.check_causality(lambda x: R.compute("dema", x), d, [20, 40, 60])
+        self.assertEqual(res, {"ok": True, "checked": 3})
+        res = P.check_causality(lambda x: R.compute("ichimoku", x), d, [60, 90], exempt=("chikou",))
+        self.assertEqual(res["checked"], 8)
+
     def test_chikou_forward_is_exact_displacement(self):
         d = SERIES["randwalk"]
         c = d["close"]

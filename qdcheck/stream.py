@@ -44,11 +44,11 @@ def profile(seed):
 
 
 class _Order:
-    __slots__ = ("oid", "side", "remaining", "otype", "limit", "created", "expire", "filled")
+    __slots__ = ("oid", "side", "remaining", "otype", "limit", "created", "expire")
 
     def __init__(self, oid, side, qty, otype, limit, created, expire):
         self.oid, self.side, self.remaining, self.otype, self.limit = oid, side, qty, otype, limit
-        self.created, self.expire, self.filled = created, expire, 0
+        self.created, self.expire = created, expire
 
 
 class _Sim:
@@ -120,7 +120,6 @@ class _Sim:
             self._record(t, "trade", order.side, q, price, rate * q * price, oid=order.oid)
             cap -= q
             order.remaining -= q
-            order.filled += 1
             self.stats["trades"] += 1
             if order.remaining > 0:
                 self.stats["partial_fills"] += 1

@@ -9,7 +9,7 @@
  },
  "qbt_genspec_report": {
   "accepted_invalid": {
-   "count": 1000,
+   "count": 1847,
    "first_cases": [
     26,
     31,
@@ -50,7 +50,7 @@
     "minimal_size": 16,
     "original_size": 125,
     "ratio": 0.128,
-    "shrink_calls": 18,
+    "shrink_calls": 9,
     "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | GenSpec.__init__() got an unexpected keyword argument …",
     "top3": [
      "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
@@ -78,7 +78,7 @@
     "minimal_size": 9,
     "original_size": 83,
     "ratio": 0.10843373493975904,
-    "shrink_calls": 17,
+    "shrink_calls": 8,
     "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | keywords must be strings",
     "top3": [
      "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
@@ -101,7 +101,7 @@
     "minimal_size": 4,
     "original_size": 111,
     "ratio": 0.036036036036036036,
-    "shrink_calls": 6,
+    "shrink_calls": 1,
     "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not list",
     "top3": [
      "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
@@ -273,7 +273,7 @@
     "pass": 999
    }
   },
-  "elapsed_s": 3.575,
+  "elapsed_s": 4.072,
   "format": 1,
   "n": 20000,
   "outcomes": {
@@ -281,7 +281,7 @@
    "controlled": 11316,
    "pass": 5144
   },
-  "per_case_us": 178.8,
+  "per_case_us": 203.6,
   "rejected_valid": {
    "count": 0,
    "first_cases": []
@@ -405,7 +405,7 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 1.714,
+    "elapsed_s": 1.998,
     "format": 1,
     "n": 20000,
     "outcomes": {
@@ -413,7 +413,7 @@
      "controlled": 17879,
      "pass": 2121
     },
-    "per_case_us": 85.7,
+    "per_case_us": 99.9,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -423,7 +423,7 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_good"
    },
-   "wall_seconds_incl_shrink": 1.71
+   "wall_seconds_incl_shrink": 2.0
   },
   "validate_keyerror": {
    "criteria": {
@@ -453,9 +453,9 @@
       "original_size": 88,
       "ratio": 0.022727272727272728,
       "shrink_calls": 5,
-      "signature": "KeyError | /home/user/qbt-bench/qdcheck/examples.py | validate_keyerror | 116 | …",
+      "signature": "KeyError | /home/user/qbt-bench/qdcheck/examples.py | validate_keyerror | 123 | …",
       "top3": [
-       "qdcheck/examples.py:116 in validate_keyerror: out = {\"period\": _int(cfg[\"period\"], 1, 500, \"period\"), \"symbol\": _str(cfg[\"symbol\"], 1, 16, \"symbol\")}"
+       "qdcheck/examples.py:123 in validate_keyerror: out = {\"period\": _int(cfg[\"period\"], 1, 500, \"period\"), \"symbol\": _str(cfg[\"symbol\"], 1, 16, \"symbol\")}"
       ]
      }
     ],
@@ -561,7 +561,7 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 1.718,
+    "elapsed_s": 2.055,
     "format": 1,
     "n": 20000,
     "outcomes": {
@@ -569,7 +569,7 @@
      "controlled": 17369,
      "pass": 2121
     },
-    "per_case_us": 85.9,
+    "per_case_us": 102.8,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -579,7 +579,7 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_keyerror"
    },
-   "wall_seconds_incl_shrink": 1.72
+   "wall_seconds_incl_shrink": 2.06
   },
   "validate_recursion": {
    "criteria": {
@@ -617,9 +617,9 @@
       "shrink_calls": 38,
       "signature": "RecursionError | /home/user/qbt-bench/qdcheck/examples.py | _all_printable | 0 | maximum recursion depth exceeded",
       "top3": [
-       "qdcheck/examples.py:137 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)",
-       "qdcheck/examples.py:137 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)",
-       "qdcheck/examples.py:137 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)"
+       "qdcheck/examples.py:144 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)",
+       "qdcheck/examples.py:144 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)",
+       "qdcheck/examples.py:144 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)"
       ]
      }
     ],
@@ -725,7 +725,7 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 2.28,
+    "elapsed_s": 2.636,
     "format": 1,
     "n": 20000,
     "outcomes": {
@@ -733,7 +733,7 @@
      "controlled": 17449,
      "pass": 2121
     },
-    "per_case_us": 114.0,
+    "per_case_us": 131.8,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -743,7 +743,7 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_recursion"
    },
-   "wall_seconds_incl_shrink": 2.32
+   "wall_seconds_incl_shrink": 2.68
   },
   "validate_zerodiv": {
    "criteria": {
@@ -776,9 +776,9 @@
       "original_size": 143,
       "ratio": 0.08391608391608392,
       "shrink_calls": 12,
-      "signature": "ZeroDivisionError | /home/user/qbt-bench/qdcheck/examples.py | validate_zerodiv | 127 | integer division or modulo by zero",
+      "signature": "ZeroDivisionError | /home/user/qbt-bench/qdcheck/examples.py | validate_zerodiv | 134 | integer division or modulo by zero",
       "top3": [
-       "qdcheck/examples.py:127 in validate_zerodiv: bars_per_period = 10000 // period"
+       "qdcheck/examples.py:134 in validate_zerodiv: bars_per_period = 10000 // period"
       ]
      }
     ],
@@ -884,7 +884,7 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 1.852,
+    "elapsed_s": 2.093,
     "format": 1,
     "n": 20000,
     "outcomes": {
@@ -892,7 +892,7 @@
      "controlled": 17776,
      "pass": 2121
     },
-    "per_case_us": 92.6,
+    "per_case_us": 104.7,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -902,10 +902,10 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_zerodiv"
    },
-   "wall_seconds_incl_shrink": 1.86
+   "wall_seconds_incl_shrink": 2.1
   }
  },
- "seconds": 11.2,
+ "seconds": 12.9,
  "summary": {
   "coverage_cases": {
    "inf": 1785,
@@ -915,7 +915,7 @@
   },
   "coverage_ge_500": true,
   "good_validate_le_20s": true,
-  "good_validate_seconds": 1.714,
+  "good_validate_seconds": 1.998,
   "per_validate": {
    "validate_good": {
     "bare_by_type": {},

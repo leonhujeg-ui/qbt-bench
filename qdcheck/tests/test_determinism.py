@@ -139,6 +139,30 @@ class TestReportDetails(unittest.TestCase):
         self.assertEqual((args.seeds, args.rel, args.task, args.dict_order), ([0, 4242], 1e-9, "{}", False))
 
 
+class TestMoreDetails(unittest.TestCase):
+    def test_more_defaults(self):
+        import inspect
+        self.assertEqual(inspect.signature(D.run_child).parameters["timeout"].default, 600.0)
+        self.assertEqual(inspect.signature(D.floats_equal).parameters["abs_tol"].default, 0.0)
+        self.assertEqual(inspect.signature(D.diff_all).parameters["rel_tol"].default, 1e-9)
+        self.assertEqual(inspect.signature(D.diff_all).parameters["limit"].default, 10)
+        self.assertFalse(D.floats_equal(0.0, 0.5, 1e-9))
+        self.assertTrue(D.floats_equal(0.0, 0.5, 1e-9, 0.5))
+
+    def test_collection_continues_after_key_and_order_differences(self):
+        found, _n = D.diff_all({"a": {"x": 1}, "b": 1}, {"a": {"y": 1}, "b": 2})
+        self.assertEqual([(d["path"], d["reason"]) for d in found], [("a.x", "key only in a"), ("b", "value")])
+        found, _n = D.diff_all({"a": {"p": 1, "q": 2}, "b": 1}, {"a": {"q": 2, "p": 1}, "b": 2}, dict_order=True)
+        self.assertEqual([d["path"] for d in found], ["a", "b"])
+
+    def test_child_stderr_tail_is_3000_chars(self):
+        with self.assertRaises(D.HarnessError) as ctx:
+            D.run_child("builtins:exec", "raise ValueError('x' * 5000)", 0)
+        head, sep, tail = str(ctx.exception).partition("):\n")
+        self.assertEqual((sep, len(tail)), ("):\n", 3000))
+        self.assertIn("PYTHONHASHSEED=0 failed (exit 1", head)
+
+
 class TestErrors(unittest.TestCase):
     def test_bad_targets_tasks_and_results(self):
         for spec in ("nocolon", ":f", "m:", "qdcheck.examples:nope", "qdcheck.examples:SYMBOLS"):

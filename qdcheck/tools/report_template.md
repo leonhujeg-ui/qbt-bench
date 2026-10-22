@@ -39,7 +39,7 @@ python3.12 qdcheck/tools/build_report.py                   # 由结果文件重�
 | G2 | schema 驱动、固定 seed 的乱喂序列（类型乱放 / NaN / inf / -0.0 / 超大 / 负数 / 空串 / 缺键 / 多键 / 大小写 / 嵌套乱 / 1e6 长串 / Unicode） | 15 类乱喂，每个用例独立 seed（可单独重放，与 PYTHONHASHSEED 无关，测试里跨进程比对） | ✅ | `python3.12 -m qdcheck.fuzz qdcheck.examples:validate_good --schema qdcheck.examples:BACKTEST_SCHEMA` |
 | G2 | 2 万次里 NaN / inf / 缺键 / 类型错各 ≥ 500 | NaN {{g2_selfcheck.json:summary.coverage_cases.nan}}、inf {{g2_selfcheck.json:summary.coverage_cases.inf}}、缺键 {{g2_selfcheck.json:summary.coverage_cases.missing_key}}、类型错 {{g2_selfcheck.json:summary.coverage_cases.type_wrong}} | ✅ | `python3.12 -m qdcheck.tools.selfcheck g2` |
 | G2 | 三个故意写坏的 validate 必须抓到 | KeyError ×{{g2_selfcheck.json:summary.per_validate.validate_keyerror.bare_by_type.KeyError}}、ZeroDivisionError ×{{g2_selfcheck.json:summary.per_validate.validate_zerodiv.bare_by_type.ZeroDivisionError}}、RecursionError（超长字符串）×{{g2_selfcheck.json:summary.per_validate.validate_recursion.bare_by_type.RecursionError}} | ✅ | 同上 |
-| G2 | 最小复现 ≤ 原输入 30% | KeyError {{g2_selfcheck.json:summary.per_validate.validate_keyerror.max_ratio|.1%}}（`{}`）、ZeroDivisionError {{g2_selfcheck.json:summary.per_validate.validate_zerodiv.max_ratio|.1%}}（`{"period": 0}`）、RecursionError {{g2_selfcheck.json:summary.per_validate.validate_recursion.max_ratio|.2%}}（1106 字符 / 1,000,098） | ✅ | 同上 |
+| G2 | 最小复现 ≤ 原输入 30% | KeyError {{g2_selfcheck.json:summary.per_validate.validate_keyerror.max_ratio|.1%}}（最小复现 `{{g2_selfcheck.json:runs.validate_keyerror.report.bare.0.minimal_preview}}`）、ZeroDivisionError {{g2_selfcheck.json:summary.per_validate.validate_zerodiv.max_ratio|.1%}}（`{{g2_selfcheck.json:runs.validate_zerodiv.report.bare.0.minimal_preview}}`）、RecursionError {{g2_selfcheck.json:summary.per_validate.validate_recursion.max_ratio|.2%}}（{{g2_selfcheck.json:runs.validate_recursion.report.bare.0.minimal_size|,}} / {{g2_selfcheck.json:runs.validate_recursion.report.bare.0.original_size|,}} 字符） | ✅ | 同上 |
 | G2 | 2 万次 × 普通 validate ≤ 20 s（单核） | `validate_good` {{g2_selfcheck.json:summary.good_validate_seconds|.2f}} s（含生成与参考判定），裸异常 {{g2_selfcheck.json:summary.per_validate.validate_good.outcomes.bare}}，与参考判定 `schema_errors` 逐条一致（误收 {{g2_selfcheck.json:runs.validate_good.report.accepted_invalid.count}}、误拒 {{g2_selfcheck.json:runs.validate_good.report.rejected_valid.count}}） | ✅ | 同上 |
 | G3 | synth.py：同 seed 同结果，停牌 / 缺口 ≥ 3% / 单根 ±8% / 长横盘 / 趋势 | 只用 `random()` 与四则运算（无 libm），逐位可复现且前缀稳定；特征由 `test_synth.py` 逐项验证 | ✅ | `python3.12 -m qdcheck.synth --n 1000 --seed 1` |
 | G3 | ledger.py：逐根现金 / 持仓 / 均价 / 浮盈 / 已实现 / 手续费 / 资金费 / 权益 + 恒等式；多空 / 反手 / 部分平仓 / 加仓 / 逐仓 1–20 倍 / 强平 | 见第 2.4 节；随机流覆盖：开仓 {{g3_streams.json:counters.open|,}}、加仓 {{g3_streams.json:counters.add|,}}、部分平仓 {{g3_streams.json:counters.reduce|,}}、全平 {{g3_streams.json:counters.close|,}}、反手 {{g3_streams.json:counters.reverse|,}}、强平 {{g3_streams.json:counters.liquidation|,}}（其中穿仓封顶 {{g3_streams.json:counters.bankrupt_capped|,}}）、跨日结算 {{g3_streams.json:counters.settlement|,}}、资金费 {{g3_streams.json:counters.funding|,}} | ✅ | `python3.12 -m qdcheck.stream --streams 200 --bars 3000` |
@@ -49,9 +49,10 @@ python3.12 qdcheck/tools/build_report.py                   # 由结果文件重�
 | G4 | 本进程 + PYTHONHASHSEED=0 / 4242 两个子进程，结构化比较、打印第一处路径，不用 sha256 / 逐字节 | `determinism.check`；哈希种子生效用 hash 探针确认 | ✅ | `python3.12 -m qdcheck.determinism qdcheck.examples:set_order_engine --task '{"n_bars": 60}'` |
 | G4 | 依赖 set 迭代顺序的假引擎必须抓到；确定性假引擎必须通过 | set_order_engine：0 vs 4242 第一处差异 `{{g4_selfcheck.json:cases.0.first_diff_0_vs_4242.path}}`（{{g4_selfcheck.json:cases.0.first_diff_0_vs_4242.a}} vs {{g4_selfcheck.json:cases.0.first_diff_0_vs_4242.b}}）；deterministic_engine 三对一致（{{g4_selfcheck.json:cases.1.leaves}} 个叶子）；噪声 1e-12 通过 / 1e-6 抓到 | ✅ | `python3.12 -m qdcheck.tools.selfcheck g4` |
 | G4 | 对 qbt 自己的回测引擎跑一遍 | {{g4_selfcheck.json:summary.qbt_cases_identical}}/{{g4_selfcheck.json:summary.qbt_cases}} 个回测（6 策略 × 2 种 BrokerConfig × 20000 根）三份结果完全一致，比较 {{g4_selfcheck.json:summary.qbt_leaves_compared|,}} 个叶子 | ✅ | 同上 |
-| G5 | unittest 全绿 | {{coverage.json:tests_run}} 个测试，失败 {{coverage.json:tests_failed}}，跳过 {{coverage.json:tests_skipped}}（覆盖率监控下跳过 2 个计时判据，计时判据在普通运行里执行） | ✅ | `python3.12 -m unittest discover -s qdcheck/tests` |
+| G5 | unittest 全绿 | {{coverage.json:tests_run}} 个测试，失败 {{coverage.json:tests_failed}}，跳过 {{coverage.json:tests_skipped}}（覆盖率监控下跳过 2 个计时判据和 2 个“报告与结果文件一致”判据——后者依赖覆盖率结果本身；它们在普通运行里都执行） | ✅ | `python3.12 -m unittest discover -s qdcheck/tests` |
 | G5 | 语句覆盖率 ≥ 90%（复用 tools/cov.py 的做法） | **{{coverage.json:library.total_percent|.2f}}%**（{{coverage.json:library.total_covered}}/{{coverage.json:library.total_statements}} 条语句，见第 5 节） | ✅ | `python3.12 qdcheck/tools/cov.py --fail-under 90` |
 | G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | **{{mutation.json:summary.kill_rate|.1f}}%**（{{mutation.json:summary.caught}}/{{mutation.json:summary.total}}，每模块 {{mutation.json:meta.per_module}} 个；漏网 {{mutation.json:summary.survived}} 条逐条判定见第 6 节） | ✅ | `python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4` |
+| G5 | 分阶段提交，每笔写清做了什么、哪些数字变了，全部推到 `main` | G1 `79e88df` → G2 `0bc2f4c` → G3 `861202e` → G4 `bcbdf64` → G5 中间提交 `90ecf9f`（第一轮突变 + 补判据）→ G5 收尾（本报告所在提交） | ✅ | `git log --oneline -- qdcheck` |
 | G5 | 跨平台：判据只用容差和形状；生成脚本 + seed 入库，别的机器重新生成在 1e-9 内对上 | 向量、合成数据、随机流只用 `random()` 与四则运算（不依赖 libm）；`gen_vectors --check` 本机重新生成：{{vectors_check.json:vectors|,}} 条指标向量 + {{vectors_check.json:ledger.vectors}} 个账本向量，不一致 0，最大相对误差 {{vectors_check.json:max_rel_err}} | ✅ | `python3.12 -m qdcheck.gen_vectors --check` |
 
 ## 2. 接口说明（别的系统怎么调）
@@ -64,7 +65,7 @@ python3.12 qdcheck/tools/build_report.py                   # 由结果文件重�
 ```json
 {"id": "dema|ma=ema;seed=sma|value|randwalk", "indicator": "dema", "variant": "ma=ema;seed=sma", "line": "value",
  "series": "randwalk", "params": {"period": 5}, "input": {"open": [...], "high": [...], "low": [...], "close": [...], "volume": [...]},
- "output": [null, null, ..., 99.21875000000001, ...]}
+ "output": [null, null, ..., <17 位有效数字的浮点数>, ...]}
 ```
 
 多输出线的指标（Stoch RSI 的 k/d、KDJ 的 k/d/j、Ichimoku 五线）每条线一条向量（`line` 字段区分），`output` 始终是一维数组；
@@ -202,7 +203,14 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 复用本仓 `mutants/run_mutations.py` 的突变算子、候选枚举、按 `seed:模块` 抽样与校验，被测包换成 qdcheck，每模块
 {{mutation.json:meta.per_module}} 个突变体，子进程跑 `QDCHECK_FAST=1 python -m unittest -f <该模块最相关的测试在前>`
 （FAST 只缩小随机用例数 / 序列条数，不放宽判据），失败 = 抓住，超时（> {{mutation.json:meta.timeout_seconds}} s）= 抓住并单列。
-第一轮结果保留在 `results/mutation_history/round1.json`；对第一轮漏网逐条判定：等价的写明理由，不等价的补判据后用 `--ids` 重跑。
+过程（每轮原始结果都在 `results/mutation_history/`）：
+
+| 轮次 | 内容 | 抓住率 |
+|---|---|---|
+| round1 | 全部 720 个，初版测试 | {{mutation_history/round1.json:summary.kill_rate|.1f}}%（漏网 {{mutation_history/round1.json:summary.survived}}） |
+| round2 | 逐条判定 round1 漏网后补判据、修复 2 处缺陷，全部 720 个在新代码上重新抽样重跑 | {{mutation_history/round2.json:summary.kill_rate|.1f}}%（漏网 {{mutation_history/round2.json:summary.survived}}） |
+| round3–5 | 继续补判据；fuzz / stream 删除死代码、修复缩小器的无效候选后整模块重跑，其余按 `--ids` 重跑 | {{mutation_history/round5b_merged.json:summary.kill_rate|.1f}}%（合并结果） |
+| **final** | 最终代码 + 最终测试上全部 720 个从头重跑（下表，即 `results/mutation.json`） | **{{mutation.json:summary.kill_rate|.1f}}%** |
 
 {{@mutation_table}}
 
@@ -220,8 +228,9 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
   若有 1e−14 级漂移会在这些点上与向量不一致——这正是向量要暴露的数值稳健性问题（见第 4 节 qbt 的 CCI），不是容差问题。
 - **接近 0 的值**：相对容差在 0 附近无意义，compare 用 abs 1e−12 兜底；TRIX / AO 接近 0 的点对求和顺序敏感（本机两份实现
   最坏用到容差的 {{g1_selfcheck.json:cross_check_max_tol_ratio.cross_check_extra|.0%}}），需要时可放宽 `--abs`。
-- **模糊器**：单线程，不对挂死的 validate 设超时；只覆盖 schema 能描述的结构；RecursionError 的最小复现受解释器递归上限约束
-  （深嵌套原输入 3000 层时最小复现约 1100 层，比例约 36%，见测试 `test_recursion_on_deep_nesting`）。
+- **模糊器**：单线程，不对挂死的 validate 设超时；只覆盖 schema 能描述的结构；RecursionError 的最小复现受解释器递归上限约束：
+  深嵌套的最小复现不会短于约 1000 层（递归上限）加余量，原输入只有 1200 层时比例会远高于 30%（`test_recursion_on_deep_nesting`
+  只要求二分后 < 1150 层且仍可复现）；30% 判据针对的是超长字符串上的 RecursionError。
 - **determinism**：只比较返回值；不检查文件 / 数据库副作用；子进程用同一个解释器（`python=` 可换）；dict 键顺序默认不比
   （`dict_order=True` 可比）。
 - **跨平台**：结果文件来自上面一台 Linux / CPython 3.12.3 机器；向量与合成数据不依赖 libm，理论上在任何 IEEE-754 机器上逐位相同，

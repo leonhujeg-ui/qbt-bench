@@ -196,6 +196,8 @@ class TestWriterAndChecker(unittest.TestCase):
         msg = str(ctx.exception)
         self.assertIn("'check': 'premature_liquidation'", msg)          # ledger 的前两条违背都要出现在消息里
         self.assertIn("'check': 'liquidation_not_full'", msg)
+        self.assertIn("(1, 'premature_liquidation')", msg)                     # ledger_alt 的前两条也在
+        self.assertIn("(1, 'liquidation_not_full')", msg)
 
     def test_helpers_and_timing(self):
         from unittest import mock
@@ -212,6 +214,8 @@ class TestWriterAndChecker(unittest.TestCase):
         try:
             with captured() as (out, _err):
                 self.assertEqual(G.main(["--out", tmp]), 0)
+            with captured():
+                self.assertEqual(G.main(["--check", "--out", tmp]), 0)
             first = json.loads(out.getvalue().splitlines()[0])
             self.assertEqual(list(first), sorted(first))
             self.assertEqual(first["total"], 1260)

@@ -113,6 +113,10 @@ class TestBrokenValidatesAreCaught(unittest.TestCase):
         minimal = F.decode(g["minimal_input"])
         self.assertEqual(F.call(validate, minimal, E.ValidationError)[0], "bare")
         self.assertLess(g["minimal_size"], g["original_size"])
+        chains = [F._chain_info(x) for x in (minimal.values() if isinstance(minimal, dict) else [minimal])
+                  if isinstance(x, (list, dict))]
+        depths = [c[2] for c in chains if c]
+        self.assertTrue(depths and max(depths) < 1150, depths)            # 深链被二分到递归上限附近（含余量）
 
 
 class TestDeterminism(unittest.TestCase):
@@ -368,6 +372,9 @@ class TestRunner(unittest.TestCase):
             self.assertEqual(F.main(["qdcheck.examples:validate_good", "--schema", "qdcheck.examples:BACKTEST_SCHEMA",
                                      "--n", "100", "--no-shrink"]), 0)
         self.assertIn("ZeroDivisionError", stdout.getvalue())
+        self.assertIn("ZeroDivisionError x", stdout.getvalue())                 # 每个签名一行 + 栈顶三行
+        self.assertIn("first case", stdout.getvalue())
+        self.assertIn("10000 // period", stdout.getvalue())
         with open(out, encoding="ascii") as f:
             rep = json.load(f)
         self.assertEqual(rep["validate"], "qdcheck.examples:validate_zerodiv")
@@ -468,11 +475,108 @@ class TestGenerators(unittest.TestCase):
         from unittest import mock
         ticks = iter([10.0, 11.23456])
         with mock.patch.object(F.time, "perf_counter", lambda: next(ticks)):
-            rep = F.run(E.validate_good, SCHEMA, n=50, seed=0, controlled=E.ValidationError)
+            rep = F.run(E.validate_good, SCHEMA, n=7, seed=0, controlled=E.ValidationError)
         self.assertEqual(rep["elapsed_s"], 1.235)
-        self.assertEqual(rep["per_case_us"], round(1e6 * 1.23456 / 50, 1))
+        self.assertEqual(rep["per_case_us"], 176365.7)                    # 1e6 * 1.23456 / 7 = 176365.714...
         self.assertEqual(F.run(E.validate_good, SCHEMA, n=0)["per_case_us"], 0.0)
 
+
+    def test_small_helpers(self):
+        import random
+        lens = [len(F.valid_instance({"type": "str", "min_len": 0}, random.Random(k))) for k in range(300)]
+        self.assertEqual((min(lens), max(lens)), (1, 12))
+        self.assertEqual(len(F.value_paths(F.deep_chain("list", 30, 0))), 12)
+        draws = self._draws(lambda r: F._wrong_type_value(r, {"type": "str"}))
+        self.assertEqual({repr(v) for v in draws}, {"[1, 2]", "{'a': 1}", "None", "True", "False", "3.7", "7",
+                                                    "b'bytes'", "()"})
+        self.assertFalse(F.same_value([1], [2]))
+        self.assertFalse(F.same_value([1, [2]], [1, [3]]))
+        self.assertEqual((F.size([]), F.size([1, 2]), F.size({})), (2, 5, 2))
+
+    def test_round3_details(self):
+        self.assertEqual(len(F.schema_errors(TestSchemaSemantics.S, {"i": 2, "o": [], "loose": []}, limit=5)), 2)
+        import random
+        vals = set()
+        for k in range(300):
+            obj, _done = F._mutate("extra_key", random.Random(k), {"period": 1}, SCHEMA)
+            vals |= {repr(v) for key, v in obj.items() if key != "period"}
+        self.assertEqual(vals, {"1", "'v'", "None", "[1]", "{'a': 1}"})
+        self.assertIsInstance(F.encode(F.deep_chain("list", 32, 0)), dict)       # 恰 32 层：压缩
+        self.assertFalse(F._deep(F.deep_chain("list", 40, 0)))
+        self.assertTrue(F._deep(F.deep_chain("list", 41, 0)))
+        sh = F._Shrinker(None, None, ("ValueError", "f", "g", 3, "x"), REPO, 10)
+        nested = sh._simpler([[1], [2], [3]])
+        self.assertEqual(nested[-2:], [[1], [2]])
+        self.assertEqual(nested, [[], [[1]], [[2], [3]], [[1], [3]], [[1], [2]], [1], [2]])
+        self.assertEqual(sh._simpler([[1]]), [[], [1]])                          # v[:1] / v[half:] 与 v 相同，去掉
+        rep = F.run(int, SCHEMA, n=20, seed=0, shrink=False, check_accepted=False)
+        self.assertTrue(rep["bare"][0]["signature"].startswith("TypeError |  |  | 0 | "))
+
+    def test_shrink_stops_after_a_pass_without_change(self):
+        sig = F._frames(F.call(E.validate_zerodiv, {"period": 0}, E.ValidationError)[1], REPO)[1]
+        sh = F._Shrinker(E.validate_zerodiv, E.ValidationError, sig, REPO, 100)
+        self.assertEqual(sh.shrink({"period": 0}), {"period": 0})
+        self.assertEqual(sh.calls, 3)                      # 删键 1 次 + 简化 0 的两个候选 (1, -1)；无变化即停
+
+    def test_first_successful_simplification_wins_and_no_op_is_not_a_change(self):
+        def has_symbols(d):
+            if isinstance(d, dict) and "symbols" in d:
+                raise LookupError("has symbols")
+        sig = F._frames(F.call(has_symbols, {"symbols": []}, None)[1], REPO)[1]
+        sh = F._Shrinker(has_symbols, None, sig, REPO, 100)
+        self.assertEqual(sh.shrink({"symbols": ["a", "b", "c"]}), {"symbols": []})
+        self.assertEqual(sh.calls, 3)              # 第 1 轮：删键（失败）+ 换成 []（成功即停）；第 2 轮：删键（失败），无候选
+        self.assertEqual(sh._simpler([]), [])
+        self.assertEqual(sh._simpler({}), [])
+        self.assertEqual(sh._simpler(0), [1, -1])
+
+    def test_first_successful_simplification_wins(self):
+        def v(d):
+            if isinstance(d, dict) and "symbols" in d:
+                raise LookupError("has symbols")
+        rep = F.run(v, SCHEMA, n=400, seed=2)
+        self.assertEqual(F.decode(rep["bare"][0]["minimal_input"]), {"symbols": []})
+
+    def test_round5_details(self):
+        import random
+        bools = [F.valid_instance({"type": "bool"}, random.Random(k)) for k in range(2000)]
+        self.assertLess(abs(sum(bools) / len(bools) - 0.5), 0.05)
+        tops = [F._mutate("type_wrong", random.Random(k), {"period": 1}, SCHEMA)[0] for k in range(4000)]
+        share = sum(not isinstance(t, dict) for t in tops) / len(tops)
+        self.assertLess(abs(share - 0.05), 0.015)
+        self.assertTrue(F._deep(F.deep_chain("dict", 50, 0)))
+
+        def has_risk(d):
+            if isinstance(d, dict) and "risk" in d:
+                raise LookupError("risk")
+        chain = F.deep_chain("list", 40, 0)
+        sig = F._frames(F.call(has_risk, {"risk": chain}, None)[1], REPO)[1]
+        sh = F._Shrinker(has_risk, None, sig, REPO, 100)
+        self.assertEqual(sh._shrink_chain({"risk": chain}, ("risk",), chain), {"risk": 0})     # 可以缩到 0 层
+
+        def deep_enough(d):
+            depth, cur = 0, d.get("k") if isinstance(d, dict) else None
+            while isinstance(cur, list) and cur:
+                cur, depth = cur[0], depth + 1
+            if depth >= 100:
+                raise ArithmeticError("deep")
+        big = F.deep_chain("list", 3000, 0)
+        sig = F._frames(F.call(deep_enough, {"k": big}, None)[1], REPO)[1]
+        sh = F._Shrinker(deep_enough, None, sig, REPO, 1000)
+        out = sh._shrink_chain({"k": big}, ("k",), big)
+        self.assertEqual(F._chain_info(out["k"])[2], 100)                 # 非递归异常：二分到恰好 100 层，不留余量
+        self.assertLessEqual(sh.calls, 13)                                 # 二分 log2(3000) ≈ 12 次
+
+    def test_pass_reports_string_only_change(self):
+        def v(d):
+            if isinstance(d, dict) and isinstance(d.get("symbol"), str) and len(d["symbol"]) > 100:
+                raise OverflowError("long")
+        sig = F._frames(F.call(v, {"symbol": "x" * 500}, None)[1], REPO)[1]
+        sh = F._Shrinker(v, None, sig, REPO, 500)
+        obj, changed = sh._pass({"symbol": "x" * 500})
+        self.assertTrue(changed)
+        self.assertEqual(len(obj["symbol"]), 101)
+        self.assertEqual(sh._pass(obj)[1], False)
 
     def test_extra_keys_and_key_case(self):
         import random
@@ -508,7 +612,7 @@ class TestGenerators(unittest.TestCase):
         self.assertEqual(other._simpler(True), [])
         self.assertEqual(other._simpler(None), [])
         self.assertEqual(other._simpler("abc"), [])
-        self.assertEqual(other._simpler([1, 2, 3]), [[], [1], [1], [2, 3], [2, 3], [1, 3], [1, 2]])
+        self.assertEqual(other._simpler([1, 2, 3]), [[], [1], [2, 3], [1, 3], [1, 2]])
         self.assertEqual(other._simpler({"a": 1, "b": [2], "c": {"d": 3}, "e": [4]}), [{}, [2], {"d": 3}])
         self.assertEqual(len(other._simpler(list(range(40)))), 4 + 16)
 

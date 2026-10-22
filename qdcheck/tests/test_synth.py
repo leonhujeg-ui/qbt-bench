@@ -108,6 +108,7 @@ class TestSynth(unittest.TestCase):
         grid = [S._pick_kind(i / 1000, S.DEFAULTS["weights"]) for i in range(1000)]
         self.assertEqual({k: grid.count(k) for k in S.KINDS},
                          {"random": 400, "trend_up": 200, "trend_down": 200, "flat": 100, "halt": 100})
+        self.assertEqual(S.generate(5, 1, events={0: "jump_up"}, weights={"random": 1})["events"], [[0, "jump_up"]])
         tiny_seg = S.generate(30, 2, seg_min=1, seg_max=1)
         self.assertEqual(sum(b - a for a, b, _k in tiny_seg["segments"]), 30)
         one = S.generate(10, 4, segments=[(3, 1, "halt")], weights={"random": 1})

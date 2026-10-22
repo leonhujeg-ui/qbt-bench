@@ -110,7 +110,10 @@ class TestScenariosAndCli(unittest.TestCase):
             self.assertEqual(S.main(["--streams", "2", "--bars", "300", "--seed", "3", "--out", out]), 0)
         self.assertIn('"identity_violations": 0', stdout.getvalue())
         with open(out) as f:
-            self.assertEqual(json.load(f)["n_streams"], 2)
+            text = f.read()
+        obj = json.loads(text)
+        self.assertEqual(obj["n_streams"], 2)
+        self.assertEqual(text, json.dumps(obj, indent=1, sort_keys=True))
 
     def test_check_stream_reports_tampering(self):
         st = S.generate(3, 800)
@@ -288,14 +291,56 @@ class TestSimulatorPieces(unittest.TestCase):
         self.assertEqual((o.side, o.remaining), (-1, 40))
         self.assertAlmostEqual(o.limit, 101.0)
 
+    def test_profile_distribution(self):
+        profs = [S.profile(s) for s in range(400)]
+        lev = lambda mode: {c["leverage"] for c, _s, _d in profs if c["margin_mode"] == mode}
+        self.assertEqual((lev("isolated"), lev("cross"), lev("none")), ({1, 2, 3, 5, 10, 20}, {1, 2, 3, 5}, {1}))
+        self.assertEqual({c["mmr"] for c, _s, _d in profs}, {0.005, 0.01, 0.025})
+        self.assertEqual({c["initial_cash"] for c, _s, _d in profs}, {10_000.0, 100_000.0})
+        share = lambda key: sum(s[key] for _c, s, _d in profs) / len(profs)
+        self.assertLess(abs(share("settlement") - 0.4), 0.08)
+        self.assertLess(abs(share("funding") - 0.8), 0.08)
+        modes = [c["margin_mode"] for c, _s, _d in profs]
+        self.assertLess(abs(modes.count("isolated") / 400 - 0.6), 0.08)
+        self.assertEqual({s["bars_per_day"] for _c, s, _d in profs}, {48, 96, 288})
+        self.assertEqual({d["jump_prob"] for _c, _s, d in profs}, {0.002, 0.01, 0.02})
+        self.assertEqual({d["gap_prob"] for _c, _s, d in profs}, {0.002, 0.01})
+
+    def test_cross_reversal_from_one_lot_short(self):
+        cross = sim_with({"initial_cash": 10_000.0, "margin_mode": "cross", "leverage": 2, "mmr": 0.05})
+        trade(cross, 0, "sell", 1, 100.0)
+        self.assertEqual(cross._affordable(1, 500, 100.0, 0.0), 201)          # 平 1 手 + 新开 200（基数按 0）
+        self.assertEqual(cross._affordable(-1, 500, 100.0, 0.0), 199)
+
+    def test_close_one_lot_and_compare_rows_scales(self):
+        s = sim_with()
+        trade(s, 0, "buy", 1, 100.0)
+        scripted(s, [0.0, 0.5, 0.7, 0.2, 0.0])
+        s._new_orders(0, 100.0)
+        self.assertEqual((s.orders[0].side, s.orders[0].remaining), (-1, 1))
+        rows = L.run([], [1.0], initial_cash=1.0)["rows"]
+        bumped = [dict(rows[0], cash=rows[0]["cash"] + 1.2e-9)]
+        self.assertEqual(S.compare_rows(rows, bumped, 1.0)["field"], "cash")           # 尺度下限是 1.0
+        q = L.run([{"bar": 0, "kind": "trade", "side": "buy", "qty": 0.3, "price": 10.0}], [10.0])["rows"]
+        q2 = [dict(q[0], qty=0.1 + 0.2)]
+        self.assertTrue(S.compare_rows(q, q2, 1e5)["ok"])                              # 浮点数量按相对容差
+        st = S.generate(2, 300)
+        res = S.check_stream(st)
+        self.assertEqual(res["final_equity"], L.run(st["records"], st["closes"], **st["config"])["rows"][-1]["equity"])
+        rep = S.run_many(3, 200, seed0=7)
+        self.assertEqual(sum(rep["modes"].values()), 3)
+
     def test_aggregation_exit_code_and_defaults(self):
         from unittest import mock
         rep = S.run_many(2, 300, seed0=5)
         singles = [S.check_stream(S.generate(s, 300)) for s in (5, 6)]
         for key in rep["counters"]:
             self.assertEqual(rep["counters"][key], sum(r["counters"][key] for r in singles), key)
+        self.assertEqual(set(rep["stats"]), set(singles[0]["stats"]))
         for key in rep["stats"]:
             self.assertEqual(rep["stats"][key], sum(r["stats"][key] for r in singles), key)
+        import inspect
+        self.assertEqual(inspect.signature(S.compare_rows).parameters["rel_tol"].default, 1e-9)
         self.assertEqual(min(r["order_id"] for r in S.generate(0, 600)["records"] if "order_id" in r), 1)
         bad = dict(singles[0], n_violations=1)
         with mock.patch.object(S, "check_stream", return_value=bad), captured():

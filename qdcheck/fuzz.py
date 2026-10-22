@@ -149,7 +149,7 @@ def _rand_str(rnd, lo, hi):
     return "".join(rnd.choice(letters) for _ in range(rnd.randint(lo, max(lo, hi))))
 
 
-def valid_instance(node, rnd, depth=0):
+def valid_instance(node, rnd):
     """按 schema 生成一个合法实例（schema 深度有限，这里可以递归）。"""
     t = node["type"]
     if t == "int":
@@ -166,11 +166,11 @@ def valid_instance(node, rnd, depth=0):
         return rnd.choice(node["choices"])
     if t == "list":
         lo, hi = node.get("min_len", 0), min(node.get("max_len", 4), 4)
-        return [valid_instance(node["items"], rnd, depth + 1) for _ in range(rnd.randint(lo, max(lo, hi)))]
+        return [valid_instance(node["items"], rnd) for _ in range(rnd.randint(lo, max(lo, hi)))]
     out = {}
     for k, sub in node["fields"].items():
         if _required(sub) or rnd.random() < 0.6:
-            out[k] = valid_instance(sub, rnd, depth + 1)
+            out[k] = valid_instance(sub, rnd)
     return out
 
 
@@ -670,20 +670,26 @@ class _Shrinker:
         return set_at(clone(obj), path, deep_chain(kind, hi, leaf, key)) if hi < depth else obj
 
     def _simpler(self, v):
+        """v 的候选简化值（按优先顺序、去重；与 v 本身相同的候选去掉，否则“换成自己”会被当成一次变化）。"""
         if isinstance(v, bool) or v is None:
-            return []
-        if isinstance(v, (int, float)):
+            out = []
+        elif isinstance(v, (int, float)):
             out = [0, 1, -1]
             if isinstance(v, float) and math.isfinite(v) and v == int(v):
                 out.append(int(v))
-            return [x for x in out if not (x == v and type(x) is type(v))]
-        if isinstance(v, dict):
-            return [{}] + [x for x in v.values() if isinstance(x, (dict, list))][:2]
-        if isinstance(v, list):
+        elif isinstance(v, dict):
+            out = [{}] + [x for x in v.values() if isinstance(x, (dict, list))][:2]
+        elif isinstance(v, list):
             half = len(v) // 2
             drops = [v[:i] + v[i + 1:] for i in range(min(len(v), 16))]
-            return [[], v[:1], v[:half], v[half:]] + drops + [x for x in v if isinstance(x, (dict, list))][:2]
-        return []
+            out = [[], v[:1], v[:half], v[half:]] + drops + [x for x in v if isinstance(x, (dict, list))][:2]
+        else:
+            out = []
+        uniq = []
+        for x in out:
+            if not same_value(x, v) and not any(same_value(x, u) for u in uniq):
+                uniq.append(x)
+        return uniq
 
     def _pass(self, obj):
         changed = False

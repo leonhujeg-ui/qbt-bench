@@ -18,7 +18,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=0",
      "first_diff": {
-      "a": 336.1149985455305,
+      "a": 290.37390661742336,
       "b": 232.2603971576893,
       "path": "final_cash",
       "reason": "value"
@@ -29,7 +29,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=4242",
      "first_diff": {
-      "a": 336.1149985455305,
+      "a": 290.37390661742336,
       "b": 429.18570405488833,
       "path": "final_cash",
       "reason": "value"
@@ -49,9 +49,9 @@
     }
    ],
    "seconds": [
-    0.003,
-    0.046,
-    0.055
+    0.004,
+    0.057,
+    0.062
    ],
    "target": "qdcheck.examples:set_order_engine",
    "task": {
@@ -88,8 +88,8 @@
    ],
    "seconds": [
     0.001,
-    0.044,
-    0.042
+    0.043,
+    0.045
    ],
    "target": "qdcheck.examples:deterministic_engine",
    "task": {
@@ -125,9 +125,9 @@
     }
    ],
    "seconds": [
-    0.001,
-    0.046,
-    0.04
+    0.002,
+    0.045,
+    0.044
    ],
    "target": "qdcheck.examples:noisy_engine",
    "task": {
@@ -153,7 +153,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=0",
      "first_diff": {
-      "a": 1059.5478739598343,
+      "a": 1059.5473145190638,
       "b": 1059.5472191598417,
       "path": "final_equity",
       "reason": "value"
@@ -164,7 +164,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=4242",
      "first_diff": {
-      "a": 1059.5478739598343,
+      "a": 1059.5473145190638,
       "b": 1059.54739822327,
       "path": "final_equity",
       "reason": "value"
@@ -185,8 +185,8 @@
    ],
    "seconds": [
     0.001,
-    0.051,
-    0.05
+    0.042,
+    0.056
    ],
    "target": "qdcheck.examples:noisy_engine",
    "task": {
@@ -223,9 +223,9 @@
     }
    ],
    "seconds": [
-    0.144,
-    0.274,
-    0.223
+    0.131,
+    0.213,
+    0.276
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -268,9 +268,9 @@
     }
    ],
    "seconds": [
-    0.171,
-    0.398,
-    0.26
+    0.22,
+    0.264,
+    0.243
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -313,9 +313,9 @@
     }
    ],
    "seconds": [
-    0.146,
-    0.212,
-    0.256
+    0.122,
+    0.22,
+    0.195
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -358,9 +358,9 @@
     }
    ],
    "seconds": [
-    0.101,
-    0.231,
-    0.211
+    0.124,
+    0.197,
+    0.183
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -403,9 +403,9 @@
     }
    ],
    "seconds": [
-    0.118,
-    0.219,
-    0.174
+    0.1,
+    0.175,
+    0.172
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -448,9 +448,9 @@
     }
    ],
    "seconds": [
-    0.162,
-    0.31,
-    0.247
+    0.144,
+    0.23,
+    0.274
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -493,9 +493,9 @@
     }
    ],
    "seconds": [
-    0.083,
-    0.207,
-    0.192
+    0.129,
+    0.177,
+    0.184
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -544,9 +544,9 @@
     }
    ],
    "seconds": [
-    0.128,
-    0.228,
-    0.2
+    0.091,
+    0.253,
+    0.265
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -595,9 +595,9 @@
     }
    ],
    "seconds": [
-    0.171,
-    0.239,
-    0.203
+    0.182,
+    0.258,
+    0.255
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -646,9 +646,9 @@
     }
    ],
    "seconds": [
-    0.17,
-    0.162,
-    0.165
+    0.16,
+    0.19,
+    0.184
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -697,9 +697,9 @@
     }
    ],
    "seconds": [
-    0.101,
-    0.154,
-    0.192
+    0.124,
+    0.17,
+    0.23
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -748,9 +748,9 @@
     }
    ],
    "seconds": [
-    0.207,
-    0.221,
-    0.245
+    0.157,
+    0.226,
+    0.324
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {

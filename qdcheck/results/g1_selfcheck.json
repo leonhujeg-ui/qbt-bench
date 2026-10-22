@@ -71,13 +71,18 @@
      "vectors": 140
     }
    },
+   "ledger": {
+    "bars": 1227,
+    "mismatches": [],
+    "vectors": 7
+   },
    "max_abs_err": 0.0,
    "max_rel_err": 0.0,
    "max_tol_ratio": 0.0,
    "mismatches": [],
    "ok": true,
    "rel_tol": 1e-09,
-   "seconds": 2.08,
+   "seconds": 2.54,
    "values": 90303,
    "vec_dir": "qdcheck/vectors",
    "vectors": 1260
@@ -94,7 +99,7 @@
   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
   "python": "3.12.3"
  },
- "seconds": 17.5,
+ "seconds": 18.7,
  "summary": {
   "causality": {
    "checks": 2884,

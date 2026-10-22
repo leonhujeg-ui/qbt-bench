@@ -1,0 +1,51 @@
+# qdcheck 突变测试漏网清单
+
+总数 720，抓住 673，漏网 47，抓住率 93.5%
+
+- `determinism:188:const:900.0` 行 76 [const]: `600.0` -> `900.0`
+- `determinism:1900:const:3001` 行 89 [const]: `3000` -> `3001`
+- `determinism:241:const:1.0` 行 133 [const]: `0.0` -> `1.0`
+- `determinism:253:const:1.5000000000000002e-09` 行 141 [const]: `1e-09` -> `1.5000000000000002e-09`
+- `determinism:1191:break_continue` 行 161 [break_continue]: `continue` -> `break`
+- `fuzz:4939:const:0` 行 164 [const]: `1` -> `0`
+- `fuzz:3560:binop` 行 173 [binop]: `depth + 1` -> `depth - 1`
+- `fuzz:532:const:11` 行 192 [const]: `12` -> `11`
+- `fuzz:1280:const:False` 行 269 [const]: `True` -> `False`
+- `fuzz:2790:delete_stmt` 行 533 [delete_stmt]: `todo.extend(zip(x, y))` -> `pass`
+- `fuzz:6470:const:1` 行 554 [const]: `0` -> `1`
+- `fuzz:4493:delete_stmt` 行 710 [delete_stmt]: `changed |= new is not obj` -> `pass`
+- `fuzz:4506:compare` 行 724 [compare]: `self.calls >= self.budget` -> `self.calls > self.budget`
+- `fuzz:4657:const:2` 行 792 [const]: `1` -> `2`
+- `fuzz:1041:delete_stmt` 行 850 [delete_stmt]: `print(f'  {g['exc_type']} x{g['count']} first case {g['first_case']} min {g['minimal_size']}/{g['original_size']} chars:` -> `pass`
+- `gen_vectors:196:compare` 行 43 [compare]: `step > 0` -> `step >= 0`
+- `gen_vectors:3070:const:1` 行 176 [const]: `2` -> `1`
+- `gen_vectors:797:const:-1` 行 313 [const]: `0` -> `-1`
+- `gen_vectors:797:const:1` 行 313 [const]: `0` -> `1`
+- `indicators_alt:1032:const:1.0` 行 101 [const]: `0.0` -> `1.0`
+- `indicators_ref:2509:const:0` 行 327 [const]: `1` -> `0`
+- `ledger:1109:compare` 行 167 [compare]: `p > self.rel_tol * self.avg` -> `p >= self.rel_tol * self.avg`
+- `ledger:1138:binop` 行 184 [binop]: `closing * (p - self.avg) * _sign(Q)` -> `closing * (p - self.avg) / _sign(Q)`
+- `ledger:3509:const:-1` 行 197 [const]: `0` -> `-1`
+- `ledger_alt:72:const:-1` 行 15 [const]: `0` -> `-1`
+- `ledger_alt:75:const:-1` 行 15 [const]: `0` -> `-1`
+- `ledger_alt:505:const:1` 行 47 [const]: `0` -> `1`
+- `ledger_alt:247:compare` 行 52 [compare]: `abs(x) <= 1e-12 * max(1.0, abs(ref))` -> `abs(x) < 1e-12 * max(1.0, abs(ref))`
+- `ledger_alt:943:const:-1` 行 95 [const]: `0` -> `-1`
+- `ledger_alt:597:binop` 行 99 [binop]: `q - self.size` -> `q + self.size`
+- `ledger_alt:997:const:1` 行 112 [const]: `0` -> `1`
+- `ledger_alt:684:compare` 行 142 [compare]: `self.cash.value() < -self.cfg['rel_tol'] * scale` -> `self.cash.value() <= -self.cfg['rel_tol'] * scale`
+- `props:123:const:-1` 行 38 [const]: `0` -> `-1`
+- `props:294:delete_stmt` 行 50 [delete_stmt]: `checked += 1` -> `pass`
+- `props:1305:const:-1` 行 158 [const]: `0` -> `-1`
+- `stream:2521:const:1` 行 35 [const]: `2` -> `1`
+- `stream:1649:const:0.0075` 行 37 [const]: `0.005` -> `0.0075`
+- `stream:1664:const:0.6000000000000001` 行 39 [const]: `0.4` -> `0.6000000000000001`
+- `stream:980:const:-1` 行 51 [const]: `0` -> `-1`
+- `stream:1743:const:-1` 行 70 [const]: `0` -> `-1`
+- `stream:3749:const:-1` 行 90 [const]: `0` -> `-1`
+- `stream:538:delete_stmt` 行 123 [delete_stmt]: `order.filled += 1` -> `pass`
+- `stream:2868:compare` 行 168 [compare]: `Q > 0` -> `Q >= 0`
+- `stream:306:const:1.5000000000000002e-09` 行 285 [const]: `1e-09` -> `1.5000000000000002e-09`
+- `stream:832:delete_stmt` 行 330 [delete_stmt]: `agg_stats[k] = agg_stats.get(k, 0) + v` -> `pass`
+- `stream:3242:const:2` 行 371 [const]: `1` -> `2`
+- `synth:1196:const:1` 行 65 [const]: `0` -> `1`
