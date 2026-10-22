@@ -24,7 +24,7 @@ RESULTS = os.path.join(REPO, "qdcheck", "results")
 HISTORY = os.path.join(RESULTS, "mutation_history")
 OUT_MD = os.path.join(REPO, "qdcheck", "mutants", "triage.md")
 ROUNDS = ["round1.json", "round2.json", "round3_merged.json", "round4_merged.json", "round5_merged.json",
-          "round5b_merged.json", "final_full.json"]
+          "round5b_merged.json", "final_full.json", "review_round1.json", "final_review.json"]
 
 
 def historical_survivors():

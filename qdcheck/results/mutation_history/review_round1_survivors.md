@@ -1,0 +1,52 @@
+# qdcheck 突变测试漏网清单
+
+总数 780，抓住 732，漏网 48，抓住率 93.8%
+
+- `compare:326:delete_stmt` 行 249 [delete_stmt]: `print('error: none of the actual ids match a vector', file=sys.stderr)` -> `pass`
+- `compare:1594:const:0` 行 255 [const]: `1` -> `0`
+- `compare:1596:const:2` 行 255 [const]: `1` -> `2`
+- `compare:1948:const:0` 行 261 [const]: `1` -> `0`
+- `determinism:2236:const:21` 行 165 [const]: `20` -> `21`
+- `determinism:1587:const:11` 行 203 [const]: `10` -> `11`
+- `determinism:1664:const:5` 行 224 [const]: `4` -> `5`
+- `determinism:1701:const:False` 行 255 [const]: `True` -> `False`
+- `examples:700:const:17` 行 21 [const]: `16` -> `17`
+- `examples:404:compare` 行 65 [compare]: `abs(v) < 1e+300` -> `abs(v) <= 1e+300`
+- `examples:991:const:0` 行 155 [const]: `1` -> `0`
+- `examples:1630:binop` 行 170 [binop]: `1.0 + 0.02 * (rnd.random() - 0.5)` -> `1.0 - 0.02 * (rnd.random() - 0.5)`
+- `examples:1036:const:59` 行 178 [const]: `60` -> `59`
+- `examples:128:delete_stmt` 行 220 [delete_stmt]: `random.seed(f'{os.getpid()}:{time.perf_counter_ns()}')` -> `pass`
+- `examples:130:delete_stmt` 行 222 [delete_stmt]: `random.shuffle(scratch)` -> `pass`
+- `fuzz:504:const:2` 行 111 [const]: `1` -> `2`
+- `fuzz:3951:const:101` 行 311 [const]: `100` -> `101`
+- `fuzz:8507:const:2` 行 735 [const]: `1` -> `2`
+- `fuzz:3216:const:5` 行 757 [const]: `6` -> `5`
+- `fuzz:6246:const:201` 行 851 [const]: `200` -> `201`
+- `fuzz:2093:const:1` 行 868 [const]: `0` -> `1`
+- `gen_vectors:194:compare` 行 42 [compare]: `step > 0` -> `step >= 0`
+- `indicators_alt:1030:const:1.0` 行 100 [const]: `0.0` -> `1.0`
+- `indicators_ref:2507:const:0` 行 326 [const]: `1` -> `0`
+- `ledger:547:compare` 行 119 [compare]: `x > 0` -> `x >= 0`
+- `ledger:1164:delete_stmt` 行 187 [delete_stmt]: `closing = abs(Q)` -> `pass`
+- `ledger:1167:binop` 行 188 [binop]: `closing * (p - self.avg) * _sign(Q)` -> `closing * (p - self.avg) / _sign(Q)`
+- `ledger:3547:const:-1` 行 201 [const]: `0` -> `-1`
+- `ledger:770:const:2` 行 306 [const]: `1` -> `2`
+- `ledger_alt:70:const:-1` 行 14 [const]: `0` -> `-1`
+- `ledger_alt:73:const:-1` 行 14 [const]: `0` -> `-1`
+- `ledger_alt:503:const:1` 行 46 [const]: `0` -> `1`
+- `ledger_alt:245:compare` 行 51 [compare]: `abs(x) <= 1e-12 * max(1.0, abs(ref))` -> `abs(x) < 1e-12 * max(1.0, abs(ref))`
+- `ledger_alt:941:const:-1` 行 94 [const]: `0` -> `-1`
+- `ledger_alt:595:binop` 行 98 [binop]: `q - self.size` -> `q + self.size`
+- `ledger_alt:995:const:1` 行 111 [const]: `0` -> `1`
+- `ledger_alt:682:compare` 行 141 [compare]: `self.cash.value() < -self.cfg['rel_tol'] * scale` -> `self.cash.value() <= -self.cfg['rel_tol'] * scale`
+- `props:1303:const:-1` 行 157 [const]: `0` -> `-1`
+- `stream:3293:compare` 行 89 [compare]: `side > 0` -> `side >= 0`
+- `vector_schema:704:const:19` 行 129 [const]: `20` -> `19`
+- `vector_schema:412:const:0` 行 142 [const]: `1` -> `0`
+- `vector_schema:755:const:19` 行 157 [const]: `20` -> `19`
+- `vector_schema:755:const:21` 行 157 [const]: `20` -> `21`
+- `vector_schema:775:break_continue` 行 174 [break_continue]: `break` -> `continue`
+- `vector_schema:803:delete_stmt` 行 192 [delete_stmt]: `probs = ledger_file_problems(obj) + number_text_problems(text)` -> `pass`
+- `vector_schema:249:delete_stmt` 行 195 [delete_stmt]: `report['files'][name] = probs` -> `pass`
+- `vector_schema:820:const:1` 行 202 [const]: `0` -> `1`
+- `vector_schema:500:delete_stmt` 行 207 [delete_stmt]: `print(f'    {where}: {msg}')` -> `pass`

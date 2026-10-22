@@ -107,7 +107,7 @@ def perf_table(cache):
            "streams_200x3000": "`python3.12 -m qdcheck.stream --streams 200 --bars 3000`",
            "qbt_ledger_54": "`python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000`", "harness_16": "`python3.12 -m qdcheck.tools.selfcheck g4`",
            "unittest": "`python3.12 -m unittest discover -s qdcheck/tests`",
-           "mutation_720": "`python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4`"}
+           "mutation_780": "`python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4`"}
     for r in perf["rows"]:
         mem = f"{r['max_rss_mb']:.0f} MB" if r.get("max_rss_mb") is not None else r.get("note", "未测")
         secs = f"{r['wall_seconds']:.1f} s" if r.get("wall_seconds") is not None else "?"

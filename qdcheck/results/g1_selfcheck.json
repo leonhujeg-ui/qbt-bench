@@ -82,7 +82,7 @@
    "mismatches": [],
    "ok": true,
    "rel_tol": 1e-09,
-   "seconds": 2.54,
+   "seconds": 2.53,
    "values": 90303,
    "vec_dir": "qdcheck/vectors",
    "vectors": 1260
@@ -99,7 +99,7 @@
   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
   "python": "3.12.3"
  },
- "seconds": 18.7,
+ "seconds": 20.1,
  "summary": {
   "causality": {
    "checks": 2884,

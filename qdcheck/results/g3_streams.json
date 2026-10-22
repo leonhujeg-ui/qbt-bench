@@ -1,6 +1,6 @@
 {
  "alt_issues": 0,
- "command": "python3.12 -m qdcheck.stream --streams 200 --bars 3000 --out qdcheck/results/g3_streams.json",
+ "command": "python3.12 -m qdcheck.stream --streams 200 --bars 3000",
  "counters": {
   "add": 35386,
   "bankrupt_capped": 225,
@@ -2234,7 +2234,7 @@
   }
  ],
  "row_mismatches": 0,
- "seconds": 21.79,
+ "seconds": 24.29,
  "seed0": 0,
  "sim_violations": 0,
  "stats": {

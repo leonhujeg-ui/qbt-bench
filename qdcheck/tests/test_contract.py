@@ -49,6 +49,8 @@ class TestVectorSchema(unittest.TestCase):
             "variant not in header": lambda o: o["vectors"][0].__setitem__("variant", "src=hlc3;zero_dev=maybe"),
             "duplicate id": lambda o: o["vectors"][1].__setitem__("id", o["vectors"][0]["id"]),
             "column length": lambda o: o["vectors"][0]["input"]["volume"].append(1.0),
+            "indicator differs from header": lambda o: o["vectors"][0].__setitem__("indicator", "ao"),
+            "line not in header": lambda o: o["vectors"][0].__setitem__("line", "k"),
         }
         for name, edit in cases.items():
             bad = json.loads(json.dumps(obj))
@@ -65,6 +67,8 @@ class TestVectorSchema(unittest.TestCase):
             "bad mode": lambda o: o["config"].__setitem__("margin_mode", "portfolio"),
             "funding with qty": lambda o: o["records"].append({"bar": 5, "kind": "funding", "side": "none", "qty": 1,
                                                                "price": None, "fee": 0.0, "funding": 1.0}),
+            "settlement without price": lambda o: o["records"].append({"bar": 5, "kind": "settlement", "side": "none",
+                                                                       "qty": 0, "price": None, "fee": 0.0, "funding": 0.0}),
         }.items():
             bad = json.loads(json.dumps(led))
             edit(bad)
@@ -80,6 +84,45 @@ class TestVectorSchema(unittest.TestCase):
         self.assertEqual(len(V.number_text_problems("[0.10000000000000000555]")), 1)    # 20 位
         self.assertEqual(len(V.number_text_problems("[100]")), 0)                       # 整数字面量不受约束
         self.assertEqual(V.fmt_float(0.1), "0.10000000000000001")
+
+    def test_directory_report_shape_and_main_with_custom_dir(self):
+        import shutil
+        import tempfile
+        from qdcheck.tests._util import captured
+        rep = V.check_directory()
+        self.assertEqual(len(rep["files"]), 17)
+        self.assertEqual(set(rep["files"]) , {f for f in os.listdir(VECTOR_DIR) if f.endswith(".json") and f != "schema.json"})
+        tmp = tempfile.mkdtemp()
+        shutil.copy(os.path.join(VECTOR_DIR, "schema.json"), tmp)
+        led = _load("ledger_long_add_partial_close.json")
+        led["records"][0]["qty"] = 0
+        with open(os.path.join(tmp, "ledger_long_add_partial_close.json"), "w", encoding="utf-8") as f:
+            json.dump(led, f)
+        rep = V.check_directory(tmp)                                   # 目录里只有一个（篡改过的）账本文件
+        self.assertFalse(rep["ok"])
+        self.assertEqual(rep["checked"], 1)
+        self.assertTrue(rep["files"]["ledger_long_add_partial_close.json"])
+        with captured() as (out, _err):
+            self.assertEqual(V.main([tmp]), 1)
+        text = out.getvalue()
+        self.assertIn("ledger_long_add_partial_close.json", text)
+        self.assertIn("    $.records[0]:", text)                       # 每个问题缩进一行打印
+        self.assertIn("checked 1 files, INVALID", text)
+
+    def test_problem_lists_are_capped_at_20_and_ohlcv_reports_first_bad_bar_only(self):
+        obj = _load("cci.json")
+        bad = json.loads(json.dumps(obj))
+        for v in bad["vectors"]:
+            v["output"].append(1.0)                                     # 40 条向量全部长度错
+        self.assertEqual(len(V.indicator_file_problems(bad)), 20)
+        led = _load("ledger_stream_cross_x5.json")
+        for r in led["records"]:
+            r["bar"] = 10 ** 6                                          # 107 条记录全部越界
+        self.assertEqual(len(V.ledger_file_problems(led)), 20)
+        d = {"open": [1.0, 1.0, 1.0], "high": [2.0, 0.5, 0.5], "low": [0.5, 0.5, 0.5], "close": [1.0, 1.0, 1.0], "volume": [1.0] * 3}
+        probs = V._ohlcv_problems(d, "$")
+        self.assertEqual(len(probs), 1)
+        self.assertEqual(probs[0][0], "$[1]")
 
     def test_validator_dialect(self):
         schema = {"n": {"type": "object", "required": ["a"], "additionalProperties": False,

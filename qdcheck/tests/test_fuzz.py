@@ -458,6 +458,29 @@ class TestGenerators(unittest.TestCase):
         self.assertEqual({d for _k, d in chains}, {50, 200, 1200, 3000})
         self.assertTrue(F._deep(F.deep_chain("list", 50, 0)) and not F._deep({"a": [1, {"b": 2}]}))
 
+    def test_boundary_defaults_and_preview_length(self):
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, {"type": "int"}))), {-1, 0, 100, 101})
+        eps = 1e-9 * 100.0                                                             # eps = 1e-9 * max(1, |lo|, |hi|)
+        self.assertEqual(set(self._draws(lambda r: F._boundary_value(r, {"type": "float"}))),
+                         {0.0 - eps, 100.0 + eps, math.nextafter(100.0, math.inf), 0.0})
+        rep = F.run(E.validate_recursion, SCHEMA, n=scale(20000, 4000), seed=0, is_controlled=E.ValidationError)
+        self.assertEqual(len(rep["bare"][0]["minimal_preview"]), 200)             # 预览截断到 200 字符
+        self.assertEqual(F.schema_errors(SCHEMA, {"I": 1, "x": 2}).__len__(), 1)   # 缺省只报第一条
+        self.assertEqual(len(F.schema_errors(SCHEMA, {"I": 1, "x": 2}, limit=9)), 5)        # 2 个多键 + 3 个缺必填键
+
+    def test_nested_key_deletion_in_shrinker(self):
+        """最小复现需要删掉嵌套对象里的一个键（而不是整个替换成 {}）。"""
+        def v(d):
+            r = d.get("risk") if isinstance(d, dict) else None
+            if isinstance(r, dict) and r and "max_drawdown" not in r:
+                raise ArithmeticError("risk without max_drawdown")
+        rep = F.run(v, SCHEMA, n=scale(20000, 6000), seed=0)
+        self.assertGreater(rep["bare_by_type"].get("ArithmeticError", 0), 0)
+        minimal = F.decode(rep["bare"][0]["minimal_input"])
+        self.assertEqual(list(minimal), ["risk"])
+        self.assertEqual(len(minimal["risk"]), 1)
+        self.assertNotIn("max_drawdown", minimal["risk"])
+
     def test_case_shape_distribution(self):
         cases = [F.make_case(SCHEMA, 9, i) for i in range(4000)]
         nonvalid = [c for c in cases if c.categories != ("valid",)]

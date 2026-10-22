@@ -11,6 +11,8 @@
 ## 0. 复现命令
 
 ```bash
+python3.12 -m qdcheck.selftest                             # 一条命令：unittest + 覆盖率 + 向量复现 / 契约 + 指标性质 + 模糊器 + 账本 + harness，总表 + 退出码
+python3.12 -m qdcheck.selftest --refresh                   # 同上，并把结果写回 qdcheck/results/、重建本报告（REPORT 的数字就是这样来的）
 python3.12 -m unittest discover -s qdcheck/tests            # 全部测试（unittest；不用 pytest）
 python3.12 -m qdcheck.gen_vectors --check                  # 在本机重新生成全部向量，与入库向量逐点比较（1e-9）
 python3.12 -m qdcheck.tools.selfcheck g1                   # -> results/g1_selfcheck.json（因果性 / 长度 / 预热期 / 闭式解 / 对拍）
@@ -21,8 +23,13 @@ python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000 --json qdcheck/results/g3
 python3.12 -m qdcheck.tools.selfcheck g4                   # -> results/g4_selfcheck.json（假引擎 + qbt 跨进程）
 python3.12 qdcheck/tools/cov.py --fail-under 90 --json qdcheck/results/coverage.json
 python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4                    # -> results/mutation.json
+python3.12 -m qdcheck.tools.triage --replay                # 历次漏网在最终测试上重跑 -> results/mutation_replay.json + mutants/triage.md
+python3.12 -m qdcheck.tools.perf                           # 性能表 -> results/perf.json
+python3.12 -m qdcheck.vector_schema                        # 向量文件契约校验（schema.json）
 python3.12 qdcheck/tools/build_report.py                   # 由结果文件重新生成本报告
 ```
+
+接口契约（字段 / 单位 / 符号 / 退出码 / 第一行格式）在 `CONTRACT.md`；评审清单与逐条实测在 `REVIEW.md`。
 
 ## 1. 目标达成表
 
@@ -40,18 +47,18 @@ python3.12 qdcheck/tools/build_report.py                   # 由结果文件重�
 | G2 | 2 万次里 NaN / inf / 缺键 / 类型错各 ≥ 500 | NaN 1830、inf 1785、缺键 1845、类型错 1798 | ✅ | `python3.12 -m qdcheck.tools.selfcheck g2` |
 | G2 | 三个故意写坏的 validate 必须抓到 | KeyError ×510、ZeroDivisionError ×103、RecursionError（超长字符串）×430 | ✅ | 同上 |
 | G2 | 最小复现 ≤ 原输入 30% | KeyError 2.3%（最小复现 `{}`）、ZeroDivisionError 8.4%（`{'period': 0}`）、RecursionError 0.11%（1,106 / 1,000,098 字符） | ✅ | 同上 |
-| G2 | 2 万次 × 普通 validate ≤ 20 s（单核） | `validate_good` 2.00 s（含生成与参考判定），裸异常 0，与参考判定 `schema_errors` 逐条一致（误收 0、误拒 0） | ✅ | 同上 |
+| G2 | 2 万次 × 普通 validate ≤ 20 s（单核） | `validate_good` 1.96 s（含生成与参考判定），裸异常 0，与参考判定 `schema_errors` 逐条一致（误收 0、误拒 0） | ✅ | 同上 |
 | G3 | synth.py：同 seed 同结果，停牌 / 缺口 ≥ 3% / 单根 ±8% / 长横盘 / 趋势 | 只用 `random()` 与四则运算（无 libm），逐位可复现且前缀稳定；特征由 `test_synth.py` 逐项验证 | ✅ | `python3.12 -m qdcheck.synth --n 1000 --seed 1` |
 | G3 | ledger.py：逐根现金 / 持仓 / 均价 / 浮盈 / 已实现 / 手续费 / 资金费 / 权益 + 恒等式；多空 / 反手 / 部分平仓 / 加仓 / 逐仓 1–20 倍 / 强平 | 见第 2.4 节；随机流覆盖：开仓 10,428、加仓 35,386、部分平仓 19,721、全平 10,294、反手 11,273、强平 812（其中穿仓封顶 225）、跨日结算 2,520、资金费 4,406 | ✅ | `python3.12 -m qdcheck.stream --streams 200 --bars 3000` |
-| G3 | stream.py：≥ 200 条 × ≥ 3000 根，≤ 3 分钟 | 200 条 × 3000 根 = 600,000 根、94,028 条记录，单进程 21.8 s（含两份账本重算与逐根对拍）；下单 86,413、部分成交 23,966、撤单 4,301、到期 4,625、保证金拒单 14,674 | ✅ | 同上 |
+| G3 | stream.py：≥ 200 条 × ≥ 3000 根，≤ 3 分钟 | 200 条 × 3000 根 = 600,000 根、94,028 条记录，单进程 24.3 s（含两份账本重算与逐根对拍）；下单 86,413、部分成交 23,966、撤单 4,301、到期 4,625、保证金拒单 14,674 | ✅ | 同上 |
 | G3 | 全部随机流每根恒等式零违背；第二份独立写法逐根对拍（浮点 1e-9、数量 / 根序号整数完全相等） | 恒等式违背 0；`ledger_alt` 独立判定问题 0；逐根逐字段不一致 0 条流（共比较 10,800,000 个值） | ✅ | 同上 |
 | G3 | 导出 `vectors/ledger_*.json`（成交流 + 收盘价 + 每根期望表） | 7 个文件、1,227 根，每根 18 列期望值；重新生成不一致 0 | ✅ | `python3.12 -m qdcheck.gen_vectors --check` |
 | G4 | 本进程 + PYTHONHASHSEED=0 / 4242 两个子进程，结构化比较、打印第一处路径，不用 sha256 / 逐字节 | `determinism.check`；哈希种子生效用 hash 探针确认 | ✅ | `python3.12 -m qdcheck.determinism qdcheck.examples:set_order_engine --task '{"n_bars": 60}'` |
 | G4 | 依赖 set 迭代顺序的假引擎必须抓到；确定性假引擎必须通过 | set_order_engine：0 vs 4242 第一处差异 `final_cash`（232.2603971576893 vs 429.18570405488833）；deterministic_engine 三对一致（691 个叶子）；噪声 1e-12 通过 / 1e-6 抓到 | ✅ | `python3.12 -m qdcheck.tools.selfcheck g4` |
 | G4 | 对 qbt 自己的回测引擎跑一遍 | 12/12 个回测（6 策略 × 2 种 BrokerConfig × 20000 根）三份结果完全一致，比较 212,340 个叶子 | ✅ | 同上 |
-| G5 | unittest 全绿 | 164 个测试，失败 0，跳过 4（覆盖率监控下跳过 2 个计时判据和 2 个“报告与结果文件一致”判据——后者依赖覆盖率结果本身；它们在普通运行里都执行） | ✅ | `python3.12 -m unittest discover -s qdcheck/tests` |
-| G5 | 语句覆盖率 ≥ 90%（复用 tools/cov.py 的做法） | **100.00%**（2679/2679 条语句，见第 5 节） | ✅ | `python3.12 qdcheck/tools/cov.py --fail-under 90` |
-| G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | **97.4%**（701/720，每模块 60 个；漏网 19 条逐条判定见第 6 节） | ✅ | `python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4` |
+| G5 | unittest 全绿 | 211 个测试，失败 0，跳过 4（覆盖率监控下跳过 2 个计时判据和 2 个“报告与结果文件一致”判据——后者依赖覆盖率结果本身；它们在普通运行里都执行） | ✅ | `python3.12 -m unittest discover -s qdcheck/tests` |
+| G5 | 语句覆盖率 ≥ 90%（复用 tools/cov.py 的做法） | **99.90%**（2913/2916 条语句，见第 5 节） | ✅ | `python3.12 qdcheck/tools/cov.py --fail-under 90` |
+| G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | **93.8%**（732/780，每模块 60 个；漏网 48 条逐条判定见第 6 节） | ✅ | `python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4` |
 | G5 | 分阶段提交，每笔写清做了什么、哪些数字变了，全部推到 `main` | G1 `79e88df` → G2 `0bc2f4c` → G3 `861202e` → G4 `bcbdf64` → G5 中间提交 `90ecf9f`（第一轮突变 + 补判据）→ G5 收尾（本报告所在提交） | ✅ | `git log --oneline -- qdcheck` |
 | G5 | 跨平台：判据只用容差和形状；生成脚本 + seed 入库，别的机器重新生成在 1e-9 内对上 | 向量、合成数据、随机流只用 `random()` 与四则运算（不依赖 libm）；`gen_vectors --check` 本机重新生成：1,260 条指标向量 + 7 个账本向量，不一致 0，最大相对误差 0.0 | ✅ | `python3.12 -m qdcheck.gen_vectors --check` |
 
@@ -261,26 +268,45 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | 文件 | 语句 | 未覆盖 | 覆盖率 |
 |---|---:|---:|---:|
 | `qdcheck/__init__.py` | 1 | 0 | 100.0% |
-| `qdcheck/compare.py` | 140 | 0 | 100.0% |
-| `qdcheck/determinism.py` | 175 | 0 | 100.0% |
-| `qdcheck/examples.py` | 144 | 0 | 100.0% |
-| `qdcheck/fuzz.py` | 663 | 0 | 100.0% |
-| `qdcheck/gen_vectors.py` | 202 | 0 | 100.0% |
-| `qdcheck/indicators_alt.py` | 168 | 0 | 100.0% |
-| `qdcheck/indicators_ref.py` | 262 | 0 | 100.0% |
-| `qdcheck/ledger.py` | 259 | 0 | 100.0% |
-| `qdcheck/ledger_alt.py` | 149 | 0 | 100.0% |
-| `qdcheck/props.py` | 122 | 0 | 100.0% |
-| `qdcheck/stream.py` | 241 | 0 | 100.0% |
-| `qdcheck/synth.py` | 153 | 0 | 100.0% |
-| **合计（计入判据）** | 2679 | 0 | **100.00%** |
-| qdcheck/tools/*（不计入） | 534 | 484 | 9.4% |
+| `qdcheck/compare.py` | 173 | 0 | 100.0% |
+| `qdcheck/determinism.py` | 176 | 0 | 100.0% |
+| `qdcheck/examples.py` | 153 | 0 | 100.0% |
+| `qdcheck/fuzz.py` | 699 | 0 | 100.0% |
+| `qdcheck/gen_vectors.py` | 201 | 0 | 100.0% |
+| `qdcheck/indicators_alt.py` | 167 | 0 | 100.0% |
+| `qdcheck/indicators_ref.py` | 261 | 0 | 100.0% |
+| `qdcheck/ledger.py` | 262 | 0 | 100.0% |
+| `qdcheck/ledger_alt.py` | 148 | 0 | 100.0% |
+| `qdcheck/props.py` | 121 | 0 | 100.0% |
+| `qdcheck/stream.py` | 240 | 0 | 100.0% |
+| `qdcheck/synth.py` | 152 | 0 | 100.0% |
+| `qdcheck/vector_schema.py` | 162 | 3 | 98.1% |
+| **合计（计入判据）** | 2916 | 3 | **99.90%** |
+| qdcheck/tools/*（不计入） | 806 | 757 | 6.1% |
+
+## 5b. 性能表（规模 / 耗时 / 峰值内存）
+
+| 块 | 规模 | 耗时（墙钟） | 峰值内存 | 目标 | 命令 |
+|---|---|---:|---:|---|---|
+| vectors_regen | 1260 indicator vectors + 7 ledger vectors regenerated and compared | 2.7 s | 23 MB | 无目标 | `python3.12 -m qdcheck.gen_vectors --check` |
+| indicator_props | 2884 causality + 630 closed-form + 1476 ref/alt cross-checks | 20.4 s | 24 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g1` |
+| fuzz_20k | validate_good x 20000 cases (generation + call + reference check, no shrinking) | 2.0 s | 20 MB | <= 20 s | `python3.12 -m qdcheck.tools.selfcheck g2` |
+| fuzz_broken_3 | 3 broken validates x 20000 cases incl. shrinking | 10.2 s | 21 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g2` |
+| streams_200x3000 | 200 streams x 3000 bars: generate + ledger + ledger_alt + bar-by-bar compare | 25.0 s | 19 MB | <= 180 s | `python3.12 -m qdcheck.stream --streams 200 --bars 3000` |
+| qbt_ledger_54 | qbt: 54 backtests x 20000 bars reconciled against the reference ledger | 11.3 s | 88 MB | 无目标 | `python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000` |
+| harness_16 | determinism: 16 cases, each = in-process + 2 subprocesses (subprocess memory not included) | 10.6 s | 36 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g4` |
+| unittest | python -m unittest discover -s qdcheck/tests, except test_report (it reads perf.json itself); peak memory = max over the test process and its determinism subprocesses | 90.9 s | 598 MB | 无目标 | `python3.12 -m unittest discover -s qdcheck/tests` |
+| mutation_720 | 720 mutants x fast test suite, 4 workers (from results/mutation.json) | 999.8 s | 多进程，内存未测 | 无目标 |  |
+| （测量方式） | 每块独立子进程，`resource.getrusage(RUSAGE_SELF).ru_maxrss`，含解释器基线；Python 3.12.3，4 核 | | | | `python3.12 -m qdcheck.tools.perf` |
+
+两个有目标的块（fuzz 2 万次 ≤ 20 s、随机流 200 × 3000 ≤ 3 分钟）都在目标内；其余块无目标。unittest 的峰值取其子进程最大值
+（它自己再起 determinism 子进程，不计入）。
 
 ## 6. 突变测试
 
 复用本仓 `mutants/run_mutations.py` 的突变算子、候选枚举、按 `seed:模块` 抽样与校验，被测包换成 qdcheck，每模块
 60 个突变体，子进程跑 `QDCHECK_FAST=1 python -m unittest -f <该模块最相关的测试在前>`
-（FAST 只缩小随机用例数 / 序列条数，不放宽判据），失败 = 抓住，超时（> 124.7 s）= 抓住并单列。
+（FAST 只缩小随机用例数 / 序列条数，不放宽判据），失败 = 抓住，超时（> 187.2 s）= 抓住并单列。
 过程（每轮原始结果都在 `results/mutation_history/`）：
 
 | 轮次 | 内容 | 抓住率 |
@@ -288,47 +314,102 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | round1 | 全部 720 个，初版测试 | 79.3%（漏网 149） |
 | round2 | 逐条判定 round1 漏网后补判据、修复 2 处缺陷，全部 720 个在新代码上重新抽样重跑 | 93.5%（漏网 47） |
 | round3–5 | 继续补判据；fuzz / stream 删除死代码、修复缩小器的无效候选后整模块重跑，其余按 `--ids` 重跑 | 97.4%（合并结果） |
-| **final** | 最终代码 + 最终测试上全部 720 个从头重跑（下表，即 `results/mutation.json`） | **97.4%** |
+| **final** | 最终代码 + 最终测试上全部 720 个从头重跑（下表，即 `results/mutation.json`） | **93.8%** |
 
 | 模块 | 候选 | 突变体 | 抓住 | 超时 | 漏网 | 抓住率 |
 |---|---:|---:|---:|---:|---:|---:|
-| `compare.py` | 219 | 60 | 60 | 0 | 0 | 100.0% |
-| `determinism.py` | 258 | 60 | 60 | 0 | 0 | 100.0% |
-| `examples.py` | 332 | 60 | 60 | 0 | 0 | 100.0% |
-| `fuzz.py` | 1377 | 60 | 55 | 2 | 3 | 95.0% |
+| `compare.py` | 276 | 60 | 56 | 0 | 4 | 93.3% |
+| `determinism.py` | 262 | 60 | 56 | 0 | 4 | 93.3% |
+| `examples.py` | 340 | 60 | 53 | 0 | 7 | 88.3% |
+| `fuzz.py` | 1433 | 60 | 54 | 0 | 6 | 90.0% |
 | `gen_vectors.py` | 364 | 60 | 59 | 0 | 1 | 98.3% |
 | `indicators_alt.py` | 494 | 60 | 59 | 0 | 1 | 98.3% |
 | `indicators_ref.py` | 637 | 60 | 59 | 0 | 1 | 98.3% |
-| `ledger.py` | 653 | 60 | 57 | 0 | 3 | 95.0% |
+| `ledger.py` | 656 | 60 | 55 | 0 | 5 | 91.7% |
 | `ledger_alt.py` | 289 | 60 | 52 | 0 | 8 | 86.7% |
 | `props.py` | 314 | 60 | 59 | 0 | 1 | 98.3% |
 | `stream.py` | 784 | 60 | 59 | 0 | 1 | 98.3% |
 | `synth.py` | 335 | 60 | 59 | 1 | 0 | 100.0% |
-| **合计** | | 720 | | | 19 | **97.4%** |
+| `vector_schema.py` | 277 | 60 | 51 | 0 | 9 | 85.0% |
+| **合计** | | 780 | | | 48 | **93.8%** |
 
+历次（round1 → final）每一处漏网的去向——补了哪条判据后被抓住 / 判等价的理由 / 代码已删除——逐条列在
+`qdcheck/mutants/triage.md`（由 `python3.12 -m qdcheck.tools.triage --replay` 在最终测试上重跑历史漏网生成，
+158 处重跑，162 处去重后的历史漏网）。
 最终仍漏网的突变体逐条判定（判定写在 `results/mutation_triage.json`）：
 
 | 突变 id | 行 | 改动 | 判定 | 理由 |
 |---|---:|---|---|---|
-| `fuzz:719:compare` | 375 | `rnd.random() < 0.05` → `rnd.random() <= 0.05` | 实践中等价 | make_case 里 rnd.random() < 0.05 改成 <=，只在 random() 恰好返回 0.05 时不同（概率约 2^-53），用到的 seed 下不会出现 |
-| `fuzz:2884:const:False` | 617 | `True` → `False` | 等价 | call_isolated 的线程启动后立即 join，daemon 标志只影响解释器退出时是否等待该线程，结果相同 |
-| `fuzz:4422:const:True` | 697 | `False` → `True` | 等价 | _pass 对非容器的顶层（None / 42 / 字符串）返回 changed=True：此时没有任何可缩小的路径，后续轮次也不调用 validate，最小复现与调用次数都不变 |
-| `gen_vectors:196:compare` | 43 | `step > 0` → `step >= 0` | 等价 | _mono 只用 step=±0.5；step=0 时 open==close，两个分支给出相同的 high/low，故 step>0 与 step>=0 对任何输入结果相同 |
-| `indicators_alt:1032:const:1.0` | 101 | `0.0` → `1.0` | 等价（数值） | 前缀和起点 0.0→1.0 只给所有前缀加同一常数，窗口差 pg[t]-pg[t-n] 中抵消；价格按 1/64 量化时前缀和精确，结果逐位相同，一般浮点输入也只差舍入（远小于 1e-9） |
-| `indicators_ref:2509:const:0` | 327 | `1` → `0` | 等价（数值） | KDJ init=first 的递推起点 s+1→s 只多做一步 y=(x[s]+(m-1)*x[s])/m（或 a*x+(1-a)*x），数学上仍等于 x[s]，差异仅为舍入（<1e-15 相对），向量 1e-9 判据下不可区分 |
-| `ledger:1109:compare` | 167 | `p > self.rel_tol * self.avg` → `p >= self.rel_tol * self.avg` | 实践中等价 | 强平价阈值 p > rel_tol*avg 改成 >=，只在 p 恰好等于 1e-9*均价 时不同；该值本身就是“数学上为 0、只剩舍入噪声”的判定线，无法构造有意义的输入使两者不同 |
-| `ledger:1138:binop` | 184 | `closing * (p - self.avg) * _sign(Q)` → `closing * (p - self.avg) / _sign(Q)` | 等价 | _sign(Q) ∈ {1, -1}：IEEE 下 x*1 == x/1、x*(-1) == x/(-1) 逐位相同 |
-| `ledger:3509:const:-1` | 197 | `0` → `-1` | 等价 | side 只取 ±1（normalize_record 保证），side > 0 与 side > -1 对这两个值结果相同 |
-| `ledger_alt:72:const:-1` | 15 | `0` → `-1` | 等价 | _SIDE['none'] 只出现在 funding / settlement 记录上，ledger_alt 对这两类记录不使用 side |
-| `ledger_alt:75:const:-1` | 15 | `0` → `-1` | 等价 | _SIDE[0] 同上：只用于 funding / settlement 记录，side 不参与计算 |
-| `ledger_alt:505:const:1` | 47 | `0` → `1` | 等价 | r.get('qty', 0) 的缺省值只在记录缺 qty 时生效；trade / liquidation 记录必须带 qty（ledger.normalize_record 强制 qty>0），funding / settlement 记录在 ledger_alt 里不读 qty |
-| `ledger_alt:247:compare` | 52 | `abs(x) <= 1e-12 * max(1.0, abs(ref))` → `abs(x) < 1e-12 * max(1.0, abs(ref))` | 实践中等价 | 数量归零阈值 <= 与 < 只在残差恰好等于 1e-12*max(1,/ref/) 时不同；浮点残差无法精确落在该值上（已用 1.2e-12 / 4e-13 两侧的残差测试阈值两边的行为） |
-| `ledger_alt:943:const:-1` | 95 | `0` → `-1` | 等价 | 无仓时（size==0）走 else 分支：closing=0、realized 加 0、remaining=0 归零、leftover=q 开新仓，最终状态与开仓分支完全相同 |
-| `ledger_alt:597:binop` | 99 | `q - self.size` → `q + self.size` | 等价（数值） | _is_zero(q-size) 改成 _is_zero(q+size) 后不再“视为恰好平仓”，但随后 remaining=size-q 的残差同样被 _is_zero 归零，持仓 / 方向相同；已实现盈亏只差 closing 的 1e-12 级差异 × 价差，远小于 1e-9 金额容差 |
-| `ledger_alt:997:const:1` | 112 | `0` → `1` | 等价 | 全平且无剩余时 direction=0 改成 1：size=0 时 signed_qty、浮盈（空批次）恒为 0，下一笔成交走 size==0 的开仓分支重新设定方向，强平合法性检查对 size==0 同样判“非全平”，结果不变 |
-| `ledger_alt:684:compare` | 142 | `self.cash.value() < -self.cfg['rel_tol'] * scale` → `self.cash.value() <= -self.cfg['rel_tol'] * scale` | 实践中等价 | 强平后余额检查 < 与 <= 只在现金恰好等于 -1e-9*尺度 时不同；按有效保证金封顶后现金 >= 0（见 test_wallet_erosion_caps_loss_at_wallet），不可能落在该负值上 |
-| `props:1305:const:-1` | 158 | `0` → `-1` | 等价 | shift=none 时迟行线闭式解为“每个 t 都是 c”：off=0 时 t<n 恒真，off=-1 时 t-1<n 也恒真，两者生成相同列表 |
-| `stream:3295:compare` | 90 | `side > 0` → `side >= 0` | 等价 | _affordable 里 side 只取 ±1，side > 0 与 side >= 0 对这两个值相同 |
+| `compare:326:delete_stmt` | 249 | `print('error: none of the actual ids match a vecto` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `compare:1594:const:0` | 255 | `1` → `0` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `compare:1596:const:2` | 255 | `1` → `2` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `compare:1948:const:0` | 261 | `1` → `0` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `determinism:2236:const:21` | 165 | `20` → `21` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `determinism:1587:const:11` | 203 | `10` → `11` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `determinism:1664:const:5` | 224 | `4` → `5` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `determinism:1701:const:False` | 255 | `True` → `False` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `examples:700:const:17` | 21 | `16` → `17` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `examples:404:compare` | 65 | `abs(v) < 1e+300` → `abs(v) <= 1e+300` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `examples:991:const:0` | 155 | `1` → `0` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `examples:1630:binop` | 170 | `1.0 + 0.02 * (rnd.random() - 0.5)` → `1.0 - 0.02 * (rnd.random() - 0.5)` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `examples:1036:const:59` | 178 | `60` → `59` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `examples:128:delete_stmt` | 220 | `random.seed(f'{os.getpid()}:{time.perf_counter_ns(` → `pass` | 等价（设计如此） | seeded_engine 里的 random.seed(进程相关) 是“与任务无关的随机性”，结果按设计只由 task['seed'] 决定；删掉它结果不变，这正是该用例要证明的性质 |
+| `examples:130:delete_stmt` | 222 | `random.shuffle(scratch)` → `pass` | 等价（设计如此） | seeded_engine 的 random.shuffle(scratch) 只用于 scratch_sum（与顺序无关，恒为 499500）；删掉它结果不变，同上 |
+| `fuzz:504:const:2` | 111 | `1` → `2` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `fuzz:3951:const:101` | 311 | `100` → `101` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `fuzz:8507:const:2` | 735 | `1` → `2` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `fuzz:3216:const:5` | 757 | `6` → `5` | 实践中等价 | 缩小轮次上限 range(6)→range(5)：只有需要恰好 6 轮才收敛的输入会不同；本仓全部案例 ≤ 2 轮收敛（shrink_calls 字段），没有构造出需要 6 轮的输入 |
+| `fuzz:6246:const:201` | 851 | `200` → `201` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `fuzz:2093:const:1` | 868 | `0` → `1` | 等价 | _deep 里 depth 初值 0→1：depth = max(depth, d) 被后续 d 吸收，只在全部 d < 1（标量）时为 1，仍不大于阈值 40，返回值相同 |
+| `gen_vectors:194:compare` | 42 | `step > 0` → `step >= 0` | 等价 | _mono 只用 step=±0.5；step=0 时 open==close，两个分支给出相同的 high/low，故 step>0 与 step>=0 对任何输入结果相同 |
+| `indicators_alt:1030:const:1.0` | 100 | `0.0` → `1.0` | 等价（数值） | 前缀和起点 0.0→1.0 只给所有前缀加同一常数，窗口差 pg[t]-pg[t-n] 中抵消；价格按 1/64 量化时前缀和精确，结果逐位相同，一般浮点输入也只差舍入（远小于 1e-9） |
+| `indicators_ref:2507:const:0` | 326 | `1` → `0` | 等价（数值） | KDJ init=first 的递推起点 s+1→s 只多做一步 y=(x[s]+(m-1)*x[s])/m（或 a*x+(1-a)*x），数学上仍等于 x[s]，差异仅为舍入（<1e-15 相对），向量 1e-9 判据下不可区分 |
+| `ledger:547:compare` | 119 | `x > 0` → `x >= 0` | 等价 | _sign(x) 的 (x > 0)→(x >= 0) 只改变 x == 0 的结果；_sign 的三个调用点都在 Q == 0 被 or 短路 / 在 Q != 0 的分支里，x == 0 不可达 |
+| `ledger:1164:delete_stmt` | 187 | `closing = abs(Q)` → `pass` | 等价（数值） | 删掉 closing = abs(Q)（q 与 /Q/ 相差 ≤ 1e-12·/Q/ 时把 closing 精确取成 /Q/）后 closing = min(q, /Q/)，已实现盈亏只差 ≤ 1e-12·/Q/·价差，远小于 1e-9 金额容差；持仓仍被 snap_qty 归零 |
+| `ledger:1167:binop` | 188 | `closing * (p - self.avg) * _sign(Q)` → `closing * (p - self.avg) / _sign(Q)` | 等价 | _sign(Q) ∈ {1, -1}：IEEE 下 x*1 == x/1、x*(-1) == x/(-1) 逐位相同 |
+| `ledger:3547:const:-1` | 201 | `0` → `-1` | 等价 | side 只取 ±1（normalize_record 保证），side > 0 与 side > -1 对这两个值结果相同 |
+| `ledger:770:const:2` | 306 | `1` → `2` | 等价 | run() 里 last_bar 初值 -1→-2：只参与 b < last_bar 的比较，而 normalize_record 保证 bar >= 0，两者都永不成立 |
+| `ledger_alt:70:const:-1` | 14 | `0` → `-1` | 等价 | _SIDE['none'] 只出现在 funding / settlement 记录上，ledger_alt 对这两类记录不使用 side |
+| `ledger_alt:73:const:-1` | 14 | `0` → `-1` | 等价 | _SIDE['none'] 只出现在 funding / settlement 记录上，ledger_alt 对这两类记录不使用 side |
+| `ledger_alt:503:const:1` | 46 | `0` → `1` | 等价 | r.get('qty', 0) 的缺省值只在记录缺 qty 时生效；trade / liquidation 记录必须带 qty（ledger.normalize_record 强制 qty>0），funding / settlement 记录在 ledger_alt 里不读 qty |
+| `ledger_alt:245:compare` | 51 | `abs(x) <= 1e-12 * max(1.0, abs(ref))` → `abs(x) < 1e-12 * max(1.0, abs(ref))` | 实践中等价 | 数量归零阈值 <= 与 < 只在残差恰好等于 1e-12*max(1,/ref/) 时不同；浮点残差无法精确落在该值上（已用 1.2e-12 / 4e-13 两侧的残差测试阈值两边的行为） |
+| `ledger_alt:941:const:-1` | 94 | `0` → `-1` | 等价 | 无仓时（size==0）走 else 分支：closing=0、realized 加 0、remaining=0 归零、leftover=q 开新仓，最终状态与开仓分支完全相同 |
+| `ledger_alt:595:binop` | 98 | `q - self.size` → `q + self.size` | 等价（数值） | _is_zero(q-size) 改成 _is_zero(q+size) 后不再“视为恰好平仓”，但随后 remaining=size-q 的残差同样被 _is_zero 归零，持仓 / 方向相同；已实现盈亏只差 closing 的 1e-12 级差异 × 价差，远小于 1e-9 金额容差 |
+| `ledger_alt:995:const:1` | 111 | `0` → `1` | 等价 | 全平且无剩余时 direction=0 改成 1：size=0 时 signed_qty、浮盈（空批次）恒为 0，下一笔成交走 size==0 的开仓分支重新设定方向，强平合法性检查对 size==0 同样判“非全平”，结果不变 |
+| `ledger_alt:682:compare` | 141 | `self.cash.value() < -self.cfg['rel_tol'] * scale` → `self.cash.value() <= -self.cfg['rel_tol'] * scale` | 实践中等价 | 强平后余额检查 < 与 <= 只在现金恰好等于 -1e-9*尺度 时不同；按有效保证金封顶后现金 >= 0（见 test_wallet_erosion_caps_loss_at_wallet），不可能落在该负值上 |
+| `props:1303:const:-1` | 157 | `0` → `-1` | 等价 | shift=none 时迟行线闭式解为“每个 t 都是 c”：off=0 时 t<n 恒真，off=-1 时 t-1<n 也恒真，两者生成相同列表 |
+| `stream:3293:compare` | 89 | `side > 0` → `side >= 0` | 等价 | _affordable 里 side 只取 ±1，side > 0 与 side >= 0 对这两个值相同 |
+| `vector_schema:704:const:19` | 129 | `20` → `19` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:412:const:0` | 142 | `1` → `0` | 等价 | ledger_file_problems 里 last 初值 -1→0：只参与 r['bar'] < last 的比较，schema 已要求 bar >= 0（integer, minimum 0），第一条记录永不触发 |
+| `vector_schema:755:const:19` | 157 | `20` → `19` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:755:const:21` | 157 | `20` → `21` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:775:break_continue` | 174 | `break` → `continue` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:803:delete_stmt` | 192 | `probs = ledger_file_problems(obj) + number_text_pr` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:249:delete_stmt` | 195 | `report['files'][name] = probs` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:820:const:1` | 202 | `0` → `1` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+| `vector_schema:500:delete_stmt` | 207 | `print(f'    {where}: {msg}')` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
+
+## 6b. 这套验法抓到过什么：G1–G5 与评审期间修过的缺陷
+
+接入方可以把这张表当“判据有效性”的证据：每一条都是某个判据先失败、再改代码。
+
+| # | 位置 | 发现方式 | 现象 | 修法 |
+|---|---|---|---|---|
+| 1 | `compare.compare_series` | 因果性判据（容差 0）跑到两边都为 0 的点 | `ZeroDivisionError` | 统计相对误差前先判 scale > 0 |
+| 2 | `compare.compare_series` | `test_types_and_non_finite` | 实际值为 inf 时允许误差也变成 inf，误判一致 | 显式 `isfinite` 判定 |
+| 3 | `synth` | `test_regimes_present_and_have_their_shape` | ±8% 跳跃落进横盘段，横盘不再横 | 横盘 / 停牌段内不注入事件 |
+| 4 | `fuzz` 缩小器 | 最小复现单独调用时不再触发 RecursionError | 递归阈值随调用栈深度漂移 | 每次尝试在新线程里跑（栈深一致）+ 二分后留 max(64, 10%) 余量 |
+| 5 | `fuzz.decode` | 给键为 `""` 的深链写测试 | 还原成键 `"k"` | 去掉 `key or "k"` |
+| 6 | `fuzz.run` | 突变 `< 1000 → < 1001` 漏网 | 误收 / 误拒计数被样本上限 1000 截断 | 计数与样本分开 |
+| 7 | `stream.compare_rows` | 突变漏网（数量字段容差） | 浮点数量用了金额尺度，1.2e-12 vs 0 被放过 | 数量只用相对容差 |
+| 8 | `ledger` 逐仓 | 随机流 `negative_balance_after_liquidation` | 资金费 / 结算侵蚀钱包后强平出现负余额 | 有效保证金 = min(逐仓保证金, 钱包) |
+| 9 | `ledger` 逐仓 | 随机流 `I4_margin_consistency`（一条流 2011 处） | 结算后保证金 ≠ \|q\|·A/L | 结算时按结算价重算保证金 |
+| 10 | `ledger.liq_price` | 与 `ledger_alt` 对拍 | 1 倍逐仓多头的强平价数学为 0，浮点给出 ~1e-13 的“正价格” | 阈值 rel_tol·均价 以下视为不可触发 |
+| 11 | `stream._affordable` | 代码走查（随机流首轮失败后排查） | 反手单按原仓位算保证金基数，被过度缩量 | 反手时基数取 0 |
+| 12 | `fuzz._Shrinker._simpler` | 突变 `const 1 → 2` 漏网 | 候选里有与当前值相同的项（`[] → []`），被当成“有变化”白跑 6 轮 | 去重并去掉等于当前值的候选 |
+| 13 | `fuzz.valid_instance` / `stream._Order` | 突变漏网 | 死参数 `depth`、死字段 `filled` | 删除 |
+| 14 | `CONTRACT.md` 一目均衡表例子（评审期间） | `test_decimal` + `test_ichimoku_example_in_contract_matches_code` | 手算的 tenkan[1] 写成 2.0（应为 1.75） | 改文档；例子由 Decimal 复算 |
+| — | `qbt`（未修改，只记录） | 向量对拍 / 模糊 | CCI 长横盘输出 66.67；`GenSpec.from_dict` 裸 TypeError；chikou 口径不同 | 见第 4 节 |
 
 ## 7. 已知限制
 
@@ -359,6 +440,9 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | `qdcheck/fuzz.py`、`qdcheck/examples.py` | 模糊器；示例 schema、validate（1 好 3 坏）与 G4 假引擎、qbt 适配器 |
 | `qdcheck/synth.py`、`qdcheck/ledger.py`、`qdcheck/ledger_alt.py`、`qdcheck/stream.py` | 合成 K 线、参考账本、独立重算账本、随机订单流 |
 | `qdcheck/determinism.py` | 跨进程一致性 harness |
-| `qdcheck/tests/` | unittest（164 个） |
+| `qdcheck/selftest.py` | 一键自检（`python3.12 -m qdcheck.selftest`） |
+| `qdcheck/CONTRACT.md`、`qdcheck/vectors/schema.json`、`qdcheck/vector_schema.py` | 接口契约、向量文件 schema 与校验器 |
+| `qdcheck/REVIEW.md`、`qdcheck/mutants/triage.md` | 接入方视角的评审清单（检查命令 → 实际输出 → 改了什么）、历次漏网逐条判定 |
+| `qdcheck/tests/` | unittest（211 个） |
 | `qdcheck/tools/` | 自检、qbt 真实用例、覆盖率、突变、报告生成脚本 |
 | `qdcheck/results/` | 本报告引用的全部 JSON（含 `mutation_history/`） |

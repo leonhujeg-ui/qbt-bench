@@ -1,0 +1,2760 @@
+{
+ "baseline_seconds": 43.0,
+ "code_gone": [
+  {
+   "first_seen": "round1.json",
+   "ids": [
+    "round1:indicators_ref:79:return_none"
+   ],
+   "key": [
+    "indicators_ref",
+    "return_none",
+    "return n",
+    "return None"
+   ],
+   "line": 127,
+   "status": "code_gone"
+  },
+  {
+   "first_seen": "round1.json",
+   "ids": [
+    "round1:props:1325:binop"
+   ],
+   "key": [
+    "props",
+    "binop",
+    "seed * 1000",
+    "seed / 1000"
+   ],
+   "line": 43,
+   "status": "code_gone"
+  },
+  {
+   "first_seen": "round2.json",
+   "ids": [
+    "round2:fuzz:3560:binop"
+   ],
+   "key": [
+    "fuzz",
+    "binop",
+    "depth + 1",
+    "depth - 1"
+   ],
+   "line": 173,
+   "status": "code_gone"
+  },
+  {
+   "first_seen": "round2.json",
+   "ids": [
+    "round2:stream:538:delete_stmt"
+   ],
+   "key": [
+    "stream",
+    "delete_stmt",
+    "order.filled += 1",
+    "pass"
+   ],
+   "line": 123,
+   "status": "code_gone"
+  }
+ ],
+ "command": "python3.12 -m qdcheck.tools.triage --replay",
+ "elapsed_seconds": 517.6,
+ "replayed": 158,
+ "results": [
+  {
+   "after": "1.0",
+   "before": "0.0",
+   "detail": "FAIL: test_helpers (qdcheck.tests.test_compare.TestCompareSeries.test_helpers)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:compare:462:const:1.0"
+   ],
+   "history_line": 144,
+   "id": "compare:369:const:1.0",
+   "line": 58,
+   "module": "compare",
+   "op": "const",
+   "seconds": 0.24,
+   "status": "killed"
+  },
+  {
+   "after": "rel_tol * scale > abs_tol",
+   "before": "rel_tol * scale >= abs_tol",
+   "detail": "FAIL: test_error_statistics (qdcheck.tests.test_compare.TestCompareSeries.test_error_statistics)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:compare:647:compare"
+   ],
+   "history_line": 70,
+   "id": "compare:779:compare",
+   "line": 72,
+   "module": "compare",
+   "op": "compare",
+   "seconds": 0.2,
+   "status": "killed"
+  },
+  {
+   "after": "diff * allowed",
+   "before": "diff / allowed",
+   "detail": "FAIL: test_file_level_statistics (qdcheck.tests.test_compare.TestCompareFile.test_file_level_statistics)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:compare:1037:binop"
+   ],
+   "history_line": 75,
+   "id": "compare:1275:binop",
+   "line": 77,
+   "module": "compare",
+   "op": "binop",
+   "seconds": 0.28,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "FAIL: test_cli_exit_codes_and_first_line_contract (qdcheck.tests.test_compare.TestCompareFile.test_cli_exit_codes_and_first_line_contract)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:compare:1018:const:1",
+    "round1:compare:654:const:1"
+   ],
+   "history_line": 70,
+   "id": "compare:511:const:1",
+   "line": 145,
+   "module": "compare",
+   "op": "const",
+   "seconds": 0.22,
+   "status": "killed"
+  },
+  {
+   "after": "900.0",
+   "before": "600.0",
+   "detail": "FAIL: test_more_defaults (qdcheck.tests.test_determinism.TestMoreDetails.test_more_defaults)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:determinism:188:const:900.0"
+   ],
+   "history_line": 76,
+   "id": "determinism:187:const:900.0",
+   "line": 75,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.31,
+   "status": "killed"
+  },
+  {
+   "after": "3001",
+   "before": "3000",
+   "detail": "FAIL: test_child_stderr_tail_is_3000_chars (qdcheck.tests.test_determinism.TestMoreDetails.test_child_stderr_tail_is_3000_chars)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:determinism:1900:const:3001"
+   ],
+   "history_line": 89,
+   "id": "determinism:1931:const:3001",
+   "line": 88,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.27,
+   "status": "killed"
+  },
+  {
+   "after": "time.perf_counter() + t0",
+   "before": "time.perf_counter() - t0",
+   "detail": "FAIL: test_timing_fields_with_fake_clock (qdcheck.tests.test_determinism.TestReportDetails.test_timing_fields_with_fake_clock)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:427:binop"
+   ],
+   "history_line": 91,
+   "id": "determinism:439:binop",
+   "line": 92,
+   "module": "determinism",
+   "op": "binop",
+   "seconds": 2.7,
+   "status": "killed"
+  },
+  {
+   "after": "4",
+   "before": "3",
+   "detail": "FAIL: test_timing_fields_with_fake_clock (qdcheck.tests.test_determinism.TestReportDetails.test_timing_fields_with_fake_clock)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:428:const:4"
+   ],
+   "history_line": 91,
+   "id": "determinism:440:const:4",
+   "line": 92,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.64,
+   "status": "killed"
+  },
+  {
+   "after": "len(text) < 200",
+   "before": "len(text) <= 200",
+   "detail": "FAIL: test_short_values_and_key_lists (qdcheck.tests.test_determinism.TestReportDetails.test_short_values_and_key_lists)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:795:compare"
+   ],
+   "history_line": 130,
+   "id": "determinism:816:compare",
+   "line": 131,
+   "module": "determinism",
+   "op": "compare",
+   "seconds": 2.8,
+   "status": "killed"
+  },
+  {
+   "after": "1.0",
+   "before": "0.0",
+   "detail": "FAIL: test_more_defaults (qdcheck.tests.test_determinism.TestMoreDetails.test_more_defaults)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:determinism:241:const:1.0"
+   ],
+   "history_line": 133,
+   "id": "determinism:242:const:1.0",
+   "line": 134,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.19,
+   "status": "killed"
+  },
+  {
+   "after": "math.isnan(a) and math.isnan(b)",
+   "before": "math.isnan(a) or math.isnan(b)",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:239:boolop"
+   ],
+   "history_line": 134,
+   "id": "determinism:243:boolop",
+   "line": 135,
+   "module": "determinism",
+   "op": "boolop",
+   "seconds": 46.08,
+   "status": "survived"
+  },
+  {
+   "after": "1.5000000000000002e-09",
+   "before": "1e-09",
+   "detail": "FAIL: test_more_defaults (qdcheck.tests.test_determinism.TestMoreDetails.test_more_defaults)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:269:const:1.5000000000000002e-09",
+    "round2:determinism:253:const:1.5000000000000002e-09"
+   ],
+   "history_line": 179,
+   "id": "determinism:254:const:1.5000000000000002e-09",
+   "line": 142,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.63,
+   "status": "killed"
+  },
+  {
+   "after": "break",
+   "before": "continue",
+   "detail": "FAIL: test_lists_and_dicts (qdcheck.tests.test_determinism.TestDiff.test_lists_and_dicts)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:determinism:1191:break_continue"
+   ],
+   "history_line": 161,
+   "id": "determinism:520:break_continue",
+   "line": 151,
+   "module": "determinism",
+   "op": "break_continue",
+   "seconds": 0.19,
+   "status": "killed"
+  },
+  {
+   "after": "21",
+   "before": "20",
+   "detail": "FAIL: test_short_values_and_key_lists (qdcheck.tests.test_determinism.TestReportDetails.test_short_values_and_key_lists)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:2193:const:21"
+   ],
+   "history_line": 163,
+   "id": "determinism:2233:const:21",
+   "line": 164,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.76,
+   "status": "killed"
+  },
+  {
+   "after": "4243",
+   "before": "4242",
+   "detail": "FAIL: test_deterministic_engine_passes (qdcheck.tests.test_determinism.TestFakeEngines.test_deterministic_engine_passes)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:1306:const:4243"
+   ],
+   "history_line": 232,
+   "id": "determinism:545:const:4243",
+   "line": 186,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 1.19,
+   "status": "killed"
+  },
+  {
+   "after": "False",
+   "before": "True",
+   "detail": "FAIL: test_deterministic_engine_passes (qdcheck.tests.test_determinism.TestFakeEngines.test_deterministic_engine_passes)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:determinism:1032:const:False"
+   ],
+   "history_line": 56,
+   "id": "determinism:297:const:False",
+   "line": 187,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 1.22,
+   "status": "killed"
+  },
+  {
+   "after": "17",
+   "before": "16",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:946:const:17"
+   ],
+   "history_line": 155,
+   "id": "examples:700:const:17",
+   "line": 21,
+   "module": "examples",
+   "op": "const",
+   "seconds": 46.07,
+   "status": "survived"
+  },
+  {
+   "after": "501",
+   "before": "500",
+   "detail": "FAIL: test_good_validate_has_no_bare_exception_and_matches_reference (qdcheck.tests.test_fuzz.TestCoverageAndGoodValidate.test_good_validate_has_no_bare_excepti",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:875:const:501",
+    "round1:examples:951:const:501"
+   ],
+   "history_line": 123,
+   "id": "examples:707:const:501",
+   "line": 22,
+   "module": "examples",
+   "op": "const",
+   "seconds": 11.0,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "out['side'] = side",
+   "detail": "FAIL: test_normalised_output (qdcheck.tests.test_examples.TestValidates.test_normalised_output)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:61:delete_stmt"
+   ],
+   "history_line": 89,
+   "id": "examples:60:delete_stmt",
+   "line": 89,
+   "module": "examples",
+   "op": "delete_stmt",
+   "seconds": 0.4,
+   "status": "killed"
+  },
+  {
+   "after": "0.75",
+   "before": "0.5",
+   "detail": "FAIL: test_boundaries_shared_by_all (qdcheck.tests.test_examples.TestValidates.test_boundaries_shared_by_all)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:1868:const:0.75"
+   ],
+   "history_line": 170,
+   "id": "examples:1301:const:0.75",
+   "line": 106,
+   "module": "examples",
+   "op": "const",
+   "seconds": 0.4,
+   "status": "killed"
+  },
+  {
+   "after": "return None",
+   "before": "return _rest(cfg, out)",
+   "detail": "FAIL: test_boundaries_shared_by_all (qdcheck.tests.test_examples.TestValidates.test_boundaries_shared_by_all)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:86:return_none"
+   ],
+   "history_line": 138,
+   "id": "examples:71:return_none",
+   "line": 117,
+   "module": "examples",
+   "op": "return_none",
+   "seconds": 0.42,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "raise ValidationError('config must be an object')",
+   "detail": "FAIL: test_the_designed_bugs_and_only_those (qdcheck.tests.test_examples.TestValidates.test_the_designed_bugs_and_only_those)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:241:delete_stmt"
+   ],
+   "history_line": 130,
+   "id": "examples:251:delete_stmt",
+   "line": 130,
+   "module": "examples",
+   "op": "delete_stmt",
+   "seconds": 0.39,
+   "status": "killed"
+  },
+  {
+   "after": "period >= 500",
+   "before": "period > 500",
+   "detail": "FAIL: test_boundaries_shared_by_all (qdcheck.tests.test_examples.TestValidates.test_boundaries_shared_by_all)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:483:compare"
+   ],
+   "history_line": 132,
+   "id": "examples:507:compare",
+   "line": 132,
+   "module": "examples",
+   "op": "compare",
+   "seconds": 0.31,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "out = {'period': period, 'bars_per_period': bars_per_period, 'symbol': _str(_require(cfg, 'symbol'), 1, 16, 'symbol')}",
+   "detail": "FAIL: test_boundaries_shared_by_all (qdcheck.tests.test_examples.TestValidates.test_boundaries_shared_by_all)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:85:delete_stmt"
+   ],
+   "history_line": 136,
+   "id": "examples:84:delete_stmt",
+   "line": 136,
+   "module": "examples",
+   "op": "delete_stmt",
+   "seconds": 0.39,
+   "status": "killed"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "ERROR: test_the_designed_bugs_and_only_those (qdcheck.tests.test_examples.TestValidates.test_the_designed_bugs_and_only_those)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:899:const:-1"
+   ],
+   "history_line": 132,
+   "id": "examples:264:const:-1",
+   "line": 141,
+   "module": "examples",
+   "op": "const",
+   "seconds": 0.28,
+   "status": "killed"
+  },
+  {
+   "after": "False",
+   "before": "True",
+   "detail": "FAIL: test_boundaries_shared_by_all (qdcheck.tests.test_examples.TestValidates.test_boundaries_shared_by_all)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:506:const:False"
+   ],
+   "history_line": 143,
+   "id": "examples:530:const:False",
+   "line": 143,
+   "module": "examples",
+   "op": "const",
+   "seconds": 0.33,
+   "status": "killed"
+  },
+  {
+   "after": "i - 1",
+   "before": "i + 1",
+   "detail": "FAIL: test_boundaries_shared_by_all (qdcheck.tests.test_examples.TestValidates.test_boundaries_shared_by_all)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:926:binop"
+   ],
+   "history_line": 144,
+   "id": "examples:967:binop",
+   "line": 144,
+   "module": "examples",
+   "op": "binop",
+   "seconds": 0.42,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "FAIL: test_trades_replay_exactly (qdcheck.tests.test_examples.TestToyEngines.test_trades_replay_exactly)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:568:const:0",
+    "round1:examples:1857:const:0"
+   ],
+   "history_line": 178,
+   "id": "examples:592:const:0",
+   "line": 178,
+   "module": "examples",
+   "op": "const",
+   "seconds": 0.29,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:1297:const:2",
+    "round1:examples:950:const:2"
+   ],
+   "history_line": 144,
+   "id": "examples:592:const:2",
+   "line": 178,
+   "module": "examples",
+   "op": "const",
+   "seconds": 45.96,
+   "status": "survived"
+  },
+  {
+   "after": "held[s]",
+   "before": "-held[s]",
+   "detail": "FAIL: test_trades_replay_exactly (qdcheck.tests.test_examples.TestToyEngines.test_trades_replay_exactly)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:1764:unary_drop"
+   ],
+   "history_line": 191,
+   "id": "examples:1829:unary_drop",
+   "line": 191,
+   "module": "examples",
+   "op": "unary_drop",
+   "seconds": 0.47,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "held[s] = 0",
+   "detail": "FAIL: test_trades_replay_exactly (qdcheck.tests.test_examples.TestToyEngines.test_trades_replay_exactly)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:1020:delete_stmt"
+   ],
+   "history_line": 192,
+   "id": "examples:1061:delete_stmt",
+   "line": 192,
+   "module": "examples",
+   "op": "delete_stmt",
+   "seconds": 0.39,
+   "status": "killed"
+  },
+  {
+   "after": "tr['price'] /= 1.0 + eps",
+   "before": "tr['price'] *= 1.0 + eps",
+   "detail": "FAIL: test_noisy_engine_factor (qdcheck.tests.test_examples.TestToyEngines.test_noisy_engine_factor)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:323:binop"
+   ],
+   "history_line": 210,
+   "id": "examples:333:binop",
+   "line": 210,
+   "module": "examples",
+   "op": "binop",
+   "seconds": 0.72,
+   "status": "killed"
+  },
+  {
+   "after": "49",
+   "before": "50",
+   "detail": "FAIL: test_qbt_adapter (qdcheck.tests.test_examples.TestToyEngines.test_qbt_adapter)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:examples:636:const:49"
+   ],
+   "history_line": 223,
+   "id": "examples:677:const:49",
+   "line": 237,
+   "module": "examples",
+   "op": "const",
+   "seconds": 0.33,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "FAIL: test_good_validate_has_no_bare_exception_and_matches_reference (qdcheck.tests.test_fuzz.TestCoverageAndGoodValidate.test_good_validate_has_no_bare_excepti",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:4638:const:0",
+    "round1:fuzz:4681:const:0",
+    "round2:fuzz:4939:const:0"
+   ],
+   "history_line": 787,
+   "id": "fuzz:504:const:0",
+   "line": 111,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 8.89,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:2387:const:2",
+    "round1:fuzz:2399:const:2",
+    "round1:fuzz:3852:const:2",
+    "round1:fuzz:2567:const:2",
+    "round1:fuzz:4407:const:2",
+    "round1:fuzz:1942:const:2",
+    "round2:fuzz:4657:const:2",
+    "round3_merged:fuzz:5250:const:2"
+   ],
+   "history_line": 290,
+   "id": "fuzz:504:const:2",
+   "line": 111,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 44.21,
+   "status": "survived"
+  },
+  {
+   "after": "1001",
+   "before": "1000",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:4538:const:1001",
+    "round1:fuzz:4547:const:1001"
+   ],
+   "history_line": 752,
+   "id": "fuzz:3699:const:1001",
+   "line": 154,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 42.32,
+   "status": "survived"
+  },
+  {
+   "after": "0.75",
+   "before": "0.5",
+   "detail": "FAIL: test_round5_details (qdcheck.tests.test_fuzz.TestGenerators.test_round5_details)",
+   "first_seen": "round5_merged.json",
+   "history_ids": [
+    "round5_merged:fuzz:2211:const:0.75"
+   ],
+   "history_line": 162,
+   "id": "fuzz:2340:const:0.75",
+   "line": 160,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 12.16,
+   "status": "killed"
+  },
+  {
+   "after": "11",
+   "before": "12",
+   "detail": "FAIL: test_small_helpers (qdcheck.tests.test_fuzz.TestGenerators.test_small_helpers)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:fuzz:532:const:11"
+   ],
+   "history_line": 192,
+   "id": "fuzz:556:const:11",
+   "line": 190,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 9.88,
+   "status": "killed"
+  },
+  {
+   "after": "break",
+   "before": "continue",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:2173:break_continue"
+   ],
+   "history_line": 122,
+   "id": "fuzz:1269:break_continue",
+   "line": 196,
+   "module": "fuzz",
+   "op": "break_continue",
+   "seconds": 45.17,
+   "status": "survived"
+  },
+  {
+   "after": "continue",
+   "before": "break",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:6661:break_continue",
+    "round4_merged:fuzz:6661:break_continue"
+   ],
+   "history_line": 717,
+   "id": "fuzz:2469:break_continue",
+   "line": 271,
+   "module": "fuzz",
+   "op": "break_continue",
+   "seconds": 45.9,
+   "status": "survived"
+  },
+  {
+   "after": "pass",
+   "before": "break",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:3054:delete_stmt"
+   ],
+   "history_line": 725,
+   "id": "fuzz:2469:delete_stmt",
+   "line": 271,
+   "module": "fuzz",
+   "op": "delete_stmt",
+   "seconds": 45.75,
+   "status": "survived"
+  },
+  {
+   "after": "return None",
+   "before": "return rnd.choice(pool)",
+   "detail": "FAIL: test_every_schema_key_is_mutated_in_at_least_4_ways (qdcheck.tests.test_fuzz.TestContractAndDeterminism.test_every_schema_key_is_mutated_in_at_least_4_way",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:171:return_none"
+   ],
+   "history_line": 273,
+   "id": "fuzz:180:return_none",
+   "line": 296,
+   "module": "fuzz",
+   "op": "return_none",
+   "seconds": 4.45,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "2",
+   "detail": "FAIL: test_small_helpers (qdcheck.tests.test_fuzz.TestGenerators.test_small_helpers)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:2571:const:1",
+    "round3_merged:fuzz:6595:const:1"
+   ],
+   "history_line": 377,
+   "id": "fuzz:2513:const:1",
+   "line": 301,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 10.12,
+   "status": "killed"
+  },
+  {
+   "after": "1.5000000000000002e-09",
+   "before": "1e-09",
+   "detail": "FAIL: test_boundary_values_exact (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_values_exact)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:2366:const:1.5000000000000002e-09"
+   ],
+   "history_line": 282,
+   "id": "fuzz:2546:const:1.5000000000000002e-09",
+   "line": 314,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 10.25,
+   "status": "killed"
+  },
+  {
+   "after": "rnd.random() <= 0.25",
+   "before": "rnd.random() < 0.25",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:618:compare"
+   ],
+   "history_line": 294,
+   "id": "fuzz:667:compare",
+   "line": 326,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 44.86,
+   "status": "survived"
+  },
+  {
+   "after": "cat != 'type_wrong'",
+   "before": "cat == 'type_wrong'",
+   "detail": "FAIL: test_recursion_on_long_string (qdcheck.tests.test_fuzz.TestBrokenValidatesAreCaught.test_recursion_on_long_string)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:1419:compare"
+   ],
+   "history_line": 341,
+   "id": "fuzz:679:compare",
+   "line": 336,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 3.08,
+   "status": "killed"
+  },
+  {
+   "after": "10 ** 6",
+   "before": "-10 ** 6",
+   "detail": "FAIL: test_value_for_each_category (qdcheck.tests.test_fuzz.TestGenerators.test_value_for_each_category)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:3767:unary_drop"
+   ],
+   "history_line": 318,
+   "id": "fuzz:4037:unary_drop",
+   "line": 350,
+   "module": "fuzz",
+   "op": "unary_drop",
+   "seconds": 11.66,
+   "status": "killed"
+  },
+  {
+   "after": "if not cat == 'unicode':\n    return rnd.choice(UNICODE_SAMPLES)",
+   "before": "if cat == 'unicode':\n    return rnd.choice(UNICODE_SAMPLES)",
+   "detail": "ERROR: test_value_for_each_category (qdcheck.tests.test_fuzz.TestGenerators.test_value_for_each_category)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:194:negate_cond"
+   ],
+   "history_line": 326,
+   "id": "fuzz:209:negate_cond",
+   "line": 358,
+   "module": "fuzz",
+   "op": "negate_cond",
+   "seconds": 12.0,
+   "status": "killed"
+  },
+  {
+   "after": "rnd.random() <= 0.3",
+   "before": "rnd.random() < 0.3",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:2512:compare",
+    "round4_merged:fuzz:2512:compare"
+   ],
+   "history_line": 355,
+   "id": "fuzz:2681:compare",
+   "line": 387,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 44.83,
+   "status": "survived"
+  },
+  {
+   "after": "0.07500000000000001",
+   "before": "0.05",
+   "detail": "FAIL: test_case_shape_distribution (qdcheck.tests.test_fuzz.TestGenerators.test_case_shape_distribution)",
+   "first_seen": "round5_merged.json",
+   "history_ids": [
+    "round5_merged:fuzz:2470:const:0.07500000000000001"
+   ],
+   "history_line": 341,
+   "id": "fuzz:1593:const:0.07500000000000001",
+   "line": 409,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 11.45,
+   "status": "killed"
+  },
+  {
+   "after": "rnd.random() <= 0.05",
+   "before": "rnd.random() < 0.05",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:719:compare",
+    "round4_merged:fuzz:719:compare",
+    "round5_merged:fuzz:719:compare",
+    "round5b_merged:fuzz:719:compare",
+    "final_full:fuzz:719:compare"
+   ],
+   "history_line": 375,
+   "id": "fuzz:768:compare",
+   "line": 409,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 44.65,
+   "status": "survived"
+  },
+  {
+   "after": "len(s) > 4 * p",
+   "before": "len(s) >= 4 * p",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:2611:compare",
+    "round4_merged:fuzz:2611:compare"
+   ],
+   "history_line": 394,
+   "id": "fuzz:2797:compare",
+   "line": 429,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 44.24,
+   "status": "survived"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "FAIL: test_mutate_on_empty_and_non_dict (qdcheck.tests.test_fuzz.TestRunner.test_mutate_on_empty_and_non_dict)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:2385:const:-1",
+    "round3_merged:fuzz:2291:const:-1",
+    "round4_merged:fuzz:2291:const:-1"
+   ],
+   "history_line": 290,
+   "id": "fuzz:789:const:-1",
+   "line": 431,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 12.22,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "FAIL: test_mutate_on_empty_and_non_dict (qdcheck.tests.test_fuzz.TestRunner.test_mutate_on_empty_and_non_dict)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:fuzz:6470:const:1",
+    "round3_merged:fuzz:4244:const:1",
+    "round5_merged:fuzz:2979:const:1"
+   ],
+   "history_line": 554,
+   "id": "fuzz:789:const:1",
+   "line": 431,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 11.3,
+   "status": "killed"
+  },
+  {
+   "after": "len(cur) != 1",
+   "before": "len(cur) == 1",
+   "detail": "FAIL: test_recursion_on_deep_nesting (qdcheck.tests.test_fuzz.TestBrokenValidatesAreCaught.test_recursion_on_deep_nesting)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:2621:compare"
+   ],
+   "history_line": 405,
+   "id": "fuzz:2814:compare",
+   "line": 439,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 2.03,
+   "status": "killed"
+  },
+  {
+   "after": "33",
+   "before": "32",
+   "detail": "FAIL: test_round3_details (qdcheck.tests.test_fuzz.TestGenerators.test_round3_details)",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:2642:const:33"
+   ],
+   "history_line": 408,
+   "id": "fuzz:2828:const:33",
+   "line": 443,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 11.49,
+   "status": "killed"
+  },
+  {
+   "after": "v != 0",
+   "before": "v == 0",
+   "detail": "FAIL: test_encoding_boundaries (qdcheck.tests.test_fuzz.TestGenerators.test_encoding_boundaries)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:2647:compare"
+   ],
+   "history_line": 417,
+   "id": "fuzz:2844:compare",
+   "line": 452,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 9.88,
+   "status": "killed"
+  },
+  {
+   "after": "65",
+   "before": "64",
+   "detail": "FAIL: test_encoding_boundaries (qdcheck.tests.test_fuzz.TestGenerators.test_encoding_boundaries)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:5099:const:65",
+    "round1:fuzz:2666:const:65",
+    "round1:fuzz:5577:const:65"
+   ],
+   "history_line": 287,
+   "id": "fuzz:2863:const:65",
+   "line": 459,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 10.84,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "todo.extend(zip(x, y))",
+   "detail": "FAIL: test_round3_details (qdcheck.tests.test_fuzz.TestGenerators.test_round3_details)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:fuzz:2790:delete_stmt"
+   ],
+   "history_line": 533,
+   "id": "fuzz:2974:delete_stmt",
+   "line": 568,
+   "module": "fuzz",
+   "op": "delete_stmt",
+   "seconds": 10.62,
+   "status": "killed"
+  },
+  {
+   "after": "False",
+   "before": "True",
+   "detail": "FAIL: test_cases_identical_across_hash_seeds (qdcheck.tests.test_fuzz.TestDeterminism.test_cases_identical_across_hash_seeds)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:4683:const:False",
+    "round2:fuzz:1280:const:False",
+    "round5_merged:fuzz:2884:const:False",
+    "round5b_merged:fuzz:2884:const:False",
+    "final_full:fuzz:2884:const:False"
+   ],
+   "history_line": 811,
+   "id": "fuzz:864:const:False",
+   "line": 575,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 9.19,
+   "status": "killed"
+  },
+  {
+   "after": "self.calls > self.budget",
+   "before": "self.calls >= self.budget",
+   "detail": "FAIL: test_accepted_invalid_and_zero_budget (qdcheck.tests.test_fuzz.TestRunner.test_accepted_invalid_and_zero_budget)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:fuzz:4506:compare"
+   ],
+   "history_line": 724,
+   "id": "fuzz:1854:compare",
+   "line": 660,
+   "module": "fuzz",
+   "op": "compare",
+   "seconds": 11.07,
+   "status": "killed"
+  },
+  {
+   "after": "mid - 1",
+   "before": "mid + 1",
+   "detail": "FAIL: test_recursion_on_long_string (qdcheck.tests.test_fuzz.TestBrokenValidatesAreCaught.test_recursion_on_long_string)",
+   "first_seen": "round5_merged.json",
+   "history_ids": [
+    "round5_merged:fuzz:4383:binop"
+   ],
+   "history_line": 668,
+   "id": "fuzz:4619:binop",
+   "line": 684,
+   "module": "fuzz",
+   "op": "binop",
+   "seconds": 7.46,
+   "status": "killed"
+  },
+  {
+   "after": "while not (lo < hi and self.calls < self.budget):\n    mid = (lo + hi) // 2\n    if self._try(obj, path, deep_chain(kind, ",
+   "before": "while lo < hi and self.calls < self.budget:\n    mid = (lo + hi) // 2\n    if self._try(obj, path, deep_chain(kind, mid, l",
+   "detail": "FAIL: test_recursion_on_deep_nesting (qdcheck.tests.test_fuzz.TestBrokenValidatesAreCaught.test_recursion_on_deep_nesting)",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:910:negate_cond"
+   ],
+   "history_line": 663,
+   "id": "fuzz:955:negate_cond",
+   "line": 692,
+   "module": "fuzz",
+   "op": "negate_cond",
+   "seconds": 1.49,
+   "status": "killed"
+  },
+  {
+   "after": "i - 1",
+   "before": "i + 1",
+   "detail": "FAIL: test_round3_details (qdcheck.tests.test_fuzz.TestGenerators.test_round3_details)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:7250:binop"
+   ],
+   "history_line": 684,
+   "id": "fuzz:8631:binop",
+   "line": 713,
+   "module": "fuzz",
+   "op": "binop",
+   "seconds": 11.15,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "changed |= new is not obj",
+   "detail": "FAIL: test_pass_reports_string_only_change (qdcheck.tests.test_fuzz.TestGenerators.test_pass_reports_string_only_change)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:fuzz:4493:delete_stmt"
+   ],
+   "history_line": 710,
+   "id": "fuzz:3208:delete_stmt",
+   "line": 741,
+   "module": "fuzz",
+   "op": "delete_stmt",
+   "seconds": 10.05,
+   "status": "killed"
+  },
+  {
+   "after": "20001",
+   "before": "20000",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:3270:const:20001"
+   ],
+   "history_line": 827,
+   "id": "fuzz:999:const:20001",
+   "line": 789,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 43.46,
+   "status": "survived"
+  },
+  {
+   "after": "1.5",
+   "before": "1.0",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:5324:const:1.5",
+    "round4_merged:fuzz:5324:const:1.5"
+   ],
+   "history_line": 417,
+   "id": "fuzz:3374:const:1.5",
+   "line": 849,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 44.98,
+   "status": "survived"
+  },
+  {
+   "after": "if not depth > 40:\n    return True",
+   "before": "if depth > 40:\n    return True",
+   "detail": "FAIL: test_garbage_shapes (qdcheck.tests.test_fuzz.TestGenerators.test_garbage_shapes)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:fuzz:994:negate_cond"
+   ],
+   "history_line": 800,
+   "id": "fuzz:1068:negate_cond",
+   "line": 872,
+   "module": "fuzz",
+   "op": "negate_cond",
+   "seconds": 10.45,
+   "status": "killed"
+  },
+  {
+   "after": "39",
+   "before": "40",
+   "detail": "FAIL: test_round3_details (qdcheck.tests.test_fuzz.TestGenerators.test_round3_details)",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:3237:const:39"
+   ],
+   "history_line": 805,
+   "id": "fuzz:3448:const:39",
+   "line": 872,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 11.67,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "todo.extend(((y, d + 1) for y in x.values()))",
+   "detail": "FAIL: test_round5_details (qdcheck.tests.test_fuzz.TestGenerators.test_round5_details)",
+   "first_seen": "round5_merged.json",
+   "history_ids": [
+    "round5_merged:fuzz:1977:delete_stmt"
+   ],
+   "history_line": 814,
+   "id": "fuzz:2104:delete_stmt",
+   "line": 875,
+   "module": "fuzz",
+   "op": "delete_stmt",
+   "seconds": 11.32,
+   "status": "killed"
+  },
+  {
+   "after": "True",
+   "before": "False",
+   "detail": "FAIL: test_garbage_shapes (qdcheck.tests.test_fuzz.TestGenerators.test_garbage_shapes)",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:fuzz:4455:const:True",
+    "round4_merged:fuzz:4455:const:True",
+    "round5_merged:fuzz:4422:const:True",
+    "round5b_merged:fuzz:4422:const:True",
+    "final_full:fuzz:4422:const:True"
+   ],
+   "history_line": 691,
+   "id": "fuzz:1070:const:True",
+   "line": 878,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 10.69,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "print(f'  {g['exc_type']} x{g['count']} first case {g['first_case']} min {g['minimal_size']}/{g['original_size']} chars:",
+   "detail": "FAIL: test_cli_and_report_file (qdcheck.tests.test_fuzz.TestRunner.test_cli_and_report_file)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:fuzz:1041:delete_stmt"
+   ],
+   "history_line": 850,
+   "id": "fuzz:1110:delete_stmt",
+   "line": 919,
+   "module": "fuzz",
+   "op": "delete_stmt",
+   "seconds": 11.8,
+   "status": "killed"
+  },
+  {
+   "after": "step >= 0",
+   "before": "step > 0",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:196:compare",
+    "round2:gen_vectors:196:compare",
+    "round3_merged:gen_vectors:196:compare",
+    "round4_merged:gen_vectors:196:compare",
+    "round5_merged:gen_vectors:196:compare",
+    "round5b_merged:gen_vectors:196:compare",
+    "final_full:gen_vectors:196:compare"
+   ],
+   "history_line": 43,
+   "id": "gen_vectors:194:compare",
+   "line": 42,
+   "module": "gen_vectors",
+   "op": "compare",
+   "seconds": 42.84,
+   "status": "survived"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:718:const:-1",
+    "round2:gen_vectors:797:const:-1"
+   ],
+   "history_line": 255,
+   "id": "gen_vectors:414:const:-1",
+   "line": 42,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 3.23,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:gen_vectors:797:const:1"
+   ],
+   "history_line": 313,
+   "id": "gen_vectors:414:const:1",
+   "line": 42,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 3.27,
+   "status": "killed"
+  },
+  {
+   "after": "False",
+   "before": "True",
+   "detail": "ERROR: test_main_writes_and_checks (qdcheck.tests.test_vectors.TestWriterAndChecker.test_main_writes_and_checks)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:2418:const:False"
+   ],
+   "history_line": 301,
+   "id": "gen_vectors:1070:const:False",
+   "line": 191,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 3.74,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "2",
+   "detail": "FAIL: test_helpers_and_timing (qdcheck.tests.test_vectors.TestWriterAndChecker.test_helpers_and_timing)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:3070:const:1",
+    "round1:gen_vectors:710:const:1",
+    "round2:gen_vectors:3070:const:1"
+   ],
+   "history_line": 176,
+   "id": "gen_vectors:708:const:1",
+   "line": 248,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 3.36,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:2632:const:0"
+   ],
+   "history_line": 205,
+   "id": "gen_vectors:729:const:0",
+   "line": 262,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 3.6,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:2487:const:2",
+    "round1:gen_vectors:2822:const:2",
+    "round1:gen_vectors:2878:const:2",
+    "round1:gen_vectors:2448:const:2"
+   ],
+   "history_line": 62,
+   "id": "gen_vectors:729:const:2",
+   "line": 262,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 3.77,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "out['bars'] += len(vec['closes'])",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:359:delete_stmt"
+   ],
+   "history_line": 264,
+   "id": "gen_vectors:357:delete_stmt",
+   "line": 263,
+   "module": "gen_vectors",
+   "op": "delete_stmt",
+   "seconds": 3.86,
+   "status": "killed"
+  },
+  {
+   "after": "abs(a - b) < rel_tol * max(abs(a), abs(b), 1e-300)",
+   "before": "abs(a - b) <= rel_tol * max(abs(a), abs(b), 1e-300)",
+   "detail": "FAIL: test_helpers_and_timing (qdcheck.tests.test_vectors.TestWriterAndChecker.test_helpers_and_timing)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:369:compare"
+   ],
+   "history_line": 287,
+   "id": "gen_vectors:367:compare",
+   "line": 286,
+   "module": "gen_vectors",
+   "op": "compare",
+   "seconds": 3.77,
+   "status": "killed"
+  },
+  {
+   "after": "21",
+   "before": "20",
+   "detail": "FAIL: test_main_writes_and_checks (qdcheck.tests.test_vectors.TestWriterAndChecker.test_main_writes_and_checks)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:1280:const:21"
+   ],
+   "history_line": 304,
+   "id": "gen_vectors:1278:const:21",
+   "line": 303,
+   "module": "gen_vectors",
+   "op": "const",
+   "seconds": 11.05,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "print(line)",
+   "detail": "FAIL: test_main_writes_and_checks (qdcheck.tests.test_vectors.TestWriterAndChecker.test_main_writes_and_checks)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:gen_vectors:388:delete_stmt"
+   ],
+   "history_line": 305,
+   "id": "gen_vectors:386:delete_stmt",
+   "line": 304,
+   "module": "gen_vectors",
+   "op": "delete_stmt",
+   "seconds": 11.0,
+   "status": "killed"
+  },
+  {
+   "after": "1.0",
+   "before": "0.0",
+   "detail": "FAIL: test_extra_random_series_with_all_features (qdcheck.tests.test_indicators.TestCrossCheck.test_extra_random_series_with_all_features)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:indicators_alt:1032:const:1.0",
+    "round2:indicators_alt:1032:const:1.0",
+    "round3_merged:indicators_alt:1032:const:1.0",
+    "round4_merged:indicators_alt:1032:const:1.0",
+    "round5_merged:indicators_alt:1032:const:1.0",
+    "round5b_merged:indicators_alt:1032:const:1.0",
+    "final_full:indicators_alt:1032:const:1.0"
+   ],
+   "history_line": 101,
+   "id": "indicators_alt:414:const:1.0",
+   "line": 20,
+   "module": "indicators_alt",
+   "op": "const",
+   "seconds": 0.75,
+   "status": "killed"
+  },
+  {
+   "after": "ag - al",
+   "before": "ag + al",
+   "detail": "FAIL: test_alt_rsi_balanced_window_is_fifty (qdcheck.tests.test_indicators.TestCrossCheck.test_alt_rsi_balanced_window_is_fifty)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:indicators_alt:1065:binop"
+   ],
+   "history_line": 112,
+   "id": "indicators_alt:1063:binop",
+   "line": 111,
+   "module": "indicators_alt",
+   "op": "binop",
+   "seconds": 0.19,
+   "status": "killed"
+  },
+  {
+   "after": "4",
+   "before": "3",
+   "detail": "FAIL: test_file_headers (qdcheck.tests.test_vectors.TestCommittedVectors.test_file_headers)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:indicators_ref:725:const:4"
+   ],
+   "history_line": 51,
+   "id": "indicators_ref:717:const:4",
+   "line": 50,
+   "module": "indicators_ref",
+   "op": "const",
+   "seconds": 27.84,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:indicators_ref:2509:const:0",
+    "round3_merged:indicators_ref:2509:const:0",
+    "round4_merged:indicators_ref:2509:const:0",
+    "round5_merged:indicators_ref:2509:const:0",
+    "round5b_merged:indicators_ref:2509:const:0",
+    "final_full:indicators_ref:2509:const:0"
+   ],
+   "history_line": 327,
+   "id": "indicators_ref:881:const:0",
+   "line": 155,
+   "module": "indicators_ref",
+   "op": "const",
+   "seconds": 172.24,
+   "status": "timeout"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "FAIL: test_extra_random_series_with_all_features (qdcheck.tests.test_indicators.TestCrossCheck.test_extra_random_series_with_all_features)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:indicators_ref:3364:const:2"
+   ],
+   "history_line": 226,
+   "id": "indicators_ref:881:const:2",
+   "line": 155,
+   "module": "indicators_ref",
+   "op": "const",
+   "seconds": 0.22,
+   "status": "killed"
+  },
+  {
+   "after": "1.5",
+   "before": "1.0",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:indicators_ref:423:const:1.5"
+   ],
+   "history_line": 177,
+   "id": "indicators_ref:418:const:1.5",
+   "line": 175,
+   "module": "indicators_ref",
+   "op": "const",
+   "seconds": 43.34,
+   "status": "survived"
+  },
+  {
+   "after": "pass",
+   "before": "raise ValueError(\"warmup must be 'none' or 'nan'\")",
+   "detail": "FAIL: test_bad_input_raises_value_error (qdcheck.tests.test_indicators.TestResolve.test_bad_input_raises_value_error)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:indicators_ref:678:delete_stmt"
+   ],
+   "history_line": 395,
+   "id": "indicators_ref:656:delete_stmt",
+   "line": 383,
+   "module": "indicators_ref",
+   "op": "delete_stmt",
+   "seconds": 4.76,
+   "status": "killed"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "ERROR: test_bad_records (qdcheck.tests.test_ledger.TestValidation.test_bad_records)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger:3509:const:-1",
+    "round2:ledger:3509:const:-1",
+    "round3_merged:ledger:3509:const:-1",
+    "round4_merged:ledger:3509:const:-1",
+    "round5_merged:ledger:3509:const:-1",
+    "round5b_merged:ledger:3509:const:-1",
+    "final_full:ledger:3509:const:-1"
+   ],
+   "history_line": 197,
+   "id": "ledger:144:const:-1",
+   "line": 45,
+   "module": "ledger",
+   "op": "const",
+   "seconds": 0.33,
+   "status": "killed"
+  },
+  {
+   "after": "not isinstance(bar, int) and isinstance(bar, bool) and (bar < 0)",
+   "before": "not isinstance(bar, int) or isinstance(bar, bool) or bar < 0",
+   "detail": "FAIL: test_bar_must_be_a_non_negative_int_even_for_valid_trades (qdcheck.tests.test_ledger.TestValidation.test_bar_must_be_a_non_negative_int_even_for_valid_tra",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger:190:boolop"
+   ],
+   "history_line": 73,
+   "id": "ledger:211:boolop",
+   "line": 77,
+   "module": "ledger",
+   "op": "boolop",
+   "seconds": 0.39,
+   "status": "killed"
+  },
+  {
+   "after": "p >= self.rel_tol * self.avg",
+   "before": "p > self.rel_tol * self.avg",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger:1109:compare",
+    "round2:ledger:1109:compare",
+    "round3_merged:ledger:1109:compare",
+    "round4_merged:ledger:1109:compare",
+    "round5_merged:ledger:1109:compare",
+    "round5b_merged:ledger:1109:compare",
+    "final_full:ledger:1109:compare"
+   ],
+   "history_line": 167,
+   "id": "ledger:1138:compare",
+   "line": 171,
+   "module": "ledger",
+   "op": "compare",
+   "seconds": 44.84,
+   "status": "survived"
+  },
+  {
+   "after": "closing * (p - self.avg) / _sign(Q)",
+   "before": "closing * (p - self.avg) * _sign(Q)",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger:1138:binop",
+    "round2:ledger:1138:binop",
+    "round3_merged:ledger:1138:binop",
+    "round4_merged:ledger:1138:binop",
+    "round5_merged:ledger:1138:binop",
+    "round5b_merged:ledger:1138:binop",
+    "final_full:ledger:1138:binop"
+   ],
+   "history_line": 184,
+   "id": "ledger:1167:binop",
+   "line": 188,
+   "module": "ledger",
+   "op": "binop",
+   "seconds": 44.41,
+   "status": "survived"
+  },
+  {
+   "after": "self.cash - self.qty * p",
+   "before": "self.cash + self.qty * p",
+   "detail": "FAIL: test_cross_bankrupt_warning_uses_remaining_position (qdcheck.tests.test_ledger.TestViolationsAreDetected.test_cross_bankrupt_warning_uses_remaining_positi",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger:1965:binop"
+   ],
+   "history_line": 253,
+   "id": "ledger:1998:binop",
+   "line": 257,
+   "module": "ledger",
+   "op": "binop",
+   "seconds": 0.39,
+   "status": "killed"
+  },
+  {
+   "after": "abs(q) / avg",
+   "before": "abs(q) * avg",
+   "detail": "FAIL: test_identity_checks_fire_on_corrupted_state (qdcheck.tests.test_ledger.TestViolationsAreDetected.test_identity_checks_fire_on_corrupted_state)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger:2726:binop"
+   ],
+   "history_line": 289,
+   "id": "ledger:2763:binop",
+   "line": 293,
+   "module": "ledger",
+   "op": "binop",
+   "seconds": 0.41,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "ERROR: test_alt_accepts_integer_sides_and_snaps_like_ledger (qdcheck.tests.test_ledger.TestAltPieces.test_alt_accepts_integer_sides_and_snaps_like_ledger)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:73:const:0"
+   ],
+   "history_line": 15,
+   "id": "ledger_alt:65:const:0",
+   "line": 14,
+   "module": "ledger_alt",
+   "op": "const",
+   "seconds": 0.26,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "ERROR: test_alt_accepts_integer_sides_and_snaps_like_ledger (qdcheck.tests.test_ledger.TestAltPieces.test_alt_accepts_integer_sides_and_snaps_like_ledger)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:207:const:2"
+   ],
+   "history_line": 15,
+   "id": "ledger_alt:65:const:2",
+   "line": 14,
+   "module": "ledger_alt",
+   "op": "const",
+   "seconds": 0.29,
+   "status": "killed"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "ERROR: test_alt_accepts_integer_sides_and_snaps_like_ledger (qdcheck.tests.test_ledger.TestAltPieces.test_alt_accepts_integer_sides_and_snaps_like_ledger)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:72:const:-1",
+    "round1:ledger_alt:75:const:-1",
+    "round1:ledger_alt:943:const:-1",
+    "round2:ledger_alt:72:const:-1",
+    "round2:ledger_alt:75:const:-1",
+    "round2:ledger_alt:943:const:-1",
+    "round3_merged:ledger_alt:72:const:-1",
+    "round3_merged:ledger_alt:75:const:-1",
+    "round3_merged:ledger_alt:943:const:-1",
+    "round4_merged:ledger_alt:72:const:-1",
+    "round4_merged:ledger_alt:75:const:-1",
+    "round4_merged:ledger_alt:943:const:-1",
+    "round5_merged:ledger_alt:72:const:-1",
+    "round5_merged:ledger_alt:75:const:-1",
+    "round5_merged:ledger_alt:943:const:-1",
+    "round5b_merged:ledger_alt:72:const:-1",
+    "round5b_merged:ledger_alt:75:const:-1",
+    "round5b_merged:ledger_alt:943:const:-1",
+    "final_full:ledger_alt:72:const:-1",
+    "final_full:ledger_alt:75:const:-1",
+    "final_full:ledger_alt:943:const:-1"
+   ],
+   "history_line": 15,
+   "id": "ledger_alt:67:const:-1",
+   "line": 14,
+   "module": "ledger_alt",
+   "op": "const",
+   "seconds": 0.3,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "ERROR: test_alt_accepts_integer_sides_and_snaps_like_ledger (qdcheck.tests.test_ledger.TestAltPieces.test_alt_accepts_integer_sides_and_snaps_like_ledger)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:505:const:1",
+    "round1:ledger_alt:997:const:1",
+    "round2:ledger_alt:505:const:1",
+    "round2:ledger_alt:997:const:1",
+    "round3_merged:ledger_alt:505:const:1",
+    "round3_merged:ledger_alt:997:const:1",
+    "round4_merged:ledger_alt:505:const:1",
+    "round4_merged:ledger_alt:997:const:1",
+    "round5_merged:ledger_alt:505:const:1",
+    "round5_merged:ledger_alt:997:const:1",
+    "round5b_merged:ledger_alt:505:const:1",
+    "round5b_merged:ledger_alt:997:const:1",
+    "final_full:ledger_alt:505:const:1",
+    "final_full:ledger_alt:997:const:1"
+   ],
+   "history_line": 47,
+   "id": "ledger_alt:67:const:1",
+   "line": 14,
+   "module": "ledger_alt",
+   "op": "const",
+   "seconds": 0.18,
+   "status": "killed"
+  },
+  {
+   "after": "abs(x) < 1e-12 * max(1.0, abs(ref))",
+   "before": "abs(x) <= 1e-12 * max(1.0, abs(ref))",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:247:compare",
+    "round2:ledger_alt:247:compare",
+    "round3_merged:ledger_alt:247:compare",
+    "round4_merged:ledger_alt:247:compare",
+    "round5_merged:ledger_alt:247:compare",
+    "round5b_merged:ledger_alt:247:compare",
+    "final_full:ledger_alt:247:compare"
+   ],
+   "history_line": 52,
+   "id": "ledger_alt:245:compare",
+   "line": 51,
+   "module": "ledger_alt",
+   "op": "compare",
+   "seconds": 41.21,
+   "status": "survived"
+  },
+  {
+   "after": "q + self.size",
+   "before": "q - self.size",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:597:binop",
+    "round2:ledger_alt:597:binop",
+    "round3_merged:ledger_alt:597:binop",
+    "round4_merged:ledger_alt:597:binop",
+    "round5_merged:ledger_alt:597:binop",
+    "round5b_merged:ledger_alt:597:binop",
+    "final_full:ledger_alt:597:binop"
+   ],
+   "history_line": 99,
+   "id": "ledger_alt:595:binop",
+   "line": 98,
+   "module": "ledger_alt",
+   "op": "binop",
+   "seconds": 40.61,
+   "status": "survived"
+  },
+  {
+   "after": "self.cash.value() <= -self.cfg['rel_tol'] * scale",
+   "before": "self.cash.value() < -self.cfg['rel_tol'] * scale",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:684:compare",
+    "round2:ledger_alt:684:compare",
+    "round3_merged:ledger_alt:684:compare",
+    "round4_merged:ledger_alt:684:compare",
+    "round5_merged:ledger_alt:684:compare",
+    "round5b_merged:ledger_alt:684:compare",
+    "final_full:ledger_alt:684:compare"
+   ],
+   "history_line": 142,
+   "id": "ledger_alt:682:compare",
+   "line": 141,
+   "module": "ledger_alt",
+   "op": "compare",
+   "seconds": 41.73,
+   "status": "survived"
+  },
+  {
+   "after": "1.5",
+   "before": "1.0",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:ledger_alt:1233:const:1.5"
+   ],
+   "history_line": 52,
+   "id": "ledger_alt:176:const:1.5",
+   "line": 171,
+   "module": "ledger_alt",
+   "op": "const",
+   "seconds": 41.64,
+   "status": "survived"
+  },
+  {
+   "after": "1.0 - 300.0 * rnd()",
+   "before": "1.0 + 300.0 * rnd()",
+   "detail": "FAIL: test_tamper_shape (qdcheck.tests.test_indicators.TestCrossCheck.test_tamper_shape)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:props:506:binop"
+   ],
+   "history_line": 30,
+   "id": "props:503:binop",
+   "line": 29,
+   "module": "props",
+   "op": "binop",
+   "seconds": 1.02,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "d['high'][i] = max(o, c) * (1.0 + 0.05 * rnd())",
+   "detail": "FAIL: test_tamper_shape (qdcheck.tests.test_indicators.TestCrossCheck.test_tamper_shape)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:props:114:delete_stmt"
+   ],
+   "history_line": 32,
+   "id": "props:112:delete_stmt",
+   "line": 31,
+   "module": "props",
+   "op": "delete_stmt",
+   "seconds": 1.23,
+   "status": "killed"
+  },
+  {
+   "after": "0.05 / rnd()",
+   "before": "0.05 * rnd()",
+   "detail": "FAIL: test_tamper_shape (qdcheck.tests.test_indicators.TestCrossCheck.test_tamper_shape)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:props:836:binop"
+   ],
+   "history_line": 32,
+   "id": "props:834:binop",
+   "line": 31,
+   "module": "props",
+   "op": "binop",
+   "seconds": 1.03,
+   "status": "killed"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "FAIL: test_causality_counts_checked_lines (qdcheck.tests.test_indicators.TestProperties.test_causality_counts_checked_lines)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:props:123:const:-1",
+    "round2:props:1305:const:-1",
+    "round3_merged:props:1305:const:-1",
+    "round4_merged:props:1305:const:-1",
+    "round5_merged:props:1305:const:-1",
+    "round5b_merged:props:1305:const:-1",
+    "final_full:props:1305:const:-1"
+   ],
+   "history_line": 38,
+   "id": "props:121:const:-1",
+   "line": 37,
+   "module": "props",
+   "op": "const",
+   "seconds": 1.88,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "checked += 1",
+   "detail": "FAIL: test_causality_counts_checked_lines (qdcheck.tests.test_indicators.TestProperties.test_causality_counts_checked_lines)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:props:294:delete_stmt"
+   ],
+   "history_line": 50,
+   "id": "props:292:delete_stmt",
+   "line": 49,
+   "module": "props",
+   "op": "delete_stmt",
+   "seconds": 1.91,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "worst = max(worst, res['max_tol_ratio'])",
+   "detail": "FAIL: test_check_against_reports_mismatch (qdcheck.tests.test_indicators.TestCrossCheck.test_check_against_reports_mismatch)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:props:159:delete_stmt"
+   ],
+   "history_line": 72,
+   "id": "props:157:delete_stmt",
+   "line": 71,
+   "module": "props",
+   "op": "delete_stmt",
+   "seconds": 0.23,
+   "status": "killed"
+  },
+  {
+   "after": "1.5",
+   "before": "1.0",
+   "detail": "FAIL: test_constant_input_closed_forms (qdcheck.tests.test_indicators.TestProperties.test_constant_input_closed_forms)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:props:816:const:1.5",
+    "round1:props:844:const:1.5"
+   ],
+   "history_line": 30,
+   "id": "props:431:const:1.5",
+   "line": 128,
+   "module": "props",
+   "op": "const",
+   "seconds": 4.27,
+   "status": "killed"
+  },
+  {
+   "after": "0.22499999999999998",
+   "before": "0.15",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:133:const:0.22499999999999998"
+   ],
+   "history_line": 26,
+   "id": "stream:134:const:0.22499999999999998",
+   "line": 25,
+   "module": "stream",
+   "op": "const",
+   "seconds": 42.08,
+   "status": "survived"
+  },
+  {
+   "after": "0.0075",
+   "before": "0.005",
+   "detail": "FAIL: test_day_end_and_liquidation (qdcheck.tests.test_stream.TestSimulatorPieces.test_day_end_and_liquidation)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:685:const:0.0075",
+    "round2:stream:1649:const:0.0075"
+   ],
+   "history_line": 238,
+   "id": "stream:140:const:0.0075",
+   "line": 26,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.06,
+   "status": "killed"
+  },
+  {
+   "after": "0.015",
+   "before": "0.01",
+   "detail": "FAIL: test_new_orders_scripted (qdcheck.tests.test_stream.TestSimulatorPieces.test_new_orders_scripted)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1644:const:0.015"
+   ],
+   "history_line": 37,
+   "id": "stream:146:const:0.015",
+   "line": 27,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.01,
+   "status": "killed"
+  },
+  {
+   "after": "0.6000000000000001",
+   "before": "0.4",
+   "detail": "FAIL: test_profile_distribution (qdcheck.tests.test_stream.TestSimulatorPieces.test_profile_distribution)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:stream:1664:const:0.6000000000000001"
+   ],
+   "history_line": 39,
+   "id": "stream:1655:const:0.6000000000000001",
+   "line": 38,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.12,
+   "status": "killed"
+  },
+  {
+   "after": "0.003",
+   "before": "0.002",
+   "detail": "FAIL: test_profile_distribution (qdcheck.tests.test_stream.TestSimulatorPieces.test_profile_distribution)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1665:const:0.003",
+    "round3_merged:stream:1664:const:0.003"
+   ],
+   "history_line": 41,
+   "id": "stream:1662:const:0.003",
+   "line": 40,
+   "module": "stream",
+   "op": "const",
+   "seconds": 0.96,
+   "status": "killed"
+  },
+  {
+   "after": "order.side <= 0",
+   "before": "order.side < 0",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1018:compare"
+   ],
+   "history_line": 72,
+   "id": "stream:1018:compare",
+   "line": 71,
+   "module": "stream",
+   "op": "compare",
+   "seconds": 41.71,
+   "status": "survived"
+  },
+  {
+   "after": "Q >= 0",
+   "before": "Q > 0",
+   "detail": "OK",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:stream:2868:compare"
+   ],
+   "history_line": 168,
+   "id": "stream:2614:compare",
+   "line": 79,
+   "module": "stream",
+   "op": "compare",
+   "seconds": 43.29,
+   "status": "survived"
+  },
+  {
+   "after": "side >= 0",
+   "before": "side > 0",
+   "detail": "OK",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:stream:3295:compare",
+    "round4_merged:stream:3295:compare",
+    "round5_merged:stream:3295:compare",
+    "round5b_merged:stream:3295:compare",
+    "final_full:stream:3295:compare"
+   ],
+   "history_line": 90,
+   "id": "stream:2616:compare",
+   "line": 79,
+   "module": "stream",
+   "op": "compare",
+   "seconds": 45.89,
+   "status": "survived"
+  },
+  {
+   "after": "mode != 'isolated'",
+   "before": "mode == 'isolated'",
+   "detail": "FAIL: test_affordability (qdcheck.tests.test_stream.TestSimulatorPieces.test_affordability)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:486:compare"
+   ],
+   "history_line": 84,
+   "id": "stream:488:compare",
+   "line": 83,
+   "module": "stream",
+   "op": "compare",
+   "seconds": 0.92,
+   "status": "killed"
+  },
+  {
+   "after": "4.5",
+   "before": "3.0",
+   "detail": "FAIL: test_affordability (qdcheck.tests.test_stream.TestSimulatorPieces.test_affordability)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1790:const:4.5"
+   ],
+   "history_line": 89,
+   "id": "stream:1785:const:4.5",
+   "line": 88,
+   "module": "stream",
+   "op": "const",
+   "seconds": 0.87,
+   "status": "killed"
+  },
+  {
+   "after": "q + inc",
+   "before": "q - inc",
+   "detail": "FAIL: test_affordability (qdcheck.tests.test_stream.TestSimulatorPieces.test_affordability)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:3728:binop"
+   ],
+   "history_line": 85,
+   "id": "stream:1059:binop",
+   "line": 92,
+   "module": "stream",
+   "op": "binop",
+   "seconds": 0.8,
+   "status": "killed"
+  },
+  {
+   "after": "Q == 0",
+   "before": "Q != 0",
+   "detail": "FAIL: test_day_end_and_liquidation (qdcheck.tests.test_stream.TestSimulatorPieces.test_day_end_and_liquidation)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1138:compare"
+   ],
+   "history_line": 132,
+   "id": "stream:1135:compare",
+   "line": 130,
+   "module": "stream",
+   "op": "compare",
+   "seconds": 0.97,
+   "status": "killed"
+  },
+  {
+   "after": "2.0 / self.rnd()",
+   "before": "2.0 * self.rnd()",
+   "detail": "FAIL: test_day_end_and_liquidation (qdcheck.tests.test_stream.TestSimulatorPieces.test_day_end_and_liquidation)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1935:binop"
+   ],
+   "history_line": 138,
+   "id": "stream:1928:binop",
+   "line": 136,
+   "module": "stream",
+   "op": "binop",
+   "seconds": 1.49,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "FAIL: test_check_stream_reports_tampering (qdcheck.tests.test_stream.TestScenariosAndCli.test_check_stream_reports_tampering)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:3448:const:0",
+    "round1:stream:3235:const:0",
+    "round3_merged:stream:3617:const:0",
+    "round3_merged:stream:1547:const:0"
+   ],
+   "history_line": 182,
+   "id": "stream:568:const:0",
+   "line": 148,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.29,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "FAIL: test_day_end_and_liquidation (qdcheck.tests.test_stream.TestSimulatorPieces.test_day_end_and_liquidation)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1000:const:2",
+    "round1:stream:3448:const:2",
+    "round2:stream:3242:const:2"
+   ],
+   "history_line": 60,
+   "id": "stream:568:const:2",
+   "line": 148,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.08,
+   "status": "killed"
+  },
+  {
+   "after": "if not rnd() < sim['p_cancel']:\n    self.orders.remove(order)\n    self.stats['cancelled_user'] += 1",
+   "before": "if rnd() < sim['p_cancel']:\n    self.orders.remove(order)\n    self.stats['cancelled_user'] += 1",
+   "detail": "FAIL: test_new_orders_scripted (qdcheck.tests.test_stream.TestSimulatorPieces.test_new_orders_scripted)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:579:negate_cond"
+   ],
+   "history_line": 158,
+   "id": "stream:580:negate_cond",
+   "line": 156,
+   "module": "stream",
+   "op": "negate_cond",
+   "seconds": 1.06,
+   "status": "killed"
+  },
+  {
+   "after": "rnd() >= sim['p_order'] and self.bars['volume'][t] == 0",
+   "before": "rnd() >= sim['p_order'] or self.bars['volume'][t] == 0",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:580:boolop"
+   ],
+   "history_line": 161,
+   "id": "stream:581:boolop",
+   "line": 159,
+   "module": "stream",
+   "op": "boolop",
+   "seconds": 1.13,
+   "status": "killed"
+  },
+  {
+   "after": "if not (Q == 0 or u < 0.45):\n    side = (1 if rnd() < 0.5 else -1) if Q == 0 else 1 if Q > 0 else -1\n    qty = size\nelif",
+   "before": "if Q == 0 or u < 0.45:\n    side = (1 if rnd() < 0.5 else -1) if Q == 0 else 1 if Q > 0 else -1\n    qty = size\nelif u < 0",
+   "detail": "FAIL: test_close_one_lot_and_compare_rows_scales (qdcheck.tests.test_stream.TestSimulatorPieces.test_close_one_lot_and_compare_rows_scales)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:222:negate_cond"
+   ],
+   "history_line": 167,
+   "id": "stream:223:negate_cond",
+   "line": 165,
+   "module": "stream",
+   "op": "negate_cond",
+   "seconds": 1.03,
+   "status": "killed"
+  },
+  {
+   "after": "t - 1",
+   "before": "t + 1",
+   "detail": "FAIL: test_new_orders_scripted (qdcheck.tests.test_stream.TestSimulatorPieces.test_new_orders_scripted)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2896:binop"
+   ],
+   "history_line": 182,
+   "id": "stream:2887:binop",
+   "line": 180,
+   "module": "stream",
+   "op": "binop",
+   "seconds": 0.95,
+   "status": "killed"
+  },
+  {
+   "after": "3001",
+   "before": "3000",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1590:const:3001"
+   ],
+   "history_line": 356,
+   "id": "stream:239:const:3001",
+   "line": 198,
+   "module": "stream",
+   "op": "const",
+   "seconds": 41.64,
+   "status": "survived"
+  },
+  {
+   "after": "1.0",
+   "before": "0.0",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2956:const:1.0"
+   ],
+   "history_line": 216,
+   "id": "stream:269:const:1.0",
+   "line": 230,
+   "module": "stream",
+   "op": "const",
+   "seconds": 42.16,
+   "status": "survived"
+  },
+  {
+   "after": "150000.0",
+   "before": "100000.0",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2266:const:150000.0"
+   ],
+   "history_line": 267,
+   "id": "stream:683:const:150000.0",
+   "line": 236,
+   "module": "stream",
+   "op": "const",
+   "seconds": 4.9,
+   "status": "killed"
+  },
+  {
+   "after": "4",
+   "before": "3",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2516:const:4"
+   ],
+   "history_line": 35,
+   "id": "stream:703:const:4",
+   "line": 238,
+   "module": "stream",
+   "op": "const",
+   "seconds": 5.07,
+   "status": "killed"
+  },
+  {
+   "after": "151.5",
+   "before": "101.0",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2159:const:151.5"
+   ],
+   "history_line": 243,
+   "id": "stream:2152:const:151.5",
+   "line": 241,
+   "module": "stream",
+   "op": "const",
+   "seconds": 5.05,
+   "status": "killed"
+  },
+  {
+   "after": "145.5",
+   "before": "97.0",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2201:const:145.5"
+   ],
+   "history_line": 252,
+   "id": "stream:2157:const:145.5",
+   "line": 241,
+   "module": "stream",
+   "op": "const",
+   "seconds": 5.37,
+   "status": "killed"
+  },
+  {
+   "after": "9",
+   "before": "8",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:3516:const:9"
+   ],
+   "history_line": 244,
+   "id": "stream:3508:const:9",
+   "line": 242,
+   "module": "stream",
+   "op": "const",
+   "seconds": 4.94,
+   "status": "killed"
+  },
+  {
+   "after": "148.5",
+   "before": "99.0",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2195:const:148.5"
+   ],
+   "history_line": 252,
+   "id": "stream:2168:const:148.5",
+   "line": 245,
+   "module": "stream",
+   "op": "const",
+   "seconds": 5.14,
+   "status": "killed"
+  },
+  {
+   "after": "1.25",
+   "before": "-1.25",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:3532:unary_drop"
+   ],
+   "history_line": 248,
+   "id": "stream:3524:unary_drop",
+   "line": 246,
+   "module": "stream",
+   "op": "unary_drop",
+   "seconds": 4.89,
+   "status": "killed"
+  },
+  {
+   "after": "3",
+   "before": "4",
+   "detail": "FAIL: test_file_headers (qdcheck.tests.test_vectors.TestCommittedVectors.test_file_headers)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2186:const:3"
+   ],
+   "history_line": 250,
+   "id": "stream:2179:const:3",
+   "line": 248,
+   "module": "stream",
+   "op": "const",
+   "seconds": 2.35,
+   "status": "killed"
+  },
+  {
+   "after": "16",
+   "before": "15",
+   "detail": "FAIL: test_regenerates_within_tolerance (qdcheck.tests.test_vectors.TestCommittedVectors.test_regenerates_within_tolerance)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:3543:const:16"
+   ],
+   "history_line": 250,
+   "id": "stream:3535:const:16",
+   "line": 248,
+   "module": "stream",
+   "op": "const",
+   "seconds": 5.31,
+   "status": "killed"
+  },
+  {
+   "after": "1.4249999999999998",
+   "before": "0.95",
+   "detail": "FAIL: test_file_headers (qdcheck.tests.test_vectors.TestCommittedVectors.test_file_headers)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:2244:const:1.4249999999999998"
+   ],
+   "history_line": 262,
+   "id": "stream:2237:const:1.4249999999999998",
+   "line": 260,
+   "module": "stream",
+   "op": "const",
+   "seconds": 2.36,
+   "status": "killed"
+  },
+  {
+   "after": "1.5000000000000002e-09",
+   "before": "1e-09",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:stream:306:const:1.5000000000000002e-09"
+   ],
+   "history_line": 285,
+   "id": "stream:304:const:1.5000000000000002e-09",
+   "line": 283,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.09,
+   "status": "killed"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "FAIL: test_run_many_and_cli (qdcheck.tests.test_stream.TestScenariosAndCli.test_run_many_and_cli)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:3742:const:-1",
+    "round2:stream:980:const:-1",
+    "round2:stream:1743:const:-1",
+    "round2:stream:3749:const:-1"
+   ],
+   "history_line": 90,
+   "id": "stream:309:const:-1",
+   "line": 288,
+   "module": "stream",
+   "op": "const",
+   "seconds": 0.85,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "FAIL: test_run_many_and_cli (qdcheck.tests.test_stream.TestScenariosAndCli.test_run_many_and_cli)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:1746:const:1",
+    "round1:stream:1897:const:1",
+    "round1:stream:1910:const:1",
+    "round3_merged:stream:3970:const:1"
+   ],
+   "history_line": 72,
+   "id": "stream:309:const:1",
+   "line": 288,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.0,
+   "status": "killed"
+  },
+  {
+   "after": "1.5",
+   "before": "1.0",
+   "detail": "ERROR: test_close_one_lot_and_compare_rows_scales (qdcheck.tests.test_stream.TestSimulatorPieces.test_close_one_lot_and_compare_rows_scales)",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:stream:1423:const:1.5"
+   ],
+   "history_line": 291,
+   "id": "stream:1421:const:1.5",
+   "line": 290,
+   "module": "stream",
+   "op": "const",
+   "seconds": 1.13,
+   "status": "killed"
+  },
+  {
+   "after": "f == 'qty' or isinstance(a, int) or isinstance(b, int)",
+   "before": "f == 'qty' and isinstance(a, int) and isinstance(b, int)",
+   "detail": "FAIL: test_close_one_lot_and_compare_rows_scales (qdcheck.tests.test_stream.TestSimulatorPieces.test_close_one_lot_and_compare_rows_scales)",
+   "first_seen": "round3_merged.json",
+   "history_ids": [
+    "round3_merged:stream:2316:boolop"
+   ],
+   "history_line": 295,
+   "id": "stream:2314:boolop",
+   "line": 294,
+   "module": "stream",
+   "op": "boolop",
+   "seconds": 1.25,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "agg_stats[k] = agg_stats.get(k, 0) + v",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:stream:832:delete_stmt"
+   ],
+   "history_line": 330,
+   "id": "stream:828:delete_stmt",
+   "line": 328,
+   "module": "stream",
+   "op": "delete_stmt",
+   "seconds": 0.97,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "agg_counters[k] = agg_counters.get(k, 0) + v",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:stream:830:delete_stmt"
+   ],
+   "history_line": 332,
+   "id": "stream:831:delete_stmt",
+   "line": 330,
+   "module": "stream",
+   "op": "delete_stmt",
+   "seconds": 42.67,
+   "status": "survived"
+  },
+  {
+   "after": "1",
+   "before": "2",
+   "detail": "OK",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:stream:2521:const:1"
+   ],
+   "history_line": 35,
+   "id": "stream:1551:const:1",
+   "line": 335,
+   "module": "stream",
+   "op": "const",
+   "seconds": 43.15,
+   "status": "survived"
+  },
+  {
+   "after": "3",
+   "before": "4",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:385:const:3"
+   ],
+   "history_line": 39,
+   "id": "synth:387:const:3",
+   "line": 38,
+   "module": "synth",
+   "op": "const",
+   "seconds": 0.25,
+   "status": "killed"
+  },
+  {
+   "after": "5",
+   "before": "4",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:385:const:5"
+   ],
+   "history_line": 39,
+   "id": "synth:387:const:5",
+   "line": 38,
+   "module": "synth",
+   "op": "const",
+   "seconds": 0.24,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:734:const:2",
+    "round1:synth:943:const:2"
+   ],
+   "history_line": 56,
+   "id": "synth:390:const:2",
+   "line": 38,
+   "module": "synth",
+   "op": "const",
+   "seconds": 0.35,
+   "status": "killed"
+  },
+  {
+   "after": "sign / tick",
+   "before": "sign * tick",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:501:binop"
+   ],
+   "history_line": 120,
+   "id": "synth:503:binop",
+   "line": 119,
+   "module": "synth",
+   "op": "binop",
+   "seconds": 0.3,
+   "status": "killed"
+  },
+  {
+   "after": "u_gap <= spec['gap_prob']",
+   "before": "u_gap < spec['gap_prob']",
+   "detail": "OK",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:298:compare"
+   ],
+   "history_line": 155,
+   "id": "synth:299:compare",
+   "line": 154,
+   "module": "synth",
+   "op": "compare",
+   "seconds": 40.76,
+   "status": "survived"
+  },
+  {
+   "after": "-1",
+   "before": "0",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:310:const:-1",
+    "round1:synth:1118:const:-1"
+   ],
+   "history_line": 162,
+   "id": "synth:311:const:-1",
+   "line": 161,
+   "module": "synth",
+   "op": "const",
+   "seconds": 0.25,
+   "status": "killed"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round2.json",
+   "history_ids": [
+    "round2:synth:1196:const:1"
+   ],
+   "history_line": 65,
+   "id": "synth:311:const:1",
+   "line": 161,
+   "module": "synth",
+   "op": "const",
+   "seconds": 0.29,
+   "status": "killed"
+  },
+  {
+   "after": "i - 1",
+   "before": "i + 1",
+   "detail": "FAIL: test_defaults_and_small_knobs (qdcheck.tests.test_synth.TestSynth.test_defaults_and_small_knobs)",
+   "first_seen": "round1.json",
+   "history_ids": [
+    "round1:synth:1660:binop"
+   ],
+   "history_line": 187,
+   "id": "synth:1061:binop",
+   "line": 189,
+   "module": "synth",
+   "op": "binop",
+   "seconds": 0.26,
+   "status": "killed"
+  }
+ ],
+ "rounds": [
+  "round1.json",
+  "round2.json",
+  "round3_merged.json",
+  "round4_merged.json",
+  "round5_merged.json",
+  "round5b_merged.json",
+  "final_full.json"
+ ],
+ "unique_survivors": 162
+}

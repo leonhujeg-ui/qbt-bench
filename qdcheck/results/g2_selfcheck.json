@@ -9,7 +9,7 @@
  },
  "qbt_genspec_report": {
   "accepted_invalid": {
-   "count": 1847,
+   "count": 1848,
    "first_cases": [
     26,
     31,
@@ -51,10 +51,10 @@
     "original_size": 125,
     "ratio": 0.128,
     "shrink_calls": 9,
-    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | GenSpec.__init__() got an unexpected keyword argument …",
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 167 | GenSpec.__init__() got an unexpected keyword argument …",
     "top3": [
-     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
-     "qbt/data.py:164 in from_dict: return cls(**d)"
+     "qdcheck/tools/selfcheck.py:111 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:167 in from_dict: return cls(**d)"
     ]
    },
    {
@@ -79,10 +79,10 @@
     "original_size": 83,
     "ratio": 0.10843373493975904,
     "shrink_calls": 8,
-    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | keywords must be strings",
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 167 | keywords must be strings",
     "top3": [
-     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
-     "qbt/data.py:164 in from_dict: return cls(**d)"
+     "qdcheck/tools/selfcheck.py:111 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:167 in from_dict: return cls(**d)"
     ]
    },
    {
@@ -102,10 +102,10 @@
     "original_size": 111,
     "ratio": 0.036036036036036036,
     "shrink_calls": 1,
-    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not list",
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 167 | qbt.data.GenSpec() argument after ** must be a mapping, not list",
     "top3": [
-     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
-     "qbt/data.py:164 in from_dict: return cls(**d)"
+     "qdcheck/tools/selfcheck.py:111 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:167 in from_dict: return cls(**d)"
     ]
    },
    {
@@ -122,10 +122,10 @@
     "original_size": 8,
     "ratio": 1.0,
     "shrink_calls": 0,
-    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not str",
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 167 | qbt.data.GenSpec() argument after ** must be a mapping, not str",
     "top3": [
-     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
-     "qbt/data.py:164 in from_dict: return cls(**d)"
+     "qdcheck/tools/selfcheck.py:111 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:167 in from_dict: return cls(**d)"
     ]
    },
    {
@@ -142,10 +142,10 @@
     "original_size": 2,
     "ratio": 1.0,
     "shrink_calls": 0,
-    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not int",
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 167 | qbt.data.GenSpec() argument after ** must be a mapping, not int",
     "top3": [
-     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
-     "qbt/data.py:164 in from_dict: return cls(**d)"
+     "qdcheck/tools/selfcheck.py:111 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:167 in from_dict: return cls(**d)"
     ]
    },
    {
@@ -164,10 +164,10 @@
     "original_size": 4,
     "ratio": 1.0,
     "shrink_calls": 0,
-    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 167 | qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
     "top3": [
-     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
-     "qbt/data.py:164 in from_dict: return cls(**d)"
+     "qdcheck/tools/selfcheck.py:111 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:167 in from_dict: return cls(**d)"
     ]
    }
   ],
@@ -179,8 +179,8 @@
    "boundary": {
     "bare": 205,
     "cases": 1899,
-    "controlled": 879,
-    "pass": 815
+    "controlled": 878,
+    "pass": 816
    },
    "empty": {
     "bare": 212,
@@ -197,8 +197,8 @@
    "huge": {
     "bare": 170,
     "cases": 1848,
-    "controlled": 994,
-    "pass": 684
+    "controlled": 993,
+    "pass": 685
    },
    "inf": {
     "bare": 188,
@@ -209,8 +209,8 @@
    "key_case": {
     "bare": 1799,
     "cases": 1831,
-    "controlled": 25,
-    "pass": 7
+    "controlled": 24,
+    "pass": 8
    },
    "long_string": {
     "bare": 187,
@@ -221,8 +221,8 @@
    "missing_key": {
     "bare": 161,
     "cases": 1874,
-    "controlled": 630,
-    "pass": 1083
+    "controlled": 629,
+    "pass": 1084
    },
    "nan": {
     "bare": 203,
@@ -273,23 +273,196 @@
     "pass": 999
    }
   },
-  "elapsed_s": 4.072,
-  "format": 1,
+  "elapsed_s": 4.98,
+  "field_coverage": {
+   "$": {
+    "boundary": 6,
+    "empty": 13,
+    "extra_key": 1803,
+    "huge": 3,
+    "inf": 3,
+    "key_case": 19,
+    "long_string": 9,
+    "missing_key": 16,
+    "nan": 1,
+    "neg_zero": 4,
+    "negative": 4,
+    "nested_garbage": 19,
+    "numeric_string": 4,
+    "type_wrong": 91,
+    "unicode": 10
+   },
+   "$.bar_seconds": {
+    "boundary": 215,
+    "empty": 135,
+    "extra_key": 3,
+    "huge": 243,
+    "inf": 258,
+    "key_case": 199,
+    "long_string": 135,
+    "missing_key": 230,
+    "nan": 239,
+    "neg_zero": 236,
+    "negative": 227,
+    "nested_garbage": 205,
+    "numeric_string": 219,
+    "type_wrong": 202,
+    "unicode": 108
+   },
+   "$.halt_len": {
+    "boundary": 218,
+    "empty": 110,
+    "extra_key": 3,
+    "huge": 232,
+    "inf": 228,
+    "key_case": 205,
+    "long_string": 121,
+    "missing_key": 214,
+    "nan": 229,
+    "neg_zero": 207,
+    "negative": 241,
+    "nested_garbage": 183,
+    "numeric_string": 217,
+    "type_wrong": 174,
+    "unicode": 128
+   },
+   "$.jump_prob": {
+    "boundary": 210,
+    "empty": 117,
+    "extra_key": 2,
+    "huge": 230,
+    "inf": 210,
+    "key_case": 216,
+    "long_string": 133,
+    "missing_key": 211,
+    "nan": 216,
+    "neg_zero": 206,
+    "negative": 238,
+    "nested_garbage": 218,
+    "numeric_string": 221,
+    "type_wrong": 206,
+    "unicode": 110
+   },
+   "$.mu": {
+    "boundary": 232,
+    "empty": 133,
+    "extra_key": 6,
+    "huge": 236,
+    "inf": 259,
+    "key_case": 209,
+    "long_string": 139,
+    "missing_key": 197,
+    "nan": 231,
+    "neg_zero": 257,
+    "negative": 240,
+    "nested_garbage": 231,
+    "numeric_string": 255,
+    "type_wrong": 206,
+    "unicode": 107
+   },
+   "$.n": {
+    "boundary": 206,
+    "empty": 129,
+    "extra_key": 5,
+    "huge": 229,
+    "inf": 237,
+    "key_case": 186,
+    "long_string": 142,
+    "missing_key": 220,
+    "nan": 199,
+    "neg_zero": 231,
+    "negative": 260,
+    "nested_garbage": 210,
+    "numeric_string": 237,
+    "type_wrong": 211,
+    "unicode": 127
+   },
+   "$.s0": {
+    "boundary": 218,
+    "empty": 101,
+    "extra_key": 3,
+    "huge": 220,
+    "inf": 228,
+    "key_case": 220,
+    "long_string": 117,
+    "missing_key": 202,
+    "nan": 237,
+    "neg_zero": 222,
+    "negative": 229,
+    "nested_garbage": 199,
+    "numeric_string": 226,
+    "type_wrong": 191,
+    "unicode": 124
+   },
+   "$.seed": {
+    "boundary": 231,
+    "empty": 118,
+    "extra_key": 2,
+    "huge": 243,
+    "inf": 221,
+    "key_case": 204,
+    "long_string": 121,
+    "missing_key": 227,
+    "nan": 236,
+    "neg_zero": 228,
+    "negative": 229,
+    "nested_garbage": 181,
+    "numeric_string": 237,
+    "type_wrong": 215,
+    "unicode": 110
+   },
+   "$.sigma": {
+    "boundary": 216,
+    "empty": 107,
+    "extra_key": 7,
+    "huge": 233,
+    "inf": 209,
+    "key_case": 204,
+    "long_string": 126,
+    "missing_key": 197,
+    "nan": 230,
+    "neg_zero": 229,
+    "negative": 236,
+    "nested_garbage": 226,
+    "numeric_string": 237,
+    "type_wrong": 196,
+    "unicode": 111
+   },
+   "$.symbol": {
+    "boundary": 198,
+    "empty": 965,
+    "extra_key": 3,
+    "huge": 33,
+    "inf": 53,
+    "key_case": 218,
+    "long_string": 940,
+    "missing_key": 214,
+    "nan": 37,
+    "neg_zero": 43,
+    "negative": 45,
+    "nested_garbage": 225,
+    "numeric_string": 45,
+    "type_wrong": 190,
+    "unicode": 951
+   }
+  },
+  "fields_under_4_kinds": [],
+  "format": 2,
   "n": 20000,
   "outcomes": {
    "bare": 3540,
-   "controlled": 11316,
-   "pass": 5144
+   "controlled": 11314,
+   "pass": 5146
   },
-  "per_case_us": 203.6,
+  "per_case_us": 249.0,
   "rejected_valid": {
    "count": 0,
    "first_cases": []
   },
-  "schema_valid_cases": 3297,
+  "schema_valid_cases": 3298,
   "seed": 0,
   "tool": "qdcheck.fuzz",
-  "validate": "__main__:_qbt_genspec_validate"
+  "validate": "qdcheck.tools.selfcheck:_qbt_genspec_validate"
  },
  "runs": {
   "validate_good": {
@@ -405,15 +578,237 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 1.998,
-    "format": 1,
+    "elapsed_s": 1.955,
+    "field_coverage": {
+     "$": {
+      "boundary": 3,
+      "empty": 2,
+      "extra_key": 1330,
+      "huge": 4,
+      "inf": 3,
+      "key_case": 8,
+      "long_string": 4,
+      "missing_key": 9,
+      "nan": 2,
+      "neg_zero": 1,
+      "negative": 2,
+      "nested_garbage": 8,
+      "numeric_string": 2,
+      "type_wrong": 112,
+      "unicode": 1
+     },
+     "$.fee_rate": {
+      "boundary": 155,
+      "empty": 37,
+      "huge": 281,
+      "inf": 276,
+      "key_case": 138,
+      "long_string": 24,
+      "missing_key": 152,
+      "nan": 297,
+      "neg_zero": 307,
+      "negative": 285,
+      "nested_garbage": 61,
+      "numeric_string": 314,
+      "type_wrong": 125,
+      "unicode": 28
+     },
+     "$.leverage": {
+      "boundary": 161,
+      "empty": 32,
+      "extra_key": 2,
+      "huge": 298,
+      "inf": 299,
+      "key_case": 134,
+      "long_string": 24,
+      "missing_key": 147,
+      "nan": 294,
+      "neg_zero": 305,
+      "negative": 281,
+      "nested_garbage": 60,
+      "numeric_string": 266,
+      "type_wrong": 107,
+      "unicode": 34
+     },
+     "$.period": {
+      "boundary": 280,
+      "empty": 40,
+      "extra_key": 3,
+      "huge": 587,
+      "inf": 575,
+      "key_case": 264,
+      "long_string": 43,
+      "missing_key": 298,
+      "nan": 565,
+      "neg_zero": 511,
+      "negative": 621,
+      "nested_garbage": 110,
+      "numeric_string": 640,
+      "type_wrong": 256,
+      "unicode": 53
+     },
+     "$.risk": {
+      "boundary": 26,
+      "empty": 338,
+      "extra_key": 555,
+      "huge": 30,
+      "inf": 22,
+      "key_case": 129,
+      "long_string": 35,
+      "missing_key": 135,
+      "nan": 32,
+      "neg_zero": 32,
+      "negative": 28,
+      "nested_garbage": 655,
+      "numeric_string": 32,
+      "type_wrong": 107,
+      "unicode": 24
+     },
+     "$.risk.max_drawdown": {
+      "boundary": 121,
+      "empty": 28,
+      "extra_key": 1,
+      "huge": 243,
+      "inf": 241,
+      "key_case": 125,
+      "long_string": 27,
+      "missing_key": 117,
+      "nan": 232,
+      "neg_zero": 245,
+      "negative": 265,
+      "nested_garbage": 25,
+      "numeric_string": 224,
+      "type_wrong": 94,
+      "unicode": 31
+     },
+     "$.risk.stop_loss": {
+      "boundary": 87,
+      "empty": 11,
+      "huge": 129,
+      "inf": 119,
+      "key_case": 87,
+      "long_string": 12,
+      "missing_key": 70,
+      "nan": 129,
+      "neg_zero": 145,
+      "negative": 148,
+      "nested_garbage": 18,
+      "numeric_string": 142,
+      "type_wrong": 55,
+      "unicode": 14
+     },
+     "$.risk.window": {
+      "boundary": 70,
+      "empty": 14,
+      "extra_key": 1,
+      "huge": 132,
+      "inf": 124,
+      "key_case": 82,
+      "long_string": 10,
+      "missing_key": 87,
+      "nan": 110,
+      "neg_zero": 120,
+      "negative": 129,
+      "nested_garbage": 21,
+      "numeric_string": 136,
+      "type_wrong": 75,
+      "unicode": 17
+     },
+     "$.side": {
+      "boundary": 259,
+      "empty": 56,
+      "extra_key": 4,
+      "huge": 50,
+      "inf": 43,
+      "key_case": 266,
+      "long_string": 605,
+      "missing_key": 258,
+      "nan": 58,
+      "neg_zero": 44,
+      "negative": 49,
+      "nested_garbage": 117,
+      "numeric_string": 60,
+      "type_wrong": 233,
+      "unicode": 642
+     },
+     "$.symbol": {
+      "boundary": 279,
+      "empty": 713,
+      "extra_key": 2,
+      "huge": 51,
+      "inf": 52,
+      "key_case": 279,
+      "long_string": 609,
+      "missing_key": 290,
+      "nan": 57,
+      "neg_zero": 41,
+      "negative": 47,
+      "nested_garbage": 96,
+      "numeric_string": 49,
+      "type_wrong": 218,
+      "unicode": 656
+     },
+     "$.symbols": {
+      "boundary": 129,
+      "empty": 257,
+      "extra_key": 14,
+      "huge": 28,
+      "inf": 21,
+      "key_case": 156,
+      "long_string": 19,
+      "missing_key": 153,
+      "nan": 32,
+      "neg_zero": 25,
+      "negative": 31,
+      "nested_garbage": 674,
+      "numeric_string": 21,
+      "type_wrong": 128,
+      "unicode": 21
+     },
+     "$.symbols[]": {
+      "boundary": 234,
+      "empty": 347,
+      "extra_key": 4,
+      "huge": 52,
+      "inf": 35,
+      "key_case": 5,
+      "long_string": 422,
+      "missing_key": 5,
+      "nan": 48,
+      "neg_zero": 48,
+      "negative": 39,
+      "nested_garbage": 56,
+      "numeric_string": 37,
+      "type_wrong": 194,
+      "unicode": 394
+     },
+     "$.use_stop": {
+      "boundary": 32,
+      "empty": 27,
+      "extra_key": 1,
+      "huge": 19,
+      "inf": 25,
+      "key_case": 165,
+      "long_string": 28,
+      "missing_key": 168,
+      "nan": 35,
+      "neg_zero": 39,
+      "negative": 24,
+      "nested_garbage": 64,
+      "numeric_string": 30,
+      "type_wrong": 131,
+      "unicode": 29
+     }
+    },
+    "fields_under_4_kinds": [],
+    "format": 2,
     "n": 20000,
     "outcomes": {
      "bare": 0,
      "controlled": 17879,
      "pass": 2121
     },
-    "per_case_us": 99.9,
+    "per_case_us": 97.8,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -423,7 +818,7 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_good"
    },
-   "wall_seconds_incl_shrink": 2.0
+   "wall_seconds_incl_shrink": 1.96
   },
   "validate_keyerror": {
    "criteria": {
@@ -561,15 +956,237 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 2.055,
-    "format": 1,
+    "elapsed_s": 2.146,
+    "field_coverage": {
+     "$": {
+      "boundary": 3,
+      "empty": 2,
+      "extra_key": 1330,
+      "huge": 4,
+      "inf": 3,
+      "key_case": 8,
+      "long_string": 4,
+      "missing_key": 9,
+      "nan": 2,
+      "neg_zero": 1,
+      "negative": 2,
+      "nested_garbage": 8,
+      "numeric_string": 2,
+      "type_wrong": 112,
+      "unicode": 1
+     },
+     "$.fee_rate": {
+      "boundary": 155,
+      "empty": 37,
+      "huge": 281,
+      "inf": 276,
+      "key_case": 138,
+      "long_string": 24,
+      "missing_key": 152,
+      "nan": 297,
+      "neg_zero": 307,
+      "negative": 285,
+      "nested_garbage": 61,
+      "numeric_string": 314,
+      "type_wrong": 125,
+      "unicode": 28
+     },
+     "$.leverage": {
+      "boundary": 161,
+      "empty": 32,
+      "extra_key": 2,
+      "huge": 298,
+      "inf": 299,
+      "key_case": 134,
+      "long_string": 24,
+      "missing_key": 147,
+      "nan": 294,
+      "neg_zero": 305,
+      "negative": 281,
+      "nested_garbage": 60,
+      "numeric_string": 266,
+      "type_wrong": 107,
+      "unicode": 34
+     },
+     "$.period": {
+      "boundary": 280,
+      "empty": 40,
+      "extra_key": 3,
+      "huge": 587,
+      "inf": 575,
+      "key_case": 264,
+      "long_string": 43,
+      "missing_key": 298,
+      "nan": 565,
+      "neg_zero": 511,
+      "negative": 621,
+      "nested_garbage": 110,
+      "numeric_string": 640,
+      "type_wrong": 256,
+      "unicode": 53
+     },
+     "$.risk": {
+      "boundary": 26,
+      "empty": 338,
+      "extra_key": 555,
+      "huge": 30,
+      "inf": 22,
+      "key_case": 129,
+      "long_string": 35,
+      "missing_key": 135,
+      "nan": 32,
+      "neg_zero": 32,
+      "negative": 28,
+      "nested_garbage": 655,
+      "numeric_string": 32,
+      "type_wrong": 107,
+      "unicode": 24
+     },
+     "$.risk.max_drawdown": {
+      "boundary": 121,
+      "empty": 28,
+      "extra_key": 1,
+      "huge": 243,
+      "inf": 241,
+      "key_case": 125,
+      "long_string": 27,
+      "missing_key": 117,
+      "nan": 232,
+      "neg_zero": 245,
+      "negative": 265,
+      "nested_garbage": 25,
+      "numeric_string": 224,
+      "type_wrong": 94,
+      "unicode": 31
+     },
+     "$.risk.stop_loss": {
+      "boundary": 87,
+      "empty": 11,
+      "huge": 129,
+      "inf": 119,
+      "key_case": 87,
+      "long_string": 12,
+      "missing_key": 70,
+      "nan": 129,
+      "neg_zero": 145,
+      "negative": 148,
+      "nested_garbage": 18,
+      "numeric_string": 142,
+      "type_wrong": 55,
+      "unicode": 14
+     },
+     "$.risk.window": {
+      "boundary": 70,
+      "empty": 14,
+      "extra_key": 1,
+      "huge": 132,
+      "inf": 124,
+      "key_case": 82,
+      "long_string": 10,
+      "missing_key": 87,
+      "nan": 110,
+      "neg_zero": 120,
+      "negative": 129,
+      "nested_garbage": 21,
+      "numeric_string": 136,
+      "type_wrong": 75,
+      "unicode": 17
+     },
+     "$.side": {
+      "boundary": 259,
+      "empty": 56,
+      "extra_key": 4,
+      "huge": 50,
+      "inf": 43,
+      "key_case": 266,
+      "long_string": 605,
+      "missing_key": 258,
+      "nan": 58,
+      "neg_zero": 44,
+      "negative": 49,
+      "nested_garbage": 117,
+      "numeric_string": 60,
+      "type_wrong": 233,
+      "unicode": 642
+     },
+     "$.symbol": {
+      "boundary": 279,
+      "empty": 713,
+      "extra_key": 2,
+      "huge": 51,
+      "inf": 52,
+      "key_case": 279,
+      "long_string": 609,
+      "missing_key": 290,
+      "nan": 57,
+      "neg_zero": 41,
+      "negative": 47,
+      "nested_garbage": 96,
+      "numeric_string": 49,
+      "type_wrong": 218,
+      "unicode": 656
+     },
+     "$.symbols": {
+      "boundary": 129,
+      "empty": 257,
+      "extra_key": 14,
+      "huge": 28,
+      "inf": 21,
+      "key_case": 156,
+      "long_string": 19,
+      "missing_key": 153,
+      "nan": 32,
+      "neg_zero": 25,
+      "negative": 31,
+      "nested_garbage": 674,
+      "numeric_string": 21,
+      "type_wrong": 128,
+      "unicode": 21
+     },
+     "$.symbols[]": {
+      "boundary": 234,
+      "empty": 347,
+      "extra_key": 4,
+      "huge": 52,
+      "inf": 35,
+      "key_case": 5,
+      "long_string": 422,
+      "missing_key": 5,
+      "nan": 48,
+      "neg_zero": 48,
+      "negative": 39,
+      "nested_garbage": 56,
+      "numeric_string": 37,
+      "type_wrong": 194,
+      "unicode": 394
+     },
+     "$.use_stop": {
+      "boundary": 32,
+      "empty": 27,
+      "extra_key": 1,
+      "huge": 19,
+      "inf": 25,
+      "key_case": 165,
+      "long_string": 28,
+      "missing_key": 168,
+      "nan": 35,
+      "neg_zero": 39,
+      "negative": 24,
+      "nested_garbage": 64,
+      "numeric_string": 30,
+      "type_wrong": 131,
+      "unicode": 29
+     }
+    },
+    "fields_under_4_kinds": [],
+    "format": 2,
     "n": 20000,
     "outcomes": {
      "bare": 510,
      "controlled": 17369,
      "pass": 2121
     },
-    "per_case_us": 102.8,
+    "per_case_us": 107.3,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -579,7 +1196,7 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_keyerror"
    },
-   "wall_seconds_incl_shrink": 2.06
+   "wall_seconds_incl_shrink": 2.15
   },
   "validate_recursion": {
    "criteria": {
@@ -725,15 +1342,237 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 2.636,
-    "format": 1,
+    "elapsed_s": 6.273,
+    "field_coverage": {
+     "$": {
+      "boundary": 3,
+      "empty": 2,
+      "extra_key": 1330,
+      "huge": 4,
+      "inf": 3,
+      "key_case": 8,
+      "long_string": 4,
+      "missing_key": 9,
+      "nan": 2,
+      "neg_zero": 1,
+      "negative": 2,
+      "nested_garbage": 8,
+      "numeric_string": 2,
+      "type_wrong": 112,
+      "unicode": 1
+     },
+     "$.fee_rate": {
+      "boundary": 155,
+      "empty": 37,
+      "huge": 281,
+      "inf": 276,
+      "key_case": 138,
+      "long_string": 24,
+      "missing_key": 152,
+      "nan": 297,
+      "neg_zero": 307,
+      "negative": 285,
+      "nested_garbage": 61,
+      "numeric_string": 314,
+      "type_wrong": 125,
+      "unicode": 28
+     },
+     "$.leverage": {
+      "boundary": 161,
+      "empty": 32,
+      "extra_key": 2,
+      "huge": 298,
+      "inf": 299,
+      "key_case": 134,
+      "long_string": 24,
+      "missing_key": 147,
+      "nan": 294,
+      "neg_zero": 305,
+      "negative": 281,
+      "nested_garbage": 60,
+      "numeric_string": 266,
+      "type_wrong": 107,
+      "unicode": 34
+     },
+     "$.period": {
+      "boundary": 280,
+      "empty": 40,
+      "extra_key": 3,
+      "huge": 587,
+      "inf": 575,
+      "key_case": 264,
+      "long_string": 43,
+      "missing_key": 298,
+      "nan": 565,
+      "neg_zero": 511,
+      "negative": 621,
+      "nested_garbage": 110,
+      "numeric_string": 640,
+      "type_wrong": 256,
+      "unicode": 53
+     },
+     "$.risk": {
+      "boundary": 26,
+      "empty": 338,
+      "extra_key": 555,
+      "huge": 30,
+      "inf": 22,
+      "key_case": 129,
+      "long_string": 35,
+      "missing_key": 135,
+      "nan": 32,
+      "neg_zero": 32,
+      "negative": 28,
+      "nested_garbage": 655,
+      "numeric_string": 32,
+      "type_wrong": 107,
+      "unicode": 24
+     },
+     "$.risk.max_drawdown": {
+      "boundary": 121,
+      "empty": 28,
+      "extra_key": 1,
+      "huge": 243,
+      "inf": 241,
+      "key_case": 125,
+      "long_string": 27,
+      "missing_key": 117,
+      "nan": 232,
+      "neg_zero": 245,
+      "negative": 265,
+      "nested_garbage": 25,
+      "numeric_string": 224,
+      "type_wrong": 94,
+      "unicode": 31
+     },
+     "$.risk.stop_loss": {
+      "boundary": 87,
+      "empty": 11,
+      "huge": 129,
+      "inf": 119,
+      "key_case": 87,
+      "long_string": 12,
+      "missing_key": 70,
+      "nan": 129,
+      "neg_zero": 145,
+      "negative": 148,
+      "nested_garbage": 18,
+      "numeric_string": 142,
+      "type_wrong": 55,
+      "unicode": 14
+     },
+     "$.risk.window": {
+      "boundary": 70,
+      "empty": 14,
+      "extra_key": 1,
+      "huge": 132,
+      "inf": 124,
+      "key_case": 82,
+      "long_string": 10,
+      "missing_key": 87,
+      "nan": 110,
+      "neg_zero": 120,
+      "negative": 129,
+      "nested_garbage": 21,
+      "numeric_string": 136,
+      "type_wrong": 75,
+      "unicode": 17
+     },
+     "$.side": {
+      "boundary": 259,
+      "empty": 56,
+      "extra_key": 4,
+      "huge": 50,
+      "inf": 43,
+      "key_case": 266,
+      "long_string": 605,
+      "missing_key": 258,
+      "nan": 58,
+      "neg_zero": 44,
+      "negative": 49,
+      "nested_garbage": 117,
+      "numeric_string": 60,
+      "type_wrong": 233,
+      "unicode": 642
+     },
+     "$.symbol": {
+      "boundary": 279,
+      "empty": 713,
+      "extra_key": 2,
+      "huge": 51,
+      "inf": 52,
+      "key_case": 279,
+      "long_string": 609,
+      "missing_key": 290,
+      "nan": 57,
+      "neg_zero": 41,
+      "negative": 47,
+      "nested_garbage": 96,
+      "numeric_string": 49,
+      "type_wrong": 218,
+      "unicode": 656
+     },
+     "$.symbols": {
+      "boundary": 129,
+      "empty": 257,
+      "extra_key": 14,
+      "huge": 28,
+      "inf": 21,
+      "key_case": 156,
+      "long_string": 19,
+      "missing_key": 153,
+      "nan": 32,
+      "neg_zero": 25,
+      "negative": 31,
+      "nested_garbage": 674,
+      "numeric_string": 21,
+      "type_wrong": 128,
+      "unicode": 21
+     },
+     "$.symbols[]": {
+      "boundary": 234,
+      "empty": 347,
+      "extra_key": 4,
+      "huge": 52,
+      "inf": 35,
+      "key_case": 5,
+      "long_string": 422,
+      "missing_key": 5,
+      "nan": 48,
+      "neg_zero": 48,
+      "negative": 39,
+      "nested_garbage": 56,
+      "numeric_string": 37,
+      "type_wrong": 194,
+      "unicode": 394
+     },
+     "$.use_stop": {
+      "boundary": 32,
+      "empty": 27,
+      "extra_key": 1,
+      "huge": 19,
+      "inf": 25,
+      "key_case": 165,
+      "long_string": 28,
+      "missing_key": 168,
+      "nan": 35,
+      "neg_zero": 39,
+      "negative": 24,
+      "nested_garbage": 64,
+      "numeric_string": 30,
+      "type_wrong": 131,
+      "unicode": 29
+     }
+    },
+    "fields_under_4_kinds": [],
+    "format": 2,
     "n": 20000,
     "outcomes": {
      "bare": 430,
      "controlled": 17449,
      "pass": 2121
     },
-    "per_case_us": 131.8,
+    "per_case_us": 313.6,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -743,7 +1582,7 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_recursion"
    },
-   "wall_seconds_incl_shrink": 2.68
+   "wall_seconds_incl_shrink": 6.61
   },
   "validate_zerodiv": {
    "criteria": {
@@ -884,15 +1723,237 @@
       "pass": 1029
      }
     },
-    "elapsed_s": 2.093,
-    "format": 1,
+    "elapsed_s": 2.367,
+    "field_coverage": {
+     "$": {
+      "boundary": 3,
+      "empty": 2,
+      "extra_key": 1330,
+      "huge": 4,
+      "inf": 3,
+      "key_case": 8,
+      "long_string": 4,
+      "missing_key": 9,
+      "nan": 2,
+      "neg_zero": 1,
+      "negative": 2,
+      "nested_garbage": 8,
+      "numeric_string": 2,
+      "type_wrong": 112,
+      "unicode": 1
+     },
+     "$.fee_rate": {
+      "boundary": 155,
+      "empty": 37,
+      "huge": 281,
+      "inf": 276,
+      "key_case": 138,
+      "long_string": 24,
+      "missing_key": 152,
+      "nan": 297,
+      "neg_zero": 307,
+      "negative": 285,
+      "nested_garbage": 61,
+      "numeric_string": 314,
+      "type_wrong": 125,
+      "unicode": 28
+     },
+     "$.leverage": {
+      "boundary": 161,
+      "empty": 32,
+      "extra_key": 2,
+      "huge": 298,
+      "inf": 299,
+      "key_case": 134,
+      "long_string": 24,
+      "missing_key": 147,
+      "nan": 294,
+      "neg_zero": 305,
+      "negative": 281,
+      "nested_garbage": 60,
+      "numeric_string": 266,
+      "type_wrong": 107,
+      "unicode": 34
+     },
+     "$.period": {
+      "boundary": 280,
+      "empty": 40,
+      "extra_key": 3,
+      "huge": 587,
+      "inf": 575,
+      "key_case": 264,
+      "long_string": 43,
+      "missing_key": 298,
+      "nan": 565,
+      "neg_zero": 511,
+      "negative": 621,
+      "nested_garbage": 110,
+      "numeric_string": 640,
+      "type_wrong": 256,
+      "unicode": 53
+     },
+     "$.risk": {
+      "boundary": 26,
+      "empty": 338,
+      "extra_key": 555,
+      "huge": 30,
+      "inf": 22,
+      "key_case": 129,
+      "long_string": 35,
+      "missing_key": 135,
+      "nan": 32,
+      "neg_zero": 32,
+      "negative": 28,
+      "nested_garbage": 655,
+      "numeric_string": 32,
+      "type_wrong": 107,
+      "unicode": 24
+     },
+     "$.risk.max_drawdown": {
+      "boundary": 121,
+      "empty": 28,
+      "extra_key": 1,
+      "huge": 243,
+      "inf": 241,
+      "key_case": 125,
+      "long_string": 27,
+      "missing_key": 117,
+      "nan": 232,
+      "neg_zero": 245,
+      "negative": 265,
+      "nested_garbage": 25,
+      "numeric_string": 224,
+      "type_wrong": 94,
+      "unicode": 31
+     },
+     "$.risk.stop_loss": {
+      "boundary": 87,
+      "empty": 11,
+      "huge": 129,
+      "inf": 119,
+      "key_case": 87,
+      "long_string": 12,
+      "missing_key": 70,
+      "nan": 129,
+      "neg_zero": 145,
+      "negative": 148,
+      "nested_garbage": 18,
+      "numeric_string": 142,
+      "type_wrong": 55,
+      "unicode": 14
+     },
+     "$.risk.window": {
+      "boundary": 70,
+      "empty": 14,
+      "extra_key": 1,
+      "huge": 132,
+      "inf": 124,
+      "key_case": 82,
+      "long_string": 10,
+      "missing_key": 87,
+      "nan": 110,
+      "neg_zero": 120,
+      "negative": 129,
+      "nested_garbage": 21,
+      "numeric_string": 136,
+      "type_wrong": 75,
+      "unicode": 17
+     },
+     "$.side": {
+      "boundary": 259,
+      "empty": 56,
+      "extra_key": 4,
+      "huge": 50,
+      "inf": 43,
+      "key_case": 266,
+      "long_string": 605,
+      "missing_key": 258,
+      "nan": 58,
+      "neg_zero": 44,
+      "negative": 49,
+      "nested_garbage": 117,
+      "numeric_string": 60,
+      "type_wrong": 233,
+      "unicode": 642
+     },
+     "$.symbol": {
+      "boundary": 279,
+      "empty": 713,
+      "extra_key": 2,
+      "huge": 51,
+      "inf": 52,
+      "key_case": 279,
+      "long_string": 609,
+      "missing_key": 290,
+      "nan": 57,
+      "neg_zero": 41,
+      "negative": 47,
+      "nested_garbage": 96,
+      "numeric_string": 49,
+      "type_wrong": 218,
+      "unicode": 656
+     },
+     "$.symbols": {
+      "boundary": 129,
+      "empty": 257,
+      "extra_key": 14,
+      "huge": 28,
+      "inf": 21,
+      "key_case": 156,
+      "long_string": 19,
+      "missing_key": 153,
+      "nan": 32,
+      "neg_zero": 25,
+      "negative": 31,
+      "nested_garbage": 674,
+      "numeric_string": 21,
+      "type_wrong": 128,
+      "unicode": 21
+     },
+     "$.symbols[]": {
+      "boundary": 234,
+      "empty": 347,
+      "extra_key": 4,
+      "huge": 52,
+      "inf": 35,
+      "key_case": 5,
+      "long_string": 422,
+      "missing_key": 5,
+      "nan": 48,
+      "neg_zero": 48,
+      "negative": 39,
+      "nested_garbage": 56,
+      "numeric_string": 37,
+      "type_wrong": 194,
+      "unicode": 394
+     },
+     "$.use_stop": {
+      "boundary": 32,
+      "empty": 27,
+      "extra_key": 1,
+      "huge": 19,
+      "inf": 25,
+      "key_case": 165,
+      "long_string": 28,
+      "missing_key": 168,
+      "nan": 35,
+      "neg_zero": 39,
+      "negative": 24,
+      "nested_garbage": 64,
+      "numeric_string": 30,
+      "type_wrong": 131,
+      "unicode": 29
+     }
+    },
+    "fields_under_4_kinds": [],
+    "format": 2,
     "n": 20000,
     "outcomes": {
      "bare": 103,
      "controlled": 17776,
      "pass": 2121
     },
-    "per_case_us": 104.7,
+    "per_case_us": 118.4,
     "rejected_valid": {
      "count": 0,
      "first_cases": []
@@ -902,10 +1963,10 @@
     "tool": "qdcheck.fuzz",
     "validate": "qdcheck.examples:validate_zerodiv"
    },
-   "wall_seconds_incl_shrink": 2.1
+   "wall_seconds_incl_shrink": 2.37
   }
  },
- "seconds": 12.9,
+ "seconds": 18.1,
  "summary": {
   "coverage_cases": {
    "inf": 1785,
@@ -915,7 +1976,7 @@
   },
   "coverage_ge_500": true,
   "good_validate_le_20s": true,
-  "good_validate_seconds": 1.998,
+  "good_validate_seconds": 1.955,
   "per_validate": {
    "validate_good": {
     "bare_by_type": {},
@@ -978,8 +2039,8 @@
    },
    "outcomes": {
     "bare": 3540,
-    "controlled": 11316,
-    "pass": 5144
+    "controlled": 11314,
+    "pass": 5146
    },
    "signatures": [
     {
@@ -988,7 +2049,7 @@
      "message": "GenSpec.__init__() got an unexpected keyword argument '__class__'",
      "minimal": "{'__class__': []}",
      "top": [
-      "qbt/data.py:164 in from_dict: return cls(**d)"
+      "qbt/data.py:167 in from_dict: return cls(**d)"
      ]
     },
     {
@@ -997,7 +2058,7 @@
      "message": "keywords must be strings",
      "minimal": "{None: []}",
      "top": [
-      "qbt/data.py:164 in from_dict: return cls(**d)"
+      "qbt/data.py:167 in from_dict: return cls(**d)"
      ]
     },
     {
@@ -1006,7 +2067,7 @@
      "message": "qbt.data.GenSpec() argument after ** must be a mapping, not list",
      "minimal": "[{}]",
      "top": [
-      "qbt/data.py:164 in from_dict: return cls(**d)"
+      "qbt/data.py:167 in from_dict: return cls(**d)"
      ]
     },
     {
@@ -1015,7 +2076,7 @@
      "message": "qbt.data.GenSpec() argument after ** must be a mapping, not str",
      "minimal": "'config'",
      "top": [
-      "qbt/data.py:164 in from_dict: return cls(**d)"
+      "qbt/data.py:167 in from_dict: return cls(**d)"
      ]
     },
     {
@@ -1024,7 +2085,7 @@
      "message": "qbt.data.GenSpec() argument after ** must be a mapping, not int",
      "minimal": "42",
      "top": [
-      "qbt/data.py:164 in from_dict: return cls(**d)"
+      "qbt/data.py:167 in from_dict: return cls(**d)"
      ]
     },
     {
@@ -1033,7 +2094,7 @@
      "message": "qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
      "minimal": "None",
      "top": [
-      "qbt/data.py:164 in from_dict: return cls(**d)"
+      "qbt/data.py:167 in from_dict: return cls(**d)"
      ]
     }
    ]

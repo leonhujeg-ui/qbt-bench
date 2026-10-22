@@ -164,6 +164,43 @@ class TestCompareFile(unittest.TestCase):
         self.assertTrue(lines[0].startswith("OK n=1 max_rel=0.000e+00 id="))
         self.assertIn("checked 2/3  passed 2  failed 0  missing 1", out.getvalue())
 
+
+    def test_cli_id_suffix_and_line_counts(self):
+        """单条向量：第一行不带 id；两条及以上：每行带 id；每条不一致只打印一次；没有 id 对上时 stderr 说明原因。"""
+        tmp = tempfile.mkdtemp()
+        vp, ap = os.path.join(tmp, "v.json"), os.path.join(tmp, "a.json")
+        with open(vp, "w") as f:
+            json.dump({"vectors": [_vec("a", [1.0]), _vec("b", [2.0])]}, f)
+        with open(ap, "w") as f:
+            json.dump({"a": [1.5], "b": [2.5]}, f)
+        with captured() as (out, _err):
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 1)
+        lines = out.getvalue().splitlines()
+        self.assertEqual(len(lines), 3)                                        # 2 条不一致各一行 + 汇总
+        self.assertEqual(lines[0], "MISMATCH idx=0 expected=1.0 actual=1.5 rel=3.333e-01 reason=value id=a")
+        self.assertEqual(lines[1], "MISMATCH idx=0 expected=2.0 actual=2.5 rel=2.000e-01 reason=value id=b")
+        with open(ap, "w") as f:
+            json.dump({"a": [1.0], "b": [2.0]}, f)
+        with captured() as (out, _err):
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 0)
+        lines = out.getvalue().splitlines()
+        self.assertEqual(lines[:2], ["OK n=1 max_rel=0.000e+00 id=a", "OK n=1 max_rel=0.000e+00 id=b"])
+        with open(vp, "w") as f:
+            json.dump({"vectors": [_vec("a", [1.0])]}, f)
+        with open(ap, "w") as f:
+            json.dump({"a": [1.5]}, f)
+        with captured() as (out, _err):
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 1)
+        lines = out.getvalue().splitlines()
+        self.assertEqual(lines, ["MISMATCH idx=0 expected=1.0 actual=1.5 rel=3.333e-01 reason=value",
+                                 "checked 1/1  passed 0  failed 1  missing 0  unknown 0  max_rel_err 0.000e+00"])
+        with open(ap, "w") as f:
+            json.dump({"zzz": [1.5]}, f)
+        with captured() as (out, err):
+            self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 2)
+        self.assertIn("none of the actual ids match a vector", err.getvalue())
+        self.assertEqual(out.getvalue(), "")
+
     def test_cli_first_line_for_each_reason(self):
         cases = [([None, 1.0, 2.0], [None, 1.0], "MISMATCH idx=2 expected=3 actual=2 rel=nan reason=length"),
                  ([None, 1.0], [0.0, 1.0], "MISMATCH idx=0 expected=null actual=0.0 rel=nan reason=warmup"),

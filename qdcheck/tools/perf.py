@@ -82,8 +82,9 @@ def main(argv=None):
     mut_path = os.path.join(RESULTS, "mutation.json")
     if os.path.exists(mut_path):
         with open(mut_path, encoding="utf-8") as f:
-            meta = json.load(f)["meta"]
-        rows.append({"block": "mutation_720", "scale": "720 mutants x fast test suite, 4 workers (from results/mutation.json)",
+            mut = json.load(f)
+        meta, total = mut["meta"], mut["summary"]["total"]
+        rows.append({"block": f"mutation_{total}", "scale": f"{total} mutants x fast test suite, 4 workers (from results/mutation.json)",
                      "target": "无目标", "wall_seconds": meta.get("elapsed_seconds"), "inner_seconds": None, "max_rss_mb": None,
                      "error": None, "note": "多进程，内存未测"})
     out = {"command": "python3.12 -m qdcheck.tools.perf", "python": sys.version.split()[0], "cpu_count": os.cpu_count(),

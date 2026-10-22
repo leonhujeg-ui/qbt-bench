@@ -1,0 +1,275 @@
+{
+ "command": "python3.12 -m qdcheck.selftest --quick",
+ "machine": {
+  "cpu_count": 4,
+  "implementation": "CPython",
+  "machine": "x86_64",
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.13.16"
+ },
+ "ok": true,
+ "seconds": 97.1,
+ "steps": [
+  {
+   "detail": {
+    "returncode": 0,
+    "stderr_tail": "...................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 211 tests in 45.979s\n\nOK\n",
+    "tests_run": 211
+   },
+   "ok": true,
+   "scale": "211 tests (QDCHECK_FAST=1)",
+   "seconds": 46.3,
+   "step": "unittest",
+   "summary": "OK; skipped 0"
+  },
+  {
+   "detail": {
+    "skipped": true
+   },
+   "ok": true,
+   "scale": "-",
+   "seconds": 0.0,
+   "step": "coverage",
+   "summary": "skipped (--quick)"
+  },
+  {
+   "detail": {
+    "mismatches": [],
+    "schema_problems": {}
+   },
+   "ok": true,
+   "scale": "1260 indicator vectors + 7 ledger vectors, 17 files",
+   "seconds": 4.1,
+   "step": "vectors",
+   "summary": "regenerated: mismatches 0, max_rel_err 0.0e+00; schema: all valid"
+  },
+  {
+   "detail": {
+    "causality": {
+     "checks": 2884,
+     "failures": 0
+    },
+    "chikou_displacement": {
+     "checks": 8,
+     "failures": 0
+    },
+    "constant_closed_form": {
+     "checks": 630,
+     "failures": 0
+    },
+    "cross_check_extra": {
+     "checks": 656,
+     "failures": 0
+    },
+    "cross_check_vectors": {
+     "checks": 820,
+     "failures": 0
+    },
+    "length": {
+     "checks": 61,
+     "failures": 0
+    },
+    "warmup_formula": {
+     "checks": 252,
+     "failures": 0
+    }
+   },
+   "ok": true,
+   "scale": "5311 property checks",
+   "seconds": 18.0,
+   "step": "indicators",
+   "summary": "failures 0; ref vs alt max tol ratio 0.21"
+  },
+  {
+   "detail": {
+    "coverage_cases": {
+     "inf": 1785,
+     "missing_key": 1845,
+     "nan": 1830,
+     "type_wrong": 1798
+    },
+    "coverage_ge_500": true,
+    "good_validate_le_20s": true,
+    "good_validate_seconds": 1.95,
+    "per_validate": {
+     "validate_good": {
+      "bare_by_type": {},
+      "caught": true,
+      "max_ratio": null,
+      "no_bare": true,
+      "outcomes": {
+       "bare": 0,
+       "controlled": 17879,
+       "pass": 2121
+      },
+      "ratio_le_30pct": true
+     },
+     "validate_keyerror": {
+      "bare_by_type": {
+       "KeyError": 510
+      },
+      "caught": true,
+      "max_ratio": 0.022727272727272728,
+      "no_bare": null,
+      "outcomes": {
+       "bare": 510,
+       "controlled": 17369,
+       "pass": 2121
+      },
+      "ratio_le_30pct": true
+     },
+     "validate_recursion": {
+      "bare_by_type": {
+       "RecursionError": 430
+      },
+      "caught": true,
+      "max_ratio": 0.001105891622620983,
+      "no_bare": null,
+      "outcomes": {
+       "bare": 430,
+       "controlled": 17449,
+       "pass": 2121
+      },
+      "ratio_le_30pct": true
+     },
+     "validate_zerodiv": {
+      "bare_by_type": {
+       "ZeroDivisionError": 103
+      },
+      "caught": true,
+      "max_ratio": 0.08391608391608392,
+      "no_bare": null,
+      "outcomes": {
+       "bare": 103,
+       "controlled": 17776,
+       "pass": 2121
+      },
+      "ratio_le_30pct": true
+     }
+    },
+    "qbt_genspec": {
+     "bare_by_type": {
+      "TypeError": 3540
+     },
+     "outcomes": {
+      "bare": 3540,
+      "controlled": 11314,
+      "pass": 5146
+     },
+     "signatures": [
+      {
+       "count": 1421,
+       "exc_type": "TypeError",
+       "message": "GenSpec.__init__() got an unexpected keyword argument '__class__'",
+       "minimal": "{'__class__': []}",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      },
+      {
+       "count": 1265,
+       "exc_type": "TypeError",
+       "message": "GenSpec.__init__() got an unexpected keyword argument ' bar_seconds'. Did you mean 'bar_seconds'?",
+       "minimal": "{' bar_seconds': 1}",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      },
+      {
+       "count": 765,
+       "exc_type": "TypeError",
+       "message": "keywords must be strings",
+       "minimal": "{None: []}",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      },
+      {
+       "count": 28,
+       "exc_type": "TypeError",
+       "message": "qbt.data.GenSpec() argument after ** must be a mapping, not list",
+       "minimal": "[{}]",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      },
+      {
+       "count": 24,
+       "exc_type": "TypeError",
+       "message": "qbt.data.GenSpec() argument after ** must be a mapping, not str",
+       "minimal": "'config'",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      },
+      {
+       "count": 24,
+       "exc_type": "TypeError",
+       "message": "qbt.data.GenSpec() argument after ** must be a mapping, not int",
+       "minimal": "42",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      },
+      {
+       "count": 13,
+       "exc_type": "TypeError",
+       "message": "qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
+       "minimal": "None",
+       "top": [
+        "qbt/data.py:167 in from_dict: return cls(**d)"
+       ]
+      }
+     ]
+    }
+   },
+   "ok": true,
+   "scale": "4 validates x 20000 cases",
+   "seconds": 16.7,
+   "step": "fuzz",
+   "summary": "good: bare 0, 1.95s; caught keyerror x510, zerodiv x103, recursion x430; nan/inf/missing/type 1830/1785/1845/1798"
+  },
+  {
+   "detail": {
+    "alt_issues": 0,
+    "counters": {
+     "add": 1604,
+     "bankrupt_capped": 8,
+     "close": 469,
+     "funding": 112,
+     "liquidation": 36,
+     "long": 503,
+     "open": 482,
+     "reduce": 793,
+     "reverse": 513,
+     "settlement": 80,
+     "short": 492
+    },
+    "identity_violations": 0,
+    "row_mismatches": 0,
+    "seconds": 1.0
+   },
+   "ok": true,
+   "scale": "20 streams x 1000 bars, 4053 records",
+   "seconds": 1.0,
+   "step": "ledger",
+   "summary": "identity violations 0, alt issues 0, row mismatches 0 (360000 values); liquidations 36"
+  },
+  {
+   "detail": {
+    "as_expected": 16,
+    "cases": 16,
+    "deterministic_engine_passed": true,
+    "qbt_cases": 12,
+    "qbt_cases_identical": 12,
+    "qbt_leaves_compared": 212340,
+    "set_order_engine_caught": true
+   },
+   "ok": true,
+   "scale": "16 cases (4 fake engines + 12 qbt backtests)",
+   "seconds": 10.9,
+   "step": "harness",
+   "summary": "as expected 16/16; set-order engine caught: True; qbt identical 12/12"
+  }
+ ]
+}

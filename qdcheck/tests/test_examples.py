@@ -74,6 +74,38 @@ class TestValidates(unittest.TestCase):
             for fn in VALIDATES:
                 self.assertEqual(outcome(fn, cfg), want, (fn.__name__, cfg))
 
+
+    def test_num_keeps_huge_values_unconverted(self):
+        self.assertIsInstance(E._num(1e299, 0, 1e301, "x"), float)
+        self.assertIsInstance(E._num(int(1e300), 0, 10 ** 302, "x"), int)       # >= 1e300：原样返回，避免 float 溢出
+        self.assertIsInstance(E._num(10 ** 301, 0, 10 ** 302, "x"), int)
+        self.assertEqual(E._num(5, 0, 10, "x"), 5.0)
+
+    def test_schema_and_validate_agree_on_boundaries(self):
+        """schema 的常数（max_len 16 等）与 validate 的常数必须一致：对每个边界用例，参考判定与 validate_good 同判。"""
+        from qdcheck import fuzz as F
+        cases = [with_(symbol="A" * 16), with_(symbol="A" * 17), with_(period=500), with_(period=501), with_(period=0),
+                 with_(fee_rate=0.01), with_(fee_rate=0.0100001), with_(leverage=20.0), with_(leverage=20.5),
+                 with_(symbols=["A" * 8]), with_(symbols=["A" * 9]), with_(symbols=["A"] * 5),
+                 with_(risk={"max_drawdown": 0.1, "window": 1000}), with_(risk={"max_drawdown": 0.1, "window": 1001}),
+                 with_(risk={"max_drawdown": 0.1, "stop_loss": 0.5}), with_(risk={"max_drawdown": 0.1, "stop_loss": 0.51})]
+        for cfg in cases:
+            schema_ok = not F.schema_errors(E.BACKTEST_SCHEMA, cfg)
+            self.assertEqual(schema_ok, outcome(E.validate_good, cfg) == "pass", cfg)
+        for fn in (E.validate_good, E.validate_keyerror, E.validate_recursion):
+            self.assertEqual(outcome(fn, with_(period=0)), "controlled", fn.__name__)
+
+    def test_toy_engine_defaults_and_price_path(self):
+        import random
+        self.assertEqual(E.deterministic_engine({}), E.deterministic_engine({"n_bars": 60, "seed": 1, "cash": 1000.0}))
+        self.assertNotEqual(E.deterministic_engine({}), E.deterministic_engine({"n_bars": 59}))
+        syms, prices = E._toy_prices({"n_bars": 3, "seed": 2, "symbols": ["A", "B"]})
+        rnd = random.Random(2)
+        want_a1 = 100.0 * (1.0 + 0.02 * (rnd.random() - 0.5))
+        want_b1 = 100.0 * (1.0 + 0.02 * (rnd.random() - 0.5))
+        self.assertEqual((prices["A"][1], prices["B"][1]), (want_a1, want_b1))
+        self.assertEqual(len(prices["A"]), 3)
+
     def test_the_designed_bugs_and_only_those(self):
         for bad in (None, [], "cfg", 42):
             for fn in VALIDATES:

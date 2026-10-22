@@ -129,11 +129,11 @@ CONTRACT §3.1 一张表逐字段解释；`test_fuzz_report_fields_match_contrac
 
 ### A4. 可移植
 
-**实测过的平台**：见 README“实测过的平台”表（本机 CPython 3.12.3；同机 CPython 3.13.16 跑 `--quick`：__PY313__）。
+**实测过的平台**：见 README“实测过的平台”表（本机 CPython 3.12.3；同机 CPython 3.13.16 跑 `--quick`：`python3 -m qdcheck.selftest --quick` → `7/7 steps passed; written qdcheck/results/selftest.json`；向量一行：`regenerated: mismatches 0, max_rel_err 0.0e+00; schema: all valid`）。
 其他平台未实测，README 明说；向量 / 合成数据 / 随机流不依赖 libm，`selftest` 的 `vectors` 一行就是“在你的机器上能否重新生成对上”的答案。
 
 **等价突变的判定理由集中**：新增 `qdcheck/mutants/triage.md`，由 `python3.12 -m qdcheck.tools.triage --replay` 生成：
-收集 `results/mutation_history/*.json` **每一轮**的全部漏网（去重后 __UNIQ__ 处），在当前源码里找同一处突变（模块 + 算子 + 改动前后文本），
+收集 `results/mutation_history/*.json` **每一轮**的全部漏网（去重后 `mutation_replay.json:unique_survivors` 处），在当前源码里找同一处突变（模块 + 算子 + 改动前后文本），
 用最终测试重跑一次，每条写明：抓住（被哪个测试）/ 仍漏网 → 等价理由（来自 `results/mutation_triage.json`，不许只写“等价”）/ 代码已不存在。见 C1。
 
 ---
@@ -228,7 +228,7 @@ $.use_stop           kinds=15  total=  817
 
 ### C1. 覆盖率 / 突变 / 漏网去向
 
-**覆盖率**：`python3.12 qdcheck/tools/cov.py --fail-under 90` → __COV__（`results/coverage.json`）。`selftest.py` 单列不计入（它只调度各步、在子进程里跑测试），
+**覆盖率**：`python3.12 qdcheck/tools/cov.py --fail-under 90` → 99.90%（2913/2916 条语句，211 个测试，覆盖率监控下跳过 4 个）（`results/coverage.json`）。`selftest.py` 单列不计入（它只调度各步、在子进程里跑测试），
 `vector_schema.py` 计入。
 
 **突变**（最终代码 + 最终测试，13 个模块 × 60 = 780 个，`python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4`）：
@@ -244,7 +244,15 @@ __MUT__
 `python3.12 -m qdcheck.tools.perf` → `results/perf.json`（每块独立子进程，峰值内存 = `ru_maxrss`）：
 
 ```
-__PERF__
+vectors_regen          2.7 s        23 MB  无目标       1260 indicator vectors + 7 ledger vectors regenerated and compared
+indicator_props       20.4 s        24 MB  无目标       2884 causality + 630 closed-form + 1476 ref/alt cross-checks
+fuzz_20k               2.0 s        20 MB  <= 20 s   validate_good x 20000 cases (generation + call + reference check, no shrinking)
+fuzz_broken_3         10.2 s        21 MB  无目标       3 broken validates x 20000 cases incl. shrinking
+streams_200x3000      25.0 s        19 MB  <= 180 s  200 streams x 3000 bars: generate + ledger + ledger_alt + bar-by-bar compare
+qbt_ledger_54         11.3 s        88 MB  无目标       qbt: 54 backtests x 20000 bars reconciled against the reference ledger
+harness_16            10.6 s        36 MB  无目标       determinism: 16 cases, each = in-process + 2 subprocesses (subprocess memory not included)
+unittest              90.9 s       598 MB  无目标       python -m unittest discover -s qdcheck/tests, except test_report (it reads perf.json itself); peak memory = max over the test process and its determinism subprocesses
+mutation_720         999.8 s     多进程，内存未测  无目标       720 mutants x fast test suite, 4 workers (from results/mutation.json)
 ```
 
 两个有目标的块（fuzz 2 万次 ≤ 20 s、随机流 200 × 3000 ≤ 3 分钟）都在目标内；没有超目标的项。

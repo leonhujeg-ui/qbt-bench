@@ -18,7 +18,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=0",
      "first_diff": {
-      "a": 290.37390661742336,
+      "a": 508.0809034471234,
       "b": 232.2603971576893,
       "path": "final_cash",
       "reason": "value"
@@ -29,7 +29,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=4242",
      "first_diff": {
-      "a": 290.37390661742336,
+      "a": 508.0809034471234,
       "b": 429.18570405488833,
       "path": "final_cash",
       "reason": "value"
@@ -49,9 +49,9 @@
     }
    ],
    "seconds": [
-    0.004,
-    0.057,
-    0.062
+    0.002,
+    0.052,
+    0.051
    ],
    "target": "qdcheck.examples:set_order_engine",
    "task": {
@@ -88,8 +88,8 @@
    ],
    "seconds": [
     0.001,
-    0.043,
-    0.045
+    0.047,
+    0.067
    ],
    "target": "qdcheck.examples:deterministic_engine",
    "task": {
@@ -125,9 +125,9 @@
     }
    ],
    "seconds": [
-    0.002,
-    0.045,
-    0.044
+    0.001,
+    0.055,
+    0.049
    ],
    "target": "qdcheck.examples:noisy_engine",
    "task": {
@@ -153,7 +153,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=0",
      "first_diff": {
-      "a": 1059.5473145190638,
+      "a": 1059.5476334426849,
       "b": 1059.5472191598417,
       "path": "final_equity",
       "reason": "value"
@@ -164,7 +164,7 @@
      "a": "in_process",
      "b": "PYTHONHASHSEED=4242",
      "first_diff": {
-      "a": 1059.5473145190638,
+      "a": 1059.5476334426849,
       "b": 1059.54739822327,
       "path": "final_equity",
       "reason": "value"
@@ -185,7 +185,7 @@
    ],
    "seconds": [
     0.001,
-    0.042,
+    0.086,
     0.056
    ],
    "target": "qdcheck.examples:noisy_engine",
@@ -223,9 +223,9 @@
     }
    ],
    "seconds": [
-    0.131,
-    0.213,
-    0.276
+    0.175,
+    0.239,
+    0.244
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -268,9 +268,9 @@
     }
    ],
    "seconds": [
-    0.22,
-    0.264,
-    0.243
+    0.281,
+    0.278,
+    0.265
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -313,9 +313,9 @@
     }
    ],
    "seconds": [
-    0.122,
-    0.22,
-    0.195
+    0.145,
+    0.338,
+    0.254
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -358,9 +358,9 @@
     }
    ],
    "seconds": [
-    0.124,
-    0.197,
-    0.183
+    0.138,
+    0.248,
+    0.25
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -403,9 +403,9 @@
     }
    ],
    "seconds": [
-    0.1,
-    0.175,
-    0.172
+    0.171,
+    0.258,
+    0.186
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -448,9 +448,9 @@
     }
    ],
    "seconds": [
-    0.144,
-    0.23,
-    0.274
+    0.218,
+    0.253,
+    0.286
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -493,9 +493,9 @@
     }
    ],
    "seconds": [
-    0.129,
-    0.177,
-    0.184
+    0.092,
+    0.271,
+    0.242
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -544,9 +544,9 @@
     }
    ],
    "seconds": [
-    0.091,
-    0.253,
-    0.265
+    0.079,
+    0.199,
+    0.239
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -595,9 +595,9 @@
     }
    ],
    "seconds": [
-    0.182,
-    0.258,
-    0.255
+    0.234,
+    0.287,
+    0.208
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -646,9 +646,9 @@
     }
    ],
    "seconds": [
-    0.16,
-    0.19,
-    0.184
+    0.102,
+    0.185,
+    0.207
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -697,9 +697,9 @@
     }
    ],
    "seconds": [
-    0.124,
-    0.17,
-    0.23
+    0.094,
+    0.165,
+    0.148
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -748,9 +748,9 @@
     }
    ],
    "seconds": [
-    0.157,
-    0.226,
-    0.324
+    0.135,
+    0.303,
+    0.284
    ],
    "target": "qdcheck.examples:qbt_backtest",
    "task": {
@@ -779,7 +779,7 @@
   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
   "python": "3.12.3"
  },
- "seconds": 9.5,
+ "seconds": 10.5,
  "summary": {
   "as_expected": 16,
   "cases": 16,

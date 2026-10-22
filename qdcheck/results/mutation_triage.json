@@ -1,78 +1,209 @@
 {
- "fuzz:2884:const:False": {
-  "reason": "call_isolated 的线程启动后立即 join，daemon 标志只影响解释器退出时是否等待该线程，结果相同",
+ "compare:1594:const:0": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "compare:1596:const:2": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "compare:1948:const:0": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "compare:326:delete_stmt": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "determinism:1587:const:11": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "determinism:1664:const:5": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "determinism:1701:const:False": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "determinism:2236:const:21": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "examples:1036:const:59": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "examples:128:delete_stmt": {
+  "reason": "seeded_engine 里的 random.seed(进程相关) 是“与任务无关的随机性”，结果按设计只由 task['seed'] 决定；删掉它结果不变，这正是该用例要证明的性质",
+  "verdict": "等价（设计如此）"
+ },
+ "examples:130:delete_stmt": {
+  "reason": "seeded_engine 的 random.shuffle(scratch) 只用于 scratch_sum（与顺序无关，恒为 499500）；删掉它结果不变，同上",
+  "verdict": "等价（设计如此）"
+ },
+ "examples:1630:binop": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "examples:404:compare": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "examples:700:const:17": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "examples:991:const:0": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "fuzz:2093:const:1": {
+  "reason": "_deep 里 depth 初值 0→1：depth = max(depth, d) 被后续 d 吸收，只在全部 d < 1（标量）时为 1，仍不大于阈值 40，返回值相同",
   "verdict": "等价"
  },
- "fuzz:4422:const:True": {
-  "reason": "_pass 对非容器的顶层（None / 42 / 字符串）返回 changed=True：此时没有任何可缩小的路径，后续轮次也不调用 validate，最小复现与调用次数都不变",
-  "verdict": "等价"
- },
- "fuzz:719:compare": {
-  "reason": "make_case 里 rnd.random() < 0.05 改成 <=，只在 random() 恰好返回 0.05 时不同（概率约 2^-53），用到的 seed 下不会出现",
+ "fuzz:3216:const:5": {
+  "reason": "缩小轮次上限 range(6)→range(5)：只有需要恰好 6 轮才收敛的输入会不同；本仓全部案例 ≤ 2 轮收敛（shrink_calls 字段），没有构造出需要 6 轮的输入",
   "verdict": "实践中等价"
  },
- "gen_vectors:196:compare": {
+ "fuzz:3951:const:101": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "fuzz:504:const:2": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "fuzz:6246:const:201": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "fuzz:8507:const:2": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "gen_vectors:194:compare": {
   "reason": "_mono 只用 step=±0.5；step=0 时 open==close，两个分支给出相同的 high/low，故 step>0 与 step>=0 对任何输入结果相同",
+  "rekeyed_from": "gen_vectors:196:compare",
   "verdict": "等价"
  },
- "indicators_alt:1032:const:1.0": {
+ "indicators_alt:1030:const:1.0": {
   "reason": "前缀和起点 0.0→1.0 只给所有前缀加同一常数，窗口差 pg[t]-pg[t-n] 中抵消；价格按 1/64 量化时前缀和精确，结果逐位相同，一般浮点输入也只差舍入（远小于 1e-9）",
+  "rekeyed_from": "indicators_alt:1032:const:1.0",
   "verdict": "等价（数值）"
  },
- "indicators_ref:2509:const:0": {
+ "indicators_ref:2507:const:0": {
   "reason": "KDJ init=first 的递推起点 s+1→s 只多做一步 y=(x[s]+(m-1)*x[s])/m（或 a*x+(1-a)*x），数学上仍等于 x[s]，差异仅为舍入（<1e-15 相对），向量 1e-9 判据下不可区分",
+  "rekeyed_from": "indicators_ref:2509:const:0",
   "verdict": "等价（数值）"
  },
- "ledger:1109:compare": {
-  "reason": "强平价阈值 p > rel_tol*avg 改成 >=，只在 p 恰好等于 1e-9*均价 时不同；该值本身就是“数学上为 0、只剩舍入噪声”的判定线，无法构造有意义的输入使两者不同",
-  "verdict": "实践中等价"
+ "ledger:1164:delete_stmt": {
+  "reason": "删掉 closing = abs(Q)（q 与 |Q| 相差 ≤ 1e-12·|Q| 时把 closing 精确取成 |Q|）后 closing = min(q, |Q|)，已实现盈亏只差 ≤ 1e-12·|Q|·价差，远小于 1e-9 金额容差；持仓仍被 snap_qty 归零",
+  "verdict": "等价（数值）"
  },
- "ledger:1138:binop": {
+ "ledger:1167:binop": {
   "reason": "_sign(Q) ∈ {1, -1}：IEEE 下 x*1 == x/1、x*(-1) == x/(-1) 逐位相同",
+  "rekeyed_from": "ledger:1138:binop",
   "verdict": "等价"
  },
- "ledger:3509:const:-1": {
+ "ledger:3547:const:-1": {
   "reason": "side 只取 ±1（normalize_record 保证），side > 0 与 side > -1 对这两个值结果相同",
+  "rekeyed_from": "ledger:3509:const:-1",
   "verdict": "等价"
  },
- "ledger_alt:247:compare": {
+ "ledger:547:compare": {
+  "reason": "_sign(x) 的 (x > 0)→(x >= 0) 只改变 x == 0 的结果；_sign 的三个调用点都在 Q == 0 被 or 短路 / 在 Q != 0 的分支里，x == 0 不可达",
+  "verdict": "等价"
+ },
+ "ledger:770:const:2": {
+  "reason": "run() 里 last_bar 初值 -1→-2：只参与 b < last_bar 的比较，而 normalize_record 保证 bar >= 0，两者都永不成立",
+  "verdict": "等价"
+ },
+ "ledger_alt:245:compare": {
   "reason": "数量归零阈值 <= 与 < 只在残差恰好等于 1e-12*max(1,|ref|) 时不同；浮点残差无法精确落在该值上（已用 1.2e-12 / 4e-13 两侧的残差测试阈值两边的行为）",
+  "rekeyed_from": "ledger_alt:247:compare",
   "verdict": "实践中等价"
  },
- "ledger_alt:505:const:1": {
+ "ledger_alt:503:const:1": {
   "reason": "r.get('qty', 0) 的缺省值只在记录缺 qty 时生效；trade / liquidation 记录必须带 qty（ledger.normalize_record 强制 qty>0），funding / settlement 记录在 ledger_alt 里不读 qty",
+  "rekeyed_from": "ledger_alt:505:const:1",
   "verdict": "等价"
  },
- "ledger_alt:597:binop": {
+ "ledger_alt:595:binop": {
   "reason": "_is_zero(q-size) 改成 _is_zero(q+size) 后不再“视为恰好平仓”，但随后 remaining=size-q 的残差同样被 _is_zero 归零，持仓 / 方向相同；已实现盈亏只差 closing 的 1e-12 级差异 × 价差，远小于 1e-9 金额容差",
+  "rekeyed_from": "ledger_alt:597:binop",
   "verdict": "等价（数值）"
  },
- "ledger_alt:684:compare": {
+ "ledger_alt:682:compare": {
   "reason": "强平后余额检查 < 与 <= 只在现金恰好等于 -1e-9*尺度 时不同；按有效保证金封顶后现金 >= 0（见 test_wallet_erosion_caps_loss_at_wallet），不可能落在该负值上",
+  "rekeyed_from": "ledger_alt:684:compare",
   "verdict": "实践中等价"
  },
- "ledger_alt:72:const:-1": {
+ "ledger_alt:70:const:-1": {
   "reason": "_SIDE['none'] 只出现在 funding / settlement 记录上，ledger_alt 对这两类记录不使用 side",
+  "rekeyed_from": "ledger_alt:72:const:-1",
   "verdict": "等价"
  },
- "ledger_alt:75:const:-1": {
-  "reason": "_SIDE[0] 同上：只用于 funding / settlement 记录，side 不参与计算",
+ "ledger_alt:73:const:-1": {
+  "reason": "_SIDE['none'] 只出现在 funding / settlement 记录上，ledger_alt 对这两类记录不使用 side",
+  "rekeyed_from": "ledger_alt:72:const:-1",
   "verdict": "等价"
  },
- "ledger_alt:943:const:-1": {
+ "ledger_alt:941:const:-1": {
   "reason": "无仓时（size==0）走 else 分支：closing=0、realized 加 0、remaining=0 归零、leftover=q 开新仓，最终状态与开仓分支完全相同",
+  "rekeyed_from": "ledger_alt:943:const:-1",
   "verdict": "等价"
  },
- "ledger_alt:997:const:1": {
+ "ledger_alt:995:const:1": {
   "reason": "全平且无剩余时 direction=0 改成 1：size=0 时 signed_qty、浮盈（空批次）恒为 0，下一笔成交走 size==0 的开仓分支重新设定方向，强平合法性检查对 size==0 同样判“非全平”，结果不变",
+  "rekeyed_from": "ledger_alt:997:const:1",
   "verdict": "等价"
  },
- "props:1305:const:-1": {
+ "props:1303:const:-1": {
   "reason": "shift=none 时迟行线闭式解为“每个 t 都是 c”：off=0 时 t<n 恒真，off=-1 时 t-1<n 也恒真，两者生成相同列表",
+  "rekeyed_from": "props:1305:const:-1",
   "verdict": "等价"
  },
- "stream:3295:compare": {
+ "stream:3293:compare": {
   "reason": "_affordable 里 side 只取 ±1，side > 0 与 side >= 0 对这两个值相同",
+  "rekeyed_from": "stream:3295:compare",
   "verdict": "等价"
+ },
+ "vector_schema:249:delete_stmt": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:412:const:0": {
+  "reason": "ledger_file_problems 里 last 初值 -1→0：只参与 r['bar'] < last 的比较，schema 已要求 bar >= 0（integer, minimum 0），第一条记录永不触发",
+  "verdict": "等价"
+ },
+ "vector_schema:500:delete_stmt": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:704:const:19": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:755:const:19": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:755:const:21": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:775:break_continue": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:803:delete_stmt": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
+ },
+ "vector_schema:820:const:1": {
+  "reason": "补判据（本轮新增测试，待重跑确认）",
+  "verdict": "补判据（本轮新增测试，待重跑确认）"
  }
 }

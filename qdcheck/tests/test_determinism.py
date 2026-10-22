@@ -201,6 +201,30 @@ class TestMoreDetails(unittest.TestCase):
         found, _n = D.diff_all({"a": {"p": 1, "q": 2}, "b": 1}, {"a": {"q": 2, "p": 1}, "b": 2}, dict_order=True)
         self.assertEqual([d["path"] for d in found], ["a", "b"])
 
+
+    def test_diff_limits_and_report_lines(self):
+        rep = D.check(TOY, "qdcheck.examples:set_order_engine")
+        pair = _pair(rep, "PYTHONHASHSEED=0", "PYTHONHASHSEED=4242")
+        self.assertEqual(len(pair["diffs"]), 10)                              # 每对最多列 10 处
+        self.assertGreater(len(D.diff_all(*[r["result"] for r in []] or [{"a": 1}, {"a": 2}])[0]), 0)
+        text = D.format_report(rep)
+        for p in rep["pairs"]:
+            self.assertFalse(p["ok"])
+        self.assertEqual(text.count("      also "), 3 * len(rep["pairs"]))     # 第一处 + 最多 3 处 also
+        a = {f"k{i:02d}": i for i in range(25)}
+        b = dict(reversed(list(a.items())))
+        first = D.diff(a, b, dict_order=True)[0]
+        self.assertEqual((len(first["a"]), len(first["b"]), first["b"][0]), (20, 20, "k24"))
+
+    def test_cli_json_is_sorted_and_indented(self):
+        tmp = tempfile.mkdtemp()
+        out = os.path.join(tmp, "rep.json")
+        with captured():
+            self.assertEqual(D.main(["qdcheck.examples:deterministic_engine", "--task", '{"n_bars": 60}', "--json", out]), 0)
+        with open(out, encoding="utf-8") as f:
+            text = f.read()
+        self.assertEqual(text, json.dumps(json.loads(text), indent=1, sort_keys=True))
+
     def test_child_stderr_tail_is_3000_chars(self):
         with self.assertRaises(D.HarnessError) as ctx:
             D.run_child("builtins:exec", "raise ValueError('x' * 5000)", 0)
