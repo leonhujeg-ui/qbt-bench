@@ -1,4 +1,44 @@
 {
+ "book:169": {
+  "class": "等价",
+  "note": "_match 中 stopped 初值：_match 只在价格交叉时被调用，循环体至少执行一次并覆盖该变量（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:210": {
+  "class": "等价",
+  "note": "_unlink 删档后漏设 keys_dirty：_unlink 现仅被增量改单调用，随后 _rest 以同价位重建档并置 keys_dirty，价格切片不变（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:263": {
+  "class": "等价",
+  "note": "订单列表 O_SLOT 占位 0→1：紧接着被 Q_FIRST 或 len(queue) 覆盖（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:276": {
+  "class": "等价",
+  "note": "_match_level 遇 None 槽 continue→break：外层 while 会以更新后的 head 重新进入同一档，效果相同（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:284": {
+  "class": "等价",
+  "note": "cancel_old 撤旧单后 continue→break：同上，外层循环重入同一档（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:297": {
+  "class": "等价",
+  "note": "_fillable 中 break→continue：后续档位同样不交叉或 avail 已够，只多做无效扫描（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:307": {
+  "class": "等价",
+  "note": "同 book:210（keys_dirty 布尔翻转）（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:431": {
+  "class": "等价",
+  "note": "_fillable 中 fill 值 want-avail→want+avail：仅使 avail 超过 want，而调用方只比较 avail<qty，判定不变（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:458": {
+  "class": "等价",
+  "note": "冰山露出 disp<rem 改 <=：disp==rem 时两分支取值相同（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
+ "book:459": {
+  "class": "等价",
+  "note": "_fillable 条件 want-avail<vis→want+avail<vis：只改变 fill 取 vis 的时机，avail 一旦 >= want 即退出，判定不变（与历史同一 id，本机复现为漏网，判定沿用）"
+ },
  "queue_model:125": {
   "class": "等价",
   "note": "reliability_svg 的刻度循环 range(0, 11, 2) 与 range(0, 12, 2) 生成同一组刻度 0,2,…,10"

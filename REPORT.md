@@ -6,14 +6,25 @@
 
 ## 1. 目标达成情况
 
-| 目标 | 要求 | 实测 | 达成 | 复现命令 |
-|---|---|---|---|---|
-| 1 引擎正确（确定性） | 同策略同数据，任何执行顺序 / 进程数下结果逐字节一致 | 网格 2,000 组：1 进程 vs 8 进程（含不同提交顺序）结果 JSON 逐字节相同（`bytewise_identical = True`）；黄金文件逐字节回归；中途 SIGKILL 续跑输出与一次跑完逐字节相同；同 seed 两次生成数据逐字节相同 | ✅ | `python3.12 -m unittest tests.test_optimizer tests.test_golden tests.test_data tests.test_engine` |
-| 2 够快 | 1M 根 × 1 策略单核 ≤ 3 s；8 进程 2,000 组网格 ≤ 90 s | 1,000,000 根 × ma_cross 单进程 **1.932 s**（冷缓存，含指标计算；热缓存 0.884 s，517,545 bars/s）；2,000 组 × 20,000 根网格 8 进程 **18.6 s**（1 进程 70.1 s，加速 3.78x） | ✅ | `python3.12 bench/bench.py --out bench/results/xx.json`（已入库：`bench/results/01..04*.json`，第 1 节引用 04） |
-| 3 够硬 | 语句覆盖率 ≥ 90%；突变抓住率 ≥ 85%；模糊 10 万次零崩溃 | 覆盖率 **99.8%**（1915/1918 语句，`tools/cov.py`）；突变 **640 个突变体（8 模块 × 80），抓住 596（含 timeout 0），漏网 44，抓住率 93.1%**（多轮累计的最终合并结果，`mutants/results.json`，各轮原始 JSON 在 `mutants/history/`；漏网逐条说明见第 4 节）；模糊 **100,000 次，0 次未捕获异常** | ✅ | `python3.12 tools/cov.py --fail-under 90`（结果已入库：`results/coverage_final.json`）；`python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --tests -f tests.test_golden tests.test_indicators tests.test_broker tests.test_engine tests.test_metrics tests.test_optimizer tests.test_strategies tests.test_data tests.test_report tests.test_cli tests.test_limits tests.test_perf`；`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2` |
-| 4 够诚实 | 数字来自真实运行，结论可复现 | 本报告所有表格由 `bench/results/*.json`、`fuzz/results.json`、`mutants/results.json`（各轮中间结果在 `mutants/history/`）、`results/coverage_final.json`、`results/walk_forward.json` 生成，全部已入库；提交信息逐阶段记录判据数 / 覆盖率 / 抓住率（例外见第 7 节） | ✅ | `git log`；`python3.12 -m qbt.cli demo` |
+**口径（2026-10-22 审核改写，审核记录在仓库根 `REVIEW_QBT_LOB.md`）**
 
-测试套件：`python3.12 -m unittest discover -s tests` → **177 条判据**（test_data 33、test_indicators 33、test_broker 31、test_engine 12、test_strategies 9、test_metrics 18、test_golden 3、test_optimizer 17、test_report 6、test_cli 9、test_perf 3、test_limits 3），全部通过；性能判据在覆盖率监控 / 突变快速模式下跳过并注明原因（这两种环境下计时无意义），正常模式下真实运行并有阈值。
+- 平台无关的数字：整数计数（成交笔数、订单数、判据数、覆盖语句数、突变体数与抓住数、模糊迭代数）、判据通过 / 失败，以及「同一台机器上两次运行逐字节一致」。
+- 平台相关的数字：所有计时、吞吐、加速比；浮点结果的逐字节 / sha256 形式。x86_64 Linux 与 Apple Silicon macOS 的 libm / FMA 差异在 1e-16 量级，经滚动和、乘方放大后可到 1e-9 量级。本审核之前的黄金文件 / 数据指纹判据把浮点 sha256 当成跨机判据，在 macOS arm64 + Python 3.12.15 上红了 3 条，CCI 对拍容差过紧又红 1 条；已全部改成「整数精确 + 浮点相对容差」（§1.1，`tests/_compare.py`），并给每条容差配了「放水判据」（故意把实现改错 1e-6 必须变红）。
+- 两台机器：**Linux x86_64** = 开发与审核机（Intel Xeon @ 2.10GHz 虚拟机，`os.cpu_count()` = 4，CPython 3.12.3，Linux 6.18.44，本审核在它上面复测了下面每个数字）；**macOS arm64** = 题面给出的事实（Apple Silicon，Python 3.12.15）。审核员没有这台 macOS 机器，凡写「未复测」的，就是没有在它上面跑过，不是「预计通过」的委婉说法。
+
+| 目标 | 要求 | 判据 | 平台相关？ | Linux x86_64（本机实测） | macOS arm64 | 达成 |
+|---|---|---|---|---|---|---|
+| 1a 确定性：同机逐字节 | 同策略同数据，任何执行顺序 / 进程数下结果一致 | 同 seed 两次生成数据逐字节相同（进程内两次 + 子进程各一次，`test_data`）；网格 2,000 组 1 进程 vs 2 进程（逆序提交）vs 8 进程（chunksize=1）结果 JSON 逐字节相同（`test_optimizer` 同机断言，`bench` 的 `bytewise_identical`）；中途 SIGKILL 续跑与一次跑完逐字节相同；黄金文件两次快照逐字节相同（`test_golden.TestGoldenSameMachine`） | 无关（任何机器上都应成立，但只在同一台机器内比较） | 全部通过 | 未复测（旧的 sha256 判据在该机红 3 条，见 §1.1；新判据不依赖 sha256） | ✅ Linux；macOS 未复测 |
+| 1b 确定性：跨机形状 + 容差 | 同上，跨机器 | 黄金文件 `tests/golden/golden_v2.json`（JSON，浮点 repr 17 位；生成机器 / 提交写在 `generated_on`）：整数字段精确，资金类浮点相对 1e-9，度量类 5e-7；跨 `PYTHONHASHSEED`（本进程 + 0 + 4242 两个子进程）回测与网格 + walk-forward 结果形状 + 容差一致（`tests/test_determinism.py`，harness 来自 `qdcheck/`，未改）；1-ulp 价格噪声模拟（±2.2e-16 交替）下 6 个策略全部在容差内；放水判据：浮点改错 1e-6 必红、整数字段 ±1 必红 | 浮点量级平台相关，判据按跨机设计 | 全部通过 | 未复测。预期在容差内（题面给出的 CCI 差异 1e-9 量级，远小于容差），但这不是数学保证：某根 bar 上信号恰落在相等边界时整数字段会翻转，判据会红并给出首个差异路径 | ✅ Linux；macOS 未复测 |
+| 2 够快 | 1M 根 × 1 策略单核 ≤ 3 s；8 进程 2,000 组网格 ≤ 90 s | `bench/bench.py`：1,000,000 根 × ma_cross 单进程冷缓存（指标缓存清空，数据在内存）；2,000 组 × 20,000 根，进程池 8，`os.cpu_count()` = 4 | **相关** | 历史（04，单次）：冷 1.932 s / 热 0.884 s；网格 8 进程 18.6 s / 1 进程 70.1 s。**本审核复测（best-of-3，`bench/results/05_audit_rerun.json`）**：冷 **1.941 s**（样本 [1.941, 2.058, 2.073]）/ 热 1.039 s；网格 8 进程 **20.1 s**（样本 [22.268, 20.181, 20.081]；实际观察到的子进程数 8）/ 1 进程 77.5 s；复测前 1 分钟负载 0.14 | 题面未提供计时，**未测** | ✅ Linux；macOS 未测 |
+| 3a 够硬：覆盖率 | 语句覆盖率 ≥ 90% | `tools/cov.py`（sys.monitoring 语句覆盖，子进程不计入） | 语句计数无关；前提是该平台上测试全绿 | 历史 99.8%（1915/1918，`results/coverage_final.json`）；**本审核复测 100.0%**（1950/1950 语句，`results/coverage_audit.json`；语句数变化来自边界修复新增的代码） | 未复测 | ✅ Linux |
+| 3b 够硬：突变 | 抓住率 ≥ 85% | `mutants/run_mutations.py`，8 个模块 × 80 个突变体，seed 0，fail-fast | 整数计数无关；**但抓住率只在测试全绿的平台上有意义**：旧判据在 macOS 红 4 条时，fail-fast 会把每个突变体都算「抓住」，所以此前的 93.1% 只对 Linux 成立 | 历史：640 / 抓住 596 / 漏网 44 / **93.1%**（`mutants/results.json`，原测试集）。本审核：5 个模块源码改过（cli / data / engine / metrics / optimizer）且判据集扩大（contract / boundaries / determinism），8 个模块 × 80 个突变体**全部重抽重跑** → 640 个突变体 / 抓住 608 / 漏网 32 / **95.0%**（`mutants/results_audit.json`；历史 640 / 596 / 44 / 93.1% 在 `mutants/results.json`）（§4 的表与漏网清单给出历史 / 本机两列） | 未复测 | ✅ Linux |
+| 3c 够硬：模糊 | 10 万次零未捕获异常 | `fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2` | 无关（全部随机显式 seed） | 历史 100,000 次 / 0 崩溃 / 8.7 s（`fuzz/results.json`）；本审核复测 100,000 次 / 0 崩溃 / 5.0 s（`fuzz/results_audit.json`） | 未复测 | ✅ Linux |
+| 4 够诚实 | 数字来自真实运行，结论可复现 | 本报告所有表格由 `bench/results/*.json`、`fuzz/results.json`、`mutants/results.json`（各轮在 `mutants/history/`）、`results/coverage_final.json`、`results/walk_forward.json` 生成，全部入库；提交信息逐阶段记录判据数 / 覆盖率 / 抓住率（例外见 §7.1）；本次审核的每条检查「命令 → 输出 → 结论」在 `REVIEW_QBT_LOB.md` | — | — | — | ✅ |
+
+复现命令：目标 1 `python3.12 -m unittest tests.test_golden tests.test_data tests.test_optimizer tests.test_determinism tests.test_engine`；目标 2 `python3.12 bench/bench.py --repeat 3 --label audit_rerun --out bench/results/05_audit_rerun.json`；目标 3 `python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json`、`python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --out mutants/results_audit.json --md mutants/survivors_audit.md --tests "-f tests.test_golden tests.test_indicators tests.test_broker tests.test_engine tests.test_metrics tests.test_optimizer tests.test_strategies tests.test_data tests.test_report tests.test_cli tests.test_limits tests.test_perf tests.test_contract tests.test_boundaries tests.test_determinism"`、`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2 --out fuzz/results_audit.json`；整套判据 `python3.12 -m qbt.cli test`（冒烟 `--quick`，退出码见 README）。
+
+测试套件（本审核复测，Linux x86_64）：`python3.12 -m qbt.cli test` = `python3.12 -m unittest discover -s tests -p 'test_*.py'` → **262 条判据**（test_boundaries 43、test_broker 31、test_cli 11、test_contract 29、test_data 34、test_determinism 3、test_engine 12、test_golden 8、test_indicators 33、test_limits 3、test_metrics 19、test_optimizer 18、test_perf 3、test_report 6、test_strategies 9），全部通过（OK），23.189 s，退出码 0；`--quick` 126 条 1.200 s。性能判据（`test_perf`）在覆盖率监控 / 突变快速模式（`QBT_FAST_TESTS=1`）下跳过并注明原因（这两种环境下计时无意义），正常模式下真实运行并有阈值（阈值是 PLAN.md 目标按数据量折算：200k 根 ≤ 0.6 s 等，平台相关，慢机器上会红——这是有意的，不放宽）。
 
 覆盖率明细（`python3.12 tools/cov.py`，sys.monitoring 语句覆盖；子进程内执行不计入，优化器因此保留串行路径覆盖同一代码）：
 
@@ -21,24 +32,22 @@
 |---|---|---|---|
 | `qbt/__init__.py` | 3 | 0 | 100.0% |
 | `qbt/broker.py` | 328 | 0 | 100.0% |
-| `qbt/cli.py` | 91 | 0 | 100.0% |
-| `qbt/data.py` | 194 | 0 | 100.0% |
-| `qbt/engine.py` | 206 | 0 | 100.0% |
+| `qbt/cli.py` | 100 | 0 | 100.0% |
+| `qbt/data.py` | 197 | 0 | 100.0% |
+| `qbt/engine.py` | 212 | 0 | 100.0% |
 | `qbt/errors.py` | 4 | 0 | 100.0% |
 | `qbt/indicators.py` | 452 | 0 | 100.0% |
-| `qbt/metrics.py` | 144 | 0 | 100.0% |
-| `qbt/optimizer.py` | 181 | 1 | 99.4% |
+| `qbt/metrics.py` | 146 | 0 | 100.0% |
+| `qbt/optimizer.py` | 190 | 0 | 100.0% |
 | `qbt/report.py` | 97 | 0 | 100.0% |
 | `strategies/__init__.py` | 8 | 0 | 100.0% |
 | `strategies/bollinger.py` | 27 | 0 | 100.0% |
 | `strategies/donchian.py` | 37 | 0 | 100.0% |
-| `strategies/grid.py` | 42 | 1 | 97.6% |
+| `strategies/grid.py` | 45 | 0 | 100.0% |
 | `strategies/ma_cross.py` | 32 | 0 | 100.0% |
 | `strategies/rsi_reversion.py` | 29 | 0 | 100.0% |
-| `strategies/trend_stop.py` | 43 | 1 | 97.7% |
-| **合计** | 1918 | 3 | **99.8%** |
-
-未覆盖行（共 3 行）：`qbt/optimizer.py:254`；`strategies/grid.py:29`；`strategies/trend_stop.py:45`（优化器 CLI 在 `main()` 内关闭断点的分支——“断点 + CLI”组合只在子进程 kill/续跑判据中执行，子进程不计入主进程覆盖；网格策略 level_qty ≤ 0、趋势策略 size ≤ 0 / 止损价 ≤ 0 的防御分支）。
+| `strategies/trend_stop.py` | 43 | 0 | 100.0% |
+| **合计** | 1950 | 0 | **100.0%** |
 
 ## 2. 指标清单（36 个）与判据方式
 
@@ -87,29 +96,44 @@
 
 ### 其他判据（非指标）
 
-- **数据（阶段 0，33 条）**：同 seed 逐字节一致；长序列前缀 == 短序列（每根固定消耗随机数）；GBM 对数收益均值/方差在 5 个标准误内；标准正态分数位（|z|<1、<2）与峰度；影线半正态矩；成交量与 |收益| 相关；停牌段平价零量、缺口、跳跃方差放大；逐类非法输入拒绝（NaN/inf/负价/零价/负量/high<low/时间戳不递增或重复/长度不一致/非数值/空 symbol）；CSV 往返逐字节；黄金指纹钉住。
+- **数据（阶段 0，34 条）**：同 seed 同机逐字节一致（进程内两次 + 子进程）、跨机与黄金 `pinned_data` 相对 1e-9 一致（附放水判据）；长序列前缀 == 短序列（每根固定消耗随机数）；GBM 对数收益均值/方差在 5 个标准误内；标准正态分数位（|z|<1、<2）与峰度；影线半正态矩；成交量与 |收益| 相关；停牌段平价零量、缺口、跳跃方差放大；逐类非法输入拒绝（NaN/inf/负价/零价/负量/high<low/时间戳不递增或重复/长度不一致/非数值/空 symbol）；CSV 往返逐字节；黄金指纹钉住。
 - **撮合与账户（阶段 2，31 条）**：每种订单类型的成交价规则与恰好触及边界；冰山分片、参与上限、零成交量不成交；冲击滑点单调；撤单/过期/提交顺序；均价与已实现盈亏（含反手）；资金费多付空收；保证金拒单、杠杆借入、reduce_only；空头开关两处封顶；强平罚金 + 撤单 + 破产；多标的敞口；随机订单流（5 组配置 × 多 seed）**逐 bar** 验证 `equity == cash + Σ qty·close`、`assets − liabilities == equity`、`initial + realized + unrealized − fees − funding == equity`（容差 1e-6，理由：百万笔不同顺序累加）、每笔成交量 ≤ 参与上限 × bar 成交量、maker 成交价 ∈ [low, high]、taker 成交价 ∈ [low·(1−slip), high·(1+slip)]，并从成交流独立重建现金与持仓。
 - **引擎与策略（阶段 3，21 条）**：T 收盘下单、T+1 开盘成交；权益曲线与独立盯市逐根一致；**篡改 cut 之后的全部 K 线，6 个策略在 cut 之前的成交序列与权益逐字节不变**；strict 模式 6 个策略零 LookaheadError 且与非 strict 结果相同、偷看策略被拦截；多策略多标的；目标仓位处理部分成交；指标缓存命中/淘汰/不串台；确定性；每个策略的入场成交与指标信号逐笔对拍（按订单创建 bar）。
-- **度量（阶段 4，18 条）**：≤ 20 根手算对拍（收益、夏普、索提诺（含 rf 与 ppy）、回撤与恢复、CAGR、Calmar、VaR/CVaR 顺序统计量、按日/月分组、交易统计）；随机权益上回撤与 O(n²) 暴力一致；月度复合 == 总收益；黄金文件。
-- **优化器（阶段 5，17 条）**：见目标 1；另有断点 flush 语义、进度打印、walk-forward 折边界/单折/余数折/断点 id 隔离、CLI。
-- **工程约束（3 条）**：每个函数 ≤ 60 行、每个文件 ≤ 800 行（AST 检查；代码行数 7111，复现：`cat qbt/*.py strategies/*.py tests/*.py tools/*.py mutants/*.py fuzz/*.py bench/*.py | wc -l`）；无第三方 import；无未显式 seed 的随机调用。
+- **度量（阶段 4，18 条）**：≤ 20 根手算对拍（收益、夏普、索提诺（含 rf 与 ppy）、回撤与恢复、CAGR、Calmar、VaR/CVaR 顺序统计量、按日/月分组、交易统计）；随机权益上回撤与 O(n²) 暴力一致；月度复合 == 总收益。
+- **优化器（阶段 5，17 条）**：见目标 1（1 / 2 / 8 进程形状 + 容差 + 放水判据，同机逐字节单列）；另有断点 flush 语义、进度打印、walk-forward 折边界/单折/余数折/断点 id 隔离、CLI。
+- **黄金文件（8 条，审核改写）**：格式与来源字段；数据前 200 根容差；6 个策略整数字段精确 / 资金 1e-9 / 度量 5e-7；非平凡性；放水判据（浮点改错 1e-6 必红、整数 ±1 必红）；1-ulp 价格噪声模拟；同机两次快照逐字节相同。
+- **跨进程 / 跨哈希种子确定性（3 条，审核新增，`tests/test_determinism.py`，harness 来自 `qdcheck/`）**：回测与网格 + walk-forward 在本进程 + `PYTHONHASHSEED=0 / 4242` 两个子进程中形状 + 容差一致；harness 放水判据（set 迭代顺序泄漏、hash 相关噪声必须被抓住）。
+- **接口契约（29 条，审核新增，`tests/test_contract.py`）**：`qbt/CONTRACT.md` 26 张表逐表对照代码（字段 / 默认值 / 状态 × reason / 符号约定 13 条 / 错误契约 / 指标注册表 / 结果 JSON 键 / 边界表编号）；元判据：任一表删一行必红。
+- **边界（43 条，审核新增，`tests/test_boundaries.py`）**：每个入口的空数据 / 单根 / 全停牌 / 价格 0・负・NaN・inf / 数量 0・负・NaN / 杠杆 1e6・1e-6 / 空参数空间 / 未知标的 / 未知策略 / 坏 CSV token 等，裸异常即红，与 CONTRACT §9 错误码表 B01–B50 一一对应。
+- **工程约束（3 条）**：每个函数 ≤ 60 行、每个文件 ≤ 800 行（AST 检查；代码行数 8877，复现：`cat qbt/*.py strategies/*.py tests/*.py tools/*.py mutants/*.py fuzz/*.py bench/*.py | wc -l`）；无第三方 import；无未显式 seed 的随机调用。
 
 ## 3. 性能优化前后对比
 
-机器：Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，x86_64，4 核（物理 4 核，8 进程目标在 4 核上实测），Python 3.12.3。
+**计时口径（审核 2026-10-22 补全）**：所有列都来自 `bench/results/*.json`，每个 JSON 的 `machine` 字段记录平台 / CPU 型号 / `os.cpu_count()` / Python 版本 / git 提交 / 完整命令行 / 起跑时 1 分钟负载（旧文件 01–04 没有 CPU 型号、命令行、负载三项，它们是审核时给 `bench.py` 加的）。
 
-| 基准（bench/results/*.json） | 01 优化前 | 02 metrics 日历优化后 | 03 broker 热循环优化后 | 04 验收修复后 | 目标 |
-|---|---|---|---|---|---|
-| 1M 根 × ma_cross 单核，冷缓存（含指标计算） | 2.209s | 2.465s | 2.146s | 1.932s | ≤ 3s |
-| 1M 根 × ma_cross 单核，热缓存 | 1.174s | 1.112s | 0.933s | 0.884s |  |
-| 1M 根 metrics.compute | 5.41s | 1.81s | 1.58s | 1.39s |  |
-| 吞吐（冷） | 452,671 bars/s | 405,720 bars/s | 465,919 bars/s | 517,545 bars/s |  |
-| 2,000 组 × 20,000 根网格，8 进程 | 74.0s | 23.4s | 21.3s | 18.6s | ≤ 90s |
-| 同上，1 进程 | 215.7s | 88.6s | 84.3s | 70.1s |  |
-| 加速比（4 物理核） | 2.92x | 3.78x | 3.95x | 3.78x |  |
-| 1 进程 vs 8 进程结果逐字节相同 | True | True | True | True | True |
-| 1M 根数据生成 / 校验 | 1.89s / 0.38s | 2.00s / 0.53s | 1.83s / 0.32s | 1.73s / 0.36s |  |
-| 1M 根 SMA / EMA / ATR / ADX | 0.13 / 0.08 / 0.37 / 1.35s | 0.23 / 0.11 / 0.55 / 1.66s | 0.12 / 0.08 / 0.37 / 1.24s | 0.11 / 0.06 / 0.32 / 1.07s |  |
+| 项 | 01–04（历史） | 05 审核复测 |
+|---|---|---|
+| 机器 | Linux-6.18.44-fc-v140-x86_64，Intel Xeon @ 2.10GHz 虚拟机，`os.cpu_count()` = 4，CPython 3.12.3 | 同一台虚拟机（`machine` 字段见 JSON） |
+| 命令 | `python3.12 bench/bench.py --out bench/results/0N_*.json`（单次，best-of-1） | `python3.12 bench/bench.py --repeat 3 --label audit_rerun --out bench/results/05_audit_rerun.json`（每个计时 3 次取最小，样本列在 JSON 的 `*_samples`） |
+| 冷 / 热 | 冷 = 进程内指标缓存清空、数据 sha256 指纹（`OHLCV._fingerprint`，≈ 0.6 s）未算的第一次回测（数据已在内存，不涉及磁盘页缓存）；热 = 紧接着第二次（指纹与指标全部命中） | 同左；best-of-N 的每个冷样本前都重置指标缓存与指纹（审核发现第 2 次起指纹已记忆、「冷」只剩指标，已修） |
+| 进程数 | 网格：进程池上限 8（`ProcessPoolExecutor(max_workers=8)`，fork），4 个 CPU 上跑；实际子进程数未记录 | 进程池上限 8；运行期间采样 `multiprocessing.active_children()` 的最大值记录在 `processes_observed_max` |
+| 负载 | 未记录 | 起跑时 1 分钟负载记录在 `load_avg_1m_at_start`（复测在审核代理全部结束、机器空闲后进行） |
+
+| 基准（bench/results/*.json） | 01 优化前 | 02 metrics 日历优化后 | 03 broker 热循环优化后 | 04 验收修复后 | 05 审核复测（best-of-3） | 目标 |
+|---|---|---|---|---|---|---|
+| 1M 根 × ma_cross 单核，冷缓存（含指标计算） | 2.209s | 2.465s | 2.146s | 1.932s | 1.941s | ≤ 3s |
+| 1M 根 × ma_cross 单核，热缓存 | 1.174s | 1.112s | 0.933s | 0.884s | 1.039s |  |
+| 1M 根 metrics.compute | 5.41s | 1.81s | 1.58s | 1.39s | 1.17s |  |
+| 吞吐（冷） | 452,671 bars/s | 405,720 bars/s | 465,919 bars/s | 517,545 bars/s | 515,215 bars/s |  |
+| 2,000 组 × 20,000 根网格，进程池 8（4 CPU） | 74.0s | 23.4s | 21.3s | 18.6s | 20.1s | ≤ 90s |
+| 同上，1 进程 | 215.7s | 88.6s | 84.3s | 70.1s | 77.5s |  |
+| 加速比（4 CPU） | 2.92x | 3.78x | 3.95x | 3.78x | 3.86x |  |
+| 实际观察到的最大子进程数 | — | — | — | — | 8 |  |
+| 1 进程 vs 8 进程结果逐字节相同（同机） | True | True | True | True | True | True |
+| 1M 根数据生成 / 校验 | 1.89s / 0.38s | 2.00s / 0.53s | 1.83s / 0.32s | 1.73s / 0.36s | 1.84s / 0.38s |  |
+| 1M 根 SMA / EMA / ATR / ADX | 0.13 / 0.08 / 0.37 / 1.35s | 0.23 / 0.11 / 0.55 / 1.66s | 0.12 / 0.08 / 0.37 / 1.24s | 0.11 / 0.06 / 0.32 / 1.07s | 0.09 / 0.05 / 0.27 / 1.36s |  |
+| best-of-N | 1 | 1 | 1 | 1 | 3 |  |
+| 起跑时 1 分钟负载 | — | — | — | — | 0.14 |  |
 
 每次改动的收益：
 1. `metrics.period_returns` 去掉每根 bar 的 `datetime.fromtimestamp`，改为整数天序号 + Hinnant 民用历算法（与 datetime 逐周对拍 1962–2101 零差异）：metrics 1M 根 5.41s → 1.81s；网格每组开销随之下降，8 进程 74.0s → 23.4s，1 进程 215.7s → 88.6s。
@@ -118,6 +142,63 @@
 4. 基准 JSON 里的 `machine.git_commit` 是基准运行时的 HEAD：基准总是在把本轮改动提交之前运行，所以 02/03 记录的提交号是其父提交（被测代码在下一个提交里）。04 是验收修复后的重跑。
 
 ## 4. 突变测试
+
+### 4.1 本机复测（审核 2026-10-22）
+
+`qbt/cli.py`、`qbt/data.py`、`qbt/engine.py`、`qbt/metrics.py`、`qbt/optimizer.py` 在审核中改过源码（裸异常修复），判据集加入 `test_contract` / `test_boundaries` / `test_determinism`，因此 8 个模块 × 80 个突变体按同一 seed=0 **全部重抽重跑**（`mutants/results_audit.json`，fail-fast 顺序同历史，`--jobs 3`，机器见 §3；源码改过的模块候选集已变，突变 id 与历史不可逐个对应；`broker` / `indicators` / `report` 源码未变、id 可比）。对 9 个非等价漏网补判据后按 id 定向重跑（`--ids`，结果合并进同一 JSON）。
+
+| 模块 | 历史（原测试集）：总 / 抓住 / 漏网 / 抓住率 | 本机复测：总 / 抓住 / 漏网 / 抓住率 |
+|---|---|---|
+| `qbt/broker.py` | 80 / 73 / 7 / 91.2% | 80 / 80 / 0 / **100.0%** |
+| `qbt/cli.py` | 80 / 76 / 4 / 95.0% | 80 / 75 / 5 / **93.8%** |
+| `qbt/data.py` | 80 / 77 / 3 / 96.2% | 80 / 80 / 0 / **100.0%** |
+| `qbt/engine.py` | 80 / 77 / 3 / 96.2% | 80 / 79 / 1 / **98.8%** |
+| `qbt/indicators.py` | 80 / 78 / 2 / 97.5% | 80 / 78 / 2 / **97.5%** |
+| `qbt/metrics.py` | 80 / 73 / 7 / 91.2% | 80 / 72 / 8 / **90.0%** |
+| `qbt/optimizer.py` | 80 / 65 / 15 / 81.2% | 80 / 67 / 13 / **83.8%** |
+| `qbt/report.py` | 80 / 77 / 3 / 96.2% | 80 / 77 / 3 / **96.2%** |
+| **合计** | 640 / 596 / 44 / 93.1% | 640 / 608 / 32 / **95.0%** |
+
+历史漏网中本机被新判据抓住（源码未变的模块，id 可比）：`broker:1461:compare`、`broker:1969:compare`、`broker:2086:compare`、`broker:2594:compare`、`broker:2685:const:1`、`broker:850:binop`、`broker:995:const:1.0`。
+
+本机漏网清单（每条给出“为什么等价”或“补了哪条判据”；标「未补判据」的是 CLI 默认值类、如实列出）：
+
+| id | 行 | 变异 | 结论 |
+|---|---|---|---|
+| `cli:798:const:0` | 50 | `1` → `0` | 等价（格式）：demo 的 summary.json indent 只改空白 |
+| `cli:798:const:2` | 50 | `1` → `2` | 等价（格式）：同上 |
+| `cli:1038:const:0` | 80 | `1` → `0` | 等价（输出）：TextTestRunner 的 verbosity 只改 stderr 文本量 |
+| `cli:1038:const:2` | 80 | `1` → `2` | 等价（输出）：同上 |
+| `cli:881:const:True` | 101 | `False` → `True` | 等价：委托子命令的 add_help 只影响 -h 透传 |
+| `engine:1503:const:-1` | 281 | `0` → `-1` | 等价：单策略快路径 on_bars 只有一个元素，[0] 与 [-1] 相同 |
+| `indicators:1138:const:0` | 55 | `1` → `0` | 等价：ema 循环从 0 开始时第 0 步 prev + a*(x0 − prev) == x0，输出不变 |
+| `indicators:329:delete_stmt` | 567 | `_check_window(n)` → `pass` | 等价（冗余防御）：rolling_max_drawdown 内随后的 rolling_max(dd, n) 仍校验窗口 |
+| `metrics:1595:binop` | 65 | `x - m` → `x + m` | 等价（代数恒等式）：Σ(x+m)(x−m) = Σx² − n·m² = Σ(x−m)²，只差浮点舍入（≤ 1e-16 相对） |
+| `metrics:1597:binop` | 65 | `x - m` → `x + m` | 等价（代数恒等式）：同上 |
+| `metrics:1357:const:True` | 114 | `False` → `True` | 等价：start 在每个新高都重置，连续新高时 i − start = 1 ≤ 已有 longest，under 标志在首个回撤后不再影响结果 |
+| `metrics:947:delete_stmt` | 114 | `under = False` → `pass` | 等价：同上（under 复位冗余） |
+| `metrics:594:const:-1` | 150 | `0` → `-1` | 等价：alpha 已校验 ∈ (0,1]，ceil(alpha·n) − 1 ≥ 0，max 的下界不起作用 |
+| `metrics:1433:const:-1` | 159 | `0` → `-1` | 等价：Python 的 // 已是向下取整，z<0 分支的 −146096 补偿只在 C 截断除法下有意义；z = −1 两种写法同值 |
+| `metrics:1444:const:146095` | 161 | `146096` → `146095` | 等价：doe // 146095 与 doe // 146096 只在 doe = 146095（纪元倒数第二天，2000-02-28）不同，此时分子 145998 与 145997 整除 365 都得 399；审核已把 1600 / 2000 / 2400 年 2 月 27–29 日加入 test_civil_from_days_matches_datetime，仍然绿，证实等价 |
+| `metrics:1180:compare` | 226 | `len(rets) > 1` → `len(rets) >= 1` | 等价：len(rets) == 1 时 _std(rets, 1) 因 n − ddof ≤ 0 返回 0.0，与 0.0 相同 |
+| `optimizer:1320:const:1` | 81 | `0` → `1` | 等价：make_task 里的哑输入只用来取 metrics.compute 的键集合，数值无关 |
+| `optimizer:869:const:61` | 81 | `60` → `61` | 等价：同上 |
+| `optimizer:96:delete_stmt` | 109 | `load_data(data_spec)` → `pass` | 等价：_worker_init 只是预加载，evaluate 内 load_data 惰性加载同一数据 |
+| `optimizer:285:delete_stmt` | 140 | `self.conn.commit()` → `pass` | 等价：sqlite3 在默认 isolation_level 下 CREATE TABLE 不开启事务，commit 为空操作 |
+| `optimizer:307:const:2` | 164 | `1` → `2` | 等价（判据本身）：workers 取值不改变结果（并行确定性判据），默认值不可观察 |
+| `optimizer:120:delete_stmt` | 166 | `combos = dedupe(combos)` → `pass` | 等价（输出）：结果按 param_key 去重存入 dict，重复组合只多算一遍，输出相同 |
+| `optimizer:321:compare` | 170 | `workers <= 1` → `workers < 1` | 等价（输出）：workers == 1 改走进程池路径，结果相同，只多一个子进程 |
+| `optimizer:2178:const:59` | 184 | `60` → `59` | 等价（日志）：进度行 key 截断长度 |
+| `optimizer:372:delete_stmt` | 223 | `_worker_init(task['data_spec'])` → `pass` | 等价：同 optimizer:96（样本外评估前的预加载） |
+| `optimizer:1144:const:4999` | 239 | `5000` → `4999` | 未补判据：optimizer 独立 CLI 的 --n 默认值，所有判据与 qbt.cli 都显式传参，不影响任何结果语义 |
+| `optimizer:1148:const:0` | 240 | `1` → `0` | 未补判据：同上（--seed 默认值） |
+| `optimizer:1152:const:2` | 241 | `1` → `2` | 未补判据：同上（--workers 默认值；取值不改变结果） |
+| `optimizer:1620:const:49` | 259 | `50` → `49` | 等价（日志）：进度打印间隔 |
+| `report:1465:const:True` | 47 | `False` → `True` | 等价（JSON 语义）：策略参数行 ensure_ascii 只影响非 ASCII 转义，参数均为 ASCII |
+| `report:501:const:1.5` | 93 | `1.0` → `1.5` | 等价：max(dd) or 1.0 只在无回撤时生效，此时所有回撤为 0，分母取值不可观察 |
+| `report:1206:const:True` | 134 | `False` → `True` | 等价（JSON 语义）：ensure_ascii 只改变非 ASCII 字符的转义形式，json.load 读回相同 |
+
+### 4.2 历史运行（2026-10-21，原测试集；下文表格与漏网清单是当时的结果，保留不改）
 
 6. **验收评审后（第六、七轮，定向）**：独立验收评审（7 个维度 + 对抗复核，见第 7.0 节）确认的缺陷修复后，broker / indicators / metrics 三个改过源码的模块全量重抽样重跑并合并，`cli:301` 两个此前标为“不可观察”的 id 用 `unittest.mock` 判据定向重跑（全部抓住）；随后删掉 `_margin_ok` 里因修复而变死的 `reduce_only` 分支并补 4 条判据，broker 再次全量重跑合并；最后对补了判据但尚未重跑的 5 个 id 定向重跑（全部抓住）。下表是合并后的最终结果（`mutants/results.json`，各轮原始 JSON 在 `mutants/history/`）。
 
@@ -200,6 +281,8 @@
 | metrics | ok | 25000 |
 
 总计 100000 次（seed=0，4 类目标轮转），未捕获异常 0 次，耗时 8.72s；复现：`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2`（结果在 `fuzz/results.json`；验收后另用 seed=5 跑 30,000 次同样 0 崩溃）。
+
+**本机复测（审核 2026-10-22，`fuzz/results_audit.json`）**：同 seed 0 再跑 100,000 次，未捕获异常 0 次，4.97 s；分类计数与上表只差一处——`engine:ConfigError` 4409 → 4414、`engine:ok` 13418 → 13413：`random_params` 抽到的 5 个 grid 参数（levels ≤ 0 或 spacing ≤ 0）此前被静默接受（levels=0 实际是裸 ZeroDivisionError 被 fuzzer 归入 ok 之外的类别？否——它们此前跑完了，因为 `_place_grid` 只在重铺网格时除法，1–120 根数据上未必触发），本审核的 `grid.on_start` 校验把它们改判为受控的 ConfigError；其余 6 个类别逐个相同。
 模糊测试发现并修复的 bug（均有对应单元判据）：
 
 1. `BrokerConfig.check` 对非数值字段（字符串 / 列表 / bool / None）抛 `TypeError` 而非受控的 `ConfigError` → 增加 `_real()` 逐字段类型校验（`tests/test_broker.py::test_config_check`）。
@@ -259,8 +342,13 @@
 - **多标的时间轴**要求各标的 bar 数一致（对齐），不支持缺失 bar 的对齐/前向填充。
 - **walk-forward 的样本外段**在切片内重新预热指标（前 n 根无信号），没有用训练段尾部做预热；折内参数空间用随机抽样而非全网格。
 - **CCI 的平均绝对偏差**是窗口内 O(w) 内层循环（整体 O(N·w)，w 有界），其余 35 个指标均为 O(1)/bar。
-- **黄金文件**跨机器可能因 libm（exp/log）最后一位 ulp 差异而失配；本仓库的逐字节判据在同一机器上成立，跨机器需用容差模式重建基线。
+- **黄金文件与跨机确定性**（审核 2026-10-22 改写）：逐字节 / sha256 判据只在同一台机器上成立（已拆成单独判据，不再当跨机判据用）；跨机判据是「整数精确 + 浮点相对容差」（`tests/_compare.py`，黄金 `golden_v2.json` 生成机器写在 `generated_on`）。仍存在的局限：容差判据不是数学保证——若某根 bar 上信号恰好落在相等边界（例如两条均线在最后一位 ulp 上相等），跨机器可能翻转一笔成交，整数字段的精确判据会红并指出首个差异路径，此时需要人工判断是边界翻转还是真缺陷。macOS arm64 上的新判据本审核没有机器复测（见 §1）。
 - **覆盖率工具**只统计主进程；进程池内执行的代码靠串行路径覆盖。
-- **性能**：8 进程目标在 4 物理核上实测（加速比 ≈ 3.95x）；单核 1M 根冷缓存 2.1–2.5 s 之间波动（机器噪声 ±0.3 s）。
+- **性能**：8 进程目标在 4 个 CPU 的虚拟机上实测（进程池 8，CPU 4，加速比见 §3）；单核 1M 根冷缓存在历史 4 次单次计时里 1.93–2.47 s 之间波动，审核复测 best-of-3 的样本为 [1.941, 2.058, 2.073] s（机器噪声量级由样本极差给出）；所有计时只对 §3 写明的机器成立，macOS arm64 未测。
 - **突变测试**：每模块抽样 80 个（候选总数 60–1,200+），抽样由 seed 决定；全量跑需数小时。等价突变体按条列出，未做自动等价判定。
 - 下一步：Numba/NumPy 不在约束内；可做的是把盯市与撮合按"无挂单快路径"进一步内联、指标按需惰性计算、walk-forward 预热、以及用 `multiprocessing.shared_memory` 共享大数据以降低 worker 初始化成本。
+
+### 7.2 审核（2026-10-22）改了什么、没改什么
+
+- 改了：确定性判据（§1.1–1.3）、CCI 对拍容差与放水判据、`cli test --quick` 与退出码、策略 / 成交 / 订单字段契约 `qbt/CONTRACT.md` 及其判据、各入口的边界判据与错误码表、`bench.py` 的计时口径（best-of-N、CPU 型号、负载、实际进程数）、本报告 §1 / §3 / §4 / §7。每条检查的「命令 → 输出 → 结论」见 `REVIEW_QBT_LOB.md`。
+- 没改：`qdcheck/`（只调用）；没有删除任何已有判据来换绿；放松的唯一一处容差（CCI 1e-9 绝对 → 5e-7 相对）附带了放水判据证明容差仍能抓住 1e-6 的错。

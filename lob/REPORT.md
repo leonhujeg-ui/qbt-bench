@@ -14,7 +14,7 @@
 | 2c 内存：1,000 万回放峰值 ≤ 1.5 GB | ru_maxrss 46 MB（端到端独立子进程，单次）；tracemalloc 峰值 12.5 MB（1000000 事件，单次）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）。本机复测：ru_maxrss 46 MB；tracemalloc 峰值 12.5 MB | **历史：达成；本机：达成** | `同上` |
 | 3 真实：排队模型 Brier ≤ 0.08 | 整体（前 5 档均匀取样的测试集）Brier T=1/2/5/10 = 0.17264/0.1771/0.1472/0.11699，均 > 0.08（常数预测 0.24718/0.22312/0.16644/0.12674）。达成的子集（`by_d` 中 ≤ 0.08 的格，共 5 格）：d=0 T=1s 0.07514；d=0 T=2s 0.06442；d=0 T=5s 0.05039；d=0 T=10s 0.04108；d=1 T=10s 0.0732。未达成的格（共 11 格）：d=1 T=1s 0.18011；d=1 T=2s 0.13843；d=1 T=5s 0.09394；d=2 T=1s 0.23085；d=2 T=2s 0.21238；d=2 T=5s 0.15901；d=2 T=10s 0.12227；d≥3 T=1s 0.18917；d≥3 T=2s 0.23615；d≥3 T=5s 0.21755；d≥3 T=10s 0.17547（原因见第 5 节） | **未达成** | `python3.12 -m lob.cli queue-collect … && python3.12 -m lob.cli queue-model …` |
 | 4a 硬：语句覆盖率 ≥ 90% | 核心模块 97.40%（384 个测试） | **达成** | `python3.12 -m lob.cli coverage --json lob/results/coverage.json` |
-| 4b 硬：突变抓住率 ≥ 85%（分母 = 抽样的 120 个突变体） | book.py 110/120 = 91.7%；queue_model.py 115/120 = 95.8%（候选 484 / 292，seed=1 分层抽样） | **达成** | `python3.12 -m lob.cli mutate --target book|queue_model --max 120 --seed 1` |
+| 4b 硬：突变抓住率 ≥ 85%（分母 = 抽样的 120 个突变体） | 历史（原 VM）：book.py 110/120 = 91.7%；queue_model.py 115/120 = 95.8%（候选 484 / 292，seed=1 分层抽样）。本机复测（判定集含 test_boundaries / test_contract，queue_model 源码已改、候选 295）：book.py 110/120 = 91.7%；queue_model.py 118/120 = 98.3%（第一轮 6 条漏网，4 条补判据后定向重跑抓住） | **达成（历史）；本机：达成** | `python3.12 -m lob.cli mutate --target book|queue_model --max 120 --seed 1` |
 | 4c 硬：模糊 20 万次零崩溃零不变量违背 | 400000 次（2 轮），崩溃 0 / 违背 0 / 分歧 0 | **达成** | `python3.12 -m lob.cli fuzz --n 200000 --json lob/results/fuzz_200k.json` |
 | 5 诚实：数字来自真实运行、附复现命令 | 本报告全部表格由 tools/report_tables.py / build_report.py 从 results/*.json 生成；性能数字分「历史·原 VM」与「本机复测」两列，复测列由 results/stress_audit_rerun.json 生成 | **达成** | `python3.12 -m lob.tools.build_report` |
 
@@ -205,6 +205,7 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 |---|---|---|---|---|---|---|---|
 | 历史（原 VM） | lob/book.py | 484 | 120 | 110 | 10 | 15 | 91.7% |
 | 历史（原 VM） | lob/queue_model.py | 292 | 120 | 115 | 5 | 0 | 95.8% |
+| 本机复测（审核：判定集 + 新判据，queue_model 源码已改） | lob/book.py | 484 | 120 | 110 | 10 | 15 | 91.7% |
 | 本机复测（审核：判定集 + 新判据，queue_model 源码已改） | lob/queue_model.py | 295 | 120 | 118 | 2 | 0 | 98.3% |
 
 模块 → 候选位点 → 抽样 → 第一轮 / 复跑 / 最终（复跑只重跑漏网者，已抓住的保留）：
@@ -249,6 +250,16 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 | 历史 | queue_model | 176 | Gt -> GtE | 176 | `if ll > best_ll:` | 等价 | 细网格 > 改 >=：仅在对数似然恰好相等时取后者，浮点对数似然相等概率为零且 fit 不会对空数据调用 _grid |
 | 历史 | queue_model | 188 | const 1 -> 2 | 266 | `nmax = max((b['n'] for b in rel), default=1)` | 等价 | max(..., default=1) 改 default=2：default 只在无桶时使用，此时也不画圆点 |
 | 历史 | queue_model | 211 | Gt -> GtE | 171 | `if ll > best_ll:` | 等价 | 粗网格 > 改 >=：同 176 |
+| 本机复测 | book | 169 | bool -> True | 219 | `stopped = False` | 等价 | _match 中 stopped 初值：_match 只在价格交叉时被调用，循环体至少执行一次并覆盖该变量（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 210 | delete statement | 337 | `self.keys_dirty = True` | 等价 | _unlink 删档后漏设 keys_dirty：_unlink 现仅被增量改单调用，随后 _rest 以同价位重建档并置 keys_dirty，价格切片不变（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 263 | const 0 -> 1 | 191 | `o = [oid, side, price, rem, vis, disp, trader, self.prio, 0]` | 等价 | 订单列表 O_SLOT 占位 0→1：紧接着被 Q_FIRST 或 len(queue) 覆盖（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 276 | break<->continue | 252 | `continue` | 等价 | _match_level 遇 None 槽 continue→break：外层 while 会以更新后的 head 重新进入同一档，效果相同（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 284 | break<->continue | 263 | `continue` | 等价 | cancel_old 撤旧单后 continue→break：同上，外层循环重入同一档（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 297 | break<->continue | 306 | `break` | 等价 | _fillable 中 break→continue：后续档位同样不交叉或 avail 已够，只多做无效扫描（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 307 | bool -> False | 337 | `self.keys_dirty = True` | 等价 | 同 book:210（keys_dirty 布尔翻转）（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 431 | Sub -> Add | 318 | `fill = want - avail if want - avail < vis else vis` | 等价 | _fillable 中 fill 值 want-avail→want+avail：仅使 avail 超过 want，而调用方只比较 avail<qty，判定不变（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 458 | Lt -> LtE | 281 | `o[O_VIS] = o[O_DISP] if o[O_DISP] < o[O_REM] else o[O_REM]` | 等价 | 冰山露出 disp<rem 改 <=：disp==rem 时两分支取值相同（与历史同一 id，本机复现为漏网，判定沿用） |
+| 本机复测 | book | 459 | Sub -> Add | 318 | `fill = want - avail if want - avail < vis else vis` | 等价 | _fillable 条件 want-avail<vis→want+avail<vis：只改变 fill 取 vis 的时机，avail 一旦 >= want 即退出，判定不变（与历史同一 id，本机复现为漏网，判定沿用） |
 | 本机复测 | queue_model | 125 | const 11 -> 12 | 256 | `for t in range(0, 11, 2):` | 等价 | reliability_svg 的刻度循环 range(0, 11, 2) 与 range(0, 12, 2) 生成同一组刻度 0,2,…,10 |
 | 本机复测 | queue_model | 189 | const 1 -> 2 | 266 | `nmax = max((b['n'] for b in rel), default=1)` | 等价 | nmax 的 default 只在 rel 为空时生效，此时没有圆点要画，nmax 不被使用 |
 
@@ -259,6 +270,11 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 **queue_model.py**：292 个候选位点，抽样 120 个（seed=1）。第一轮抓住 79/120 = 65.8%：漏网集中在可靠性图的绘图常量（坐标、刻度、半径）和参数模型网格搜索的细节，因为当时的判据只检查「SVG 里有圆点和标签」「参数模型优于常数」。41 条漏网逐条判定后补判据：可靠性图几何按公式精确核对（坐标轴、对角线、刻度位置、圆点坐标与半径、折线）、网格搜索结果必须等于独立重算的粗/细网格 argmax、构造最优点落在粗网格点之间的数据检验细网格窗口、失衡阈值 ±0.3 的精确边界、默认价差、桶宽/桶数、base_rate 舍入位数、分桶计数守恒、输出 JSON 规范字节、已存在目录重复运行。第一次复跑后剩 7 个漏网（`rerun.survivor_ids`），第二次复跑后 **115/120 = 95.8%**，剩余 5 条均为等价突变（刻度 range 上界 11→12 与粗网格上界 61→62 在步长下集合不变；`>`→`>=` 只在浮点对数似然恰好相等时不同；`max(default=1)` 的默认值只在无桶时使用且此时不画点）。第一轮原始结果保留在 `mutations_queue_model_run1.json`。
 
 **诚实说明**：抓住率的分母是抽样的 120 个突变而非全部候选（book 484 / queue_model 292）；超时（死循环）计为抓住；「等价」判定为人工阅读所得，逐条理由在上表（id、改动、为什么等价）；复跑只针对漏网者（增加测试不会使已失败的突变存活）；突变运行的秒数（`seconds` 字段）是原 VM 的历史数字。
+
+**本机复测（审核，机器 Intel Xeon @ 2.10GHz VM，os.cpu_count()=4，CPython 3.12.3，4 workers，`--max 120 --seed 1`，判定集 = 上表 + `test_boundaries` / `test_contract`）**：
+- `book`：候选 484（历史 484），抽样 120，抓住 110（超时 15），漏网 10，抓住率 **91.7%**（历史 91.7%）；本机漏网 id [169, 210, 263, 276, 284, 297, 307, 431, 458, 459]——与历史逐条相同：15 条超时的 id 与历史完全一致（循环条件被改成死循环），本机非超时最慢 108 s（超时阈 300 s，历史最慢 193 s），不存在因负载造成的假超时；10 条漏网与历史同 id，判定沿用
+- `queue_model`：候选 295（历史 292），抽样 120；第一轮抓住 114 / 漏网 6（95.0%），6 条逐条判定后 2 条等价、4 条真缺口（SVG 标题的 Brier 文本、by_regime base_rate 四位舍入、parametric_params 键集合、`_horizon` 取最近的表）补判据，`python3.12 -m lob.cli mutate --target queue_model --ids 195 247 267 272 --merge` 定向重跑全部抓住 → 抓住 118（超时 0），漏网 2，抓住率 **98.3%**（历史 95.8%）；本机漏网 id [125, 189]
+- 两列不可按 id 直接比较的原因：`queue_model.py` 在边界修复中多了一个条件表达式，候选集与抽样都变了；`book.py` 源码未变，候选集相同，但判定集扩大后抽样仍由 seed=1 决定、id 可比。本机漏网逐条判定见上方漏网表「本机复测」行；`seconds` 为本机墙钟。
 
 | 运行 | 事件 | 畸形比例 | 拒绝数 | 崩溃 | 不变量违背 | 与参考分歧 | 全扫描 | 校验成交 |
 |---|---|---|---|---|---|---|---|---|
@@ -280,20 +296,20 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 | 文件（语句 / 执行 / 覆盖） | 历史（原 VM，`coverage.json`） | 本机复测（采集器修复后，`coverage_audit.json`） |
 |---|---|---|
 | book.py | 323 / 323 / 100.0% | 323 / 323 / 100.0% |
-| cli.py | 204 / 191 / 93.6% | 220 / 199 / 90.5% |
+| cli.py | 204 / 191 / 93.6% | 222 / 201 / 90.5% |
 | common.py | 55 / 55 / 100.0% | 58 / 58 / 100.0% |
 | compare.py | 89 / 81 / 91.0% | 89 / 81 / 91.0% |
 | events.py | 308 / 305 / 99.0% | 326 / 323 / 99.1% |
 | fuzz/fuzz.py | 170 / 158 / 92.9% | 170 / 158 / 92.9% |
 | invariants.py | 142 / 130 / 91.5% | 142 / 130 / 91.5% |
-| mutants/run_mutations.py | 189 / 184 / 97.4% | 196 / 186 / 94.9% |
+| mutants/run_mutations.py | 189 / 184 / 97.4% | 207 / 189 / 91.3% |
 | queue_collect.py | 253 / 249 / 98.4% | 253 / 249 / 98.4% |
 | queue_model.py | 196 / 196 / 100.0% | 197 / 197 / 100.0% |
 | reference.py | 221 / 219 / 99.1% | 221 / 220 / 99.5% |
 | replay.py | 192 / 189 / 98.4% | 220 / 215 / 97.7% |
 | stress.py | 121 / 119 / 98.3% | 126 / 120 / 95.2% |
-| **核心合计** | **97.40%**（384 tests） | **96.77%**（442 tests） |
-| 其余（tools / tests 之外）| 58.86% | 47.07% |
+| **核心合计** | **97.40%**（384 tests） | **96.48%**（443 tests） |
+| 其余（tools / tests 之外）| 58.86% | 43.19% |
 
 ## 7. 已知局限与下一步
 
@@ -314,10 +330,10 @@ shock 段比 normal 段差 0.02–0.06：突发大单把多档一次扫穿、价
 ## 8. 验证运行记录
 
 - `LOB_TEST_SCALE=full python3.12 -m unittest discover -s lob/tests -t .` → **382 tests OK，788.5 s**（**原 VM**，阶段 7 时的测试数；含 1,000 万条 4 进程 lockstep 对拍、100 万对拍、分片回放逐字节一致、模糊 2 万、排队模型、CLI 端到端）；提交 9fd7864 的信息只有标题行，并没有日志摘要（审核核实，原文「日志摘要见提交 9fd7864 说明」不成立）。full 规模（含 1,000 万对拍）**只在原 VM 上跑过，本次审核未重跑**。
-- 审核复跑（standard 规模，10M 级在 standard 下 skip；测试数 382 → 384 是阶段 7 之后新增的判据，384 → 442 是审核新增的 `test_contract`（23）与 `test_boundaries`（35））：
-  - 本审核 VM（Intel Xeon @ 2.10GHz，os.cpu_count()=4，Linux 6.18.44-fc-v140 x86_64，CPython 3.12.3）：`python3.12 -m lob.cli test`（= `unittest discover -s lob/tests -t .`，standard）→ `Ran 442 tests in 85.4s` / `OK (skipped=1)`，退出码 0；`python3.12 -m lob.cli test --quick` → `Ran 87 tests in 8.4s` / `OK`。
-  - 审核员另一台机器（macOS arm64，Python 3.12.15，契约 / 边界判据落地前的树）同一 discover 命令 → 384 OK（skipped 1）；442 条的树未在该机复跑。
-- 覆盖率：`python3.12 -m lob.cli coverage --json lob/results/coverage.json`（standard 规模，原 VM）→ 384 tests OK，核心 97.40%（**历史**）。审核复现时同一命令只得 95.49%，差异全在 `events.py`（258/308）：`lob/cli.py` 入口在采集器启动前已 import `events`，模块级语句计不到；生成器路径只在套件内重新生成 `events_1m.bin` 时执行。采集器已修（启动前移除已 import 的被测模块；流文件在临时目录重新生成，`LOB_DATA_DIR`），修后 `python3.12 -m lob.cli coverage --json lob/results/coverage_audit.json` → 442 tests OK，`events.py` 323/326，核心 **96.77%**（本机复测列见 6.y；低于 97.40% 的部分是审核新增的防御分支未全部被判据执行到）。
+- 审核复跑（standard 规模，10M 级在 standard 下 skip；测试数 382 → 384 是阶段 7 之后新增的判据，384 → 443 是审核新增的 `test_contract`（23）、`test_boundaries`（35）与 `test_queue_model` 的 1 条（突变漏网补判据））：
+  - 本审核 VM（Intel Xeon @ 2.10GHz，os.cpu_count()=4，Linux 6.18.44-fc-v140 x86_64，CPython 3.12.3）：`python3.12 -m lob.cli test`（= `unittest discover -s lob/tests -t .`，standard）→ `Ran 443 tests in 83.8s` / `OK (skipped=1)`，退出码 0（收尾时的最终树）；`python3.12 -m lob.cli test --quick` → `Ran 87 tests in 8.4s` / `OK`。
+  - 审核员另一台机器（macOS arm64，Python 3.12.15，契约 / 边界判据落地前的树）同一 discover 命令 → 384 OK（skipped 1）；443 条的树未在该机复跑。
+- 覆盖率：`python3.12 -m lob.cli coverage --json lob/results/coverage.json`（standard 规模，原 VM）→ 384 tests OK，核心 97.40%（**历史**）。审核复现时同一命令只得 95.49%，差异全在 `events.py`（258/308）：`lob/cli.py` 入口在采集器启动前已 import `events`，模块级语句计不到；生成器路径只在套件内重新生成 `events_1m.bin` 时执行。采集器已修（启动前移除已 import 的被测模块；流文件在临时目录重新生成，`LOB_DATA_DIR`），修后 `python3.12 -m lob.cli coverage --json lob/results/coverage_audit.json` → 443 tests OK，`events.py` 323/326，核心 **96.48%**（本机复测列见 6.y；低于 97.40% 的部分是审核新增的防御分支与 CLI 子命令分支（mutate --ids/--merge/--timeout 等只在子进程 / 手工运行）未全部被进程内判据执行到）。
 - `python3.12 -m lob.tools.lint_limits` → 37 个文件，0 个问题（≤ 800 行 / 函数 ≤ 60 行；阶段 7 时的文件数，审核收尾时为 39 个文件、0 个问题），`tests/test_limits.py` 同时断言只用标准库；审核复跑 `python3.12 -m unittest lob.tests.test_limits` → `Ran 2 tests` / `OK`。
 - 所有随机过程显式 seed；价格 / 数量全程整数；无浮点比较（排队模型的 Brier 等统计量用浮点计算并按 4–5 位小数记录）。
 - 每阶段提交并合回 `main`：阶段 0 babadfd、阶段 1 7318d87、阶段 2 2aaa147、阶段 3/4 16547bb 起多次、阶段 5/6 2f9aebc 起多次、阶段 7 本提交。

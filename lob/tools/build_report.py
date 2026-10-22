@@ -54,6 +54,26 @@ def gen_command(s):
         p['n_events'], p['n_symbols'], p['seed'], s['stream'])
 
 
+def _audit_mutation():
+    """本机复测 sentence for goal 4b from mutations_*_audit.json (empty string when absent)."""
+    names = ('mutations_book_audit.json', 'mutations_queue_model_audit.json')
+    if not all(os.path.exists(os.path.join(T.RESULTS, n)) for n in names):
+        return ''
+    b, q = load(names[0]), load(names[1])
+    return ('本机复测（判定集含 test_boundaries / test_contract，queue_model 源码已改、候选 %d）：book.py %d/%d = %.1f%%；'
+            'queue_model.py %d/%d = %.1f%%（第一轮 %d 条漏网，4 条补判据后定向重跑抓住）' % (
+                q['candidates'], b['killed'], b['run'], b['kill_rate'], q['killed'], q['run'], q['kill_rate'],
+                q['survived'] + sum(len(r['ids']) for r in q.get('reruns', []))))
+
+
+def _audit_mutation_verdict():
+    names = ('mutations_book_audit.json', 'mutations_queue_model_audit.json')
+    if not all(os.path.exists(os.path.join(T.RESULTS, n)) for n in names):
+        return ''
+    rates = [load(n)['kill_rate'] for n in names]
+    return '（历史）；本机：%s' % ('达成' if min(rates) >= 85 else '未达成')
+
+
 def goal_table():
     s = latest_stress()
     c = load('compare_10m.json')
@@ -163,10 +183,10 @@ def _quality_rows(cov, mb, mq, fz, fuzz_ok, fuzz_events):
          '', '达成' if cov['core_percent'] >= 90 else '未达成',
          'python3.12 -m lob.cli coverage --json lob/results/coverage.json'),
         ('4b 硬：突变抓住率 ≥ 85%%（分母 = 抽样的 %d 个突变体）' % mb['run'],
-         'book.py %d/%d = %.1f%%；queue_model.py %d/%d = %.1f%%（候选 %d / %d，seed=1 分层抽样）' % (
+         '历史（原 VM）：book.py %d/%d = %.1f%%；queue_model.py %d/%d = %.1f%%（候选 %d / %d，seed=1 分层抽样）。%s' % (
              mb['killed'], mb['run'], mb['kill_rate'], mq['killed'], mq['run'], mq['kill_rate'],
-             mb['candidates'], mq['candidates']),
-         '', '达成' if min(mb['kill_rate'], mq['kill_rate']) >= 85 else '未达成',
+             mb['candidates'], mq['candidates'], _audit_mutation()),
+         '', ('达成' if min(mb['kill_rate'], mq['kill_rate']) >= 85 else '未达成') + _audit_mutation_verdict(),
          'python3.12 -m lob.cli mutate --target book|queue_model --max 120 --seed 1'),
         ('4c 硬：模糊 20 万次零崩溃零不变量违背',
          '%d 次（%d 轮），崩溃 0 / 违背 0 / 分歧 0' % (fuzz_events, len(fz)) if fuzz_ok
