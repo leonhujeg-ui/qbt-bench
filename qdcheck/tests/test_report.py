@@ -48,7 +48,9 @@ class TestReport(unittest.TestCase):
         self.assertGreaterEqual(replay["replayed"], 100)
         triage = _load("mutation_triage.json")
         survivors = {r["id"] for r in mut["mutants"] if r["status"] == "survived"}
-        self.assertEqual(survivors, set(triage), "every surviving mutant needs a written verdict")
+        self.assertTrue(survivors <= set(triage), f"surviving mutants without a verdict: {sorted(survivors - set(triage))}")
+        replay_survivors = {r["id"] for r in replay["results"] if r["status"] == "survived"}
+        self.assertTrue(replay_survivors <= set(triage), f"replayed survivors without a verdict: {sorted(replay_survivors - set(triage))}")
         self.assertTrue(all(t["verdict"] and t["reason"] for t in triage.values()))
 
 

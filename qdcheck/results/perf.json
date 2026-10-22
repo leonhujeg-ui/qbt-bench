@@ -6,84 +6,84 @@
   {
    "block": "vectors_regen",
    "error": null,
-   "inner_seconds": 2.64,
-   "max_rss_mb": 23.2,
+   "inner_seconds": 2.42,
+   "max_rss_mb": 23.3,
    "scale": "1260 indicator vectors + 7 ledger vectors regenerated and compared",
    "target": "无目标",
-   "wall_seconds": 2.67
+   "wall_seconds": 2.46
   },
   {
    "block": "indicator_props",
    "error": null,
-   "inner_seconds": 20.41,
+   "inner_seconds": 21.35,
    "max_rss_mb": 24.4,
    "scale": "2884 causality + 630 closed-form + 1476 ref/alt cross-checks",
    "target": "无目标",
-   "wall_seconds": 20.44
+   "wall_seconds": 21.39
   },
   {
    "block": "fuzz_20k",
    "error": null,
-   "inner_seconds": 1.94,
+   "inner_seconds": 2.09,
    "max_rss_mb": 20.5,
    "scale": "validate_good x 20000 cases (generation + call + reference check, no shrinking)",
    "target": "<= 20 s",
-   "wall_seconds": 1.97
+   "wall_seconds": 2.12
   },
   {
    "block": "fuzz_broken_3",
    "error": null,
-   "inner_seconds": 10.11,
+   "inner_seconds": 10.06,
    "max_rss_mb": 20.7,
    "scale": "3 broken validates x 20000 cases incl. shrinking",
    "target": "无目标",
-   "wall_seconds": 10.15
+   "wall_seconds": 10.1
   },
   {
    "block": "streams_200x3000",
    "error": null,
-   "inner_seconds": 24.98,
-   "max_rss_mb": 18.9,
+   "inner_seconds": 24.21,
+   "max_rss_mb": 19.0,
    "scale": "200 streams x 3000 bars: generate + ledger + ledger_alt + bar-by-bar compare",
    "target": "<= 180 s",
-   "wall_seconds": 25.0
+   "wall_seconds": 24.25
   },
   {
    "block": "qbt_ledger_54",
    "error": null,
-   "inner_seconds": 11.15,
-   "max_rss_mb": 88.5,
+   "inner_seconds": 10.73,
+   "max_rss_mb": 88.3,
    "scale": "qbt: 54 backtests x 20000 bars reconciled against the reference ledger",
    "target": "无目标",
-   "wall_seconds": 11.27
+   "wall_seconds": 10.86
   },
   {
    "block": "harness_16",
    "error": null,
-   "inner_seconds": 10.5,
-   "max_rss_mb": 36.5,
+   "inner_seconds": 9.95,
+   "max_rss_mb": 36.0,
    "scale": "determinism: 16 cases, each = in-process + 2 subprocesses (subprocess memory not included)",
    "target": "无目标",
-   "wall_seconds": 10.56
+   "wall_seconds": 10.01
   },
   {
    "block": "unittest",
    "error": null,
-   "inner_seconds": 90.88,
-   "max_rss_mb": 598.3,
+   "inner_seconds": 87.83,
+   "max_rss_mb": 598.7,
    "scale": "python -m unittest discover -s qdcheck/tests, except test_report (it reads perf.json itself); peak memory = max over the test process and its determinism subprocesses",
    "target": "无目标",
-   "wall_seconds": 90.93
+   "wall_seconds": 87.87
   },
   {
-   "block": "mutation_720",
+   "block": "mutation_780",
    "error": null,
    "inner_seconds": null,
    "max_rss_mb": null,
    "note": "多进程，内存未测",
-   "scale": "720 mutants x fast test suite, 4 workers (from results/mutation.json)",
+   "scale": "780 mutants x fast test suite, 4 workers (from results/mutation.json)",
    "target": "无目标",
-   "wall_seconds": 999.8
+   "wall_seconds": 114.0
   }
  ]
 }

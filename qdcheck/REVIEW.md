@@ -15,7 +15,16 @@
 **实际输出（修后，全量）**：
 
 ```
-__SELFTEST__
+qdcheck selftest  Linux-6.18.44-fc-v140-x86_64-with-glibc2.39  Python 3.12.3
+step        scale                                                    time  result  key numbers
+unittest    213 tests                                               87.9s  OK    OK; skipped 0
+coverage    2916 statements, 213 tests                              88.1s  OK    100.00% (>= 90% required); tests failed 0
+vectors     1260 indicator vectors + 7 ledger vectors, 17 files      4.6s  OK    regenerated: mismatches 0, max_rel_err 0.0e+00; schema: all valid
+indicators  5311 property checks                                    19.1s  OK    failures 0; ref vs alt max tol ratio 0.21
+fuzz        4 validates x 20000 cases                               15.9s  OK    good: bare 0, 2.17s; caught keyerror x510, zerodiv x103, recursion x430; nan/inf/missing/type 1830/1785/1845/1798
+ledger      200 streams x 3000 bars, 94028 records                  21.6s  OK    identity violations 0, alt issues 0, row mismatches 0 (10800000 values); liquidations 812
+harness     16 cases (4 fake engines + 12 qbt backtests)             9.5s  OK    as expected 16/16; set-order engine caught: True; qbt identical 12/12
+TOTAL                                                              246.7s  OK    7/7 steps passed; written qdcheck/results/selftest.json
 ```
 
 **改了什么**：新增 `qdcheck/selftest.py`：7 步（unittest、覆盖率、向量复现 + schema 校验、指标性质、模糊器、账本、harness），
@@ -133,7 +142,7 @@ CONTRACT §3.1 一张表逐字段解释；`test_fuzz_report_fields_match_contrac
 其他平台未实测，README 明说；向量 / 合成数据 / 随机流不依赖 libm，`selftest` 的 `vectors` 一行就是“在你的机器上能否重新生成对上”的答案。
 
 **等价突变的判定理由集中**：新增 `qdcheck/mutants/triage.md`，由 `python3.12 -m qdcheck.tools.triage --replay` 生成：
-收集 `results/mutation_history/*.json` **每一轮**的全部漏网（去重后 `mutation_replay.json:unique_survivors` 处），在当前源码里找同一处突变（模块 + 算子 + 改动前后文本），
+收集 `results/mutation_history/*.json` **每一轮**的全部漏网（去重后 186 处），在当前源码里找同一处突变（模块 + 算子 + 改动前后文本），
 用最终测试重跑一次，每条写明：抓住（被哪个测试）/ 仍漏网 → 等价理由（来自 `results/mutation_triage.json`，不许只写“等价”）/ 代码已不存在。见 C1。
 
 ---
@@ -228,16 +237,32 @@ $.use_stop           kinds=15  total=  817
 
 ### C1. 覆盖率 / 突变 / 漏网去向
 
-**覆盖率**：`python3.12 qdcheck/tools/cov.py --fail-under 90` → 99.90%（2913/2916 条语句，211 个测试，覆盖率监控下跳过 4 个）（`results/coverage.json`）。`selftest.py` 单列不计入（它只调度各步、在子进程里跑测试），
+**覆盖率**：`python3.12 qdcheck/tools/cov.py --fail-under 90` → 100.00%（2916/2916 条语句，213 个测试，覆盖率监控下跳过 4 个）（`results/coverage.json`）。`selftest.py` 单列不计入（它只调度各步、在子进程里跑测试），
 `vector_schema.py` 计入。
 
 **突变**（最终代码 + 最终测试，13 个模块 × 60 = 780 个，`python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4`）：
 
 ```
-__MUT__
+模块                  突变体    抓住    超时    漏网     抓住率
+compare              60    60     0     0  100.0%
+determinism          60    60     0     0  100.0%
+examples             60    58     0     2   96.7%
+fuzz                 60    58     0     2   96.7%
+gen_vectors          60    59     0     1   98.3%
+indicators_alt       60    59     0     1   98.3%
+indicators_ref       60    59     0     1   98.3%
+ledger               60    55     0     5   91.7%
+ledger_alt           60    52     0     8   86.7%
+props                60    59     0     1   98.3%
+stream               60    59     0     1   98.3%
+synth                60    59     1     0  100.0%
+vector_schema        60    59     0     1   98.3%
+合计                  780   756     1    23  97.05%
+
+漏网 35 条判定：实践中等价 8、等价 20、等价（数值） 4、等价（数学） 1、等价（设计如此） 2（每条理由见 mutants/triage.md 与 results/mutation_triage.json）
 ```
 
-**历次漏网逐条去向**（`python3.12 -m qdcheck.tools.triage --replay` → `mutants/triage.md`）：__TRIAGE__
+**历次漏网逐条去向**（`python3.12 -m qdcheck.tools.triage --replay` → `mutants/triage.md`）：历史各轮（round1 → final → 评审第 1 轮 → 评审最终）去重后 186 处漏网，182 处在当前源码里找到同一处突变并用最终测试重跑：抓住 160（表里写明被哪个测试抓住）、仍漏网 22（每条有等价理由）、代码已不存在 4。重跑耗时 504.9 s。
 
 ### C2. 性能表
 
@@ -271,6 +296,6 @@ REPORT.md 由 `tools/build_report.py` 从模板 + `results/*.json` 生成，`tes
 
 ## D. 交付
 
-提交（前缀 `review:`）：__COMMITS__
+提交（前缀 `review:`）：`01917c0`（中间 1：一键自检、契约、CLI/API、Decimal、边界用例、依赖审计）→ `670af99`（中间 2：结果快照、性能表、历史漏网重跑、补 25 条判据）→ 收尾提交（本文件所在提交：最终突变 / 重跑 / 自检数字、README）；`git log --oneline -- qdcheck` 可见
 
 未改 `qbt/`、`lob/`；无新增依赖；未联网。

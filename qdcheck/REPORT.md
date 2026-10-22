@@ -56,9 +56,9 @@ python3.12 qdcheck/tools/build_report.py                   # 由结果文件重�
 | G4 | 本进程 + PYTHONHASHSEED=0 / 4242 两个子进程，结构化比较、打印第一处路径，不用 sha256 / 逐字节 | `determinism.check`；哈希种子生效用 hash 探针确认 | ✅ | `python3.12 -m qdcheck.determinism qdcheck.examples:set_order_engine --task '{"n_bars": 60}'` |
 | G4 | 依赖 set 迭代顺序的假引擎必须抓到；确定性假引擎必须通过 | set_order_engine：0 vs 4242 第一处差异 `final_cash`（232.2603971576893 vs 429.18570405488833）；deterministic_engine 三对一致（691 个叶子）；噪声 1e-12 通过 / 1e-6 抓到 | ✅ | `python3.12 -m qdcheck.tools.selfcheck g4` |
 | G4 | 对 qbt 自己的回测引擎跑一遍 | 12/12 个回测（6 策略 × 2 种 BrokerConfig × 20000 根）三份结果完全一致，比较 212,340 个叶子 | ✅ | 同上 |
-| G5 | unittest 全绿 | 211 个测试，失败 0，跳过 4（覆盖率监控下跳过 2 个计时判据和 2 个“报告与结果文件一致”判据——后者依赖覆盖率结果本身；它们在普通运行里都执行） | ✅ | `python3.12 -m unittest discover -s qdcheck/tests` |
-| G5 | 语句覆盖率 ≥ 90%（复用 tools/cov.py 的做法） | **99.90%**（2913/2916 条语句，见第 5 节） | ✅ | `python3.12 qdcheck/tools/cov.py --fail-under 90` |
-| G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | **93.8%**（732/780，每模块 60 个；漏网 48 条逐条判定见第 6 节） | ✅ | `python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4` |
+| G5 | unittest 全绿 | 213 个测试，失败 0，跳过 4（覆盖率监控下跳过 2 个计时判据和 2 个“报告与结果文件一致”判据——后者依赖覆盖率结果本身；它们在普通运行里都执行） | ✅ | `python3.12 -m unittest discover -s qdcheck/tests` |
+| G5 | 语句覆盖率 ≥ 90%（复用 tools/cov.py 的做法） | **100.00%**（2916/2916 条语句，见第 5 节） | ✅ | `python3.12 qdcheck/tools/cov.py --fail-under 90` |
+| G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | **97.1%**（757/780，每模块 60 个；漏网 23 条逐条判定见第 6 节） | ✅ | `python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4` |
 | G5 | 分阶段提交，每笔写清做了什么、哪些数字变了，全部推到 `main` | G1 `79e88df` → G2 `0bc2f4c` → G3 `861202e` → G4 `bcbdf64` → G5 中间提交 `90ecf9f`（第一轮突变 + 补判据）→ G5 收尾（本报告所在提交） | ✅ | `git log --oneline -- qdcheck` |
 | G5 | 跨平台：判据只用容差和形状；生成脚本 + seed 入库，别的机器重新生成在 1e-9 内对上 | 向量、合成数据、随机流只用 `random()` 与四则运算（不依赖 libm）；`gen_vectors --check` 本机重新生成：1,260 条指标向量 + 7 个账本向量，不一致 0，最大相对误差 0.0 | ✅ | `python3.12 -m qdcheck.gen_vectors --check` |
 
@@ -280,23 +280,23 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | `qdcheck/props.py` | 121 | 0 | 100.0% |
 | `qdcheck/stream.py` | 240 | 0 | 100.0% |
 | `qdcheck/synth.py` | 152 | 0 | 100.0% |
-| `qdcheck/vector_schema.py` | 162 | 3 | 98.1% |
-| **合计（计入判据）** | 2916 | 3 | **99.90%** |
-| qdcheck/tools/*（不计入） | 806 | 757 | 6.1% |
+| `qdcheck/vector_schema.py` | 162 | 0 | 100.0% |
+| **合计（计入判据）** | 2916 | 0 | **100.00%** |
+| qdcheck/tools/*（不计入） | 807 | 758 | 6.1% |
 
 ## 5b. 性能表（规模 / 耗时 / 峰值内存）
 
 | 块 | 规模 | 耗时（墙钟） | 峰值内存 | 目标 | 命令 |
 |---|---|---:|---:|---|---|
-| vectors_regen | 1260 indicator vectors + 7 ledger vectors regenerated and compared | 2.7 s | 23 MB | 无目标 | `python3.12 -m qdcheck.gen_vectors --check` |
-| indicator_props | 2884 causality + 630 closed-form + 1476 ref/alt cross-checks | 20.4 s | 24 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g1` |
-| fuzz_20k | validate_good x 20000 cases (generation + call + reference check, no shrinking) | 2.0 s | 20 MB | <= 20 s | `python3.12 -m qdcheck.tools.selfcheck g2` |
-| fuzz_broken_3 | 3 broken validates x 20000 cases incl. shrinking | 10.2 s | 21 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g2` |
-| streams_200x3000 | 200 streams x 3000 bars: generate + ledger + ledger_alt + bar-by-bar compare | 25.0 s | 19 MB | <= 180 s | `python3.12 -m qdcheck.stream --streams 200 --bars 3000` |
-| qbt_ledger_54 | qbt: 54 backtests x 20000 bars reconciled against the reference ledger | 11.3 s | 88 MB | 无目标 | `python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000` |
-| harness_16 | determinism: 16 cases, each = in-process + 2 subprocesses (subprocess memory not included) | 10.6 s | 36 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g4` |
-| unittest | python -m unittest discover -s qdcheck/tests, except test_report (it reads perf.json itself); peak memory = max over the test process and its determinism subprocesses | 90.9 s | 598 MB | 无目标 | `python3.12 -m unittest discover -s qdcheck/tests` |
-| mutation_720 | 720 mutants x fast test suite, 4 workers (from results/mutation.json) | 999.8 s | 多进程，内存未测 | 无目标 |  |
+| vectors_regen | 1260 indicator vectors + 7 ledger vectors regenerated and compared | 2.5 s | 23 MB | 无目标 | `python3.12 -m qdcheck.gen_vectors --check` |
+| indicator_props | 2884 causality + 630 closed-form + 1476 ref/alt cross-checks | 21.4 s | 24 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g1` |
+| fuzz_20k | validate_good x 20000 cases (generation + call + reference check, no shrinking) | 2.1 s | 20 MB | <= 20 s | `python3.12 -m qdcheck.tools.selfcheck g2` |
+| fuzz_broken_3 | 3 broken validates x 20000 cases incl. shrinking | 10.1 s | 21 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g2` |
+| streams_200x3000 | 200 streams x 3000 bars: generate + ledger + ledger_alt + bar-by-bar compare | 24.2 s | 19 MB | <= 180 s | `python3.12 -m qdcheck.stream --streams 200 --bars 3000` |
+| qbt_ledger_54 | qbt: 54 backtests x 20000 bars reconciled against the reference ledger | 10.9 s | 88 MB | 无目标 | `python3.12 -m qdcheck.tools.qbt_ledger_check --n 20000` |
+| harness_16 | determinism: 16 cases, each = in-process + 2 subprocesses (subprocess memory not included) | 10.0 s | 36 MB | 无目标 | `python3.12 -m qdcheck.tools.selfcheck g4` |
+| unittest | python -m unittest discover -s qdcheck/tests, except test_report (it reads perf.json itself); peak memory = max over the test process and its determinism subprocesses | 87.9 s | 599 MB | 无目标 | `python3.12 -m unittest discover -s qdcheck/tests` |
+| mutation_780 | 780 mutants x fast test suite, 4 workers (from results/mutation.json) | 114.0 s | 多进程，内存未测 | 无目标 | `python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4` |
 | （测量方式） | 每块独立子进程，`resource.getrusage(RUSAGE_SELF).ru_maxrss`，含解释器基线；Python 3.12.3，4 核 | | | | `python3.12 -m qdcheck.tools.perf` |
 
 两个有目标的块（fuzz 2 万次 ≤ 20 s、随机流 200 × 3000 ≤ 3 分钟）都在目标内；其余块无目标。unittest 的峰值取其子进程最大值
@@ -306,7 +306,7 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 
 复用本仓 `mutants/run_mutations.py` 的突变算子、候选枚举、按 `seed:模块` 抽样与校验，被测包换成 qdcheck，每模块
 60 个突变体，子进程跑 `QDCHECK_FAST=1 python -m unittest -f <该模块最相关的测试在前>`
-（FAST 只缩小随机用例数 / 序列条数，不放宽判据），失败 = 抓住，超时（> 187.2 s）= 抓住并单列。
+（FAST 只缩小随机用例数 / 序列条数，不放宽判据），失败 = 抓住，超时（> 211.7 s）= 抓住并单列。
 过程（每轮原始结果都在 `results/mutation_history/`）：
 
 | 轮次 | 内容 | 抓住率 |
@@ -314,52 +314,35 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | round1 | 全部 720 个，初版测试 | 79.3%（漏网 149） |
 | round2 | 逐条判定 round1 漏网后补判据、修复 2 处缺陷，全部 720 个在新代码上重新抽样重跑 | 93.5%（漏网 47） |
 | round3–5 | 继续补判据；fuzz / stream 删除死代码、修复缩小器的无效候选后整模块重跑，其余按 `--ids` 重跑 | 97.4%（合并结果） |
-| **final** | 最终代码 + 最终测试上全部 720 个从头重跑（下表，即 `results/mutation.json`） | **93.8%** |
+| **final** | 最终代码 + 最终测试上全部 720 个从头重跑（下表，即 `results/mutation.json`） | **97.1%** |
 
 | 模块 | 候选 | 突变体 | 抓住 | 超时 | 漏网 | 抓住率 |
 |---|---:|---:|---:|---:|---:|---:|
-| `compare.py` | 276 | 60 | 56 | 0 | 4 | 93.3% |
-| `determinism.py` | 262 | 60 | 56 | 0 | 4 | 93.3% |
-| `examples.py` | 340 | 60 | 53 | 0 | 7 | 88.3% |
-| `fuzz.py` | 1433 | 60 | 54 | 0 | 6 | 90.0% |
-| `gen_vectors.py` | 364 | 60 | 59 | 0 | 1 | 98.3% |
-| `indicators_alt.py` | 494 | 60 | 59 | 0 | 1 | 98.3% |
-| `indicators_ref.py` | 637 | 60 | 59 | 0 | 1 | 98.3% |
-| `ledger.py` | 656 | 60 | 55 | 0 | 5 | 91.7% |
-| `ledger_alt.py` | 289 | 60 | 52 | 0 | 8 | 86.7% |
-| `props.py` | 314 | 60 | 59 | 0 | 1 | 98.3% |
-| `stream.py` | 784 | 60 | 59 | 0 | 1 | 98.3% |
-| `synth.py` | 335 | 60 | 59 | 1 | 0 | 100.0% |
-| `vector_schema.py` | 277 | 60 | 51 | 0 | 9 | 85.0% |
-| **合计** | | 780 | | | 48 | **93.8%** |
+| `compare.py` | 276 | 60 | 60 | 0 | 0 | 100.0% |
+| `determinism.py` |  | 60 | 60 | 0 | 0 | 100.0% |
+| `examples.py` | 340 | 60 | 58 | 0 | 2 | 96.7% |
+| `fuzz.py` |  | 60 | 58 | 0 | 2 | 96.7% |
+| `gen_vectors.py` |  | 60 | 59 | 0 | 1 | 98.3% |
+| `indicators_alt.py` |  | 60 | 59 | 0 | 1 | 98.3% |
+| `indicators_ref.py` |  | 60 | 59 | 0 | 1 | 98.3% |
+| `ledger.py` |  | 60 | 55 | 0 | 5 | 91.7% |
+| `ledger_alt.py` |  | 60 | 52 | 0 | 8 | 86.7% |
+| `props.py` |  | 60 | 59 | 0 | 1 | 98.3% |
+| `stream.py` |  | 60 | 59 | 0 | 1 | 98.3% |
+| `synth.py` |  | 60 | 59 | 1 | 0 | 100.0% |
+| `vector_schema.py` | 277 | 60 | 59 | 0 | 1 | 98.3% |
+| **合计** | | 780 | | | 23 | **97.1%** |
 
 历次（round1 → final）每一处漏网的去向——补了哪条判据后被抓住 / 判等价的理由 / 代码已删除——逐条列在
 `qdcheck/mutants/triage.md`（由 `python3.12 -m qdcheck.tools.triage --replay` 在最终测试上重跑历史漏网生成，
-158 处重跑，162 处去重后的历史漏网）。
+182 处重跑，186 处去重后的历史漏网）。
 最终仍漏网的突变体逐条判定（判定写在 `results/mutation_triage.json`）：
 
 | 突变 id | 行 | 改动 | 判定 | 理由 |
 |---|---:|---|---|---|
-| `compare:326:delete_stmt` | 249 | `print('error: none of the actual ids match a vecto` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `compare:1594:const:0` | 255 | `1` → `0` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `compare:1596:const:2` | 255 | `1` → `2` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `compare:1948:const:0` | 261 | `1` → `0` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `determinism:2236:const:21` | 165 | `20` → `21` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `determinism:1587:const:11` | 203 | `10` → `11` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `determinism:1664:const:5` | 224 | `4` → `5` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `determinism:1701:const:False` | 255 | `True` → `False` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `examples:700:const:17` | 21 | `16` → `17` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `examples:404:compare` | 65 | `abs(v) < 1e+300` → `abs(v) <= 1e+300` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `examples:991:const:0` | 155 | `1` → `0` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `examples:1630:binop` | 170 | `1.0 + 0.02 * (rnd.random() - 0.5)` → `1.0 - 0.02 * (rnd.random() - 0.5)` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `examples:1036:const:59` | 178 | `60` → `59` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
 | `examples:128:delete_stmt` | 220 | `random.seed(f'{os.getpid()}:{time.perf_counter_ns(` → `pass` | 等价（设计如此） | seeded_engine 里的 random.seed(进程相关) 是“与任务无关的随机性”，结果按设计只由 task['seed'] 决定；删掉它结果不变，这正是该用例要证明的性质 |
 | `examples:130:delete_stmt` | 222 | `random.shuffle(scratch)` → `pass` | 等价（设计如此） | seeded_engine 的 random.shuffle(scratch) 只用于 scratch_sum（与顺序无关，恒为 499500）；删掉它结果不变，同上 |
-| `fuzz:504:const:2` | 111 | `1` → `2` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `fuzz:3951:const:101` | 311 | `100` → `101` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `fuzz:8507:const:2` | 735 | `1` → `2` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
 | `fuzz:3216:const:5` | 757 | `6` → `5` | 实践中等价 | 缩小轮次上限 range(6)→range(5)：只有需要恰好 6 轮才收敛的输入会不同；本仓全部案例 ≤ 2 轮收敛（shrink_calls 字段），没有构造出需要 6 轮的输入 |
-| `fuzz:6246:const:201` | 851 | `200` → `201` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
 | `fuzz:2093:const:1` | 868 | `0` → `1` | 等价 | _deep 里 depth 初值 0→1：depth = max(depth, d) 被后续 d 吸收，只在全部 d < 1（标量）时为 1，仍不大于阈值 40，返回值相同 |
 | `gen_vectors:194:compare` | 42 | `step > 0` → `step >= 0` | 等价 | _mono 只用 step=±0.5；step=0 时 open==close，两个分支给出相同的 high/low，故 step>0 与 step>=0 对任何输入结果相同 |
 | `indicators_alt:1030:const:1.0` | 100 | `0.0` → `1.0` | 等价（数值） | 前缀和起点 0.0→1.0 只给所有前缀加同一常数，窗口差 pg[t]-pg[t-n] 中抵消；价格按 1/64 量化时前缀和精确，结果逐位相同，一般浮点输入也只差舍入（远小于 1e-9） |
@@ -379,15 +362,7 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | `ledger_alt:682:compare` | 141 | `self.cash.value() < -self.cfg['rel_tol'] * scale` → `self.cash.value() <= -self.cfg['rel_tol'] * scale` | 实践中等价 | 强平后余额检查 < 与 <= 只在现金恰好等于 -1e-9*尺度 时不同；按有效保证金封顶后现金 >= 0（见 test_wallet_erosion_caps_loss_at_wallet），不可能落在该负值上 |
 | `props:1303:const:-1` | 157 | `0` → `-1` | 等价 | shift=none 时迟行线闭式解为“每个 t 都是 c”：off=0 时 t<n 恒真，off=-1 时 t-1<n 也恒真，两者生成相同列表 |
 | `stream:3293:compare` | 89 | `side > 0` → `side >= 0` | 等价 | _affordable 里 side 只取 ±1，side > 0 与 side >= 0 对这两个值相同 |
-| `vector_schema:704:const:19` | 129 | `20` → `19` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
 | `vector_schema:412:const:0` | 142 | `1` → `0` | 等价 | ledger_file_problems 里 last 初值 -1→0：只参与 r['bar'] < last 的比较，schema 已要求 bar >= 0（integer, minimum 0），第一条记录永不触发 |
-| `vector_schema:755:const:19` | 157 | `20` → `19` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `vector_schema:755:const:21` | 157 | `20` → `21` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `vector_schema:775:break_continue` | 174 | `break` → `continue` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `vector_schema:803:delete_stmt` | 192 | `probs = ledger_file_problems(obj) + number_text_pr` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `vector_schema:249:delete_stmt` | 195 | `report['files'][name] = probs` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `vector_schema:820:const:1` | 202 | `0` → `1` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
-| `vector_schema:500:delete_stmt` | 207 | `print(f'    {where}: {msg}')` → `pass` | 补判据（本轮新增测试，待重跑确认） | 补判据（本轮新增测试，待重跑确认） |
 
 ## 6b. 这套验法抓到过什么：G1–G5 与评审期间修过的缺陷
 
@@ -443,6 +418,6 @@ kind ∈ random / trend_up / trend_down / flat / halt，事件 ∈ gap_up / gap_
 | `qdcheck/selftest.py` | 一键自检（`python3.12 -m qdcheck.selftest`） |
 | `qdcheck/CONTRACT.md`、`qdcheck/vectors/schema.json`、`qdcheck/vector_schema.py` | 接口契约、向量文件 schema 与校验器 |
 | `qdcheck/REVIEW.md`、`qdcheck/mutants/triage.md` | 接入方视角的评审清单（检查命令 → 实际输出 → 改了什么）、历次漏网逐条判定 |
-| `qdcheck/tests/` | unittest（211 个） |
+| `qdcheck/tests/` | unittest（213 个） |
 | `qdcheck/tools/` | 自检、qbt 真实用例、覆盖率、突变、报告生成脚本 |
 | `qdcheck/results/` | 本报告引用的全部 JSON（含 `mutation_history/`） |

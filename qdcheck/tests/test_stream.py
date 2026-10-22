@@ -337,10 +337,28 @@ class TestSimulatorPieces(unittest.TestCase):
         for key in rep["counters"]:
             self.assertEqual(rep["counters"][key], sum(r["counters"][key] for r in singles), key)
         self.assertEqual(set(rep["stats"]), set(singles[0]["stats"]))
+        self.assertEqual(set(rep["counters"]), set(singles[0]["counters"]))
+        self.assertTrue(rep["counters"])
         for key in rep["stats"]:
             self.assertEqual(rep["stats"][key], sum(r["stats"][key] for r in singles), key)
         import inspect
         self.assertEqual(inspect.signature(S.compare_rows).parameters["rel_tol"].default, 1e-9)
+        self.assertEqual(inspect.signature(S.generate).parameters["n_bars"].default, 3000)
+        self.assertEqual((inspect.signature(S.run_many).parameters["n_streams"].default,
+                          inspect.signature(S.run_many).parameters["n_bars"].default), (200, 3000))
+        self.assertEqual(S._t("buy", 1, 2.0), {"kind": "trade", "side": "buy", "qty": 1, "price": 2.0, "fee": 0.0})
+        self.assertEqual(S.SIM_DEFAULTS["p_order"], 0.15)
+        from unittest import mock
+        ticks = iter([10.0, 11.23456])
+        with mock.patch.object(S.time, "perf_counter", lambda: next(ticks)):
+            self.assertEqual(S.run_many(1, 50, seed0=1)["seconds"], 1.23)
+        s = sim_with()                                                           # 没有挂单时不消耗撤单的随机数
+        scripted(s, [0.2])                                                      # 0.2 >= p_order 0.15：本根不下单
+        s._new_orders(0, 100.0)
+        self.assertEqual(s.orders, [])
+        scripted(s, [0.1, 0.5, 0.3, 0.2, 0.9, 0.5, 0.5])                        # 0.1 < 0.15：下单
+        s._new_orders(0, 100.0)
+        self.assertEqual(len(s.orders), 1)
         self.assertEqual(min(r["order_id"] for r in S.generate(0, 600)["records"] if "order_id" in r), 1)
         bad = dict(singles[0], n_violations=1)
         with mock.patch.object(S, "check_stream", return_value=bad), captured():

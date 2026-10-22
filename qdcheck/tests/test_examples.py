@@ -98,7 +98,11 @@ class TestValidates(unittest.TestCase):
     def test_toy_engine_defaults_and_price_path(self):
         import random
         self.assertEqual(E.deterministic_engine({}), E.deterministic_engine({"n_bars": 60, "seed": 1, "cash": 1000.0}))
-        self.assertNotEqual(E.deterministic_engine({}), E.deterministic_engine({"n_bars": 59}))
+        full = E.deterministic_engine({"seed": 2})                                  # seed 2 在最后一根（59）有成交
+        self.assertEqual(full, E.deterministic_engine({"n_bars": 60, "seed": 2}))
+        self.assertEqual(max(t["bar"] for t in full["trades"]), 59)
+        self.assertEqual(min(t["bar"] for t in full["trades"]), 1)                 # 第 1 根就开始交易
+        self.assertNotEqual(full["n_trades"], E.deterministic_engine({"n_bars": 59, "seed": 2})["n_trades"])
         syms, prices = E._toy_prices({"n_bars": 3, "seed": 2, "symbols": ["A", "B"]})
         rnd = random.Random(2)
         want_a1 = 100.0 * (1.0 + 0.02 * (rnd.random() - 0.5))

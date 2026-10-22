@@ -154,7 +154,9 @@ class TestCompareFile(unittest.TestCase):
         self.assertEqual(lines[0], "MISMATCH idx=1 expected=3.0 actual=3.5 rel=1.429e-01 reason=value id=b")
         self.assertTrue(head.match(lines[0]))
         with open(rp) as f:
-            self.assertEqual(json.load(f)["failed"], 1)
+            text = f.read()
+        self.assertEqual(json.loads(text)["failed"], 1)
+        self.assertEqual(text, json.dumps(json.loads(text), indent=1, sort_keys=True))      # --json 文件：缩进 1、键排序
         tmp, vp, ap = self._files({"a": [None, 1.0], "b": [2.0, 3.0]})
         with captured() as (out, _err):
             self.assertEqual(C.main(["--vector", vp, "--actual", ap]), 0)

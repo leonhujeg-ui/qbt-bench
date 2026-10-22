@@ -311,6 +311,16 @@ class TestValidation(unittest.TestCase):
                 L.normalize_record(T(bar, "buy", 1, 1.0))
         self.assertEqual(L.normalize_record(T(0, "buy", 1, 1.0))[:4], (0, 1, 1, 1.0))
 
+    def test_integer_sides_and_alt_defaults(self):
+        import inspect
+        self.assertEqual(L.normalize_record(T(0, 1, 2, 5.0))[1], 1)
+        self.assertEqual(L.normalize_record(T(0, 0, 0, None, kind="funding"))[1], 0)
+        as_int = [dict(r, side={"buy": 1, "sell": -1}.get(r.get("side"), 0)) for r in BASIC]
+        self.assertEqual(L.run(as_int, BASIC_CLOSES)["rows"], L.run(BASIC, BASIC_CLOSES)["rows"])
+        ref_defaults = {k: p.default for k, p in inspect.signature(L.check_config).parameters.items()}
+        alt_defaults = {k: p.default for k, p in inspect.signature(LA.run).parameters.items() if k not in ("records", "closes")}
+        self.assertEqual(alt_defaults, ref_defaults)                            # 两份实现的缺省配置一致
+
     def test_bad_config_and_order(self):
         for kw in ({"initial_cash": 0}, {"initial_cash": math.inf}, {"margin_mode": "portfolio"},
                    {"margin_mode": "isolated", "leverage": 25}, {"margin_mode": "isolated", "leverage": 0.5},

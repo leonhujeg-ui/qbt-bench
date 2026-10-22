@@ -1,5 +1,5 @@
 {
- "baseline_seconds": 43.0,
+ "baseline_seconds": 48.6,
  "code_gone": [
   {
    "first_seen": "round1.json",
@@ -59,8 +59,8 @@
   }
  ],
  "command": "python3.12 -m qdcheck.tools.triage --replay",
- "elapsed_seconds": 517.6,
- "replayed": 158,
+ "elapsed_seconds": 504.9,
+ "replayed": 182,
  "results": [
   {
    "after": "1.0",
@@ -75,7 +75,40 @@
    "line": 58,
    "module": "compare",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.26,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "FAIL: test_cli_bare_array_stdin_and_invalid_input (qdcheck.tests.test_compare.TestCompareFile.test_cli_bare_array_stdin_and_invalid_input)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:compare:1594:const:0",
+    "review_round1:compare:1948:const:0"
+   ],
+   "history_line": 255,
+   "id": "compare:385:const:0",
+   "line": 71,
+   "module": "compare",
+   "op": "const",
+   "seconds": 0.21,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "FAIL: test_cli_bare_array_stdin_and_invalid_input (qdcheck.tests.test_compare.TestCompareFile.test_cli_bare_array_stdin_and_invalid_input)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:compare:1596:const:2"
+   ],
+   "history_line": 255,
+   "id": "compare:385:const:2",
+   "line": 71,
+   "module": "compare",
+   "op": "const",
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -91,7 +124,7 @@
    "line": 72,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.2,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -107,7 +140,7 @@
    "line": 77,
    "module": "compare",
    "op": "binop",
-   "seconds": 0.28,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -124,7 +157,23 @@
    "line": 145,
    "module": "compare",
    "op": "const",
-   "seconds": 0.22,
+   "seconds": 0.32,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "print('error: none of the actual ids match a vector', file=sys.stderr)",
+   "detail": "FAIL: test_cli_id_suffix_and_line_counts (qdcheck.tests.test_compare.TestCompareFile.test_cli_id_suffix_and_line_counts)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:compare:326:delete_stmt"
+   ],
+   "history_line": 249,
+   "id": "compare:326:delete_stmt",
+   "line": 249,
+   "module": "compare",
+   "op": "delete_stmt",
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -140,7 +189,7 @@
    "line": 75,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.31,
+   "seconds": 2.41,
    "status": "killed"
   },
   {
@@ -156,7 +205,7 @@
    "line": 88,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.27,
+   "seconds": 2.42,
    "status": "killed"
   },
   {
@@ -172,7 +221,7 @@
    "line": 92,
    "module": "determinism",
    "op": "binop",
-   "seconds": 2.7,
+   "seconds": 3.0,
    "status": "killed"
   },
   {
@@ -188,7 +237,7 @@
    "line": 92,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.64,
+   "seconds": 2.96,
    "status": "killed"
   },
   {
@@ -204,7 +253,7 @@
    "line": 131,
    "module": "determinism",
    "op": "compare",
-   "seconds": 2.8,
+   "seconds": 3.27,
    "status": "killed"
   },
   {
@@ -220,7 +269,7 @@
    "line": 134,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.19,
+   "seconds": 2.6,
    "status": "killed"
   },
   {
@@ -236,7 +285,7 @@
    "line": 135,
    "module": "determinism",
    "op": "boolop",
-   "seconds": 46.08,
+   "seconds": 49.08,
    "status": "survived"
   },
   {
@@ -253,7 +302,23 @@
    "line": 142,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.63,
+   "seconds": 2.59,
+   "status": "killed"
+  },
+  {
+   "after": "11",
+   "before": "10",
+   "detail": "FAIL: test_more_defaults (qdcheck.tests.test_determinism.TestMoreDetails.test_more_defaults)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:determinism:1587:const:11"
+   ],
+   "history_line": 203,
+   "id": "determinism:257:const:11",
+   "line": 142,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.47,
    "status": "killed"
   },
   {
@@ -275,17 +340,18 @@
   {
    "after": "21",
    "before": "20",
-   "detail": "FAIL: test_short_values_and_key_lists (qdcheck.tests.test_determinism.TestReportDetails.test_short_values_and_key_lists)",
+   "detail": "FAIL: test_diff_limits_and_report_lines (qdcheck.tests.test_determinism.TestMoreDetails.test_diff_limits_and_report_lines)",
    "first_seen": "round1.json",
    "history_ids": [
-    "round1:determinism:2193:const:21"
+    "round1:determinism:2193:const:21",
+    "review_round1:determinism:2236:const:21"
    ],
    "history_line": 163,
    "id": "determinism:2233:const:21",
    "line": 164,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.76,
+   "seconds": 2.65,
    "status": "killed"
   },
   {
@@ -301,7 +367,7 @@
    "line": 186,
    "module": "determinism",
    "op": "const",
-   "seconds": 1.19,
+   "seconds": 1.21,
    "status": "killed"
   },
   {
@@ -310,36 +376,54 @@
    "detail": "FAIL: test_deterministic_engine_passes (qdcheck.tests.test_determinism.TestFakeEngines.test_deterministic_engine_passes)",
    "first_seen": "round1.json",
    "history_ids": [
-    "round1:determinism:1032:const:False"
+    "round1:determinism:1032:const:False",
+    "review_round1:determinism:1701:const:False"
    ],
    "history_line": 56,
    "id": "determinism:297:const:False",
    "line": 187,
    "module": "determinism",
    "op": "const",
-   "seconds": 1.22,
+   "seconds": 1.27,
+   "status": "killed"
+  },
+  {
+   "after": "5",
+   "before": "4",
+   "detail": "FAIL: test_diff_limits_and_report_lines (qdcheck.tests.test_determinism.TestMoreDetails.test_diff_limits_and_report_lines)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:determinism:1664:const:5"
+   ],
+   "history_line": 224,
+   "id": "determinism:1664:const:5",
+   "line": 224,
+   "module": "determinism",
+   "op": "const",
+   "seconds": 2.46,
    "status": "killed"
   },
   {
    "after": "17",
    "before": "16",
-   "detail": "OK",
+   "detail": "FAIL: test_schema_and_validate_agree_on_boundaries (qdcheck.tests.test_examples.TestValidates.test_schema_and_validate_agree_on_boundaries)",
    "first_seen": "round1.json",
    "history_ids": [
-    "round1:examples:946:const:17"
+    "round1:examples:946:const:17",
+    "review_round1:examples:700:const:17"
    ],
    "history_line": 155,
    "id": "examples:700:const:17",
    "line": 21,
    "module": "examples",
    "op": "const",
-   "seconds": 46.07,
-   "status": "survived"
+   "seconds": 0.36,
+   "status": "killed"
   },
   {
    "after": "501",
    "before": "500",
-   "detail": "FAIL: test_good_validate_has_no_bare_exception_and_matches_reference (qdcheck.tests.test_fuzz.TestCoverageAndGoodValidate.test_good_validate_has_no_bare_excepti",
+   "detail": "FAIL: test_schema_and_validate_agree_on_boundaries (qdcheck.tests.test_examples.TestValidates.test_schema_and_validate_agree_on_boundaries)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:examples:875:const:501",
@@ -350,7 +434,23 @@
    "line": 22,
    "module": "examples",
    "op": "const",
-   "seconds": 11.0,
+   "seconds": 0.26,
+   "status": "killed"
+  },
+  {
+   "after": "abs(v) <= 1e+300",
+   "before": "abs(v) < 1e+300",
+   "detail": "FAIL: test_num_keeps_huge_values_unconverted (qdcheck.tests.test_examples.TestValidates.test_num_keeps_huge_values_unconverted)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:examples:404:compare"
+   ],
+   "history_line": 65,
+   "id": "examples:404:compare",
+   "line": 65,
+   "module": "examples",
+   "op": "compare",
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -366,7 +466,7 @@
    "line": 89,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.4,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -382,7 +482,7 @@
    "line": 106,
    "module": "examples",
    "op": "const",
-   "seconds": 0.4,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -398,7 +498,7 @@
    "line": 117,
    "module": "examples",
    "op": "return_none",
-   "seconds": 0.42,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -414,7 +514,7 @@
    "line": 130,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.39,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -430,7 +530,7 @@
    "line": 132,
    "module": "examples",
    "op": "compare",
-   "seconds": 0.31,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -446,7 +546,7 @@
    "line": 136,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.39,
+   "seconds": 0.38,
    "status": "killed"
   },
   {
@@ -462,7 +562,7 @@
    "line": 141,
    "module": "examples",
    "op": "const",
-   "seconds": 0.28,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -478,7 +578,7 @@
    "line": 143,
    "module": "examples",
    "op": "const",
-   "seconds": 0.33,
+   "seconds": 0.38,
    "status": "killed"
   },
   {
@@ -494,7 +594,39 @@
    "line": 144,
    "module": "examples",
    "op": "binop",
-   "seconds": 0.42,
+   "seconds": 0.28,
+   "status": "killed"
+  },
+  {
+   "after": "1.0 - 0.02 * (rnd.random() - 0.5)",
+   "before": "1.0 + 0.02 * (rnd.random() - 0.5)",
+   "detail": "FAIL: test_toy_engine_defaults_and_price_path (qdcheck.tests.test_examples.TestValidates.test_toy_engine_defaults_and_price_path)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:examples:1630:binop"
+   ],
+   "history_line": 170,
+   "id": "examples:1630:binop",
+   "line": 170,
+   "module": "examples",
+   "op": "binop",
+   "seconds": 0.33,
+   "status": "killed"
+  },
+  {
+   "after": "59",
+   "before": "60",
+   "detail": "FAIL: test_toy_engine_defaults_and_price_path (qdcheck.tests.test_examples.TestValidates.test_toy_engine_defaults_and_price_path)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:examples:1036:const:59"
+   ],
+   "history_line": 178,
+   "id": "examples:1036:const:59",
+   "line": 178,
+   "module": "examples",
+   "op": "const",
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -504,20 +636,21 @@
    "first_seen": "round1.json",
    "history_ids": [
     "round1:examples:568:const:0",
-    "round1:examples:1857:const:0"
+    "round1:examples:1857:const:0",
+    "review_round1:examples:991:const:0"
    ],
    "history_line": 178,
    "id": "examples:592:const:0",
    "line": 178,
    "module": "examples",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.39,
    "status": "killed"
   },
   {
    "after": "2",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_toy_engine_defaults_and_price_path (qdcheck.tests.test_examples.TestValidates.test_toy_engine_defaults_and_price_path)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:examples:1297:const:2",
@@ -528,8 +661,8 @@
    "line": 178,
    "module": "examples",
    "op": "const",
-   "seconds": 45.96,
-   "status": "survived"
+   "seconds": 0.31,
+   "status": "killed"
   },
   {
    "after": "held[s]",
@@ -544,7 +677,7 @@
    "line": 191,
    "module": "examples",
    "op": "unary_drop",
-   "seconds": 0.47,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -560,7 +693,7 @@
    "line": 192,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.39,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -576,8 +709,42 @@
    "line": 210,
    "module": "examples",
    "op": "binop",
-   "seconds": 0.72,
+   "seconds": 0.71,
    "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "random.seed(f'{os.getpid()}:{time.perf_counter_ns()}')",
+   "detail": "OK",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:examples:128:delete_stmt",
+    "final_review:examples:128:delete_stmt"
+   ],
+   "history_line": 220,
+   "id": "examples:128:delete_stmt",
+   "line": 220,
+   "module": "examples",
+   "op": "delete_stmt",
+   "seconds": 49.2,
+   "status": "survived"
+  },
+  {
+   "after": "pass",
+   "before": "random.shuffle(scratch)",
+   "detail": "OK",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:examples:130:delete_stmt",
+    "final_review:examples:130:delete_stmt"
+   ],
+   "history_line": 222,
+   "id": "examples:130:delete_stmt",
+   "line": 222,
+   "module": "examples",
+   "op": "delete_stmt",
+   "seconds": 50.68,
+   "status": "survived"
   },
   {
    "after": "49",
@@ -592,7 +759,7 @@
    "line": 237,
    "module": "examples",
    "op": "const",
-   "seconds": 0.33,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -610,13 +777,13 @@
    "line": 111,
    "module": "fuzz",
    "op": "const",
-   "seconds": 8.89,
+   "seconds": 10.53,
    "status": "killed"
   },
   {
    "after": "2",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:fuzz:2387:const:2",
@@ -626,20 +793,22 @@
     "round1:fuzz:4407:const:2",
     "round1:fuzz:1942:const:2",
     "round2:fuzz:4657:const:2",
-    "round3_merged:fuzz:5250:const:2"
+    "round3_merged:fuzz:5250:const:2",
+    "review_round1:fuzz:504:const:2",
+    "review_round1:fuzz:8507:const:2"
    ],
    "history_line": 290,
    "id": "fuzz:504:const:2",
    "line": 111,
    "module": "fuzz",
    "op": "const",
-   "seconds": 44.21,
-   "status": "survived"
+   "seconds": 11.56,
+   "status": "killed"
   },
   {
    "after": "1001",
    "before": "1000",
-   "detail": "OK",
+   "detail": "FAIL: test_defaults_and_traversal_details (qdcheck.tests.test_fuzz.TestGenerators.test_defaults_and_traversal_details)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:fuzz:4538:const:1001",
@@ -650,8 +819,8 @@
    "line": 154,
    "module": "fuzz",
    "op": "const",
-   "seconds": 42.32,
-   "status": "survived"
+   "seconds": 12.67,
+   "status": "killed"
   },
   {
    "after": "0.75",
@@ -666,7 +835,7 @@
    "line": 160,
    "module": "fuzz",
    "op": "const",
-   "seconds": 12.16,
+   "seconds": 12.35,
    "status": "killed"
   },
   {
@@ -682,13 +851,13 @@
    "line": 190,
    "module": "fuzz",
    "op": "const",
-   "seconds": 9.88,
+   "seconds": 12.56,
    "status": "killed"
   },
   {
    "after": "break",
    "before": "continue",
-   "detail": "OK",
+   "detail": "FAIL: test_defaults_and_traversal_details (qdcheck.tests.test_fuzz.TestGenerators.test_defaults_and_traversal_details)",
    "first_seen": "round3_merged.json",
    "history_ids": [
     "round3_merged:fuzz:2173:break_continue"
@@ -698,13 +867,13 @@
    "line": 196,
    "module": "fuzz",
    "op": "break_continue",
-   "seconds": 45.17,
-   "status": "survived"
+   "seconds": 12.0,
+   "status": "killed"
   },
   {
    "after": "continue",
    "before": "break",
-   "detail": "OK",
+   "detail": "FAIL: test_defaults_and_traversal_details (qdcheck.tests.test_fuzz.TestGenerators.test_defaults_and_traversal_details)",
    "first_seen": "round3_merged.json",
    "history_ids": [
     "round3_merged:fuzz:6661:break_continue",
@@ -715,13 +884,13 @@
    "line": 271,
    "module": "fuzz",
    "op": "break_continue",
-   "seconds": 45.9,
-   "status": "survived"
+   "seconds": 11.54,
+   "status": "killed"
   },
   {
    "after": "pass",
    "before": "break",
-   "detail": "OK",
+   "detail": "FAIL: test_defaults_and_traversal_details (qdcheck.tests.test_fuzz.TestGenerators.test_defaults_and_traversal_details)",
    "first_seen": "round3_merged.json",
    "history_ids": [
     "round3_merged:fuzz:3054:delete_stmt"
@@ -731,8 +900,8 @@
    "line": 271,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 45.75,
-   "status": "survived"
+   "seconds": 11.74,
+   "status": "killed"
   },
   {
    "after": "return None",
@@ -747,7 +916,7 @@
    "line": 296,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 4.45,
+   "seconds": 4.83,
    "status": "killed"
   },
   {
@@ -764,13 +933,29 @@
    "line": 301,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.12,
+   "seconds": 14.49,
+   "status": "killed"
+  },
+  {
+   "after": "101",
+   "before": "100",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:fuzz:3951:const:101"
+   ],
+   "history_line": 311,
+   "id": "fuzz:3951:const:101",
+   "line": 311,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 9.67,
    "status": "killed"
   },
   {
    "after": "1.5000000000000002e-09",
    "before": "1e-09",
-   "detail": "FAIL: test_boundary_values_exact (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_values_exact)",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:fuzz:2366:const:1.5000000000000002e-09"
@@ -780,7 +965,7 @@
    "line": 314,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.25,
+   "seconds": 11.11,
    "status": "killed"
   },
   {
@@ -796,8 +981,41 @@
    "line": 326,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 44.86,
+   "seconds": 50.83,
    "status": "survived"
+  },
+  {
+   "after": "201",
+   "before": "200",
+   "detail": "FAIL: test_garbage_shapes (qdcheck.tests.test_fuzz.TestGenerators.test_garbage_shapes)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:fuzz:6246:const:201"
+   ],
+   "history_line": 851,
+   "id": "fuzz:5462:const:201",
+   "line": 328,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 13.78,
+   "status": "killed"
+  },
+  {
+   "after": "5",
+   "before": "6",
+   "detail": "FAIL: test_defaults_and_traversal_details (qdcheck.tests.test_fuzz.TestGenerators.test_defaults_and_traversal_details)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:fuzz:3216:const:5",
+    "final_review:fuzz:3216:const:5"
+   ],
+   "history_line": 757,
+   "id": "fuzz:2587:const:5",
+   "line": 330,
+   "module": "fuzz",
+   "op": "const",
+   "seconds": 12.38,
+   "status": "killed"
   },
   {
    "after": "cat != 'type_wrong'",
@@ -812,7 +1030,7 @@
    "line": 336,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 3.08,
+   "seconds": 2.49,
    "status": "killed"
   },
   {
@@ -828,7 +1046,7 @@
    "line": 350,
    "module": "fuzz",
    "op": "unary_drop",
-   "seconds": 11.66,
+   "seconds": 12.71,
    "status": "killed"
   },
   {
@@ -844,7 +1062,7 @@
    "line": 358,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 12.0,
+   "seconds": 13.7,
    "status": "killed"
   },
   {
@@ -861,7 +1079,7 @@
    "line": 387,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 44.83,
+   "seconds": 46.66,
    "status": "survived"
   },
   {
@@ -877,7 +1095,7 @@
    "line": 409,
    "module": "fuzz",
    "op": "const",
-   "seconds": 11.45,
+   "seconds": 12.7,
    "status": "killed"
   },
   {
@@ -897,7 +1115,7 @@
    "line": 409,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 44.65,
+   "seconds": 50.38,
    "status": "survived"
   },
   {
@@ -914,7 +1132,7 @@
    "line": 429,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 44.24,
+   "seconds": 49.87,
    "status": "survived"
   },
   {
@@ -932,7 +1150,7 @@
    "line": 431,
    "module": "fuzz",
    "op": "const",
-   "seconds": 12.22,
+   "seconds": 14.46,
    "status": "killed"
   },
   {
@@ -943,14 +1161,16 @@
    "history_ids": [
     "round2:fuzz:6470:const:1",
     "round3_merged:fuzz:4244:const:1",
-    "round5_merged:fuzz:2979:const:1"
+    "round5_merged:fuzz:2979:const:1",
+    "review_round1:fuzz:2093:const:1",
+    "final_review:fuzz:2093:const:1"
    ],
    "history_line": 554,
    "id": "fuzz:789:const:1",
    "line": 431,
    "module": "fuzz",
    "op": "const",
-   "seconds": 11.3,
+   "seconds": 13.93,
    "status": "killed"
   },
   {
@@ -966,7 +1186,7 @@
    "line": 439,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 2.03,
+   "seconds": 2.2,
    "status": "killed"
   },
   {
@@ -982,7 +1202,7 @@
    "line": 443,
    "module": "fuzz",
    "op": "const",
-   "seconds": 11.49,
+   "seconds": 14.48,
    "status": "killed"
   },
   {
@@ -998,7 +1218,7 @@
    "line": 452,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 9.88,
+   "seconds": 13.64,
    "status": "killed"
   },
   {
@@ -1016,7 +1236,7 @@
    "line": 459,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.84,
+   "seconds": 12.89,
    "status": "killed"
   },
   {
@@ -1032,7 +1252,7 @@
    "line": 568,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 10.62,
+   "seconds": 12.78,
    "status": "killed"
   },
   {
@@ -1052,7 +1272,7 @@
    "line": 575,
    "module": "fuzz",
    "op": "const",
-   "seconds": 9.19,
+   "seconds": 10.72,
    "status": "killed"
   },
   {
@@ -1068,7 +1288,7 @@
    "line": 660,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 11.07,
+   "seconds": 14.38,
    "status": "killed"
   },
   {
@@ -1084,7 +1304,7 @@
    "line": 684,
    "module": "fuzz",
    "op": "binop",
-   "seconds": 7.46,
+   "seconds": 8.39,
    "status": "killed"
   },
   {
@@ -1100,7 +1320,7 @@
    "line": 692,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 1.49,
+   "seconds": 1.26,
    "status": "killed"
   },
   {
@@ -1116,7 +1336,7 @@
    "line": 713,
    "module": "fuzz",
    "op": "binop",
-   "seconds": 11.15,
+   "seconds": 14.66,
    "status": "killed"
   },
   {
@@ -1132,13 +1352,13 @@
    "line": 741,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 10.05,
+   "seconds": 12.19,
    "status": "killed"
   },
   {
    "after": "20001",
    "before": "20000",
-   "detail": "OK",
+   "detail": "FAIL: test_defaults_and_traversal_details (qdcheck.tests.test_fuzz.TestGenerators.test_defaults_and_traversal_details)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:fuzz:3270:const:20001"
@@ -1148,8 +1368,8 @@
    "line": 789,
    "module": "fuzz",
    "op": "const",
-   "seconds": 43.46,
-   "status": "survived"
+   "seconds": 13.3,
+   "status": "killed"
   },
   {
    "after": "1.5",
@@ -1165,13 +1385,13 @@
    "line": 849,
    "module": "fuzz",
    "op": "const",
-   "seconds": 44.98,
+   "seconds": 48.45,
    "status": "survived"
   },
   {
    "after": "if not depth > 40:\n    return True",
    "before": "if depth > 40:\n    return True",
-   "detail": "FAIL: test_garbage_shapes (qdcheck.tests.test_fuzz.TestGenerators.test_garbage_shapes)",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:fuzz:994:negate_cond"
@@ -1181,7 +1401,7 @@
    "line": 872,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 10.45,
+   "seconds": 13.18,
    "status": "killed"
   },
   {
@@ -1197,7 +1417,7 @@
    "line": 872,
    "module": "fuzz",
    "op": "const",
-   "seconds": 11.67,
+   "seconds": 12.98,
    "status": "killed"
   },
   {
@@ -1213,13 +1433,13 @@
    "line": 875,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 11.32,
+   "seconds": 12.38,
    "status": "killed"
   },
   {
    "after": "True",
    "before": "False",
-   "detail": "FAIL: test_garbage_shapes (qdcheck.tests.test_fuzz.TestGenerators.test_garbage_shapes)",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "first_seen": "round3_merged.json",
    "history_ids": [
     "round3_merged:fuzz:4455:const:True",
@@ -1233,7 +1453,7 @@
    "line": 878,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.69,
+   "seconds": 11.53,
    "status": "killed"
   },
   {
@@ -1249,7 +1469,7 @@
    "line": 919,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 11.8,
+   "seconds": 14.98,
    "status": "killed"
   },
   {
@@ -1264,14 +1484,16 @@
     "round4_merged:gen_vectors:196:compare",
     "round5_merged:gen_vectors:196:compare",
     "round5b_merged:gen_vectors:196:compare",
-    "final_full:gen_vectors:196:compare"
+    "final_full:gen_vectors:196:compare",
+    "review_round1:gen_vectors:194:compare",
+    "final_review:gen_vectors:194:compare"
    ],
    "history_line": 43,
    "id": "gen_vectors:194:compare",
    "line": 42,
    "module": "gen_vectors",
    "op": "compare",
-   "seconds": 42.84,
+   "seconds": 51.73,
    "status": "survived"
   },
   {
@@ -1288,7 +1510,7 @@
    "line": 42,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.23,
+   "seconds": 3.57,
    "status": "killed"
   },
   {
@@ -1304,7 +1526,7 @@
    "line": 42,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.27,
+   "seconds": 3.86,
    "status": "killed"
   },
   {
@@ -1320,7 +1542,7 @@
    "line": 191,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.74,
+   "seconds": 3.92,
    "status": "killed"
   },
   {
@@ -1338,7 +1560,7 @@
    "line": 248,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.36,
+   "seconds": 4.69,
    "status": "killed"
   },
   {
@@ -1354,7 +1576,7 @@
    "line": 262,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.6,
+   "seconds": 4.06,
    "status": "killed"
   },
   {
@@ -1373,7 +1595,7 @@
    "line": 262,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.77,
+   "seconds": 3.49,
    "status": "killed"
   },
   {
@@ -1389,7 +1611,7 @@
    "line": 263,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 3.86,
+   "seconds": 3.42,
    "status": "killed"
   },
   {
@@ -1405,7 +1627,7 @@
    "line": 286,
    "module": "gen_vectors",
    "op": "compare",
-   "seconds": 3.77,
+   "seconds": 3.57,
    "status": "killed"
   },
   {
@@ -1421,7 +1643,7 @@
    "line": 303,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 11.05,
+   "seconds": 11.2,
    "status": "killed"
   },
   {
@@ -1437,7 +1659,7 @@
    "line": 304,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 11.0,
+   "seconds": 11.34,
    "status": "killed"
   },
   {
@@ -1452,14 +1674,16 @@
     "round4_merged:indicators_alt:1032:const:1.0",
     "round5_merged:indicators_alt:1032:const:1.0",
     "round5b_merged:indicators_alt:1032:const:1.0",
-    "final_full:indicators_alt:1032:const:1.0"
+    "final_full:indicators_alt:1032:const:1.0",
+    "review_round1:indicators_alt:1030:const:1.0",
+    "final_review:indicators_alt:1030:const:1.0"
    ],
    "history_line": 101,
    "id": "indicators_alt:414:const:1.0",
    "line": 20,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.75,
+   "seconds": 0.72,
    "status": "killed"
   },
   {
@@ -1475,7 +1699,7 @@
    "line": 111,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.19,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -1491,7 +1715,7 @@
    "line": 50,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 27.84,
+   "seconds": 37.46,
    "status": "killed"
   },
   {
@@ -1505,14 +1729,16 @@
     "round4_merged:indicators_ref:2509:const:0",
     "round5_merged:indicators_ref:2509:const:0",
     "round5b_merged:indicators_ref:2509:const:0",
-    "final_full:indicators_ref:2509:const:0"
+    "final_full:indicators_ref:2509:const:0",
+    "review_round1:indicators_ref:2507:const:0",
+    "final_review:indicators_ref:2507:const:0"
    ],
    "history_line": 327,
    "id": "indicators_ref:881:const:0",
    "line": 155,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 172.24,
+   "seconds": 194.52,
    "status": "timeout"
   },
   {
@@ -1528,7 +1754,7 @@
    "line": 155,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.22,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -1544,7 +1770,7 @@
    "line": 175,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 43.34,
+   "seconds": 52.46,
    "status": "survived"
   },
   {
@@ -1560,7 +1786,24 @@
    "line": 383,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 4.76,
+   "seconds": 5.24,
+   "status": "killed"
+  },
+  {
+   "after": "2",
+   "before": "1",
+   "detail": "ERROR: test_integer_sides_and_alt_defaults (qdcheck.tests.test_ledger.TestValidation.test_integer_sides_and_alt_defaults)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:ledger:770:const:2",
+    "final_review:ledger:770:const:2"
+   ],
+   "history_line": 306,
+   "id": "ledger:142:const:2",
+   "line": 45,
+   "module": "ledger",
+   "op": "const",
+   "seconds": 0.39,
    "status": "killed"
   },
   {
@@ -1575,14 +1818,16 @@
     "round4_merged:ledger:3509:const:-1",
     "round5_merged:ledger:3509:const:-1",
     "round5b_merged:ledger:3509:const:-1",
-    "final_full:ledger:3509:const:-1"
+    "final_full:ledger:3509:const:-1",
+    "review_round1:ledger:3547:const:-1",
+    "final_review:ledger:3547:const:-1"
    ],
    "history_line": 197,
    "id": "ledger:144:const:-1",
    "line": 45,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.33,
+   "seconds": 0.45,
    "status": "killed"
   },
   {
@@ -1598,8 +1843,25 @@
    "line": 77,
    "module": "ledger",
    "op": "boolop",
-   "seconds": 0.39,
+   "seconds": 0.35,
    "status": "killed"
+  },
+  {
+   "after": "x >= 0",
+   "before": "x > 0",
+   "detail": "OK",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:ledger:547:compare",
+    "final_review:ledger:547:compare"
+   ],
+   "history_line": 119,
+   "id": "ledger:547:compare",
+   "line": 119,
+   "module": "ledger",
+   "op": "compare",
+   "seconds": 50.58,
+   "status": "survived"
   },
   {
    "after": "p >= self.rel_tol * self.avg",
@@ -1620,7 +1882,24 @@
    "line": 171,
    "module": "ledger",
    "op": "compare",
-   "seconds": 44.84,
+   "seconds": 53.46,
+   "status": "survived"
+  },
+  {
+   "after": "pass",
+   "before": "closing = abs(Q)",
+   "detail": "OK",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:ledger:1164:delete_stmt",
+    "final_review:ledger:1164:delete_stmt"
+   ],
+   "history_line": 187,
+   "id": "ledger:1164:delete_stmt",
+   "line": 187,
+   "module": "ledger",
+   "op": "delete_stmt",
+   "seconds": 48.47,
    "status": "survived"
   },
   {
@@ -1635,14 +1914,16 @@
     "round4_merged:ledger:1138:binop",
     "round5_merged:ledger:1138:binop",
     "round5b_merged:ledger:1138:binop",
-    "final_full:ledger:1138:binop"
+    "final_full:ledger:1138:binop",
+    "review_round1:ledger:1167:binop",
+    "final_review:ledger:1167:binop"
    ],
    "history_line": 184,
    "id": "ledger:1167:binop",
    "line": 188,
    "module": "ledger",
    "op": "binop",
-   "seconds": 44.41,
+   "seconds": 51.36,
    "status": "survived"
   },
   {
@@ -1658,7 +1939,7 @@
    "line": 257,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.39,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -1706,7 +1987,7 @@
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -1735,14 +2016,20 @@
     "round5b_merged:ledger_alt:943:const:-1",
     "final_full:ledger_alt:72:const:-1",
     "final_full:ledger_alt:75:const:-1",
-    "final_full:ledger_alt:943:const:-1"
+    "final_full:ledger_alt:943:const:-1",
+    "review_round1:ledger_alt:70:const:-1",
+    "review_round1:ledger_alt:73:const:-1",
+    "review_round1:ledger_alt:941:const:-1",
+    "final_review:ledger_alt:70:const:-1",
+    "final_review:ledger_alt:73:const:-1",
+    "final_review:ledger_alt:941:const:-1"
    ],
    "history_line": 15,
    "id": "ledger_alt:67:const:-1",
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.3,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -1764,14 +2051,18 @@
     "round5b_merged:ledger_alt:505:const:1",
     "round5b_merged:ledger_alt:997:const:1",
     "final_full:ledger_alt:505:const:1",
-    "final_full:ledger_alt:997:const:1"
+    "final_full:ledger_alt:997:const:1",
+    "review_round1:ledger_alt:503:const:1",
+    "review_round1:ledger_alt:995:const:1",
+    "final_review:ledger_alt:503:const:1",
+    "final_review:ledger_alt:995:const:1"
    ],
    "history_line": 47,
    "id": "ledger_alt:67:const:1",
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.18,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -1786,14 +2077,16 @@
     "round4_merged:ledger_alt:247:compare",
     "round5_merged:ledger_alt:247:compare",
     "round5b_merged:ledger_alt:247:compare",
-    "final_full:ledger_alt:247:compare"
+    "final_full:ledger_alt:247:compare",
+    "review_round1:ledger_alt:245:compare",
+    "final_review:ledger_alt:245:compare"
    ],
    "history_line": 52,
    "id": "ledger_alt:245:compare",
    "line": 51,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 41.21,
+   "seconds": 50.56,
    "status": "survived"
   },
   {
@@ -1808,14 +2101,16 @@
     "round4_merged:ledger_alt:597:binop",
     "round5_merged:ledger_alt:597:binop",
     "round5b_merged:ledger_alt:597:binop",
-    "final_full:ledger_alt:597:binop"
+    "final_full:ledger_alt:597:binop",
+    "review_round1:ledger_alt:595:binop",
+    "final_review:ledger_alt:595:binop"
    ],
    "history_line": 99,
    "id": "ledger_alt:595:binop",
    "line": 98,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 40.61,
+   "seconds": 49.93,
    "status": "survived"
   },
   {
@@ -1830,20 +2125,22 @@
     "round4_merged:ledger_alt:684:compare",
     "round5_merged:ledger_alt:684:compare",
     "round5b_merged:ledger_alt:684:compare",
-    "final_full:ledger_alt:684:compare"
+    "final_full:ledger_alt:684:compare",
+    "review_round1:ledger_alt:682:compare",
+    "final_review:ledger_alt:682:compare"
    ],
    "history_line": 142,
    "id": "ledger_alt:682:compare",
    "line": 141,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 41.73,
+   "seconds": 50.96,
    "status": "survived"
   },
   {
    "after": "1.5",
    "before": "1.0",
-   "detail": "OK",
+   "detail": "FAIL: test_integer_sides_and_alt_defaults (qdcheck.tests.test_ledger.TestValidation.test_integer_sides_and_alt_defaults)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:ledger_alt:1233:const:1.5"
@@ -1853,8 +2150,8 @@
    "line": 171,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 41.64,
-   "status": "survived"
+   "seconds": 0.41,
+   "status": "killed"
   },
   {
    "after": "1.0 - 300.0 * rnd()",
@@ -1869,7 +2166,7 @@
    "line": 29,
    "module": "props",
    "op": "binop",
-   "seconds": 1.02,
+   "seconds": 0.9,
    "status": "killed"
   },
   {
@@ -1885,7 +2182,7 @@
    "line": 31,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 1.23,
+   "seconds": 1.07,
    "status": "killed"
   },
   {
@@ -1901,7 +2198,7 @@
    "line": 31,
    "module": "props",
    "op": "binop",
-   "seconds": 1.03,
+   "seconds": 1.15,
    "status": "killed"
   },
   {
@@ -1916,14 +2213,16 @@
     "round4_merged:props:1305:const:-1",
     "round5_merged:props:1305:const:-1",
     "round5b_merged:props:1305:const:-1",
-    "final_full:props:1305:const:-1"
+    "final_full:props:1305:const:-1",
+    "review_round1:props:1303:const:-1",
+    "final_review:props:1303:const:-1"
    ],
    "history_line": 38,
    "id": "props:121:const:-1",
    "line": 37,
    "module": "props",
    "op": "const",
-   "seconds": 1.88,
+   "seconds": 2.01,
    "status": "killed"
   },
   {
@@ -1939,7 +2238,7 @@
    "line": 49,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 1.91,
+   "seconds": 2.09,
    "status": "killed"
   },
   {
@@ -1955,7 +2254,7 @@
    "line": 71,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 0.23,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1972,13 +2271,13 @@
    "line": 128,
    "module": "props",
    "op": "const",
-   "seconds": 4.27,
+   "seconds": 4.91,
    "status": "killed"
   },
   {
    "after": "0.22499999999999998",
    "before": "0.15",
-   "detail": "OK",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:stream:133:const:0.22499999999999998"
@@ -1988,8 +2287,8 @@
    "line": 25,
    "module": "stream",
    "op": "const",
-   "seconds": 42.08,
-   "status": "survived"
+   "seconds": 1.06,
+   "status": "killed"
   },
   {
    "after": "0.0075",
@@ -2005,7 +2304,7 @@
    "line": 26,
    "module": "stream",
    "op": "const",
-   "seconds": 1.06,
+   "seconds": 1.07,
    "status": "killed"
   },
   {
@@ -2021,7 +2320,7 @@
    "line": 27,
    "module": "stream",
    "op": "const",
-   "seconds": 1.01,
+   "seconds": 1.49,
    "status": "killed"
   },
   {
@@ -2037,7 +2336,7 @@
    "line": 38,
    "module": "stream",
    "op": "const",
-   "seconds": 1.12,
+   "seconds": 1.1,
    "status": "killed"
   },
   {
@@ -2054,7 +2353,7 @@
    "line": 40,
    "module": "stream",
    "op": "const",
-   "seconds": 0.96,
+   "seconds": 1.09,
    "status": "killed"
   },
   {
@@ -2070,7 +2369,7 @@
    "line": 71,
    "module": "stream",
    "op": "compare",
-   "seconds": 41.71,
+   "seconds": 48.76,
    "status": "survived"
   },
   {
@@ -2086,7 +2385,7 @@
    "line": 79,
    "module": "stream",
    "op": "compare",
-   "seconds": 43.29,
+   "seconds": 46.85,
    "status": "survived"
   },
   {
@@ -2099,14 +2398,16 @@
     "round4_merged:stream:3295:compare",
     "round5_merged:stream:3295:compare",
     "round5b_merged:stream:3295:compare",
-    "final_full:stream:3295:compare"
+    "final_full:stream:3295:compare",
+    "review_round1:stream:3293:compare",
+    "final_review:stream:3293:compare"
    ],
    "history_line": 90,
    "id": "stream:2616:compare",
    "line": 79,
    "module": "stream",
    "op": "compare",
-   "seconds": 45.89,
+   "seconds": 49.22,
    "status": "survived"
   },
   {
@@ -2122,7 +2423,7 @@
    "line": 83,
    "module": "stream",
    "op": "compare",
-   "seconds": 0.92,
+   "seconds": 1.26,
    "status": "killed"
   },
   {
@@ -2138,7 +2439,7 @@
    "line": 88,
    "module": "stream",
    "op": "const",
-   "seconds": 0.87,
+   "seconds": 0.92,
    "status": "killed"
   },
   {
@@ -2154,7 +2455,7 @@
    "line": 92,
    "module": "stream",
    "op": "binop",
-   "seconds": 0.8,
+   "seconds": 0.95,
    "status": "killed"
   },
   {
@@ -2170,7 +2471,7 @@
    "line": 130,
    "module": "stream",
    "op": "compare",
-   "seconds": 0.97,
+   "seconds": 1.08,
    "status": "killed"
   },
   {
@@ -2186,7 +2487,7 @@
    "line": 136,
    "module": "stream",
    "op": "binop",
-   "seconds": 1.49,
+   "seconds": 1.1,
    "status": "killed"
   },
   {
@@ -2205,7 +2506,7 @@
    "line": 148,
    "module": "stream",
    "op": "const",
-   "seconds": 1.29,
+   "seconds": 1.37,
    "status": "killed"
   },
   {
@@ -2223,7 +2524,7 @@
    "line": 148,
    "module": "stream",
    "op": "const",
-   "seconds": 1.08,
+   "seconds": 1.13,
    "status": "killed"
   },
   {
@@ -2239,13 +2540,13 @@
    "line": 156,
    "module": "stream",
    "op": "negate_cond",
-   "seconds": 1.06,
+   "seconds": 1.24,
    "status": "killed"
   },
   {
    "after": "rnd() >= sim['p_order'] and self.bars['volume'][t] == 0",
    "before": "rnd() >= sim['p_order'] or self.bars['volume'][t] == 0",
-   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
+   "detail": "ERROR: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:stream:580:boolop"
@@ -2255,7 +2556,7 @@
    "line": 159,
    "module": "stream",
    "op": "boolop",
-   "seconds": 1.13,
+   "seconds": 1.33,
    "status": "killed"
   },
   {
@@ -2271,7 +2572,7 @@
    "line": 165,
    "module": "stream",
    "op": "negate_cond",
-   "seconds": 1.03,
+   "seconds": 1.05,
    "status": "killed"
   },
   {
@@ -2287,13 +2588,13 @@
    "line": 180,
    "module": "stream",
    "op": "binop",
-   "seconds": 0.95,
+   "seconds": 1.0,
    "status": "killed"
   },
   {
    "after": "3001",
    "before": "3000",
-   "detail": "OK",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:stream:1590:const:3001"
@@ -2303,13 +2604,13 @@
    "line": 198,
    "module": "stream",
    "op": "const",
-   "seconds": 41.64,
-   "status": "survived"
+   "seconds": 1.08,
+   "status": "killed"
   },
   {
    "after": "1.0",
    "before": "0.0",
-   "detail": "OK",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:stream:2956:const:1.0"
@@ -2319,8 +2620,8 @@
    "line": 230,
    "module": "stream",
    "op": "const",
-   "seconds": 42.16,
-   "status": "survived"
+   "seconds": 1.0,
+   "status": "killed"
   },
   {
    "after": "150000.0",
@@ -2335,7 +2636,7 @@
    "line": 236,
    "module": "stream",
    "op": "const",
-   "seconds": 4.9,
+   "seconds": 6.33,
    "status": "killed"
   },
   {
@@ -2351,7 +2652,7 @@
    "line": 238,
    "module": "stream",
    "op": "const",
-   "seconds": 5.07,
+   "seconds": 5.24,
    "status": "killed"
   },
   {
@@ -2367,7 +2668,7 @@
    "line": 241,
    "module": "stream",
    "op": "const",
-   "seconds": 5.05,
+   "seconds": 4.88,
    "status": "killed"
   },
   {
@@ -2383,7 +2684,7 @@
    "line": 241,
    "module": "stream",
    "op": "const",
-   "seconds": 5.37,
+   "seconds": 5.71,
    "status": "killed"
   },
   {
@@ -2399,7 +2700,7 @@
    "line": 242,
    "module": "stream",
    "op": "const",
-   "seconds": 4.94,
+   "seconds": 5.42,
    "status": "killed"
   },
   {
@@ -2415,7 +2716,7 @@
    "line": 245,
    "module": "stream",
    "op": "const",
-   "seconds": 5.14,
+   "seconds": 4.66,
    "status": "killed"
   },
   {
@@ -2431,7 +2732,7 @@
    "line": 246,
    "module": "stream",
    "op": "unary_drop",
-   "seconds": 4.89,
+   "seconds": 5.18,
    "status": "killed"
   },
   {
@@ -2447,7 +2748,7 @@
    "line": 248,
    "module": "stream",
    "op": "const",
-   "seconds": 2.35,
+   "seconds": 2.03,
    "status": "killed"
   },
   {
@@ -2463,7 +2764,7 @@
    "line": 248,
    "module": "stream",
    "op": "const",
-   "seconds": 5.31,
+   "seconds": 4.58,
    "status": "killed"
   },
   {
@@ -2479,7 +2780,7 @@
    "line": 260,
    "module": "stream",
    "op": "const",
-   "seconds": 2.36,
+   "seconds": 2.39,
    "status": "killed"
   },
   {
@@ -2495,7 +2796,7 @@
    "line": 283,
    "module": "stream",
    "op": "const",
-   "seconds": 1.09,
+   "seconds": 0.94,
    "status": "killed"
   },
   {
@@ -2514,7 +2815,7 @@
    "line": 288,
    "module": "stream",
    "op": "const",
-   "seconds": 0.85,
+   "seconds": 1.13,
    "status": "killed"
   },
   {
@@ -2533,7 +2834,7 @@
    "line": 288,
    "module": "stream",
    "op": "const",
-   "seconds": 1.0,
+   "seconds": 0.86,
    "status": "killed"
   },
   {
@@ -2549,7 +2850,7 @@
    "line": 290,
    "module": "stream",
    "op": "const",
-   "seconds": 1.13,
+   "seconds": 1.28,
    "status": "killed"
   },
   {
@@ -2565,7 +2866,7 @@
    "line": 294,
    "module": "stream",
    "op": "boolop",
-   "seconds": 1.25,
+   "seconds": 1.07,
    "status": "killed"
   },
   {
@@ -2581,13 +2882,13 @@
    "line": 328,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.97,
+   "seconds": 1.11,
    "status": "killed"
   },
   {
    "after": "pass",
    "before": "agg_counters[k] = agg_counters.get(k, 0) + v",
-   "detail": "OK",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
    "first_seen": "round1.json",
    "history_ids": [
     "round1:stream:830:delete_stmt"
@@ -2597,13 +2898,13 @@
    "line": 330,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 42.67,
-   "status": "survived"
+   "seconds": 1.16,
+   "status": "killed"
   },
   {
    "after": "1",
    "before": "2",
-   "detail": "OK",
+   "detail": "FAIL: test_aggregation_exit_code_and_defaults (qdcheck.tests.test_stream.TestSimulatorPieces.test_aggregation_exit_code_and_defaults)",
    "first_seen": "round2.json",
    "history_ids": [
     "round2:stream:2521:const:1"
@@ -2613,8 +2914,8 @@
    "line": 335,
    "module": "stream",
    "op": "const",
-   "seconds": 43.15,
-   "status": "survived"
+   "seconds": 1.01,
+   "status": "killed"
   },
   {
    "after": "3",
@@ -2629,7 +2930,7 @@
    "line": 38,
    "module": "synth",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.42,
    "status": "killed"
   },
   {
@@ -2645,7 +2946,7 @@
    "line": 38,
    "module": "synth",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -2662,7 +2963,7 @@
    "line": 38,
    "module": "synth",
    "op": "const",
-   "seconds": 0.35,
+   "seconds": 0.37,
    "status": "killed"
   },
   {
@@ -2678,7 +2979,7 @@
    "line": 119,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.3,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -2694,7 +2995,7 @@
    "line": 154,
    "module": "synth",
    "op": "compare",
-   "seconds": 40.76,
+   "seconds": 49.52,
    "status": "survived"
   },
   {
@@ -2711,7 +3012,7 @@
    "line": 161,
    "module": "synth",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -2727,7 +3028,7 @@
    "line": 161,
    "module": "synth",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
@@ -2743,7 +3044,137 @@
    "line": 189,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.26,
+   "seconds": 0.3,
+   "status": "killed"
+  },
+  {
+   "after": "19",
+   "before": "20",
+   "detail": "FAIL: test_validator_dialect (qdcheck.tests.test_contract.TestVectorSchema.test_validator_dialect)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:704:const:19",
+    "review_round1:vector_schema:755:const:19"
+   ],
+   "history_line": 129,
+   "id": "vector_schema:157:const:19",
+   "line": 87,
+   "module": "vector_schema",
+   "op": "const",
+   "seconds": 6.01,
+   "status": "killed"
+  },
+  {
+   "after": "21",
+   "before": "20",
+   "detail": "FAIL: test_validator_dialect (qdcheck.tests.test_contract.TestVectorSchema.test_validator_dialect)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:755:const:21"
+   ],
+   "history_line": 157,
+   "id": "vector_schema:157:const:21",
+   "line": 87,
+   "module": "vector_schema",
+   "op": "const",
+   "seconds": 5.7,
+   "status": "killed"
+  },
+  {
+   "after": "continue",
+   "before": "break",
+   "detail": "FAIL: test_problem_lists_are_capped_at_20_and_ohlcv_reports_first_bad_bar_only (qdcheck.tests.test_contract.TestVectorSchema.test_problem_lists_are_capped_at_20",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:775:break_continue"
+   ],
+   "history_line": 174,
+   "id": "vector_schema:359:break_continue",
+   "line": 104,
+   "module": "vector_schema",
+   "op": "break_continue",
+   "seconds": 5.72,
+   "status": "killed"
+  },
+  {
+   "after": "0",
+   "before": "1",
+   "detail": "OK",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:412:const:0",
+    "final_review:vector_schema:412:const:0"
+   ],
+   "history_line": 142,
+   "id": "vector_schema:412:const:0",
+   "line": 142,
+   "module": "vector_schema",
+   "op": "const",
+   "seconds": 49.69,
+   "status": "survived"
+  },
+  {
+   "after": "1",
+   "before": "0",
+   "detail": "FAIL: test_all_committed_files_are_valid (qdcheck.tests.test_contract.TestVectorSchema.test_all_committed_files_are_valid)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:820:const:1"
+   ],
+   "history_line": 202,
+   "id": "vector_schema:463:const:1",
+   "line": 181,
+   "module": "vector_schema",
+   "op": "const",
+   "seconds": 3.34,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "probs = ledger_file_problems(obj) + number_text_problems(text)",
+   "detail": "ERROR: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:803:delete_stmt"
+   ],
+   "history_line": 192,
+   "id": "vector_schema:803:delete_stmt",
+   "line": 192,
+   "module": "vector_schema",
+   "op": "delete_stmt",
+   "seconds": 5.11,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "report['files'][name] = probs",
+   "detail": "FAIL: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:249:delete_stmt"
+   ],
+   "history_line": 195,
+   "id": "vector_schema:249:delete_stmt",
+   "line": 195,
+   "module": "vector_schema",
+   "op": "delete_stmt",
+   "seconds": 5.92,
+   "status": "killed"
+  },
+  {
+   "after": "pass",
+   "before": "print(f'    {where}: {msg}')",
+   "detail": "FAIL: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
+   "first_seen": "review_round1.json",
+   "history_ids": [
+    "review_round1:vector_schema:500:delete_stmt"
+   ],
+   "history_line": 207,
+   "id": "vector_schema:500:delete_stmt",
+   "line": 207,
+   "module": "vector_schema",
+   "op": "delete_stmt",
+   "seconds": 5.39,
    "status": "killed"
   }
  ],
@@ -2754,7 +3185,9 @@
   "round4_merged.json",
   "round5_merged.json",
   "round5b_merged.json",
-  "final_full.json"
+  "final_full.json",
+  "review_round1.json",
+  "final_review.json"
  ],
- "unique_survivors": 162
+ "unique_survivors": 186
 }

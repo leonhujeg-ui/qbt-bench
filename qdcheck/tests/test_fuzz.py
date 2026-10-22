@@ -481,6 +481,34 @@ class TestGenerators(unittest.TestCase):
         self.assertEqual(len(minimal["risk"]), 1)
         self.assertNotIn("max_drawdown", minimal["risk"])
 
+    def test_defaults_and_traversal_details(self):
+        import inspect
+        import random
+        self.assertEqual(inspect.signature(F.run).parameters["n"].default, 20000)
+        self.assertEqual(inspect.signature(F.run).parameters["seed"].default, 0)
+        ints = [F.valid_instance({"type": "int"}, random.Random(k)) for k in range(300)]
+        self.assertEqual((min(ints), max(ints)), (-1000, 1000))                 # 无界 int 的缺省范围
+        paths = F.value_paths({"a": [1, 2], "b": F.deep_chain("list", 20, 0)}, max_depth=3)
+        self.assertIn(("a", 0), paths)                                          # 深分支到上限只跳过它自己，不中断遍历
+        self.assertIn(("b", 0, 0), paths)
+        self.assertNotIn(("b", 0, 0, 0), paths)
+        self.assertEqual(F.schema_path_for(SCHEMA, ("x", "period")), "$")        # 一旦偏离 schema 就停，不再往下匹配
+        depths = []
+        for k in range(300):
+            g = F._garbage(random.Random(k))
+            if F._chain_info(g):
+                continue
+            d, todo = 0, [(g, 0)]
+            while todo:
+                x, dd = todo.pop()
+                d = max(d, dd)
+                if isinstance(x, dict):
+                    todo.extend((y, dd + 1) for y in x.values())
+                elif isinstance(x, list):
+                    todo.extend((y, dd + 1) for y in x)
+            depths.append(d)
+        self.assertEqual((min(depths), max(depths)), (2, 12))                   # 2..6 层嵌套，每层最多再加一层
+
     def test_case_shape_distribution(self):
         cases = [F.make_case(SCHEMA, 9, i) for i in range(4000)]
         nonvalid = [c for c in cases if c.categories != ("valid",)]

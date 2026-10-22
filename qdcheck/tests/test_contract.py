@@ -83,6 +83,8 @@ class TestVectorSchema(unittest.TestCase):
         self.assertEqual(len(V.number_text_problems("[0.1]")), 1)                       # 不是 %.17g 写法
         self.assertEqual(len(V.number_text_problems("[0.10000000000000000555]")), 1)    # 20 位
         self.assertEqual(len(V.number_text_problems("[100]")), 0)                       # 整数字面量不受约束
+        self.assertEqual(len(V.number_text_problems("[" + ", ".join(["0.1"] * 7) + "]")), 5)   # 最多报 5 处
+        self.assertEqual(len(V.number_text_problems("[" + ", ".join(["0.1"] * 7) + "]", limit=2)), 2)
         self.assertEqual(V.fmt_float(0.1), "0.10000000000000001")
 
     def test_directory_report_shape_and_main_with_custom_dir(self):
@@ -138,6 +140,7 @@ class TestVectorSchema(unittest.TestCase):
                     {"a": 1, "f": 0}, {"a": 1, "f": True}):
             self.assertTrue(V.validate(bad, "n", schema), bad)
         self.assertEqual(V.validate({"a": 1, "b": [1, 2, 3]}, "n", schema, limit=2).__len__(), 2)
+        self.assertEqual(len(V.validate({"a": 1, "b": [1] * 30}, "n", schema)), 20)        # 缺省最多 20 条
         from qdcheck.tests._util import captured
         with captured() as (out, _err):
             self.assertEqual(V.main([]), 0)

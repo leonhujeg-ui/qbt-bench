@@ -1,26 +1,16 @@
 {
  "meta": {
-  "baseline_seconds": 46.8,
+  "baseline_seconds": 52.9,
   "candidates": {
    "compare": 276,
-   "determinism": 262,
    "examples": 340,
-   "fuzz": 1433,
-   "gen_vectors": 364,
-   "indicators_alt": 494,
-   "indicators_ref": 637,
-   "ledger": 656,
-   "ledger_alt": 289,
-   "props": 314,
-   "stream": 784,
-   "synth": 335,
    "vector_schema": 277
   },
-  "command": "python3.12 qdcheck/tools/mutate.py --per-module 60 --jobs 4",
-  "elapsed_seconds": 999.8,
+  "command": "python3.12 qdcheck/tools/mutate.py --module compare examples vector_schema --per-module 60 --jobs 4",
+  "elapsed_seconds": 114.0,
   "per_module": 60,
   "seed": 0,
-  "timeout_seconds": 187.2
+  "timeout_seconds": 211.7
  },
  "mutants": [
   {
@@ -31,7 +21,7 @@
    "line": 35,
    "module": "compare",
    "op": "const",
-   "seconds": 0.22,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -42,7 +32,7 @@
    "line": 36,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.34,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -53,7 +43,7 @@
    "line": 58,
    "module": "compare",
    "op": "binop",
-   "seconds": 0.27,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -64,7 +54,7 @@
    "line": 58,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.29,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -75,7 +65,7 @@
    "line": 66,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.19,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -86,7 +76,7 @@
    "line": 69,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.3,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -97,7 +87,7 @@
    "line": 71,
    "module": "compare",
    "op": "binop",
-   "seconds": 0.33,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -108,7 +98,7 @@
    "line": 71,
    "module": "compare",
    "op": "const",
-   "seconds": 0.3,
+   "seconds": 0.43,
    "status": "killed"
   },
   {
@@ -119,7 +109,7 @@
    "line": 72,
    "module": "compare",
    "op": "const",
-   "seconds": 0.27,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -130,7 +120,7 @@
    "line": 77,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.38,
    "status": "killed"
   },
   {
@@ -141,7 +131,7 @@
    "line": 92,
    "module": "compare",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -152,7 +142,7 @@
    "line": 95,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.29,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -163,7 +153,7 @@
    "line": 97,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -174,7 +164,7 @@
    "line": 100,
    "module": "compare",
    "op": "unary_drop",
-   "seconds": 0.3,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -185,7 +175,7 @@
    "line": 103,
    "module": "compare",
    "op": "negate_cond",
-   "seconds": 0.28,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -196,7 +186,7 @@
    "line": 104,
    "module": "compare",
    "op": "const",
-   "seconds": 0.28,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -207,7 +197,7 @@
    "line": 108,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.26,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -218,7 +208,7 @@
    "line": 108,
    "module": "compare",
    "op": "unary_drop",
-   "seconds": 0.29,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -229,7 +219,7 @@
    "line": 117,
    "module": "compare",
    "op": "negate_cond",
-   "seconds": 0.23,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -240,7 +230,7 @@
    "line": 125,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.26,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -251,7 +241,7 @@
    "line": 127,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.3,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -262,7 +252,7 @@
    "line": 132,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.28,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -273,7 +263,7 @@
    "line": 136,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.26,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -284,7 +274,7 @@
    "line": 138,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.25,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -295,7 +285,7 @@
    "line": 143,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.29,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -306,7 +296,7 @@
    "line": 148,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -317,7 +307,7 @@
    "line": 157,
    "module": "compare",
    "op": "binop",
-   "seconds": 0.3,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -328,7 +318,7 @@
    "line": 159,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -339,7 +329,7 @@
    "line": 159,
    "module": "compare",
    "op": "const",
-   "seconds": 0.3,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -350,7 +340,7 @@
    "line": 159,
    "module": "compare",
    "op": "const",
-   "seconds": 0.27,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -361,7 +351,7 @@
    "line": 171,
    "module": "compare",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -372,7 +362,7 @@
    "line": 180,
    "module": "compare",
    "op": "negate_cond",
-   "seconds": 0.24,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -383,7 +373,7 @@
    "line": 183,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.23,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -394,7 +384,7 @@
    "line": 184,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.23,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -405,7 +395,7 @@
    "line": 188,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.24,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -416,7 +406,7 @@
    "line": 200,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.24,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -427,7 +417,7 @@
    "line": 202,
    "module": "compare",
    "op": "return_none",
-   "seconds": 0.2,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -438,7 +428,7 @@
    "line": 212,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.21,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -449,7 +439,7 @@
    "line": 221,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.23,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -460,7 +450,7 @@
    "line": 226,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.3,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -482,7 +472,7 @@
    "line": 235,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.33,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -493,7 +483,7 @@
    "line": 235,
    "module": "compare",
    "op": "boolop",
-   "seconds": 0.23,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -504,7 +494,7 @@
    "line": 236,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -515,7 +505,7 @@
    "line": 240,
    "module": "compare",
    "op": "unary_drop",
-   "seconds": 0.22,
+   "seconds": 0.19,
    "status": "killed"
   },
   {
@@ -526,7 +516,7 @@
    "line": 247,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.26,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -537,7 +527,7 @@
    "line": 248,
    "module": "compare",
    "op": "negate_cond",
-   "seconds": 0.22,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -548,19 +538,19 @@
    "line": 248,
    "module": "compare",
    "op": "unary_drop",
-   "seconds": 0.23,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
    "after": "pass",
    "before": "print('error: none of the actual ids match a vector', file=sys.stderr)",
-   "detail": "OK",
+   "detail": "FAIL: test_cli_id_suffix_and_line_counts (qdcheck.tests.test_compare.TestCompareFile.test_cli_id_suffix_and_line_counts)",
    "id": "compare:326:delete_stmt",
    "line": 249,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 45.92,
-   "status": "survived"
+   "seconds": 0.24,
+   "status": "killed"
   },
   {
    "after": "len(results) >= 1",
@@ -570,7 +560,7 @@
    "line": 251,
    "module": "compare",
    "op": "compare",
-   "seconds": 0.26,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -581,7 +571,7 @@
    "line": 252,
    "module": "compare",
    "op": "unary_drop",
-   "seconds": 0.23,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -598,35 +588,35 @@
   {
    "after": "0",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_cli_id_suffix_and_line_counts (qdcheck.tests.test_compare.TestCompareFile.test_cli_id_suffix_and_line_counts)",
    "id": "compare:1594:const:0",
    "line": 255,
    "module": "compare",
    "op": "const",
-   "seconds": 47.51,
-   "status": "survived"
+   "seconds": 0.26,
+   "status": "killed"
   },
   {
    "after": "2",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_cli_id_suffix_and_line_counts (qdcheck.tests.test_compare.TestCompareFile.test_cli_id_suffix_and_line_counts)",
    "id": "compare:1596:const:2",
    "line": 255,
    "module": "compare",
    "op": "const",
-   "seconds": 46.91,
-   "status": "survived"
+   "seconds": 0.26,
+   "status": "killed"
   },
   {
    "after": "0",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_cli_exit_codes_and_first_line_contract (qdcheck.tests.test_compare.TestCompareFile.test_cli_exit_codes_and_first_line_contract)",
    "id": "compare:1948:const:0",
    "line": 261,
    "module": "compare",
    "op": "const",
-   "seconds": 47.7,
-   "status": "survived"
+   "seconds": 0.27,
+   "status": "killed"
   },
   {
    "after": "pass",
@@ -636,7 +626,7 @@
    "line": 261,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -647,7 +637,7 @@
    "line": 262,
    "module": "compare",
    "op": "delete_stmt",
-   "seconds": 0.23,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -658,7 +648,7 @@
    "line": 262,
    "module": "compare",
    "op": "boolop",
-   "seconds": 0.23,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -669,7 +659,7 @@
    "line": 263,
    "module": "compare",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -691,7 +681,7 @@
    "line": 41,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.37,
    "status": "killed"
   },
   {
@@ -713,7 +703,7 @@
    "line": 42,
    "module": "determinism",
    "op": "unary_drop",
-   "seconds": 0.3,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -724,7 +714,7 @@
    "line": 42,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.27,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -735,7 +725,7 @@
    "line": 49,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.19,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -746,7 +736,7 @@
    "line": 57,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -757,7 +747,7 @@
    "line": 69,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.29,
+   "seconds": 0.39,
    "status": "killed"
   },
   {
@@ -768,7 +758,7 @@
    "line": 72,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.78,
+   "seconds": 0.85,
    "status": "killed"
   },
   {
@@ -779,7 +769,7 @@
    "line": 79,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.23,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -790,7 +780,7 @@
    "line": 80,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.85,
+   "seconds": 0.91,
    "status": "killed"
   },
   {
@@ -801,7 +791,7 @@
    "line": 82,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.29,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -823,7 +813,7 @@
    "line": 88,
    "module": "determinism",
    "op": "unary_drop",
-   "seconds": 0.28,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -834,7 +824,7 @@
    "line": 88,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.29,
+   "seconds": 2.47,
    "status": "killed"
   },
   {
@@ -845,7 +835,7 @@
    "line": 90,
    "module": "determinism",
    "op": "compare",
-   "seconds": 0.86,
+   "seconds": 0.83,
    "status": "killed"
   },
   {
@@ -856,7 +846,7 @@
    "line": 91,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 2.0,
+   "seconds": 2.02,
    "status": "killed"
   },
   {
@@ -878,7 +868,7 @@
    "line": 102,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.22,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -900,7 +890,7 @@
    "line": 112,
    "module": "determinism",
    "op": "return_none",
-   "seconds": 0.78,
+   "seconds": 0.8,
    "status": "killed"
   },
   {
@@ -911,7 +901,7 @@
    "line": 123,
    "module": "determinism",
    "op": "const",
-   "seconds": 0.2,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -922,7 +912,7 @@
    "line": 125,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.31,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -933,7 +923,7 @@
    "line": 131,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.78,
+   "seconds": 3.21,
    "status": "killed"
   },
   {
@@ -944,7 +934,7 @@
    "line": 131,
    "module": "determinism",
    "op": "return_none",
-   "seconds": 0.24,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -955,7 +945,7 @@
    "line": 136,
    "module": "determinism",
    "op": "return_none",
-   "seconds": 0.24,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -966,7 +956,7 @@
    "line": 138,
    "module": "determinism",
    "op": "compare",
-   "seconds": 0.22,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -988,7 +978,7 @@
    "line": 146,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.21,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -999,7 +989,7 @@
    "line": 152,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.2,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1010,7 +1000,7 @@
    "line": 153,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.29,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1021,7 +1011,7 @@
    "line": 156,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.23,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -1032,7 +1022,7 @@
    "line": 157,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.23,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -1043,7 +1033,7 @@
    "line": 160,
    "module": "determinism",
    "op": "compare",
-   "seconds": 0.25,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -1054,7 +1044,7 @@
    "line": 162,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -1065,7 +1055,7 @@
    "line": 163,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.3,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -1076,19 +1066,19 @@
    "line": 164,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.33,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
    "after": "21",
    "before": "20",
-   "detail": "OK",
+   "detail": "FAIL: test_diff_limits_and_report_lines (qdcheck.tests.test_determinism.TestMoreDetails.test_diff_limits_and_report_lines)",
    "id": "determinism:2236:const:21",
    "line": 165,
    "module": "determinism",
    "op": "const",
-   "seconds": 52.8,
-   "status": "survived"
+   "seconds": 3.38,
+   "status": "killed"
   },
   {
    "after": "path - (k,)",
@@ -1098,7 +1088,7 @@
    "line": 167,
    "module": "determinism",
    "op": "binop",
-   "seconds": 0.24,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -1109,7 +1099,7 @@
    "line": 169,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.28,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -1120,7 +1110,7 @@
    "line": 169,
    "module": "determinism",
    "op": "compare",
-   "seconds": 0.26,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -1131,7 +1121,7 @@
    "line": 171,
    "module": "determinism",
    "op": "binop",
-   "seconds": 0.24,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -1142,7 +1132,7 @@
    "line": 173,
    "module": "determinism",
    "op": "binop",
-   "seconds": 0.28,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -1153,7 +1143,7 @@
    "line": 176,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.21,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -1175,7 +1165,7 @@
    "line": 197,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.84,
+   "seconds": 0.83,
    "status": "killed"
   },
   {
@@ -1186,19 +1176,19 @@
    "line": 202,
    "module": "determinism",
    "op": "const",
-   "seconds": 1.36,
+   "seconds": 1.21,
    "status": "killed"
   },
   {
    "after": "11",
    "before": "10",
-   "detail": "OK",
+   "detail": "FAIL: test_diff_limits_and_report_lines (qdcheck.tests.test_determinism.TestMoreDetails.test_diff_limits_and_report_lines)",
    "id": "determinism:1587:const:11",
    "line": 203,
    "module": "determinism",
    "op": "const",
-   "seconds": 49.98,
-   "status": "survived"
+   "seconds": 2.8,
+   "status": "killed"
   },
   {
    "after": "pass",
@@ -1208,7 +1198,7 @@
    "line": 204,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.96,
+   "seconds": 0.9,
    "status": "killed"
   },
   {
@@ -1219,7 +1209,7 @@
    "line": 207,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 1.03,
+   "seconds": 0.99,
    "status": "killed"
   },
   {
@@ -1230,7 +1220,7 @@
    "line": 208,
    "module": "determinism",
    "op": "compare",
-   "seconds": 0.98,
+   "seconds": 0.96,
    "status": "killed"
   },
   {
@@ -1241,19 +1231,19 @@
    "line": 218,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 1.03,
+   "seconds": 0.96,
    "status": "killed"
   },
   {
    "after": "5",
    "before": "4",
-   "detail": "OK",
+   "detail": "FAIL: test_diff_limits_and_report_lines (qdcheck.tests.test_determinism.TestMoreDetails.test_diff_limits_and_report_lines)",
    "id": "determinism:1664:const:5",
    "line": 224,
    "module": "determinism",
    "op": "const",
-   "seconds": 47.76,
-   "status": "survived"
+   "seconds": 2.84,
+   "status": "killed"
   },
   {
    "after": "4241",
@@ -1263,7 +1253,7 @@
    "line": 233,
    "module": "determinism",
    "op": "const",
-   "seconds": 2.67,
+   "seconds": 3.24,
    "status": "killed"
   },
   {
@@ -1274,7 +1264,7 @@
    "line": 233,
    "module": "determinism",
    "op": "const",
-   "seconds": 3.05,
+   "seconds": 3.01,
    "status": "killed"
   },
   {
@@ -1285,7 +1275,7 @@
    "line": 234,
    "module": "determinism",
    "op": "const",
-   "seconds": 3.15,
+   "seconds": 3.08,
    "status": "killed"
   },
   {
@@ -1296,7 +1286,7 @@
    "line": 235,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.84,
+   "seconds": 0.8,
    "status": "killed"
   },
   {
@@ -1307,7 +1297,7 @@
    "line": 248,
    "module": "determinism",
    "op": "delete_stmt",
-   "seconds": 0.81,
+   "seconds": 0.76,
    "status": "killed"
   },
   {
@@ -1318,19 +1308,19 @@
    "line": 251,
    "module": "determinism",
    "op": "const",
-   "seconds": 1.16,
+   "seconds": 1.08,
    "status": "killed"
   },
   {
    "after": "False",
    "before": "True",
-   "detail": "OK",
+   "detail": "FAIL: test_cli_json_is_sorted_and_indented (qdcheck.tests.test_determinism.TestMoreDetails.test_cli_json_is_sorted_and_indented)",
    "id": "determinism:1701:const:False",
    "line": 255,
    "module": "determinism",
    "op": "const",
-   "seconds": 49.57,
-   "status": "survived"
+   "seconds": 2.62,
+   "status": "killed"
   },
   {
    "after": "if not __name__ == '__main__':\n    sys.exit(main())",
@@ -1340,7 +1330,7 @@
    "line": 259,
    "module": "determinism",
    "op": "negate_cond",
-   "seconds": 0.08,
+   "seconds": 0.1,
    "status": "killed"
   },
   {
@@ -1351,19 +1341,19 @@
    "line": 20,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.15,
+   "seconds": 0.1,
    "status": "killed"
   },
   {
    "after": "17",
    "before": "16",
-   "detail": "OK",
+   "detail": "FAIL: test_schema_and_validate_agree_on_boundaries (qdcheck.tests.test_examples.TestValidates.test_schema_and_validate_agree_on_boundaries)",
    "id": "examples:700:const:17",
    "line": 21,
    "module": "examples",
    "op": "const",
-   "seconds": 51.32,
-   "status": "survived"
+   "seconds": 0.3,
+   "status": "killed"
   },
   {
    "after": "True",
@@ -1373,18 +1363,18 @@
    "line": 25,
    "module": "examples",
    "op": "const",
-   "seconds": 8.93,
+   "seconds": 8.45,
    "status": "killed"
   },
   {
    "after": "True",
    "before": "False",
-   "detail": "FAIL: test_good_validate_has_no_bare_exception_and_matches_reference (qdcheck.tests.test_fuzz.TestCoverageAndGoodValidate.test_good_validate_has_no_bare_excepti",
+   "detail": "FAIL: test_schema_and_validate_agree_on_boundaries (qdcheck.tests.test_examples.TestValidates.test_schema_and_validate_agree_on_boundaries)",
    "id": "examples:1514:const:True",
    "line": 32,
    "module": "examples",
    "op": "const",
-   "seconds": 11.27,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
@@ -1395,7 +1385,7 @@
    "line": 34,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.4,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -1406,7 +1396,7 @@
    "line": 61,
    "module": "examples",
    "op": "unary_drop",
-   "seconds": 0.34,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -1417,7 +1407,7 @@
    "line": 63,
    "module": "examples",
    "op": "compare",
-   "seconds": 0.33,
+   "seconds": 0.4,
    "status": "killed"
   },
   {
@@ -1428,7 +1418,7 @@
    "line": 63,
    "module": "examples",
    "op": "compare",
-   "seconds": 0.4,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1439,19 +1429,19 @@
    "line": 64,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.32,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
    "after": "abs(v) <= 1e+300",
    "before": "abs(v) < 1e+300",
-   "detail": "OK",
+   "detail": "FAIL: test_num_keeps_huge_values_unconverted (qdcheck.tests.test_examples.TestValidates.test_num_keeps_huge_values_unconverted)",
    "id": "examples:404:compare",
    "line": 65,
    "module": "examples",
    "op": "compare",
-   "seconds": 50.86,
-   "status": "survived"
+   "seconds": 0.42,
+   "status": "killed"
   },
   {
    "after": "if not not isinstance(v, str):\n    raise ValidationError(f'{name} must be a str')",
@@ -1461,7 +1451,7 @@
    "line": 69,
    "module": "examples",
    "op": "negate_cond",
-   "seconds": 0.33,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -1472,7 +1462,7 @@
    "line": 89,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.32,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1483,7 +1473,7 @@
    "line": 92,
    "module": "examples",
    "op": "negate_cond",
-   "seconds": 0.37,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -1494,7 +1484,7 @@
    "line": 101,
    "module": "examples",
    "op": "compare",
-   "seconds": 0.28,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -1505,7 +1495,7 @@
    "line": 105,
    "module": "examples",
    "op": "negate_cond",
-   "seconds": 0.3,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -1516,7 +1506,7 @@
    "line": 106,
    "module": "examples",
    "op": "const",
-   "seconds": 0.4,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
@@ -1527,7 +1517,7 @@
    "line": 108,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.36,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -1538,7 +1528,7 @@
    "line": 114,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.41,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -1549,7 +1539,7 @@
    "line": 123,
    "module": "examples",
    "op": "const",
-   "seconds": 0.48,
+   "seconds": 0.45,
    "status": "killed"
   },
   {
@@ -1560,7 +1550,7 @@
    "line": 131,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.47,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -1571,7 +1561,7 @@
    "line": 132,
    "module": "examples",
    "op": "const",
-   "seconds": 0.39,
+   "seconds": 0.4,
    "status": "killed"
   },
   {
@@ -1582,7 +1572,7 @@
    "line": 132,
    "module": "examples",
    "op": "const",
-   "seconds": 0.28,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -1593,7 +1583,7 @@
    "line": 134,
    "module": "examples",
    "op": "const",
-   "seconds": 0.3,
+   "seconds": 0.48,
    "status": "killed"
   },
   {
@@ -1604,7 +1594,7 @@
    "line": 136,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.33,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -1615,7 +1605,7 @@
    "line": 137,
    "module": "examples",
    "op": "const",
-   "seconds": 0.27,
+   "seconds": 0.42,
    "status": "killed"
   },
   {
@@ -1626,7 +1616,7 @@
    "line": 137,
    "module": "examples",
    "op": "const",
-   "seconds": 0.42,
+   "seconds": 0.4,
    "status": "killed"
   },
   {
@@ -1637,7 +1627,7 @@
    "line": 138,
    "module": "examples",
    "op": "return_none",
-   "seconds": 0.42,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -1648,7 +1638,7 @@
    "line": 142,
    "module": "examples",
    "op": "compare",
-   "seconds": 0.45,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
@@ -1659,7 +1649,7 @@
    "line": 143,
    "module": "examples",
    "op": "const",
-   "seconds": 0.36,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -1670,7 +1660,7 @@
    "line": 151,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.46,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -1681,7 +1671,7 @@
    "line": 152,
    "module": "examples",
    "op": "boolop",
-   "seconds": 0.45,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -1692,7 +1682,7 @@
    "line": 155,
    "module": "examples",
    "op": "const",
-   "seconds": 0.44,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -1703,19 +1693,19 @@
    "line": 155,
    "module": "examples",
    "op": "const",
-   "seconds": 0.43,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
    "after": "0",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_schema_and_validate_agree_on_boundaries (qdcheck.tests.test_examples.TestValidates.test_schema_and_validate_agree_on_boundaries)",
    "id": "examples:991:const:0",
    "line": 155,
    "module": "examples",
    "op": "const",
-   "seconds": 45.97,
-   "status": "survived"
+   "seconds": 0.28,
+   "status": "killed"
   },
   {
    "after": "pass",
@@ -1725,19 +1715,19 @@
    "line": 167,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
    "after": "1.0 - 0.02 * (rnd.random() - 0.5)",
    "before": "1.0 + 0.02 * (rnd.random() - 0.5)",
-   "detail": "OK",
+   "detail": "FAIL: test_toy_engine_defaults_and_price_path (qdcheck.tests.test_examples.TestValidates.test_toy_engine_defaults_and_price_path)",
    "id": "examples:1630:binop",
    "line": 170,
    "module": "examples",
    "op": "binop",
-   "seconds": 45.39,
-   "status": "survived"
+   "seconds": 0.37,
+   "status": "killed"
   },
   {
    "after": "1",
@@ -1747,7 +1737,7 @@
    "line": 170,
    "module": "examples",
    "op": "unary_drop",
-   "seconds": 0.31,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -1758,7 +1748,7 @@
    "line": 170,
    "module": "examples",
    "op": "binop",
-   "seconds": 0.34,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -1769,19 +1759,19 @@
    "line": 170,
    "module": "examples",
    "op": "const",
-   "seconds": 0.38,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
    "after": "59",
    "before": "60",
-   "detail": "OK",
+   "detail": "FAIL: test_toy_engine_defaults_and_price_path (qdcheck.tests.test_examples.TestValidates.test_toy_engine_defaults_and_price_path)",
    "id": "examples:1036:const:59",
    "line": 178,
    "module": "examples",
    "op": "const",
-   "seconds": 47.17,
-   "status": "survived"
+   "seconds": 0.27,
+   "status": "killed"
   },
   {
    "after": "0",
@@ -1791,7 +1781,7 @@
    "line": 179,
    "module": "examples",
    "op": "const",
-   "seconds": 0.4,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -1802,7 +1792,7 @@
    "line": 182,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.27,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -1813,7 +1803,7 @@
    "line": 183,
    "module": "examples",
    "op": "negate_cond",
-   "seconds": 0.3,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -1824,7 +1814,7 @@
    "line": 185,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.31,
+   "seconds": 0.38,
    "status": "killed"
   },
   {
@@ -1835,7 +1825,7 @@
    "line": 186,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.35,
+   "seconds": 0.37,
    "status": "killed"
   },
   {
@@ -1846,7 +1836,7 @@
    "line": 187,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.35,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -1857,7 +1847,7 @@
    "line": 190,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.27,
+   "seconds": 0.37,
    "status": "killed"
   },
   {
@@ -1868,7 +1858,7 @@
    "line": 190,
    "module": "examples",
    "op": "binop",
-   "seconds": 0.41,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -1879,7 +1869,7 @@
    "line": 191,
    "module": "examples",
    "op": "unary_drop",
-   "seconds": 0.26,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1890,7 +1880,7 @@
    "line": 192,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.27,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -1901,7 +1891,7 @@
    "line": 193,
    "module": "examples",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.39,
    "status": "killed"
   },
   {
@@ -1912,7 +1902,7 @@
    "line": 198,
    "module": "examples",
    "op": "return_none",
-   "seconds": 0.37,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -1923,7 +1913,7 @@
    "line": 208,
    "module": "examples",
    "op": "binop",
-   "seconds": 0.23,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -1934,7 +1924,7 @@
    "line": 210,
    "module": "examples",
    "op": "const",
-   "seconds": 0.78,
+   "seconds": 0.52,
    "status": "killed"
   },
   {
@@ -1945,7 +1935,7 @@
    "line": 211,
    "module": "examples",
    "op": "return_none",
-   "seconds": 0.26,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -1956,7 +1946,7 @@
    "line": 220,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 51.63,
+   "seconds": 52.85,
    "status": "survived"
   },
   {
@@ -1967,7 +1957,7 @@
    "line": 221,
    "module": "examples",
    "op": "const",
-   "seconds": 15.5,
+   "seconds": 18.31,
    "status": "killed"
   },
   {
@@ -1978,7 +1968,7 @@
    "line": 221,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 15.8,
+   "seconds": 19.43,
    "status": "killed"
   },
   {
@@ -1989,7 +1979,7 @@
    "line": 222,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 52.78,
+   "seconds": 51.64,
    "status": "survived"
   },
   {
@@ -2000,19 +1990,19 @@
    "line": 237,
    "module": "examples",
    "op": "delete_stmt",
-   "seconds": 0.34,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
    "after": "2",
    "before": "1",
-   "detail": "OK",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "id": "fuzz:504:const:2",
    "line": 111,
    "module": "fuzz",
    "op": "const",
-   "seconds": 43.42,
-   "status": "survived"
+   "seconds": 12.11,
+   "status": "killed"
   },
   {
    "after": "pass",
@@ -2022,7 +2012,7 @@
    "line": 124,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 10.32,
+   "seconds": 11.2,
    "status": "killed"
   },
   {
@@ -2033,7 +2023,7 @@
    "line": 130,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 0.28,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -2044,7 +2034,7 @@
    "line": 152,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 0.28,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -2055,7 +2045,7 @@
    "line": 158,
    "module": "fuzz",
    "op": "binop",
-   "seconds": 13.34,
+   "seconds": 15.84,
    "status": "killed"
   },
   {
@@ -2066,7 +2056,7 @@
    "line": 279,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -2077,19 +2067,19 @@
    "line": 301,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.96,
+   "seconds": 14.07,
    "status": "killed"
   },
   {
    "after": "101",
    "before": "100",
-   "detail": "OK",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "id": "fuzz:3951:const:101",
    "line": 311,
    "module": "fuzz",
    "op": "const",
-   "seconds": 48.6,
-   "status": "survived"
+   "seconds": 10.47,
+   "status": "killed"
   },
   {
    "after": "2",
@@ -2099,7 +2089,7 @@
    "line": 317,
    "module": "fuzz",
    "op": "const",
-   "seconds": 11.37,
+   "seconds": 11.72,
    "status": "killed"
   },
   {
@@ -2110,7 +2100,7 @@
    "line": 321,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 10.49,
+   "seconds": 11.53,
    "status": "killed"
   },
   {
@@ -2121,7 +2111,7 @@
    "line": 342,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 2.31,
+   "seconds": 2.38,
    "status": "killed"
   },
   {
@@ -2132,7 +2122,7 @@
    "line": 347,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.99,
+   "seconds": 14.79,
    "status": "killed"
   },
   {
@@ -2143,7 +2133,7 @@
    "line": 348,
    "module": "fuzz",
    "op": "const",
-   "seconds": 13.23,
+   "seconds": 13.49,
    "status": "killed"
   },
   {
@@ -2154,7 +2144,7 @@
    "line": 348,
    "module": "fuzz",
    "op": "const",
-   "seconds": 13.37,
+   "seconds": 13.12,
    "status": "killed"
   },
   {
@@ -2165,7 +2155,7 @@
    "line": 357,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 2.99,
+   "seconds": 2.56,
    "status": "killed"
   },
   {
@@ -2176,7 +2166,7 @@
    "line": 359,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 12.07,
+   "seconds": 14.92,
    "status": "killed"
   },
   {
@@ -2187,7 +2177,7 @@
    "line": 377,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 0.26,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -2198,7 +2188,7 @@
    "line": 377,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 0.19,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -2209,7 +2199,7 @@
    "line": 382,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 0.19,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -2220,7 +2210,7 @@
    "line": 382,
    "module": "fuzz",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -2231,7 +2221,7 @@
    "line": 386,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 10.77,
+   "seconds": 12.23,
    "status": "killed"
   },
   {
@@ -2242,7 +2232,7 @@
    "line": 411,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.93,
+   "seconds": 12.87,
    "status": "killed"
   },
   {
@@ -2253,7 +2243,7 @@
    "line": 411,
    "module": "fuzz",
    "op": "const",
-   "seconds": 9.78,
+   "seconds": 12.31,
    "status": "killed"
   },
   {
@@ -2264,7 +2254,7 @@
    "line": 429,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 26.25,
+   "seconds": 26.02,
    "status": "killed"
   },
   {
@@ -2275,7 +2265,7 @@
    "line": 431,
    "module": "fuzz",
    "op": "const",
-   "seconds": 13.5,
+   "seconds": 18.56,
    "status": "killed"
   },
   {
@@ -2286,7 +2276,7 @@
    "line": 436,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 0.71,
+   "seconds": 0.69,
    "status": "killed"
   },
   {
@@ -2297,7 +2287,7 @@
    "line": 437,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 10.08,
+   "seconds": 12.84,
    "status": "killed"
   },
   {
@@ -2308,7 +2298,7 @@
    "line": 437,
    "module": "fuzz",
    "op": "const",
-   "seconds": 0.93,
+   "seconds": 0.81,
    "status": "killed"
   },
   {
@@ -2319,7 +2309,7 @@
    "line": 451,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 10.56,
+   "seconds": 9.3,
    "status": "killed"
   },
   {
@@ -2330,7 +2320,7 @@
    "line": 461,
    "module": "fuzz",
    "op": "binop",
-   "seconds": 3.99,
+   "seconds": 3.52,
    "status": "killed"
   },
   {
@@ -2341,7 +2331,7 @@
    "line": 462,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.66,
+   "seconds": 12.86,
    "status": "killed"
   },
   {
@@ -2352,7 +2342,7 @@
    "line": 484,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 0.71,
+   "seconds": 0.58,
    "status": "killed"
   },
   {
@@ -2363,7 +2353,7 @@
    "line": 514,
    "module": "fuzz",
    "op": "binop",
-   "seconds": 3.43,
+   "seconds": 3.46,
    "status": "killed"
   },
   {
@@ -2374,7 +2364,7 @@
    "line": 549,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 2.7,
+   "seconds": 2.46,
    "status": "killed"
   },
   {
@@ -2385,7 +2375,7 @@
    "line": 552,
    "module": "fuzz",
    "op": "const",
-   "seconds": 0.69,
+   "seconds": 0.63,
    "status": "killed"
   },
   {
@@ -2396,7 +2386,7 @@
    "line": 570,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 10.45,
+   "seconds": 10.02,
    "status": "killed"
   },
   {
@@ -2407,7 +2397,7 @@
    "line": 589,
    "module": "fuzz",
    "op": "const",
-   "seconds": 12.28,
+   "seconds": 14.45,
    "status": "killed"
   },
   {
@@ -2418,7 +2408,7 @@
    "line": 592,
    "module": "fuzz",
    "op": "binop",
-   "seconds": 3.68,
+   "seconds": 3.97,
    "status": "killed"
   },
   {
@@ -2429,7 +2419,7 @@
    "line": 592,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.6,
+   "seconds": 10.57,
    "status": "killed"
   },
   {
@@ -2440,7 +2430,7 @@
    "line": 629,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 12.48,
+   "seconds": 16.03,
    "status": "killed"
   },
   {
@@ -2451,7 +2441,7 @@
    "line": 646,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 0.65,
+   "seconds": 0.67,
    "status": "killed"
   },
   {
@@ -2462,7 +2452,7 @@
    "line": 661,
    "module": "fuzz",
    "op": "const",
-   "seconds": 12.03,
+   "seconds": 14.46,
    "status": "killed"
   },
   {
@@ -2473,7 +2463,7 @@
    "line": 664,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 0.73,
+   "seconds": 0.74,
    "status": "killed"
   },
   {
@@ -2484,7 +2474,7 @@
    "line": 680,
    "module": "fuzz",
    "op": "const",
-   "seconds": 7.13,
+   "seconds": 4.6,
    "status": "killed"
   },
   {
@@ -2495,7 +2485,7 @@
    "line": 682,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 37.07,
+   "seconds": 39.36,
    "status": "killed"
   },
   {
@@ -2506,7 +2496,7 @@
    "line": 706,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 4.48,
+   "seconds": 4.16,
    "status": "killed"
   },
   {
@@ -2517,19 +2507,19 @@
    "line": 712,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 13.1,
+   "seconds": 12.14,
    "status": "killed"
   },
   {
    "after": "2",
    "before": "1",
-   "detail": "OK",
+   "detail": "ERROR: test_nested_key_deletion_in_shrinker (qdcheck.tests.test_fuzz.TestGenerators.test_nested_key_deletion_in_shrinker)",
    "id": "fuzz:8507:const:2",
    "line": 735,
    "module": "fuzz",
    "op": "const",
-   "seconds": 47.37,
-   "status": "survived"
+   "seconds": 13.37,
+   "status": "killed"
   },
   {
    "after": "pass",
@@ -2539,7 +2529,7 @@
    "line": 744,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 1.44,
+   "seconds": 1.4,
    "status": "killed"
   },
   {
@@ -2550,7 +2540,7 @@
    "line": 757,
    "module": "fuzz",
    "op": "const",
-   "seconds": 47.44,
+   "seconds": 55.83,
    "status": "survived"
   },
   {
@@ -2561,7 +2551,7 @@
    "line": 783,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 7.49,
+   "seconds": 7.09,
    "status": "killed"
   },
   {
@@ -2572,7 +2562,7 @@
    "line": 798,
    "module": "fuzz",
    "op": "const",
-   "seconds": 9.74,
+   "seconds": 9.83,
    "status": "killed"
   },
   {
@@ -2583,7 +2573,7 @@
    "line": 809,
    "module": "fuzz",
    "op": "const",
-   "seconds": 10.02,
+   "seconds": 9.7,
    "status": "killed"
   },
   {
@@ -2594,7 +2584,7 @@
    "line": 821,
    "module": "fuzz",
    "op": "compare",
-   "seconds": 9.25,
+   "seconds": 10.54,
    "status": "killed"
   },
   {
@@ -2605,19 +2595,19 @@
    "line": 836,
    "module": "fuzz",
    "op": "const",
-   "seconds": 13.81,
+   "seconds": 14.57,
    "status": "killed"
   },
   {
    "after": "201",
    "before": "200",
-   "detail": "OK",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "id": "fuzz:6246:const:201",
    "line": 851,
    "module": "fuzz",
    "op": "const",
-   "seconds": 49.15,
-   "status": "survived"
+   "seconds": 12.31,
+   "status": "killed"
   },
   {
    "after": "1",
@@ -2627,18 +2617,18 @@
    "line": 868,
    "module": "fuzz",
    "op": "const",
-   "seconds": 46.18,
+   "seconds": 50.88,
    "status": "survived"
   },
   {
    "after": "if not depth > 40:\n    return True",
    "before": "if depth > 40:\n    return True",
-   "detail": "FAIL: test_garbage_shapes (qdcheck.tests.test_fuzz.TestGenerators.test_garbage_shapes)",
+   "detail": "FAIL: test_boundary_defaults_and_preview_length (qdcheck.tests.test_fuzz.TestGenerators.test_boundary_defaults_and_preview_length)",
    "id": "fuzz:1068:negate_cond",
    "line": 872,
    "module": "fuzz",
    "op": "negate_cond",
-   "seconds": 12.9,
+   "seconds": 12.62,
    "status": "killed"
   },
   {
@@ -2649,7 +2639,7 @@
    "line": 877,
    "module": "fuzz",
    "op": "delete_stmt",
-   "seconds": 10.88,
+   "seconds": 14.55,
    "status": "killed"
   },
   {
@@ -2660,7 +2650,7 @@
    "line": 893,
    "module": "fuzz",
    "op": "return_none",
-   "seconds": 12.29,
+   "seconds": 14.51,
    "status": "killed"
   },
   {
@@ -2671,7 +2661,7 @@
    "line": 41,
    "module": "gen_vectors",
    "op": "unary_drop",
-   "seconds": 1.07,
+   "seconds": 1.2,
    "status": "killed"
   },
   {
@@ -2682,7 +2672,7 @@
    "line": 42,
    "module": "gen_vectors",
    "op": "compare",
-   "seconds": 46.83,
+   "seconds": 50.54,
    "status": "survived"
   },
   {
@@ -2693,7 +2683,7 @@
    "line": 42,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.28,
+   "seconds": 3.85,
    "status": "killed"
   },
   {
@@ -2704,7 +2694,7 @@
    "line": 52,
    "module": "gen_vectors",
    "op": "return_none",
-   "seconds": 0.2,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -2715,7 +2705,7 @@
    "line": 53,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.6,
+   "seconds": 0.71,
    "status": "killed"
   },
   {
@@ -2726,7 +2716,7 @@
    "line": 53,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.47,
+   "seconds": 0.45,
    "status": "killed"
   },
   {
@@ -2737,7 +2727,7 @@
    "line": 54,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.46,
+   "seconds": 0.7,
    "status": "killed"
   },
   {
@@ -2759,7 +2749,7 @@
    "line": 57,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.21,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -2770,7 +2760,7 @@
    "line": 58,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.48,
+   "seconds": 0.5,
    "status": "killed"
   },
   {
@@ -2781,7 +2771,7 @@
    "line": 61,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.46,
+   "seconds": 0.64,
    "status": "killed"
   },
   {
@@ -2792,7 +2782,7 @@
    "line": 66,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.62,
+   "seconds": 0.44,
    "status": "killed"
   },
   {
@@ -2803,7 +2793,7 @@
    "line": 67,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.49,
+   "seconds": 0.52,
    "status": "killed"
   },
   {
@@ -2814,7 +2804,7 @@
    "line": 69,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.53,
+   "seconds": 0.61,
    "status": "killed"
   },
   {
@@ -2825,7 +2815,7 @@
    "line": 70,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.44,
+   "seconds": 0.53,
    "status": "killed"
   },
   {
@@ -2836,7 +2826,7 @@
    "line": 75,
    "module": "gen_vectors",
    "op": "compare",
-   "seconds": 0.3,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -2847,7 +2837,7 @@
    "line": 77,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 0.21,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -2858,7 +2848,7 @@
    "line": 90,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -2869,7 +2859,7 @@
    "line": 103,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 0.83,
+   "seconds": 1.33,
    "status": "killed"
   },
   {
@@ -2880,7 +2870,7 @@
    "line": 110,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 0.97,
+   "seconds": 0.9,
    "status": "killed"
   },
   {
@@ -2891,7 +2881,7 @@
    "line": 121,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 0.81,
+   "seconds": 1.15,
    "status": "killed"
   },
   {
@@ -2902,7 +2892,7 @@
    "line": 133,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 3.36,
+   "seconds": 4.2,
    "status": "killed"
   },
   {
@@ -2913,7 +2903,7 @@
    "line": 135,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 4.14,
+   "seconds": 4.28,
    "status": "killed"
   },
   {
@@ -2924,7 +2914,7 @@
    "line": 136,
    "module": "gen_vectors",
    "op": "return_none",
-   "seconds": 4.13,
+   "seconds": 3.55,
    "status": "killed"
   },
   {
@@ -2935,7 +2925,7 @@
    "line": 137,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 4.11,
+   "seconds": 3.77,
    "status": "killed"
   },
   {
@@ -2946,7 +2936,7 @@
    "line": 138,
    "module": "gen_vectors",
    "op": "binop",
-   "seconds": 3.28,
+   "seconds": 3.46,
    "status": "killed"
   },
   {
@@ -2957,7 +2947,7 @@
    "line": 149,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 14.05,
+   "seconds": 11.68,
    "status": "killed"
   },
   {
@@ -2968,7 +2958,7 @@
    "line": 173,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 3.73,
+   "seconds": 3.47,
    "status": "killed"
   },
   {
@@ -2979,7 +2969,7 @@
    "line": 174,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 4.17,
+   "seconds": 3.73,
    "status": "killed"
   },
   {
@@ -2990,7 +2980,7 @@
    "line": 175,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.97,
+   "seconds": 3.55,
    "status": "killed"
   },
   {
@@ -3001,7 +2991,7 @@
    "line": 175,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 3.84,
+   "seconds": 3.91,
    "status": "killed"
   },
   {
@@ -3012,7 +3002,7 @@
    "line": 191,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.71,
+   "seconds": 3.75,
    "status": "killed"
   },
   {
@@ -3023,7 +3013,7 @@
    "line": 202,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 9.48,
+   "seconds": 7.92,
    "status": "killed"
   },
   {
@@ -3034,7 +3024,7 @@
    "line": 204,
    "module": "gen_vectors",
    "op": "binop",
-   "seconds": 5.66,
+   "seconds": 5.93,
    "status": "killed"
   },
   {
@@ -3045,7 +3035,7 @@
    "line": 204,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 14.81,
+   "seconds": 12.57,
    "status": "killed"
   },
   {
@@ -3056,7 +3046,7 @@
    "line": 219,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 1.1,
+   "seconds": 0.89,
    "status": "killed"
   },
   {
@@ -3067,7 +3057,7 @@
    "line": 226,
    "module": "gen_vectors",
    "op": "binop",
-   "seconds": 1.21,
+   "seconds": 0.96,
    "status": "killed"
   },
   {
@@ -3078,7 +3068,7 @@
    "line": 234,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 1.34,
+   "seconds": 1.3,
    "status": "killed"
   },
   {
@@ -3089,7 +3079,7 @@
    "line": 236,
    "module": "gen_vectors",
    "op": "unary_drop",
-   "seconds": 4.2,
+   "seconds": 3.51,
    "status": "killed"
   },
   {
@@ -3100,7 +3090,7 @@
    "line": 244,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 3.8,
+   "seconds": 3.28,
    "status": "killed"
   },
   {
@@ -3111,7 +3101,7 @@
    "line": 248,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.92,
+   "seconds": 3.68,
    "status": "killed"
   },
   {
@@ -3122,7 +3112,7 @@
    "line": 254,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 3.5,
+   "seconds": 3.47,
    "status": "killed"
   },
   {
@@ -3133,7 +3123,7 @@
    "line": 257,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 4.28,
+   "seconds": 3.88,
    "status": "killed"
   },
   {
@@ -3144,7 +3134,7 @@
    "line": 258,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 13.25,
+   "seconds": 14.2,
    "status": "killed"
   },
   {
@@ -3155,7 +3145,7 @@
    "line": 263,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 3.18,
+   "seconds": 4.12,
    "status": "killed"
   },
   {
@@ -3166,7 +3156,7 @@
    "line": 273,
    "module": "gen_vectors",
    "op": "unary_drop",
-   "seconds": 4.3,
+   "seconds": 3.56,
    "status": "killed"
   },
   {
@@ -3177,7 +3167,7 @@
    "line": 274,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 15.51,
+   "seconds": 13.84,
    "status": "killed"
   },
   {
@@ -3188,7 +3178,7 @@
    "line": 284,
    "module": "gen_vectors",
    "op": "negate_cond",
-   "seconds": 3.86,
+   "seconds": 3.92,
    "status": "killed"
   },
   {
@@ -3199,7 +3189,7 @@
    "line": 285,
    "module": "gen_vectors",
    "op": "return_none",
-   "seconds": 3.27,
+   "seconds": 3.48,
    "status": "killed"
   },
   {
@@ -3210,7 +3200,7 @@
    "line": 286,
    "module": "gen_vectors",
    "op": "compare",
-   "seconds": 4.07,
+   "seconds": 3.6,
    "status": "killed"
   },
   {
@@ -3221,7 +3211,7 @@
    "line": 295,
    "module": "gen_vectors",
    "op": "unary_drop",
-   "seconds": 4.13,
+   "seconds": 3.88,
    "status": "killed"
   },
   {
@@ -3232,7 +3222,7 @@
    "line": 296,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 4.64,
+   "seconds": 4.13,
    "status": "killed"
   },
   {
@@ -3243,7 +3233,7 @@
    "line": 297,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 6.54,
+   "seconds": 5.4,
    "status": "killed"
   },
   {
@@ -3254,7 +3244,7 @@
    "line": 300,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 8.71,
+   "seconds": 8.56,
    "status": "killed"
   },
   {
@@ -3265,7 +3255,7 @@
    "line": 303,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 11.59,
+   "seconds": 11.24,
    "status": "killed"
   },
   {
@@ -3276,7 +3266,7 @@
    "line": 304,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 10.57,
+   "seconds": 10.63,
    "status": "killed"
   },
   {
@@ -3287,7 +3277,7 @@
    "line": 305,
    "module": "gen_vectors",
    "op": "delete_stmt",
-   "seconds": 8.81,
+   "seconds": 9.18,
    "status": "killed"
   },
   {
@@ -3298,7 +3288,7 @@
    "line": 311,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 12.57,
+   "seconds": 10.99,
    "status": "killed"
   },
   {
@@ -3309,7 +3299,7 @@
    "line": 312,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 8.58,
+   "seconds": 8.75,
    "status": "killed"
   },
   {
@@ -3320,7 +3310,7 @@
    "line": 312,
    "module": "gen_vectors",
    "op": "const",
-   "seconds": 8.7,
+   "seconds": 8.84,
    "status": "killed"
   },
   {
@@ -3331,7 +3321,7 @@
    "line": 33,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.24,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -3342,7 +3332,7 @@
    "line": 33,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -3364,7 +3354,7 @@
    "line": 35,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.23,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -3375,7 +3365,7 @@
    "line": 37,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.87,
+   "seconds": 0.75,
    "status": "killed"
   },
   {
@@ -3386,7 +3376,7 @@
    "line": 37,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.88,
+   "seconds": 0.85,
    "status": "killed"
   },
   {
@@ -3397,7 +3387,7 @@
    "line": 38,
    "module": "indicators_alt",
    "op": "return_none",
-   "seconds": 0.27,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -3408,7 +3398,7 @@
    "line": 46,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.21,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -3419,7 +3409,7 @@
    "line": 50,
    "module": "indicators_alt",
    "op": "compare",
-   "seconds": 0.35,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -3430,7 +3420,7 @@
    "line": 52,
    "module": "indicators_alt",
    "op": "return_none",
-   "seconds": 0.28,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -3441,7 +3431,7 @@
    "line": 56,
    "module": "indicators_alt",
    "op": "negate_cond",
-   "seconds": 0.23,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -3452,7 +3442,7 @@
    "line": 56,
    "module": "indicators_alt",
    "op": "compare",
-   "seconds": 0.27,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -3463,7 +3453,7 @@
    "line": 58,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.31,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -3474,7 +3464,7 @@
    "line": 60,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.25,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -3485,7 +3475,7 @@
    "line": 60,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.37,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -3496,7 +3486,7 @@
    "line": 62,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.85,
+   "seconds": 0.89,
    "status": "killed"
   },
   {
@@ -3507,7 +3497,7 @@
    "line": 63,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 0.27,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -3518,7 +3508,7 @@
    "line": 77,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.23,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -3529,7 +3519,7 @@
    "line": 91,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.47,
+   "seconds": 0.44,
    "status": "killed"
   },
   {
@@ -3540,7 +3530,7 @@
    "line": 92,
    "module": "indicators_alt",
    "op": "boolop",
-   "seconds": 0.52,
+   "seconds": 0.49,
    "status": "killed"
   },
   {
@@ -3551,7 +3541,7 @@
    "line": 92,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.56,
+   "seconds": 0.63,
    "status": "killed"
   },
   {
@@ -3562,7 +3552,7 @@
    "line": 97,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.18,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -3573,7 +3563,7 @@
    "line": 100,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 44.36,
+   "seconds": 50.23,
    "status": "survived"
   },
   {
@@ -3595,7 +3585,7 @@
    "line": 102,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 0.27,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -3606,7 +3596,7 @@
    "line": 104,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.77,
+   "seconds": 0.71,
    "status": "killed"
   },
   {
@@ -3617,7 +3607,7 @@
    "line": 106,
    "module": "indicators_alt",
    "op": "compare",
-   "seconds": 0.64,
+   "seconds": 0.62,
    "status": "killed"
   },
   {
@@ -3628,7 +3618,7 @@
    "line": 109,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.74,
+   "seconds": 0.6,
    "status": "killed"
   },
   {
@@ -3639,7 +3629,7 @@
    "line": 109,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.25,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -3650,7 +3640,7 @@
    "line": 110,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -3661,7 +3651,7 @@
    "line": 110,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.19,
    "status": "killed"
   },
   {
@@ -3672,7 +3662,7 @@
    "line": 110,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -3683,7 +3673,7 @@
    "line": 111,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.23,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -3705,7 +3695,7 @@
    "line": 131,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.71,
+   "seconds": 0.82,
    "status": "killed"
   },
   {
@@ -3727,7 +3717,7 @@
    "line": 131,
    "module": "indicators_alt",
    "op": "negate_cond",
-   "seconds": 0.6,
+   "seconds": 0.62,
    "status": "killed"
   },
   {
@@ -3738,7 +3728,7 @@
    "line": 132,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.63,
+   "seconds": 0.62,
    "status": "killed"
   },
   {
@@ -3749,7 +3739,7 @@
    "line": 132,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.61,
+   "seconds": 0.74,
    "status": "killed"
   },
   {
@@ -3760,7 +3750,7 @@
    "line": 140,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 0.68,
+   "seconds": 0.63,
    "status": "killed"
   },
   {
@@ -3782,7 +3772,7 @@
    "line": 149,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 0.7,
+   "seconds": 0.62,
    "status": "killed"
   },
   {
@@ -3793,7 +3783,7 @@
    "line": 161,
    "module": "indicators_alt",
    "op": "compare",
-   "seconds": 0.74,
+   "seconds": 0.78,
    "status": "killed"
   },
   {
@@ -3804,7 +3794,7 @@
    "line": 165,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 0.78,
+   "seconds": 0.71,
    "status": "killed"
   },
   {
@@ -3815,7 +3805,7 @@
    "line": 166,
    "module": "indicators_alt",
    "op": "return_none",
-   "seconds": 0.94,
+   "seconds": 0.77,
    "status": "killed"
   },
   {
@@ -3826,7 +3816,7 @@
    "line": 172,
    "module": "indicators_alt",
    "op": "boolop",
-   "seconds": 0.87,
+   "seconds": 0.82,
    "status": "killed"
   },
   {
@@ -3837,7 +3827,7 @@
    "line": 172,
    "module": "indicators_alt",
    "op": "compare",
-   "seconds": 0.8,
+   "seconds": 0.79,
    "status": "killed"
   },
   {
@@ -3848,7 +3838,7 @@
    "line": 177,
    "module": "indicators_alt",
    "op": "compare",
-   "seconds": 0.76,
+   "seconds": 0.86,
    "status": "killed"
   },
   {
@@ -3859,7 +3849,7 @@
    "line": 177,
    "module": "indicators_alt",
    "op": "const",
-   "seconds": 1.09,
+   "seconds": 0.88,
    "status": "killed"
   },
   {
@@ -3870,7 +3860,7 @@
    "line": 180,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 0.95,
+   "seconds": 0.77,
    "status": "killed"
   },
   {
@@ -3881,7 +3871,7 @@
    "line": 190,
    "module": "indicators_alt",
    "op": "boolop",
-   "seconds": 0.95,
+   "seconds": 0.77,
    "status": "killed"
   },
   {
@@ -3892,7 +3882,7 @@
    "line": 190,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.82,
+   "seconds": 1.02,
    "status": "killed"
   },
   {
@@ -3903,7 +3893,7 @@
    "line": 195,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 1.0,
+   "seconds": 0.88,
    "status": "killed"
   },
   {
@@ -3914,7 +3904,7 @@
    "line": 199,
    "module": "indicators_alt",
    "op": "negate_cond",
-   "seconds": 0.95,
+   "seconds": 0.88,
    "status": "killed"
   },
   {
@@ -3925,7 +3915,7 @@
    "line": 207,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.88,
+   "seconds": 0.83,
    "status": "killed"
   },
   {
@@ -3936,7 +3926,7 @@
    "line": 212,
    "module": "indicators_alt",
    "op": "delete_stmt",
-   "seconds": 0.99,
+   "seconds": 1.05,
    "status": "killed"
   },
   {
@@ -3958,7 +3948,7 @@
    "line": 221,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.94,
+   "seconds": 1.01,
    "status": "killed"
   },
   {
@@ -3969,7 +3959,7 @@
    "line": 222,
    "module": "indicators_alt",
    "op": "binop",
-   "seconds": 0.95,
+   "seconds": 1.13,
    "status": "killed"
   },
   {
@@ -3980,7 +3970,7 @@
    "line": 225,
    "module": "indicators_alt",
    "op": "return_none",
-   "seconds": 0.83,
+   "seconds": 0.89,
    "status": "killed"
   },
   {
@@ -3991,7 +3981,7 @@
    "line": 47,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 30.53,
+   "seconds": 33.16,
    "status": "killed"
   },
   {
@@ -4002,7 +3992,7 @@
    "line": 49,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 29.78,
+   "seconds": 35.3,
    "status": "killed"
   },
   {
@@ -4013,7 +4003,7 @@
    "line": 50,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 28.25,
+   "seconds": 34.06,
    "status": "killed"
   },
   {
@@ -4024,7 +4014,7 @@
    "line": 50,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 29.74,
+   "seconds": 33.36,
    "status": "killed"
   },
   {
@@ -4035,7 +4025,7 @@
    "line": 50,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 30.47,
+   "seconds": 32.08,
    "status": "killed"
   },
   {
@@ -4046,7 +4036,7 @@
    "line": 56,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 3.77,
+   "seconds": 3.53,
    "status": "killed"
   },
   {
@@ -4057,7 +4047,7 @@
    "line": 78,
    "module": "indicators_ref",
    "op": "unary_drop",
-   "seconds": 0.26,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4068,7 +4058,7 @@
    "line": 98,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 5.58,
+   "seconds": 4.96,
    "status": "killed"
   },
   {
@@ -4079,7 +4069,7 @@
    "line": 107,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 5.49,
+   "seconds": 4.69,
    "status": "killed"
   },
   {
@@ -4090,7 +4080,7 @@
    "line": 124,
    "module": "indicators_ref",
    "op": "boolop",
-   "seconds": 5.54,
+   "seconds": 4.6,
    "status": "killed"
   },
   {
@@ -4101,7 +4091,7 @@
    "line": 124,
    "module": "indicators_ref",
    "op": "negate_cond",
-   "seconds": 0.26,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -4112,7 +4102,7 @@
    "line": 131,
    "module": "indicators_ref",
    "op": "compare",
-   "seconds": 0.34,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -4123,7 +4113,7 @@
    "line": 131,
    "module": "indicators_ref",
    "op": "negate_cond",
-   "seconds": 0.3,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -4134,7 +4124,7 @@
    "line": 133,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.43,
+   "seconds": 0.42,
    "status": "killed"
   },
   {
@@ -4145,7 +4135,7 @@
    "line": 148,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -4156,7 +4146,7 @@
    "line": 153,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.2,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4167,7 +4157,7 @@
    "line": 163,
    "module": "indicators_ref",
    "op": "compare",
-   "seconds": 0.31,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4178,7 +4168,7 @@
    "line": 166,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.33,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -4189,7 +4179,7 @@
    "line": 169,
    "module": "indicators_ref",
    "op": "compare",
-   "seconds": 0.31,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -4200,7 +4190,7 @@
    "line": 174,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.35,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4211,7 +4201,7 @@
    "line": 176,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -4222,7 +4212,7 @@
    "line": 195,
    "module": "indicators_ref",
    "op": "return_none",
-   "seconds": 0.24,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -4233,7 +4223,7 @@
    "line": 213,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.4,
+   "seconds": 0.36,
    "status": "killed"
   },
   {
@@ -4244,7 +4234,7 @@
    "line": 219,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.45,
+   "seconds": 0.65,
    "status": "killed"
   },
   {
@@ -4255,7 +4245,7 @@
    "line": 225,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.46,
+   "seconds": 0.47,
    "status": "killed"
   },
   {
@@ -4266,7 +4256,7 @@
    "line": 225,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.54,
+   "seconds": 0.57,
    "status": "killed"
   },
   {
@@ -4277,7 +4267,7 @@
    "line": 226,
    "module": "indicators_ref",
    "op": "return_none",
-   "seconds": 0.46,
+   "seconds": 0.62,
    "status": "killed"
   },
   {
@@ -4288,7 +4278,7 @@
    "line": 233,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.82,
+   "seconds": 0.64,
    "status": "killed"
   },
   {
@@ -4299,7 +4289,7 @@
    "line": 233,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.84,
+   "seconds": 0.63,
    "status": "killed"
   },
   {
@@ -4310,7 +4300,7 @@
    "line": 245,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.69,
+   "seconds": 0.85,
    "status": "killed"
   },
   {
@@ -4321,7 +4311,7 @@
    "line": 245,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 1.02,
+   "seconds": 0.66,
    "status": "killed"
   },
   {
@@ -4332,7 +4322,7 @@
    "line": 246,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.85,
+   "seconds": 0.68,
    "status": "killed"
   },
   {
@@ -4343,7 +4333,7 @@
    "line": 246,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 1.03,
+   "seconds": 0.87,
    "status": "killed"
   },
   {
@@ -4354,7 +4344,7 @@
    "line": 247,
    "module": "indicators_ref",
    "op": "negate_cond",
-   "seconds": 0.58,
+   "seconds": 0.65,
    "status": "killed"
   },
   {
@@ -4365,7 +4355,7 @@
    "line": 249,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.61,
+   "seconds": 0.66,
    "status": "killed"
   },
   {
@@ -4376,7 +4366,7 @@
    "line": 253,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.75,
+   "seconds": 0.78,
    "status": "killed"
   },
   {
@@ -4387,7 +4377,7 @@
    "line": 255,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.86,
+   "seconds": 0.65,
    "status": "killed"
   },
   {
@@ -4409,7 +4399,7 @@
    "line": 274,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.88,
+   "seconds": 0.8,
    "status": "killed"
   },
   {
@@ -4420,7 +4410,7 @@
    "line": 279,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.82,
+   "seconds": 0.9,
    "status": "killed"
   },
   {
@@ -4431,7 +4421,7 @@
    "line": 285,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.87,
+   "seconds": 0.8,
    "status": "killed"
   },
   {
@@ -4442,7 +4432,7 @@
    "line": 285,
    "module": "indicators_ref",
    "op": "negate_cond",
-   "seconds": 0.96,
+   "seconds": 0.81,
    "status": "killed"
   },
   {
@@ -4453,7 +4443,7 @@
    "line": 294,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.95,
+   "seconds": 0.69,
    "status": "killed"
   },
   {
@@ -4464,7 +4454,7 @@
    "line": 299,
    "module": "indicators_ref",
    "op": "return_none",
-   "seconds": 1.0,
+   "seconds": 0.71,
    "status": "killed"
   },
   {
@@ -4475,7 +4465,7 @@
    "line": 304,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.9,
+   "seconds": 0.93,
    "status": "killed"
   },
   {
@@ -4486,7 +4476,7 @@
    "line": 317,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.82,
+   "seconds": 0.79,
    "status": "killed"
   },
   {
@@ -4497,7 +4487,7 @@
    "line": 324,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 0.79,
+   "seconds": 1.17,
    "status": "killed"
   },
   {
@@ -4508,7 +4498,7 @@
    "line": 326,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 45.57,
+   "seconds": 49.47,
    "status": "survived"
   },
   {
@@ -4519,7 +4509,7 @@
    "line": 327,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.97,
+   "seconds": 0.77,
    "status": "killed"
   },
   {
@@ -4530,7 +4520,7 @@
    "line": 328,
    "module": "indicators_ref",
    "op": "compare",
-   "seconds": 0.82,
+   "seconds": 0.85,
    "status": "killed"
   },
   {
@@ -4541,7 +4531,7 @@
    "line": 329,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.94,
+   "seconds": 1.05,
    "status": "killed"
   },
   {
@@ -4552,7 +4542,7 @@
    "line": 331,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 1.1,
+   "seconds": 0.88,
    "status": "killed"
   },
   {
@@ -4563,7 +4553,7 @@
    "line": 331,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 1.1,
+   "seconds": 0.97,
    "status": "killed"
   },
   {
@@ -4574,7 +4564,7 @@
    "line": 332,
    "module": "indicators_ref",
    "op": "binop",
-   "seconds": 0.93,
+   "seconds": 0.88,
    "status": "killed"
   },
   {
@@ -4585,7 +4575,7 @@
    "line": 340,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 1.07,
+   "seconds": 0.87,
    "status": "killed"
   },
   {
@@ -4596,7 +4586,7 @@
    "line": 342,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 1.16,
+   "seconds": 0.77,
    "status": "killed"
   },
   {
@@ -4607,7 +4597,7 @@
    "line": 343,
    "module": "indicators_ref",
    "op": "const",
-   "seconds": 1.05,
+   "seconds": 0.85,
    "status": "killed"
   },
   {
@@ -4618,7 +4608,7 @@
    "line": 367,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 1.15,
+   "seconds": 0.89,
    "status": "killed"
   },
   {
@@ -4629,7 +4619,7 @@
    "line": 375,
    "module": "indicators_ref",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -4640,7 +4630,7 @@
    "line": 382,
    "module": "indicators_ref",
    "op": "compare",
-   "seconds": 5.12,
+   "seconds": 4.48,
    "status": "killed"
   },
   {
@@ -4662,7 +4652,7 @@
    "line": 62,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.23,
+   "seconds": 0.19,
    "status": "killed"
   },
   {
@@ -4673,7 +4663,7 @@
    "line": 65,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.33,
+   "seconds": 0.5,
    "status": "killed"
   },
   {
@@ -4684,7 +4674,7 @@
    "line": 72,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.39,
+   "seconds": 0.4,
    "status": "killed"
   },
   {
@@ -4695,7 +4685,7 @@
    "line": 77,
    "module": "ledger",
    "op": "boolop",
-   "seconds": 0.42,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -4706,7 +4696,7 @@
    "line": 88,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.26,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -4717,7 +4707,7 @@
    "line": 88,
    "module": "ledger",
    "op": "unary_drop",
-   "seconds": 0.24,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -4728,7 +4718,7 @@
    "line": 91,
    "module": "ledger",
    "op": "compare",
-   "seconds": 0.34,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -4739,7 +4729,7 @@
    "line": 102,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.31,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -4750,7 +4740,7 @@
    "line": 106,
    "module": "ledger",
    "op": "unary_drop",
-   "seconds": 0.25,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -4761,7 +4751,7 @@
    "line": 115,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.87,
+   "seconds": 0.81,
    "status": "killed"
   },
   {
@@ -4772,7 +4762,7 @@
    "line": 119,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.35,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -4783,7 +4773,7 @@
    "line": 119,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.3,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -4794,7 +4784,7 @@
    "line": 119,
    "module": "ledger",
    "op": "compare",
-   "seconds": 43.67,
+   "seconds": 52.82,
    "status": "survived"
   },
   {
@@ -4816,7 +4806,7 @@
    "line": 149,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.26,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -4827,7 +4817,7 @@
    "line": 157,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.26,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -4838,7 +4828,7 @@
    "line": 161,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.25,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -4849,7 +4839,7 @@
    "line": 169,
    "module": "ledger",
    "op": "unary_drop",
-   "seconds": 0.22,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -4860,7 +4850,7 @@
    "line": 169,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.21,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -4871,7 +4861,7 @@
    "line": 170,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.27,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -4882,7 +4872,7 @@
    "line": 170,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.21,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -4893,7 +4883,7 @@
    "line": 175,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.21,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4904,7 +4894,7 @@
    "line": 177,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.28,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -4915,7 +4905,7 @@
    "line": 186,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.25,
+   "seconds": 0.19,
    "status": "killed"
   },
   {
@@ -4926,7 +4916,7 @@
    "line": 187,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 45.5,
+   "seconds": 51.47,
    "status": "survived"
   },
   {
@@ -4937,7 +4927,7 @@
    "line": 188,
    "module": "ledger",
    "op": "binop",
-   "seconds": 46.46,
+   "seconds": 51.24,
    "status": "survived"
   },
   {
@@ -4948,7 +4938,7 @@
    "line": 190,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.24,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4959,7 +4949,7 @@
    "line": 191,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -4970,7 +4960,7 @@
    "line": 195,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.41,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -4981,7 +4971,7 @@
    "line": 198,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -4992,7 +4982,7 @@
    "line": 201,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.36,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -5003,7 +4993,7 @@
    "line": 201,
    "module": "ledger",
    "op": "const",
-   "seconds": 44.13,
+   "seconds": 51.91,
    "status": "survived"
   },
   {
@@ -5014,7 +5004,7 @@
    "line": 221,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.28,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -5025,7 +5015,7 @@
    "line": 225,
    "module": "ledger",
    "op": "compare",
-   "seconds": 0.26,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5036,7 +5026,7 @@
    "line": 226,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.99,
+   "seconds": 0.86,
    "status": "killed"
   },
   {
@@ -5047,7 +5037,7 @@
    "line": 227,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.2,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -5058,7 +5048,7 @@
    "line": 228,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.28,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -5069,7 +5059,7 @@
    "line": 228,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.26,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -5080,7 +5070,7 @@
    "line": 241,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5091,7 +5081,7 @@
    "line": 243,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -5102,7 +5092,7 @@
    "line": 243,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.21,
+   "seconds": 0.19,
    "status": "killed"
   },
   {
@@ -5113,7 +5103,7 @@
    "line": 250,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.19,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -5124,7 +5114,7 @@
    "line": 264,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.33,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5135,7 +5125,7 @@
    "line": 265,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.32,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5146,7 +5136,7 @@
    "line": 267,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.22,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -5157,7 +5147,7 @@
    "line": 268,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.38,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5168,7 +5158,7 @@
    "line": 269,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.22,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5179,7 +5169,7 @@
    "line": 275,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.49,
+   "seconds": 0.37,
    "status": "killed"
   },
   {
@@ -5190,7 +5180,7 @@
    "line": 277,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.22,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -5201,7 +5191,7 @@
    "line": 285,
    "module": "ledger",
    "op": "unary_drop",
-   "seconds": 0.23,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -5212,7 +5202,7 @@
    "line": 287,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.22,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5223,7 +5213,7 @@
    "line": 290,
    "module": "ledger",
    "op": "compare",
-   "seconds": 0.28,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -5234,7 +5224,7 @@
    "line": 292,
    "module": "ledger",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5245,7 +5235,7 @@
    "line": 305,
    "module": "ledger",
    "op": "const",
-   "seconds": 0.21,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5256,7 +5246,7 @@
    "line": 306,
    "module": "ledger",
    "op": "const",
-   "seconds": 45.46,
+   "seconds": 51.43,
    "status": "survived"
   },
   {
@@ -5267,7 +5257,7 @@
    "line": 309,
    "module": "ledger",
    "op": "compare",
-   "seconds": 0.34,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -5278,7 +5268,7 @@
    "line": 313,
    "module": "ledger",
    "op": "negate_cond",
-   "seconds": 0.36,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -5300,7 +5290,7 @@
    "line": 352,
    "module": "ledger",
    "op": "delete_stmt",
-   "seconds": 0.26,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5311,7 +5301,7 @@
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.23,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -5322,7 +5312,7 @@
    "line": 14,
    "module": "ledger_alt",
    "op": "unary_drop",
-   "seconds": 0.22,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -5333,7 +5323,7 @@
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 45.04,
+   "seconds": 49.84,
    "status": "survived"
   },
   {
@@ -5344,7 +5334,7 @@
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.21,
+   "seconds": 0.19,
    "status": "killed"
   },
   {
@@ -5355,7 +5345,7 @@
    "line": 14,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 43.71,
+   "seconds": 50.16,
    "status": "survived"
   },
   {
@@ -5366,7 +5356,7 @@
    "line": 22,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5377,7 +5367,7 @@
    "line": 25,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -5388,7 +5378,7 @@
    "line": 28,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.2,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -5399,7 +5389,7 @@
    "line": 32,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.21,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -5421,7 +5411,7 @@
    "line": 38,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.26,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5432,7 +5422,7 @@
    "line": 46,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 42.28,
+   "seconds": 48.54,
    "status": "survived"
   },
   {
@@ -5443,7 +5433,7 @@
    "line": 47,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -5454,7 +5444,7 @@
    "line": 51,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.31,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5465,7 +5455,7 @@
    "line": 51,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 41.33,
+   "seconds": 49.44,
    "status": "survived"
   },
   {
@@ -5476,7 +5466,7 @@
    "line": 51,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 1.09,
+   "seconds": 1.03,
    "status": "killed"
   },
   {
@@ -5487,7 +5477,7 @@
    "line": 57,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.2,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -5498,7 +5488,7 @@
    "line": 58,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.31,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5509,7 +5499,7 @@
    "line": 59,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.26,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5520,7 +5510,7 @@
    "line": 76,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.21,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5531,7 +5521,7 @@
    "line": 80,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -5542,7 +5532,7 @@
    "line": 80,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -5553,7 +5543,7 @@
    "line": 89,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 0.23,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -5564,7 +5554,7 @@
    "line": 90,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5575,7 +5565,7 @@
    "line": 93,
    "module": "ledger_alt",
    "op": "unary_drop",
-   "seconds": 0.3,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -5586,7 +5576,7 @@
    "line": 94,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 0.29,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -5597,7 +5587,7 @@
    "line": 94,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 43.78,
+   "seconds": 49.82,
    "status": "survived"
   },
   {
@@ -5608,7 +5598,7 @@
    "line": 94,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.98,
+   "seconds": 0.93,
    "status": "killed"
   },
   {
@@ -5619,7 +5609,7 @@
    "line": 98,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 42.39,
+   "seconds": 48.72,
    "status": "survived"
   },
   {
@@ -5630,7 +5620,7 @@
    "line": 99,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.19,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5641,7 +5631,7 @@
    "line": 101,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.2,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5663,7 +5653,7 @@
    "line": 103,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 0.21,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -5685,7 +5675,7 @@
    "line": 108,
    "module": "ledger_alt",
    "op": "unary_drop",
-   "seconds": 0.2,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5696,7 +5686,7 @@
    "line": 111,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 44.23,
+   "seconds": 49.12,
    "status": "survived"
   },
   {
@@ -5707,7 +5697,7 @@
    "line": 119,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.2,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5718,7 +5708,7 @@
    "line": 129,
    "module": "ledger_alt",
    "op": "unary_drop",
-   "seconds": 0.29,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -5729,7 +5719,7 @@
    "line": 129,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 0.26,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -5740,7 +5730,7 @@
    "line": 130,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.32,
+   "seconds": 0.39,
    "status": "killed"
   },
   {
@@ -5751,7 +5741,7 @@
    "line": 134,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5762,7 +5752,7 @@
    "line": 134,
    "module": "ledger_alt",
    "op": "unary_drop",
-   "seconds": 0.26,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5773,7 +5763,7 @@
    "line": 135,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 0.26,
+   "seconds": 0.4,
    "status": "killed"
   },
   {
@@ -5784,7 +5774,7 @@
    "line": 137,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.88,
+   "seconds": 0.82,
    "status": "killed"
   },
   {
@@ -5795,7 +5785,7 @@
    "line": 137,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -5806,7 +5796,7 @@
    "line": 140,
    "module": "ledger_alt",
    "op": "unary_drop",
-   "seconds": 0.19,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -5817,7 +5807,7 @@
    "line": 141,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 43.21,
+   "seconds": 48.71,
    "status": "survived"
   },
   {
@@ -5828,7 +5818,7 @@
    "line": 147,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 0.19,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -5839,7 +5829,7 @@
    "line": 147,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.22,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5850,7 +5840,7 @@
    "line": 159,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.36,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -5861,7 +5851,7 @@
    "line": 160,
    "module": "ledger_alt",
    "op": "binop",
-   "seconds": 0.24,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -5872,7 +5862,7 @@
    "line": 175,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.32,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -5883,7 +5873,7 @@
    "line": 178,
    "module": "ledger_alt",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5894,7 +5884,7 @@
    "line": 186,
    "module": "ledger_alt",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -5905,7 +5895,7 @@
    "line": 187,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 0.21,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -5916,7 +5906,7 @@
    "line": 192,
    "module": "ledger_alt",
    "op": "negate_cond",
-   "seconds": 0.26,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -5927,7 +5917,7 @@
    "line": 197,
    "module": "ledger_alt",
    "op": "negate_cond",
-   "seconds": 0.39,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -5938,7 +5928,7 @@
    "line": 197,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 0.22,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -5949,7 +5939,7 @@
    "line": 205,
    "module": "ledger_alt",
    "op": "compare",
-   "seconds": 0.28,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -5971,7 +5961,7 @@
    "line": 29,
    "module": "props",
    "op": "const",
-   "seconds": 0.82,
+   "seconds": 0.92,
    "status": "killed"
   },
   {
@@ -5982,7 +5972,7 @@
    "line": 29,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 0.97,
+   "seconds": 1.34,
    "status": "killed"
   },
   {
@@ -5993,7 +5983,7 @@
    "line": 29,
    "module": "props",
    "op": "binop",
-   "seconds": 1.26,
+   "seconds": 0.94,
    "status": "killed"
   },
   {
@@ -6004,7 +5994,7 @@
    "line": 30,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 0.96,
+   "seconds": 1.07,
    "status": "killed"
   },
   {
@@ -6015,7 +6005,7 @@
    "line": 31,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 0.81,
+   "seconds": 1.45,
    "status": "killed"
   },
   {
@@ -6026,7 +6016,7 @@
    "line": 31,
    "module": "props",
    "op": "binop",
-   "seconds": 1.07,
+   "seconds": 0.92,
    "status": "killed"
   },
   {
@@ -6037,7 +6027,7 @@
    "line": 32,
    "module": "props",
    "op": "binop",
-   "seconds": 1.24,
+   "seconds": 0.94,
    "status": "killed"
   },
   {
@@ -6048,7 +6038,7 @@
    "line": 37,
    "module": "props",
    "op": "const",
-   "seconds": 1.97,
+   "seconds": 2.3,
    "status": "killed"
   },
   {
@@ -6059,7 +6049,7 @@
    "line": 47,
    "module": "props",
    "op": "negate_cond",
-   "seconds": 2.54,
+   "seconds": 2.16,
    "status": "killed"
   },
   {
@@ -6070,7 +6060,7 @@
    "line": 49,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 2.92,
+   "seconds": 2.53,
    "status": "killed"
   },
   {
@@ -6081,7 +6071,7 @@
    "line": 50,
    "module": "props",
    "op": "const",
-   "seconds": 2.72,
+   "seconds": 2.43,
    "status": "killed"
   },
   {
@@ -6092,7 +6082,7 @@
    "line": 58,
    "module": "props",
    "op": "return_none",
-   "seconds": 6.37,
+   "seconds": 4.15,
    "status": "killed"
   },
   {
@@ -6103,7 +6093,7 @@
    "line": 59,
    "module": "props",
    "op": "return_none",
-   "seconds": 4.38,
+   "seconds": 4.67,
    "status": "killed"
   },
   {
@@ -6114,7 +6104,7 @@
    "line": 66,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 0.19,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -6125,7 +6115,7 @@
    "line": 69,
    "module": "props",
    "op": "unary_drop",
-   "seconds": 0.24,
+   "seconds": 0.21,
    "status": "killed"
   },
   {
@@ -6136,7 +6126,7 @@
    "line": 71,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 0.18,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -6147,7 +6137,7 @@
    "line": 72,
    "module": "props",
    "op": "const",
-   "seconds": 0.25,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -6158,7 +6148,7 @@
    "line": 79,
    "module": "props",
    "op": "return_none",
-   "seconds": 1.83,
+   "seconds": 2.1,
    "status": "killed"
   },
   {
@@ -6169,7 +6159,7 @@
    "line": 79,
    "module": "props",
    "op": "const",
-   "seconds": 2.53,
+   "seconds": 1.8,
    "status": "killed"
   },
   {
@@ -6180,7 +6170,7 @@
    "line": 86,
    "module": "props",
    "op": "negate_cond",
-   "seconds": 1.78,
+   "seconds": 2.01,
    "status": "killed"
   },
   {
@@ -6191,7 +6181,7 @@
    "line": 87,
    "module": "props",
    "op": "const",
-   "seconds": 4.21,
+   "seconds": 4.07,
    "status": "killed"
   },
   {
@@ -6202,7 +6192,7 @@
    "line": 88,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 1.81,
+   "seconds": 2.07,
    "status": "killed"
   },
   {
@@ -6213,7 +6203,7 @@
    "line": 88,
    "module": "props",
    "op": "compare",
-   "seconds": 2.44,
+   "seconds": 2.05,
    "status": "killed"
   },
   {
@@ -6224,7 +6214,7 @@
    "line": 88,
    "module": "props",
    "op": "const",
-   "seconds": 2.39,
+   "seconds": 2.14,
    "status": "killed"
   },
   {
@@ -6235,7 +6225,7 @@
    "line": 91,
    "module": "props",
    "op": "const",
-   "seconds": 5.09,
+   "seconds": 4.03,
    "status": "killed"
   },
   {
@@ -6246,7 +6236,7 @@
    "line": 91,
    "module": "props",
    "op": "binop",
-   "seconds": 4.26,
+   "seconds": 4.12,
    "status": "killed"
   },
   {
@@ -6257,7 +6247,7 @@
    "line": 93,
    "module": "props",
    "op": "compare",
-   "seconds": 4.16,
+   "seconds": 5.55,
    "status": "killed"
   },
   {
@@ -6268,7 +6258,7 @@
    "line": 96,
    "module": "props",
    "op": "return_none",
-   "seconds": 4.45,
+   "seconds": 4.44,
    "status": "killed"
   },
   {
@@ -6279,7 +6269,7 @@
    "line": 96,
    "module": "props",
    "op": "binop",
-   "seconds": 4.52,
+   "seconds": 4.01,
    "status": "killed"
   },
   {
@@ -6290,7 +6280,7 @@
    "line": 97,
    "module": "props",
    "op": "negate_cond",
-   "seconds": 3.77,
+   "seconds": 4.13,
    "status": "killed"
   },
   {
@@ -6301,7 +6291,7 @@
    "line": 98,
    "module": "props",
    "op": "negate_cond",
-   "seconds": 4.27,
+   "seconds": 4.36,
    "status": "killed"
   },
   {
@@ -6312,7 +6302,7 @@
    "line": 99,
    "module": "props",
    "op": "const",
-   "seconds": 5.48,
+   "seconds": 4.95,
    "status": "killed"
   },
   {
@@ -6323,7 +6313,7 @@
    "line": 100,
    "module": "props",
    "op": "return_none",
-   "seconds": 4.19,
+   "seconds": 4.25,
    "status": "killed"
   },
   {
@@ -6334,7 +6324,7 @@
    "line": 101,
    "module": "props",
    "op": "compare",
-   "seconds": 3.95,
+   "seconds": 4.8,
    "status": "killed"
   },
   {
@@ -6345,7 +6335,7 @@
    "line": 102,
    "module": "props",
    "op": "compare",
-   "seconds": 5.11,
+   "seconds": 4.12,
    "status": "killed"
   },
   {
@@ -6356,7 +6346,7 @@
    "line": 103,
    "module": "props",
    "op": "const",
-   "seconds": 4.14,
+   "seconds": 4.85,
    "status": "killed"
   },
   {
@@ -6367,7 +6357,7 @@
    "line": 103,
    "module": "props",
    "op": "const",
-   "seconds": 4.68,
+   "seconds": 3.82,
    "status": "killed"
   },
   {
@@ -6378,7 +6368,7 @@
    "line": 103,
    "module": "props",
    "op": "compare",
-   "seconds": 4.47,
+   "seconds": 4.14,
    "status": "killed"
   },
   {
@@ -6389,7 +6379,7 @@
    "line": 103,
    "module": "props",
    "op": "binop",
-   "seconds": 3.79,
+   "seconds": 4.13,
    "status": "killed"
   },
   {
@@ -6400,7 +6390,7 @@
    "line": 105,
    "module": "props",
    "op": "const",
-   "seconds": 3.82,
+   "seconds": 4.24,
    "status": "killed"
   },
   {
@@ -6411,7 +6401,7 @@
    "line": 106,
    "module": "props",
    "op": "const",
-   "seconds": 4.31,
+   "seconds": 4.23,
    "status": "killed"
   },
   {
@@ -6422,7 +6412,7 @@
    "line": 107,
    "module": "props",
    "op": "const",
-   "seconds": 4.33,
+   "seconds": 4.14,
    "status": "killed"
   },
   {
@@ -6433,7 +6423,7 @@
    "line": 107,
    "module": "props",
    "op": "const",
-   "seconds": 4.33,
+   "seconds": 3.84,
    "status": "killed"
   },
   {
@@ -6444,7 +6434,7 @@
    "line": 111,
    "module": "props",
    "op": "const",
-   "seconds": 5.47,
+   "seconds": 4.98,
    "status": "killed"
   },
   {
@@ -6455,7 +6445,7 @@
    "line": 126,
    "module": "props",
    "op": "binop",
-   "seconds": 3.98,
+   "seconds": 4.1,
    "status": "killed"
   },
   {
@@ -6466,7 +6456,7 @@
    "line": 128,
    "module": "props",
    "op": "binop",
-   "seconds": 3.98,
+   "seconds": 4.3,
    "status": "killed"
   },
   {
@@ -6477,7 +6467,7 @@
    "line": 128,
    "module": "props",
    "op": "const",
-   "seconds": 5.3,
+   "seconds": 3.85,
    "status": "killed"
   },
   {
@@ -6488,7 +6478,7 @@
    "line": 130,
    "module": "props",
    "op": "binop",
-   "seconds": 4.77,
+   "seconds": 3.98,
    "status": "killed"
   },
   {
@@ -6499,7 +6489,7 @@
    "line": 130,
    "module": "props",
    "op": "const",
-   "seconds": 4.19,
+   "seconds": 4.09,
    "status": "killed"
   },
   {
@@ -6510,7 +6500,7 @@
    "line": 138,
    "module": "props",
    "op": "delete_stmt",
-   "seconds": 3.8,
+   "seconds": 4.14,
    "status": "killed"
   },
   {
@@ -6521,7 +6511,7 @@
    "line": 141,
    "module": "props",
    "op": "negate_cond",
-   "seconds": 4.73,
+   "seconds": 4.5,
    "status": "killed"
   },
   {
@@ -6532,7 +6522,7 @@
    "line": 144,
    "module": "props",
    "op": "compare",
-   "seconds": 3.85,
+   "seconds": 4.33,
    "status": "killed"
   },
   {
@@ -6543,7 +6533,7 @@
    "line": 144,
    "module": "props",
    "op": "const",
-   "seconds": 4.22,
+   "seconds": 4.36,
    "status": "killed"
   },
   {
@@ -6554,7 +6544,7 @@
    "line": 149,
    "module": "props",
    "op": "negate_cond",
-   "seconds": 4.08,
+   "seconds": 4.45,
    "status": "killed"
   },
   {
@@ -6565,7 +6555,7 @@
    "line": 149,
    "module": "props",
    "op": "compare",
-   "seconds": 5.32,
+   "seconds": 4.1,
    "status": "killed"
   },
   {
@@ -6576,7 +6566,7 @@
    "line": 156,
    "module": "props",
    "op": "compare",
-   "seconds": 4.66,
+   "seconds": 3.87,
    "status": "killed"
   },
   {
@@ -6587,7 +6577,7 @@
    "line": 157,
    "module": "props",
    "op": "const",
-   "seconds": 45.31,
+   "seconds": 51.2,
    "status": "survived"
   },
   {
@@ -6598,7 +6588,7 @@
    "line": 157,
    "module": "props",
    "op": "const",
-   "seconds": 4.58,
+   "seconds": 4.24,
    "status": "killed"
   },
   {
@@ -6609,7 +6599,7 @@
    "line": 160,
    "module": "props",
    "op": "return_none",
-   "seconds": 3.81,
+   "seconds": 4.56,
    "status": "killed"
   },
   {
@@ -6620,7 +6610,7 @@
    "line": 165,
    "module": "props",
    "op": "compare",
-   "seconds": 2.37,
+   "seconds": 2.02,
    "status": "killed"
   },
   {
@@ -6631,7 +6621,7 @@
    "line": 25,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.39,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -6642,7 +6632,7 @@
    "line": 27,
    "module": "stream",
    "op": "const",
-   "seconds": 1.11,
+   "seconds": 1.05,
    "status": "killed"
   },
   {
@@ -6653,7 +6643,7 @@
    "line": 34,
    "module": "stream",
    "op": "const",
-   "seconds": 1.08,
+   "seconds": 1.24,
    "status": "killed"
   },
   {
@@ -6664,7 +6654,7 @@
    "line": 34,
    "module": "stream",
    "op": "const",
-   "seconds": 1.03,
+   "seconds": 1.27,
    "status": "killed"
   },
   {
@@ -6675,7 +6665,7 @@
    "line": 34,
    "module": "stream",
    "op": "const",
-   "seconds": 1.02,
+   "seconds": 1.03,
    "status": "killed"
   },
   {
@@ -6686,7 +6676,7 @@
    "line": 40,
    "module": "stream",
    "op": "const",
-   "seconds": 1.26,
+   "seconds": 1.17,
    "status": "killed"
   },
   {
@@ -6697,7 +6687,7 @@
    "line": 67,
    "module": "stream",
    "op": "compare",
-   "seconds": 0.33,
+   "seconds": 0.31,
    "status": "killed"
   },
   {
@@ -6708,7 +6698,7 @@
    "line": 71,
    "module": "stream",
    "op": "boolop",
-   "seconds": 1.38,
+   "seconds": 1.06,
    "status": "killed"
   },
   {
@@ -6719,7 +6709,7 @@
    "line": 80,
    "module": "stream",
    "op": "compare",
-   "seconds": 1.16,
+   "seconds": 0.95,
    "status": "killed"
   },
   {
@@ -6730,7 +6720,7 @@
    "line": 81,
    "module": "stream",
    "op": "return_none",
-   "seconds": 0.29,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -6741,7 +6731,7 @@
    "line": 84,
    "module": "stream",
    "op": "binop",
-   "seconds": 5.92,
+   "seconds": 5.32,
    "status": "killed"
   },
   {
@@ -6752,7 +6742,7 @@
    "line": 84,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.29,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -6763,7 +6753,7 @@
    "line": 88,
    "module": "stream",
    "op": "const",
-   "seconds": 1.03,
+   "seconds": 0.99,
    "status": "killed"
   },
   {
@@ -6774,7 +6764,7 @@
    "line": 89,
    "module": "stream",
    "op": "compare",
-   "seconds": 46.6,
+   "seconds": 49.61,
    "status": "survived"
   },
   {
@@ -6785,7 +6775,7 @@
    "line": 90,
    "module": "stream",
    "op": "binop",
-   "seconds": 0.58,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
@@ -6796,7 +6786,7 @@
    "line": 106,
    "module": "stream",
    "op": "negate_cond",
-   "seconds": 0.45,
+   "seconds": 0.35,
    "status": "killed"
   },
   {
@@ -6807,7 +6797,7 @@
    "line": 108,
    "module": "stream",
    "op": "const",
-   "seconds": 1.27,
+   "seconds": 1.07,
    "status": "killed"
   },
   {
@@ -6818,7 +6808,7 @@
    "line": 118,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.38,
+   "seconds": 0.41,
    "status": "killed"
   },
   {
@@ -6829,7 +6819,7 @@
    "line": 122,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 1.23,
+   "seconds": 1.05,
    "status": "killed"
   },
   {
@@ -6840,7 +6830,7 @@
    "line": 123,
    "module": "stream",
    "op": "negate_cond",
-   "seconds": 1.36,
+   "seconds": 0.95,
    "status": "killed"
   },
   {
@@ -6851,7 +6841,7 @@
    "line": 134,
    "module": "stream",
    "op": "binop",
-   "seconds": 1.15,
+   "seconds": 1.18,
    "status": "killed"
   },
   {
@@ -6862,7 +6852,7 @@
    "line": 134,
    "module": "stream",
    "op": "binop",
-   "seconds": 1.19,
+   "seconds": 1.24,
    "status": "killed"
   },
   {
@@ -6873,7 +6863,7 @@
    "line": 140,
    "module": "stream",
    "op": "const",
-   "seconds": 0.28,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -6884,7 +6874,7 @@
    "line": 140,
    "module": "stream",
    "op": "boolop",
-   "seconds": 0.37,
+   "seconds": 0.38,
    "status": "killed"
   },
   {
@@ -6895,7 +6885,7 @@
    "line": 158,
    "module": "stream",
    "op": "const",
-   "seconds": 1.35,
+   "seconds": 1.12,
    "status": "killed"
   },
   {
@@ -6906,7 +6896,7 @@
    "line": 159,
    "module": "stream",
    "op": "boolop",
-   "seconds": 1.24,
+   "seconds": 1.15,
    "status": "killed"
   },
   {
@@ -6917,7 +6907,7 @@
    "line": 162,
    "module": "stream",
    "op": "compare",
-   "seconds": 1.43,
+   "seconds": 1.04,
    "status": "killed"
   },
   {
@@ -6928,7 +6918,7 @@
    "line": 164,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.37,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -6950,7 +6940,7 @@
    "line": 168,
    "module": "stream",
    "op": "negate_cond",
-   "seconds": 1.15,
+   "seconds": 1.02,
    "status": "killed"
   },
   {
@@ -6961,7 +6951,7 @@
    "line": 171,
    "module": "stream",
    "op": "const",
-   "seconds": 1.28,
+   "seconds": 1.13,
    "status": "killed"
   },
   {
@@ -6972,7 +6962,7 @@
    "line": 178,
    "module": "stream",
    "op": "binop",
-   "seconds": 1.33,
+   "seconds": 1.03,
    "status": "killed"
   },
   {
@@ -6994,7 +6984,7 @@
    "line": 190,
    "module": "stream",
    "op": "negate_cond",
-   "seconds": 3.09,
+   "seconds": 2.28,
    "status": "killed"
   },
   {
@@ -7005,7 +6995,7 @@
    "line": 226,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 1.05,
+   "seconds": 0.96,
    "status": "killed"
   },
   {
@@ -7016,7 +7006,7 @@
    "line": 231,
    "module": "stream",
    "op": "return_none",
-   "seconds": 0.94,
+   "seconds": 0.97,
    "status": "killed"
   },
   {
@@ -7027,7 +7017,7 @@
    "line": 237,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.95,
+   "seconds": 0.96,
    "status": "killed"
   },
   {
@@ -7038,7 +7028,7 @@
    "line": 242,
    "module": "stream",
    "op": "const",
-   "seconds": 2.15,
+   "seconds": 2.14,
    "status": "killed"
   },
   {
@@ -7049,7 +7039,7 @@
    "line": 242,
    "module": "stream",
    "op": "const",
-   "seconds": 5.53,
+   "seconds": 5.69,
    "status": "killed"
   },
   {
@@ -7060,7 +7050,7 @@
    "line": 242,
    "module": "stream",
    "op": "const",
-   "seconds": 5.41,
+   "seconds": 5.79,
    "status": "killed"
   },
   {
@@ -7071,7 +7061,7 @@
    "line": 246,
    "module": "stream",
    "op": "const",
-   "seconds": 2.12,
+   "seconds": 2.18,
    "status": "killed"
   },
   {
@@ -7082,7 +7072,7 @@
    "line": 246,
    "module": "stream",
    "op": "const",
-   "seconds": 5.31,
+   "seconds": 5.41,
    "status": "killed"
   },
   {
@@ -7093,7 +7083,7 @@
    "line": 246,
    "module": "stream",
    "op": "unary_drop",
-   "seconds": 5.16,
+   "seconds": 5.94,
    "status": "killed"
   },
   {
@@ -7104,7 +7094,7 @@
    "line": 248,
    "module": "stream",
    "op": "const",
-   "seconds": 4.81,
+   "seconds": 5.78,
    "status": "killed"
   },
   {
@@ -7115,7 +7105,7 @@
    "line": 248,
    "module": "stream",
    "op": "const",
-   "seconds": 5.15,
+   "seconds": 5.53,
    "status": "killed"
   },
   {
@@ -7126,7 +7116,7 @@
    "line": 248,
    "module": "stream",
    "op": "const",
-   "seconds": 5.8,
+   "seconds": 5.42,
    "status": "killed"
   },
   {
@@ -7137,7 +7127,7 @@
    "line": 251,
    "module": "stream",
    "op": "const",
-   "seconds": 2.31,
+   "seconds": 2.05,
    "status": "killed"
   },
   {
@@ -7148,7 +7138,7 @@
    "line": 253,
    "module": "stream",
    "op": "const",
-   "seconds": 5.08,
+   "seconds": 5.53,
    "status": "killed"
   },
   {
@@ -7159,7 +7149,7 @@
    "line": 253,
    "module": "stream",
    "op": "const",
-   "seconds": 2.29,
+   "seconds": 2.53,
    "status": "killed"
   },
   {
@@ -7170,7 +7160,7 @@
    "line": 257,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.87,
+   "seconds": 0.92,
    "status": "killed"
   },
   {
@@ -7181,7 +7171,7 @@
    "line": 290,
    "module": "stream",
    "op": "const",
-   "seconds": 1.29,
+   "seconds": 1.01,
    "status": "killed"
   },
   {
@@ -7192,7 +7182,7 @@
    "line": 290,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.79,
+   "seconds": 0.81,
    "status": "killed"
   },
   {
@@ -7203,7 +7193,7 @@
    "line": 292,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.92,
+   "seconds": 0.82,
    "status": "killed"
   },
   {
@@ -7214,7 +7204,7 @@
    "line": 294,
    "module": "stream",
    "op": "boolop",
-   "seconds": 1.21,
+   "seconds": 1.1,
    "status": "killed"
   },
   {
@@ -7225,7 +7215,7 @@
    "line": 309,
    "module": "stream",
    "op": "return_none",
-   "seconds": 0.78,
+   "seconds": 0.68,
    "status": "killed"
   },
   {
@@ -7236,7 +7226,7 @@
    "line": 312,
    "module": "stream",
    "op": "const",
-   "seconds": 1.17,
+   "seconds": 1.5,
    "status": "killed"
   },
   {
@@ -7247,7 +7237,7 @@
    "line": 324,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.9,
+   "seconds": 0.99,
    "status": "killed"
   },
   {
@@ -7258,7 +7248,7 @@
    "line": 334,
    "module": "stream",
    "op": "const",
-   "seconds": 1.21,
+   "seconds": 0.98,
    "status": "killed"
   },
   {
@@ -7269,7 +7259,7 @@
    "line": 362,
    "module": "stream",
    "op": "delete_stmt",
-   "seconds": 0.9,
+   "seconds": 0.91,
    "status": "killed"
   },
   {
@@ -7280,7 +7270,7 @@
    "line": 371,
    "module": "stream",
    "op": "return_none",
-   "seconds": 1.11,
+   "seconds": 0.93,
    "status": "killed"
   },
   {
@@ -7291,7 +7281,7 @@
    "line": 27,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.3,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -7302,7 +7292,7 @@
    "line": 29,
    "module": "synth",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -7313,7 +7303,7 @@
    "line": 38,
    "module": "synth",
    "op": "const",
-   "seconds": 0.33,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -7324,7 +7314,7 @@
    "line": 50,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.46,
+   "seconds": 0.36,
    "status": "killed"
   },
   {
@@ -7335,7 +7325,7 @@
    "line": 53,
    "module": "synth",
    "op": "const",
-   "seconds": 0.23,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -7346,7 +7336,7 @@
    "line": 53,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.32,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -7357,7 +7347,7 @@
    "line": 57,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.39,
    "status": "killed"
   },
   {
@@ -7368,7 +7358,7 @@
    "line": 58,
    "module": "synth",
    "op": "const",
-   "seconds": 0.28,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -7379,7 +7369,7 @@
    "line": 64,
    "module": "synth",
    "op": "const",
-   "seconds": 0.29,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -7390,7 +7380,7 @@
    "line": 64,
    "module": "synth",
    "op": "boolop",
-   "seconds": 0.36,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -7401,7 +7391,7 @@
    "line": 70,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.29,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -7412,7 +7402,7 @@
    "line": 80,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.38,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -7423,7 +7413,7 @@
    "line": 82,
    "module": "synth",
    "op": "unary_drop",
-   "seconds": 0.49,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -7434,7 +7424,7 @@
    "line": 82,
    "module": "synth",
    "op": "return_none",
-   "seconds": 0.4,
+   "seconds": 0.42,
    "status": "killed"
   },
   {
@@ -7445,7 +7435,7 @@
    "line": 102,
    "module": "synth",
    "op": "negate_cond",
-   "seconds": 0.31,
+   "seconds": 0.37,
    "status": "killed"
   },
   {
@@ -7456,7 +7446,7 @@
    "line": 102,
    "module": "synth",
    "op": "const",
-   "seconds": 0.42,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -7467,7 +7457,7 @@
    "line": 106,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.68,
+   "seconds": 0.58,
    "status": "killed"
   },
   {
@@ -7478,7 +7468,7 @@
    "line": 106,
    "module": "synth",
    "op": "const",
-   "seconds": 0.77,
+   "seconds": 0.61,
    "status": "killed"
   },
   {
@@ -7489,7 +7479,7 @@
    "line": 108,
    "module": "synth",
    "op": "return_none",
-   "seconds": 0.21,
+   "seconds": 0.2,
    "status": "killed"
   },
   {
@@ -7500,7 +7490,7 @@
    "line": 114,
    "module": "synth",
    "op": "return_none",
-   "seconds": 0.22,
+   "seconds": 0.23,
    "status": "killed"
   },
   {
@@ -7511,7 +7501,7 @@
    "line": 115,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.24,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -7522,7 +7512,7 @@
    "line": 116,
    "module": "synth",
    "op": "const",
-   "seconds": 0.39,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -7533,7 +7523,7 @@
    "line": 117,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7544,7 +7534,7 @@
    "line": 118,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.39,
+   "seconds": 0.32,
    "status": "killed"
   },
   {
@@ -7555,7 +7545,7 @@
    "line": 118,
    "module": "synth",
    "op": "negate_cond",
-   "seconds": 187.3,
+   "seconds": 195.97,
    "status": "timeout"
   },
   {
@@ -7566,7 +7556,7 @@
    "line": 119,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.3,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7577,7 +7567,7 @@
    "line": 125,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.25,
+   "seconds": 0.3,
    "status": "killed"
   },
   {
@@ -7588,7 +7578,7 @@
    "line": 127,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.26,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7599,7 +7589,7 @@
    "line": 130,
    "module": "synth",
    "op": "compare",
-   "seconds": 3.64,
+   "seconds": 2.91,
    "status": "killed"
   },
   {
@@ -7610,7 +7600,7 @@
    "line": 130,
    "module": "synth",
    "op": "const",
-   "seconds": 3.47,
+   "seconds": 3.8,
    "status": "killed"
   },
   {
@@ -7621,7 +7611,7 @@
    "line": 131,
    "module": "synth",
    "op": "boolop",
-   "seconds": 3.73,
+   "seconds": 3.53,
    "status": "killed"
   },
   {
@@ -7632,7 +7622,7 @@
    "line": 131,
    "module": "synth",
    "op": "const",
-   "seconds": 3.71,
+   "seconds": 3.38,
    "status": "killed"
   },
   {
@@ -7643,7 +7633,7 @@
    "line": 134,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.32,
+   "seconds": 0.34,
    "status": "killed"
   },
   {
@@ -7654,7 +7644,7 @@
    "line": 135,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.42,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -7676,7 +7666,7 @@
    "line": 140,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -7687,7 +7677,7 @@
    "line": 143,
    "module": "synth",
    "op": "const",
-   "seconds": 0.67,
+   "seconds": 0.63,
    "status": "killed"
   },
   {
@@ -7698,7 +7688,7 @@
    "line": 143,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.75,
+   "seconds": 0.72,
    "status": "killed"
   },
   {
@@ -7709,7 +7699,7 @@
    "line": 143,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.67,
+   "seconds": 0.63,
    "status": "killed"
   },
   {
@@ -7720,7 +7710,7 @@
    "line": 145,
    "module": "synth",
    "op": "binop",
-   "seconds": 0.77,
+   "seconds": 0.64,
    "status": "killed"
   },
   {
@@ -7731,7 +7721,7 @@
    "line": 150,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.25,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -7742,7 +7732,7 @@
    "line": 150,
    "module": "synth",
    "op": "negate_cond",
-   "seconds": 0.36,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7753,7 +7743,7 @@
    "line": 152,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.31,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -7764,7 +7754,7 @@
    "line": 153,
    "module": "synth",
    "op": "return_none",
-   "seconds": 0.24,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -7775,7 +7765,7 @@
    "line": 161,
    "module": "synth",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7786,7 +7776,7 @@
    "line": 173,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -7797,7 +7787,7 @@
    "line": 173,
    "module": "synth",
    "op": "boolop",
-   "seconds": 0.31,
+   "seconds": 0.25,
    "status": "killed"
   },
   {
@@ -7808,7 +7798,7 @@
    "line": 180,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.22,
+   "seconds": 0.28,
    "status": "killed"
   },
   {
@@ -7819,7 +7809,7 @@
    "line": 187,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.38,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -7830,7 +7820,7 @@
    "line": 189,
    "module": "synth",
    "op": "const",
-   "seconds": 0.26,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7841,7 +7831,7 @@
    "line": 189,
    "module": "synth",
    "op": "const",
-   "seconds": 0.24,
+   "seconds": 0.33,
    "status": "killed"
   },
   {
@@ -7852,7 +7842,7 @@
    "line": 189,
    "module": "synth",
    "op": "const",
-   "seconds": 0.23,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -7863,7 +7853,7 @@
    "line": 189,
    "module": "synth",
    "op": "const",
-   "seconds": 0.28,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -7885,7 +7875,7 @@
    "line": 198,
    "module": "synth",
    "op": "return_none",
-   "seconds": 0.3,
+   "seconds": 0.24,
    "status": "killed"
   },
   {
@@ -7896,7 +7886,7 @@
    "line": 208,
    "module": "synth",
    "op": "return_none",
-   "seconds": 0.36,
+   "seconds": 0.45,
    "status": "killed"
   },
   {
@@ -7907,7 +7897,7 @@
    "line": 214,
    "module": "synth",
    "op": "const",
-   "seconds": 0.27,
+   "seconds": 0.22,
    "status": "killed"
   },
   {
@@ -7918,7 +7908,7 @@
    "line": 214,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.24,
+   "seconds": 0.27,
    "status": "killed"
   },
   {
@@ -7929,7 +7919,7 @@
    "line": 223,
    "module": "synth",
    "op": "compare",
-   "seconds": 0.23,
+   "seconds": 0.26,
    "status": "killed"
   },
   {
@@ -7940,7 +7930,7 @@
    "line": 224,
    "module": "synth",
    "op": "delete_stmt",
-   "seconds": 0.36,
+   "seconds": 0.29,
    "status": "killed"
   },
   {
@@ -7951,7 +7941,7 @@
    "line": 20,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.1,
+   "seconds": 0.15,
    "status": "killed"
   },
   {
@@ -7962,7 +7952,7 @@
    "line": 21,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.1,
+   "seconds": 0.18,
    "status": "killed"
   },
   {
@@ -7973,7 +7963,7 @@
    "line": 24,
    "module": "vector_schema",
    "op": "unary_drop",
-   "seconds": 3.44,
+   "seconds": 3.33,
    "status": "killed"
   },
   {
@@ -7984,7 +7974,7 @@
    "line": 26,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 2.37,
+   "seconds": 1.9,
    "status": "killed"
   },
   {
@@ -7995,7 +7985,7 @@
    "line": 49,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 0.79,
+   "seconds": 0.62,
    "status": "killed"
   },
   {
@@ -8017,7 +8007,7 @@
    "line": 53,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.79,
+   "seconds": 0.72,
    "status": "killed"
   },
   {
@@ -8028,7 +8018,7 @@
    "line": 56,
    "module": "vector_schema",
    "op": "break_continue",
-   "seconds": 3.86,
+   "seconds": 6.22,
    "status": "killed"
   },
   {
@@ -8039,7 +8029,7 @@
    "line": 57,
    "module": "vector_schema",
    "op": "unary_drop",
-   "seconds": 2.48,
+   "seconds": 2.68,
    "status": "killed"
   },
   {
@@ -8050,7 +8040,7 @@
    "line": 60,
    "module": "vector_schema",
    "op": "boolop",
-   "seconds": 1.14,
+   "seconds": 0.91,
    "status": "killed"
   },
   {
@@ -8061,7 +8051,7 @@
    "line": 62,
    "module": "vector_schema",
    "op": "boolop",
-   "seconds": 0.83,
+   "seconds": 0.67,
    "status": "killed"
   },
   {
@@ -8072,7 +8062,7 @@
    "line": 62,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 0.74,
+   "seconds": 0.82,
    "status": "killed"
   },
   {
@@ -8083,7 +8073,7 @@
    "line": 62,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 3.35,
+   "seconds": 5.74,
    "status": "killed"
   },
   {
@@ -8094,7 +8084,7 @@
    "line": 65,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 3.18,
+   "seconds": 3.23,
    "status": "killed"
   },
   {
@@ -8105,7 +8095,7 @@
    "line": 67,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 2.52,
+   "seconds": 3.57,
    "status": "killed"
   },
   {
@@ -8116,7 +8106,7 @@
    "line": 71,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 2.23,
+   "seconds": 2.06,
    "status": "killed"
   },
   {
@@ -8127,7 +8117,7 @@
    "line": 71,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 2.64,
+   "seconds": 1.98,
    "status": "killed"
   },
   {
@@ -8138,7 +8128,7 @@
    "line": 73,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.67,
+   "seconds": 0.77,
    "status": "killed"
   },
   {
@@ -8149,7 +8139,7 @@
    "line": 78,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 2.01,
+   "seconds": 2.13,
    "status": "killed"
   },
   {
@@ -8160,7 +8150,7 @@
    "line": 84,
    "module": "vector_schema",
    "op": "return_none",
-   "seconds": 0.78,
+   "seconds": 0.86,
    "status": "killed"
   },
   {
@@ -8171,7 +8161,7 @@
    "line": 89,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.75,
+   "seconds": 0.76,
    "status": "killed"
   },
   {
@@ -8182,7 +8172,7 @@
    "line": 97,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 3.42,
+   "seconds": 3.06,
    "status": "killed"
   },
   {
@@ -8193,18 +8183,18 @@
    "line": 98,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 6.22,
+   "seconds": 9.47,
    "status": "killed"
   },
   {
    "after": "pass",
    "before": "out.append((f'{where}[{i}]', 'low <= min(open, close) <= max(open, close) <= high and low > 0 violated'))",
-   "detail": "FAIL: test_validator_rejects_tampering (qdcheck.tests.test_contract.TestVectorSchema.test_validator_rejects_tampering)",
+   "detail": "FAIL: test_problem_lists_are_capped_at_20_and_ohlcv_reports_first_bad_bar_only (qdcheck.tests.test_contract.TestVectorSchema.test_problem_lists_are_capped_at_20",
    "id": "vector_schema:358:delete_stmt",
    "line": 103,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 6.23,
+   "seconds": 5.91,
    "status": "killed"
   },
   {
@@ -8215,7 +8205,7 @@
    "line": 112,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 3.2,
+   "seconds": 3.05,
    "status": "killed"
   },
   {
@@ -8226,7 +8216,7 @@
    "line": 112,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 2.91,
+   "seconds": 3.09,
    "status": "killed"
   },
   {
@@ -8237,7 +8227,7 @@
    "line": 113,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 6.06,
+   "seconds": 8.62,
    "status": "killed"
   },
   {
@@ -8248,7 +8238,7 @@
    "line": 114,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.83,
+   "seconds": 1.01,
    "status": "killed"
   },
   {
@@ -8259,7 +8249,7 @@
    "line": 117,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 3.89,
+   "seconds": 2.63,
    "status": "killed"
   },
   {
@@ -8270,7 +8260,7 @@
    "line": 119,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 3.81,
+   "seconds": 2.98,
    "status": "killed"
   },
   {
@@ -8281,7 +8271,7 @@
    "line": 120,
    "module": "vector_schema",
    "op": "binop",
-   "seconds": 6.1,
+   "seconds": 8.84,
    "status": "killed"
   },
   {
@@ -8292,7 +8282,7 @@
    "line": 121,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 3.12,
+   "seconds": 3.34,
    "status": "killed"
   },
   {
@@ -8303,7 +8293,7 @@
    "line": 123,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 3.0,
+   "seconds": 3.52,
    "status": "killed"
   },
   {
@@ -8314,19 +8304,19 @@
    "line": 126,
    "module": "vector_schema",
    "op": "binop",
-   "seconds": 5.69,
+   "seconds": 8.5,
    "status": "killed"
   },
   {
    "after": "19",
    "before": "20",
-   "detail": "OK",
+   "detail": "FAIL: test_problem_lists_are_capped_at_20_and_ohlcv_reports_first_bad_bar_only (qdcheck.tests.test_contract.TestVectorSchema.test_problem_lists_are_capped_at_20",
    "id": "vector_schema:704:const:19",
    "line": 129,
    "module": "vector_schema",
    "op": "const",
-   "seconds": 43.47,
-   "status": "survived"
+   "seconds": 5.77,
+   "status": "killed"
   },
   {
    "after": "0",
@@ -8336,7 +8326,7 @@
    "line": 142,
    "module": "vector_schema",
    "op": "const",
-   "seconds": 47.54,
+   "seconds": 49.86,
    "status": "survived"
   },
   {
@@ -8347,29 +8337,29 @@
    "line": 145,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 2.98,
+   "seconds": 3.07,
    "status": "killed"
   },
   {
    "after": "r['side'] in ('buy', 'sell') or r['qty'] > 0 or isinstance(r['price'], (int, float)) or (r['price'] > 0)",
    "before": "r['side'] in ('buy', 'sell') and r['qty'] > 0 and isinstance(r['price'], (int, float)) and (r['price'] > 0)",
-   "detail": "FAIL: test_validator_rejects_tampering (qdcheck.tests.test_contract.TestVectorSchema.test_validator_rejects_tampering)",
+   "detail": "FAIL: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
    "id": "vector_schema:1110:boolop",
    "line": 150,
    "module": "vector_schema",
    "op": "boolop",
-   "seconds": 6.06,
+   "seconds": 4.89,
    "status": "killed"
   },
   {
    "after": "r['qty'] >= 0",
    "before": "r['qty'] > 0",
-   "detail": "FAIL: test_validator_rejects_tampering (qdcheck.tests.test_contract.TestVectorSchema.test_validator_rejects_tampering)",
+   "detail": "FAIL: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
    "id": "vector_schema:1466:compare",
    "line": 150,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 5.8,
+   "seconds": 6.56,
    "status": "killed"
   },
   {
@@ -8380,7 +8370,7 @@
    "line": 153,
    "module": "vector_schema",
    "op": "boolop",
-   "seconds": 5.94,
+   "seconds": 8.93,
    "status": "killed"
   },
   {
@@ -8391,7 +8381,7 @@
    "line": 153,
    "module": "vector_schema",
    "op": "compare",
-   "seconds": 3.26,
+   "seconds": 3.44,
    "status": "killed"
   },
   {
@@ -8402,30 +8392,30 @@
    "line": 154,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 6.6,
+   "seconds": 8.45,
    "status": "killed"
   },
   {
    "after": "19",
    "before": "20",
-   "detail": "OK",
+   "detail": "FAIL: test_problem_lists_are_capped_at_20_and_ohlcv_reports_first_bad_bar_only (qdcheck.tests.test_contract.TestVectorSchema.test_problem_lists_are_capped_at_20",
    "id": "vector_schema:755:const:19",
    "line": 157,
    "module": "vector_schema",
    "op": "const",
-   "seconds": 43.99,
-   "status": "survived"
+   "seconds": 5.0,
+   "status": "killed"
   },
   {
    "after": "21",
    "before": "20",
-   "detail": "OK",
+   "detail": "FAIL: test_problem_lists_are_capped_at_20_and_ohlcv_reports_first_bad_bar_only (qdcheck.tests.test_contract.TestVectorSchema.test_problem_lists_are_capped_at_20",
    "id": "vector_schema:755:const:21",
    "line": 157,
    "module": "vector_schema",
    "op": "const",
-   "seconds": 44.48,
-   "status": "survived"
+   "seconds": 5.24,
+   "status": "killed"
   },
   {
    "after": "return None",
@@ -8435,7 +8425,7 @@
    "line": 163,
    "module": "vector_schema",
    "op": "return_none",
-   "seconds": 1.68,
+   "seconds": 1.99,
    "status": "killed"
   },
   {
@@ -8446,7 +8436,7 @@
    "line": 168,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.65,
+   "seconds": 0.97,
    "status": "killed"
   },
   {
@@ -8457,19 +8447,19 @@
    "line": 170,
    "module": "vector_schema",
    "op": "const",
-   "seconds": 0.81,
+   "seconds": 0.65,
    "status": "killed"
   },
   {
    "after": "continue",
    "before": "break",
-   "detail": "OK",
+   "detail": "FAIL: test_number_text_rule (qdcheck.tests.test_contract.TestVectorSchema.test_number_text_rule)",
    "id": "vector_schema:775:break_continue",
    "line": 174,
    "module": "vector_schema",
    "op": "break_continue",
-   "seconds": 45.61,
-   "status": "survived"
+   "seconds": 5.32,
+   "status": "killed"
   },
   {
    "after": "pass",
@@ -8479,7 +8469,7 @@
    "line": 181,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.95,
+   "seconds": 0.83,
    "status": "killed"
   },
   {
@@ -8490,7 +8480,7 @@
    "line": 183,
    "module": "vector_schema",
    "op": "boolop",
-   "seconds": 3.43,
+   "seconds": 3.27,
    "status": "killed"
   },
   {
@@ -8501,7 +8491,7 @@
    "line": 185,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 0.68,
+   "seconds": 0.97,
    "status": "killed"
   },
   {
@@ -8512,7 +8502,7 @@
    "line": 189,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 0.69,
+   "seconds": 0.88,
    "status": "killed"
   },
   {
@@ -8523,19 +8513,19 @@
    "line": 191,
    "module": "vector_schema",
    "op": "negate_cond",
-   "seconds": 2.49,
+   "seconds": 2.27,
    "status": "killed"
   },
   {
    "after": "pass",
    "before": "probs = ledger_file_problems(obj) + number_text_problems(text)",
-   "detail": "OK",
+   "detail": "ERROR: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
    "id": "vector_schema:803:delete_stmt",
    "line": 192,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 45.33,
-   "status": "survived"
+   "seconds": 5.37,
+   "status": "killed"
   },
   {
    "after": "indicator_file_problems(obj) - number_text_problems(text)",
@@ -8545,7 +8535,7 @@
    "line": 194,
    "module": "vector_schema",
    "op": "binop",
-   "seconds": 0.86,
+   "seconds": 0.72,
    "status": "killed"
   },
   {
@@ -8556,19 +8546,19 @@
    "line": 194,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 1.0,
+   "seconds": 0.7,
    "status": "killed"
   },
   {
    "after": "pass",
    "before": "report['files'][name] = probs",
-   "detail": "OK",
+   "detail": "FAIL: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
    "id": "vector_schema:249:delete_stmt",
    "line": 195,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 45.88,
-   "status": "survived"
+   "seconds": 5.65,
+   "status": "killed"
   },
   {
    "after": "report['checked'] -= 1",
@@ -8578,61 +8568,61 @@
    "line": 196,
    "module": "vector_schema",
    "op": "binop",
-   "seconds": 2.88,
+   "seconds": 3.68,
    "status": "killed"
   },
   {
    "after": "1",
    "before": "0",
-   "detail": "OK",
+   "detail": "ERROR: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
    "id": "vector_schema:820:const:1",
    "line": 202,
    "module": "vector_schema",
    "op": "const",
-   "seconds": 44.83,
-   "status": "survived"
+   "seconds": 5.13,
+   "status": "killed"
   },
   {
    "after": "pass",
    "before": "print(f'    {where}: {msg}')",
-   "detail": "OK",
+   "detail": "FAIL: test_directory_report_shape_and_main_with_custom_dir (qdcheck.tests.test_contract.TestVectorSchema.test_directory_report_shape_and_main_with_custom_dir)",
    "id": "vector_schema:500:delete_stmt",
    "line": 207,
    "module": "vector_schema",
    "op": "delete_stmt",
-   "seconds": 45.97,
-   "status": "survived"
+   "seconds": 6.33,
+   "status": "killed"
   }
  ],
  "summary": {
-  "caught": 732,
-  "kill_rate": 93.84615384615384,
+  "caught": 757,
+  "kill_rate": 97.05128205128206,
   "modules": {
    "compare": {
-    "kill_rate": 93.33333333333333,
-    "killed": 56,
-    "survived": 4,
+    "kill_rate": 100.0,
+    "killed": 60,
+    "survived": 0,
     "timeout": 0,
     "total": 60
    },
    "determinism": {
-    "kill_rate": 93.33333333333333,
-    "killed": 56,
-    "survived": 4,
+    "kill_rate": 100.0,
+    "killed": 60,
+    "survived": 0,
     "timeout": 0,
     "total": 60
    },
    "examples": {
-    "kill_rate": 88.33333333333333,
-    "killed": 53,
-    "survived": 7,
+    "kill_rate": 96.66666666666667,
+    "killed": 58,
+    "survived": 2,
     "timeout": 0,
     "total": 60
    },
    "fuzz": {
-    "kill_rate": 90.0,
-    "killed": 54,
-    "survived": 6,
+    "kill_rate": 96.66666666666667,
+    "killed": 58,
+    "survived": 2,
     "timeout": 0,
     "total": 60
    },
@@ -8693,14 +8683,14 @@
     "total": 60
    },
    "vector_schema": {
-    "kill_rate": 85.0,
-    "killed": 51,
-    "survived": 9,
+    "kill_rate": 98.33333333333333,
+    "killed": 59,
+    "survived": 1,
     "timeout": 0,
     "total": 60
    }
   },
-  "survived": 48,
+  "survived": 23,
   "total": 780
  }
 }

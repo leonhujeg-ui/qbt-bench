@@ -81,18 +81,14 @@
     "statements": 152
    },
    "qdcheck/vector_schema.py": {
-    "covered": 159,
-    "missed": [
-     118,
-     122,
-     156
-    ],
-    "percent": 98.14814814814815,
+    "covered": 162,
+    "missed": [],
+    "percent": 100.0,
     "statements": 162
    }
   },
-  "total_covered": 2913,
-  "total_percent": 99.89711934156378,
+  "total_covered": 2916,
+  "total_percent": 100.0,
   "total_statements": 2916
  },
  "skipped": [
@@ -102,7 +98,7 @@
   "test_performance_scaled_to_200x3000_within_3_minutes (qdcheck.tests.test_stream.TestStreams.test_performance_scaled_to_200x3000_within_3_minutes): timing is meaningless under sys.monitoring"
  ],
  "tests_failed": 0,
- "tests_run": 211,
+ "tests_run": 213,
  "tests_skipped": 4,
  "tools": {
   "files": {
@@ -600,15 +596,16 @@
      84,
      85,
      86,
-     89,
-     91,
+     87,
+     90,
      92,
      93,
      94,
-     97
+     95,
+     98
     ],
     "percent": 0.0,
-    "statements": 42
+    "statements": 43
    },
    "qdcheck/tools/qbt_indicators_vs_vectors.py": {
     "covered": 0,
@@ -934,7 +931,7 @@
    }
   },
   "total_covered": 49,
-  "total_percent": 6.079404466501241,
-  "total_statements": 806
+  "total_percent": 6.07187112763321,
+  "total_statements": 807
  }
 }

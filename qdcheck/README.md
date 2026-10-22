@@ -7,7 +7,16 @@ python3.12 -m qdcheck.selftest
 期望输出（任何一行 `FAIL` 都会让退出码变成 1；数字来自本仓一次真实运行，你的机器上耗时会不同）：
 
 ```
-__SELFTEST_OUTPUT__
+qdcheck selftest  Linux-6.18.44-fc-v140-x86_64-with-glibc2.39  Python 3.12.3
+step        scale                                                    time  result  key numbers
+unittest    213 tests                                               87.9s  OK    OK; skipped 0
+coverage    2916 statements, 213 tests                              88.1s  OK    100.00% (>= 90% required); tests failed 0
+vectors     1260 indicator vectors + 7 ledger vectors, 17 files      4.6s  OK    regenerated: mismatches 0, max_rel_err 0.0e+00; schema: all valid
+indicators  5311 property checks                                    19.1s  OK    failures 0; ref vs alt max tol ratio 0.21
+fuzz        4 validates x 20000 cases                               15.9s  OK    good: bare 0, 2.17s; caught keyerror x510, zerodiv x103, recursion x430; nan/inf/missing/type 1830/1785/1845/1798
+ledger      200 streams x 3000 bars, 94028 records                  21.6s  OK    identity violations 0, alt issues 0, row mismatches 0 (10800000 values); liquidations 812
+harness     16 cases (4 fake engines + 12 qbt backtests)             9.5s  OK    as expected 16/16; set-order engine caught: True; qbt identical 12/12
+TOTAL                                                              246.7s  OK    7/7 steps passed; written qdcheck/results/selftest.json
 ```
 
 纯 Python 3.12 标准库，零第三方依赖、零出网、只写 `qdcheck/results/`、`qdcheck/vectors/` 与 tempfile。
@@ -59,7 +68,7 @@ python3.12 -m qdcheck.determinism mypkg.engine:run_backtest --task '{"strategy":
 
 | 平台 | 命令 | 结果 |
 |---|---|---|
-| __PLATFORM_ROWS__ |
+| 同机，CPython 3.13.16 | `python3 -m qdcheck.selftest --quick` | 7/7 步通过，97.1 s；向量重新生成逐点一致（mismatches 0） |
 
 向量、合成数据和随机流只用 `random.random()` 与四则运算（不依赖 libm），理论上在任何 IEEE-754 机器上逐位相同；判据只要求 1e-9 内一致。
 其他平台未实测——跑 `python3.12 -m qdcheck.selftest`，`vectors` 一行就是“在你的机器上重新生成能否对上”的答案。
