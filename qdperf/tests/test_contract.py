@@ -105,6 +105,34 @@ class TestApiDefaults(unittest.TestCase):
         for k, v in documented.items():
             self.assertEqual(tuple(D.DEFAULTS[k]) if isinstance(v, tuple) else D.DEFAULTS[k], v, k)
 
+    def test_python_api_defaults_match_contract(self):
+        """CONTRACT 各 ```python 块里写出的调用：关键字参数的值 = 函数签名的缺省值，且签名里有缺省值的参数都写出来了
+        （按名字按位置传也算写出）。diagnose 收 **opts，缺省值见上一条。"""
+        import inspect
+        aliases = {"B": B, "H": H, "G": G, "D": D, "S": S, "J": J, "sqlite_doctor": D, "synth_db": S}
+        norm = lambda v: tuple(v) if isinstance(v, (list, tuple)) else v
+        seen = []
+        for block in re.findall(r"```python\n(.*?)```", CONTRACT, re.S):
+            for n in ast.walk(ast.parse(block)):
+                if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name)
+                        and n.func.value.id in aliases):
+                    continue
+                name = f"{n.func.value.id}.{n.func.attr}"
+                params = inspect.signature(getattr(aliases[n.func.value.id], n.func.attr)).parameters
+                if any(p.kind == p.VAR_KEYWORD for p in params.values()):
+                    continue
+                documented = {kw.arg: ast.literal_eval(kw.value) for kw in n.keywords}
+                documented.update({a.id: params[a.id].default for a in n.args if isinstance(a, ast.Name) and a.id in params})
+                for k, p in params.items():
+                    if p.default is not p.empty:
+                        self.assertIn(k, documented, f"{name}: 参数 {k} 有缺省值 {p.default!r}，CONTRACT 没写")
+                        self.assertEqual(norm(documented[k]), norm(p.default), f"{name}({k}=...)")
+                for k in documented:
+                    self.assertIn(k, params, f"{name}: CONTRACT 写了不存在的参数 {k}")
+                seen.append(name)
+        self.assertIn("B.start", seen)
+        self.assertGreaterEqual(len(seen), 20)
+
 
 class TestFirstLines(unittest.TestCase):
     def test_regexes_present(self):

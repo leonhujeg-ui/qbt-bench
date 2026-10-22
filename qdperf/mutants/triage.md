@@ -2,7 +2,7 @@
 
 判据：突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体（这里每模块 50 个、seed 0，10 个库模块共 500 个），活下来的逐条判“等价”或补判据。跑法与口径见 `qdperf/mutants/run.py` 文档串。
 
-**结论：第 3 轮（抓住须确认、跑的过程中不改任何文件）首跑抓住率 80.6%（403/500），漏网 97 条，逐条判定为等价 26、补判据 71；补判据并修掉追查中发现的 3 个真问题后重跑，最终 95.4%（477/500，`results/mutation.json`），剩下的 23 条漏网全部判为等价（见表 A / B）。**
+**结论：第 3 轮（抓住须确认、跑的过程中不改任何文件）首跑抓住率 80.6%（403/500），漏网 97 条，逐条判定为等价 26、补判据 71；补判据并修掉追查中发现的 3 个真问题后重跑，最终 94.8%（474/500，`results/mutation.json`；另 1 个真问题由自检的临时目录检查发现，见经过第 7 条），剩下的 26 条漏网全部判为等价（见表 A / A2）。**
 
 ## 经过
 
@@ -11,12 +11,13 @@
 3. **第 2 轮**（`results/mutation_round2_partial.json`）：跑到 320/500 时因后台时限中断；暴露了 26 个仍按引号文本判死的误杀，以及第 1 轮被误杀遮住的一批漏网（附录 B）。**修正二**：源码文本判据改成与排版无关（AST 字符串常量 / `ast.unparse` 规范化文本）；修掉 `sqlite_load` 的 tempfile 目录泄漏（测试与突变跑了几千次后 /tmp 堆了 1.5 GB）。
 4. **第 3 轮**（`results/mutation_round3.json`，`python3.12 qdperf/mutants/run.py --per-module 50 --jobs 4`）：同 seed、500 个突变体一次跑完，耗时 71 分钟，首跑抓住率 **80.6%**，漏网 97；未确认的抖动失败 2 次（均未算抓住，列在文末）。
 5. **逐条判定这 97 条**：等价 26、补判据 71（表 A）。追查漏网时发现并修了 3 个真问题：(a) 体检工具遇到写错的 SQL 会跑到一半抛 Traceback（违反“输入错误退出码 2”的契约）→ 先在原库只读连接上把每条语句 EXPLAIN 一遍；(b) `fake_backend.start()` 起不来时异常里没有原因（原因打在子进程 stdout、却被丢进 DEVNULL）→ 收集子进程输出；(c) `fake_backend` 补齐响应体时差 1～8 字节会补出负数个 x、体反而比 `body_bytes` 长（缺省 64 字节时 POST 的第 1000 个请求起就会），`body_bytes` / `schedule` 也不校验 → 差不到 9 字节就不补、两项都校验。
-6. **重跑**：`python3.12 qdperf/mutants/run.py --module fake_backend sqlite_doctor --jobs 4`（100 个，14 分钟）；`python3.12 qdperf/mutants/run.py --ids <71 个 id> --jobs 4`（71 个，14 分钟）；`python3.12 qdperf/mutants/run.py --module fake_backend --jobs 4`（50 个，7 分钟）；`python3.12 qdperf/mutants/run.py --ids <10 个 id> --jobs 4`（10 个，2 分钟）；`python3.12 qdperf/mutants/run.py --ids <9 个 id> --jobs 4`（9 个，3 分钟）。改了库代码的模块（fake_backend 改了两次、sqlite_doctor 一次）源码变了、突变体按新源码重新抽样，所以整模块重跑，它们的漏网按“同一处突变”（算子 + 前后文本 + 所在源码行）对回之前的判定；其余模块只按 id 重跑第 3 轮的漏网（记 `first_run`）。
+6. **重跑**：`python3.12 qdperf/mutants/run.py --module fake_backend sqlite_doctor --jobs 4`（100 个，14 分钟）；`python3.12 qdperf/mutants/run.py --ids <71 个 id> --jobs 4`（71 个，14 分钟）；`python3.12 qdperf/mutants/run.py --module fake_backend --jobs 4`（50 个，7 分钟）；`python3.12 qdperf/mutants/run.py --ids <10 个 id> --jobs 4`（10 个，2 分钟）；`python3.12 qdperf/mutants/run.py --ids <9 个 id> --jobs 4`（9 个，3 分钟）；`python3.12 qdperf/mutants/run.py --module fake_backend --jobs 4`（50 个，6 分钟）；`python3.12 qdperf/mutants/run.py --ids <3 个 id> --jobs 4`（3 个，2 分钟）。改了库代码的模块（fake_backend 改了三次、sqlite_doctor 一次）源码变了、突变体按新源码重新抽样，所以整模块重跑，每次重抽样的首跑漏网逐条判定（表 A2；与第 3 轮同一处突变——算子 + 前后文本 + 所在源码行——的对回表 A 的判定），补了判据的再按 id 重跑；其余模块只按 id 重跑第 3 轮的漏网（记 `first_run`）。
+7. **第 4 个真问题（自检发现，不是突变）**：`selftest --full` 跑完 /tmp 里留下 4 个 `qdperf-backend-*` 目录——(d) `fake_backend.start()` 起不来时抛错前没删自己的 scratch 目录（两个“起不来”测试 × unittest / coverage 两步）。修掉后两个测试都断言目录已删；selftest 的 unittest 步加了“测试跑完 tempfile 下不许多出 `qdperf-*` 目录”的检查；fake_backend 第 3 次重抽样。
 
 | 模块 | 突变体 | 第 1 轮“抓住”（作废） | 第 3 轮首跑抓住 | 第 3 轮首跑抓住率 | 最终抓住（含超时） | 最终漏网 | 最终抓住率 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | common | 50 | 41 | 48 | 96% | 48 | 2 | 96% |
-| fake_backend（重抽样） | 50 | 50 | 38 | 76% | 48 | 2 | 96% |
+| fake_backend（重抽样） | 50 | 50 | 38 | 76% | 45 | 5 | 90% |
 | http_load | 50 | 47 | 49 | 98% | 49 | 1 | 98% |
 | index_advisor | 50 | 33 | 46 | 92% | 46 | 4 | 92% |
 | profile_gate | 50 | 39 | 50 | 100% | 50 | 0 | 100% |
@@ -25,7 +26,7 @@
 | sqlplan | 50 | 50 | 42 | 84% | 47 | 3 | 94% |
 | synth_db | 50 | 50 | 30 | 60% | 50 | 0 | 100% |
 | tick_jitter | 50 | 50 | 32 | 64% | 49 | 1 | 98% |
-| **合计** | 500 | 460 | 403 | 80.6% | 477 | 23 | **95.4%** |
+| **合计** | 500 | 460 | 403 | 80.6% | 474 | 26 | **94.8%** |
 
 复现：`python3.12 qdperf/mutants/run.py --per-module 50 --jobs 4`（约 70 分钟，4 核）；只看某几条：`--ids <id>...`；某模块改了库代码后：`--module <模块>`（都并入结果文件，原 meta 保留、重跑记进 `reruns`）。
 
@@ -46,7 +47,7 @@
 
 | id | 行 | 突变 | 判定 | 理由 | 最终 |
 |---|---|---|---|---|---|
-| `fake_backend:1981:const:1` | 82 | `0` → `1` | **补判据** | 全局并发上限缺省 `max_concurrency` 0（不限）→ 1：所有请求被串行化，只有计时类断言能看出来（突变测试下跳过）；`test_config_validation` 新增确定性断言：缺省 seed 1、全局上限 0、Backend 不建信号量，路由缺省错误率 0、上限 0、体 64 字节、分层抽样。 | （重抽样后为 `fake_backend:2067:const:1`）抓住：FAIL: test_config_validation |
+| `fake_backend:1981:const:1` | 82 | `0` → `1` | **补判据** | 全局并发上限缺省 `max_concurrency` 0（不限）→ 1：所有请求被串行化，只有计时类断言能看出来（突变测试下跳过）；`test_config_validation` 新增确定性断言：缺省 seed 1、全局上限 0、Backend 不建信号量，路由缺省错误率 0、上限 0、体 64 字节、分层抽样。 | （重抽样后为 `fake_backend:2077:const:1`）抓住：FAIL: test_config_validation |
 | `fake_backend:1484:const:1` | 85 | `0` → `1` | **等价** | `load_config` 里传给 `check_latency(...)` 的缺省延迟 `ms: 0` → `ms: 1`：这个字典只用来做合法性校验（固定 0 ms 与 1 ms 都合法），真正存进路由的是下一行自己的缺省 `{'kind': 'fixed', 'ms': 0}`；若改的是 `r.get('latency', …)` 里的缺省则更是死代码（该分支只在 'latency' 在 r 里时才走）。任何配置下输出都相同。 | 模块改库后重抽样，这一处没再抽中（或该行已改写） |
 | `fake_backend:1840:const:1.5000000000000002e-09` | 120 | `1e-09` → `1.5000000000000002e-09` | **等价** | 分位截断 `min(max(u, 1e-9), 1 - 1e-9)` 的下界 1e-9 → 1.5e-9：分层抽样的 u = (perm + 0.5)/1000 ∈ [0.0005, 0.9995]，碰不到截断；random 模式下 u 落进 [1e-9, 1.5e-9) 的概率每个请求 5×10⁻¹⁰，即使落进去，对数正态左尾 z 从 −6.00 变 −5.93，延迟差在纳秒级。截断只为避免 quantile(0) = −∞，任何可行的实验里都观测不到。 | 模块改库后重抽样，这一处没再抽中（或该行已改写） |
 | `fake_backend:793:const:0` | 144 | `1` → `0` | **等价** | `wbufsize = 1 << 16` → `0 << 16`（不缓冲，头和体分两次写）：同一个 Handler 已开 `disable_nagle_algorithm`（TCP_NODELAY），小包不再等对端的延迟 ACK，两者是双保险，去掉一个不改变字节流也不增加时延——开计时跑 `test_latency_matches_injection` 对突变体 3/3 通过（p50 仍 ≈ 21 ms，没有 +40 ms）。 | 模块改库后重抽样，这一处没再抽中（或该行已改写） |
@@ -177,13 +178,65 @@
 | `tick_jitter:5306:const:False` | 702 | `True` → `False` | **补判据** | CLI run 收尾 `rmtree(work, ignore_errors=True)` → `False`；`test_cli` 让 rmtree 在 ignore_errors 为假时抛错，断言 run 照常退出并写出结果。 | 抓住：ERROR: test_cli |
 | `tick_jitter:1001:delete_stmt` | 704 | `print(row_text(res))` → `pass` | **补判据** | CLI run 不再打印明细行；`test_cli` 新增：首行之后第二行是 `WAL …` 开头的明细。 | 抓住：ERROR: test_cli |
 
-## A2. 重抽样模块里新出现的 3 条漏网
+## A2. 改库后重抽样的样本里的首跑漏网
+
+每次重抽样的样本单列一节；与第 3 轮同一处突变的不重复列（在表 A，最后一栏是重抽样后的编号与状态）。样本已被下一次重抽样替换的，最后一栏是替换前的状态。
+
+
+### fake_backend 第 1 次重抽样（修 (b) 之后，`--module fake_backend sqlite_doctor`）：9 条
+
+| id | 行 | 突变 | 判定 | 理由 | 替换前 |
+|---|---|---|---|---|---|
+| `fake_backend:1040:compare` | 67 | `0 <= v < 1000000.0` → `0 <= v <= 1000000.0` | **补判据** | 延迟参数上界 `v < 1e6` → `v <= 1e6`（恰好 1e6 ms 也收）；`test_config_validation` 的非法配置清单新增 `ms: 1_000_000`。 | 漏网 |
+| `fake_backend:1508:const:-1` | 87 | `0` → `-1` | **补判据** | 错误率下界 `0 <= er` → `-1 <= er`（负的错误率也收）；非法配置清单新增 `error_rate: -0.1`。 | 漏网 |
+| `fake_backend:214:delete_stmt` | 145 | `disable_nagle_algorithm = True` → `pass` | **等价** | 删掉 `disable_nagle_algorithm = True`（重新打开 Nagle）：同一个 Handler 的 `wbufsize = 1 << 16` 已把头和体攒在一个缓冲里一次写出，没有“两次小写”就不会撞上对端延迟 ACK；两者是双保险，去掉一个字节流与时延都不变——开计时跑 `test_http_load.TestLoad.test_latency_matches_injection`（p50 < 30 ms）对突变体 3/3 通过。 | 漏网 |
+| `fake_backend:438:const:False` | 145 | `True` → `False` | **等价** | `disable_nagle_algorithm = True` → `False`：与 fake_backend:214 相同（Nagle 打开，但单次写出不受影响），同一测试 3/3 通过。 | 漏网 |
+| `fake_backend:808:const:1` | 150 | `0` → `1` | **等价** | `_reply(…, size=0)` 的缺省 → 1：不带 size 调用（错误响应、/__health、/__stats）时，判断“体比 size 短才补齐”——任何 JSON 体至少 2 字节，size 为 0 或 1 都不会补，输出相同。 | 漏网 |
+| `fake_backend:811:compare` | 152 | `len(body) < size` → `len(body) <= size` | **补判据** | 补齐响应体的条件 `len(body) < size` → `<=`：恰好等于 body_bytes 时会去补、补出负数个 x，体反而多出 9 字节。追查时发现原写法同样有问题：差 1～8 字节时也会这样（缺省 64 字节、POST 的第 1000 个请求起体就变成 65 字节）→ 修库：差不到 9 字节（pad 字段的最小开销）就不补；新增 `test_body_padding_bounds`：恰好等于、差 4、差 9、差 40 字节四种情况的体长与 JSON 合法性。 | 漏网 |
+| `fake_backend:2146:boolop` | 213 | `err or ''` → `err and ''` | **补判据** | 起不来时异常信息里的 `(err or '')` → `(err and '')`：丢掉子进程 stderr（崩溃的 Traceback 在那里）；原测试的原因恰好在 stdout 上；新增 `test_start_failure_carries_stderr`：把子进程换成往 stderr 写一句就退出的进程，断言异常里有这句。顺带补上配置校验的缺口：body_bytes（非负整数）与 schedule（stratified / random）原先不校验，`body_bytes: [1]` 会让子进程抛 TypeError 崩掉 → 现在报 ConfigError。 | 漏网 |
+| `fake_backend:251:delete_stmt` | 214 | `time.sleep(0.02)` → `pass` | **等价** | `start()` 等就绪文件时的 `time.sleep(0.02)` 被删：变成忙等轮询，只在子进程启动的约 0.3 s 里多耗 CPU，就绪判断、返回的 URL 与超时处理都不变，外部不可观测。 | 漏网 |
+| `fake_backend:933:const:False` | 239 | `True` → `False` | **补判据** | CLI `--config` 由必填改为可选；新增 `test_cli_requires_config`：不带 --config 时 argparse 以退出码 2 拒绝。 | 漏网 |
+
+其中 5 条补了判据、还没按 id 重跑，这个样本就因下一次修库被整模块重抽样替换了，所以“替换前”一栏仍是漏网；新判据留在测试里（之后两次整模块重跑都带着它们），但这几个突变体本身没有再跑过——它们改的是旧版源码，放到修库之后的源码上已不是同一个突变。
+
+### sqlite_doctor 重抽样（修 (a) 之后，同一次 `--module fake_backend sqlite_doctor`）：8 条
 
 | id | 行 | 突变 | 判定 | 理由 | 最终 |
 |---|---|---|---|---|---|
-| `fake_backend:2194:const:501` | 218 | `500` → `501` | **等价** | 起不来时异常信息保留子进程输出的最后 500 → 501 个字符：只在输出超过 500 字符时差一个字符，不进任何判定（测试只要求原因的关键字在里面）。 | 漏网 |
-| `fake_backend:292:delete_stmt` | 272 | `common.child_finish()` → `pass` | **等价** | 假后端子进程收尾的显式 `child_finish()` 被删：`child_init` 已用 atexit 注册了同一个（幂等的）`child_finish`，假后端是普通的 `python -m` 进程、经 sys.exit 正常退出，atexit 照样写出覆盖率——显式调用只对用 os._exit 结束的 multiprocessing 子进程才是必需的；`test_stop_is_graceful_and_child_flushes` 实测突变体下覆盖率文件照样写出。 | 漏网 |
+| `sqlite_doctor:3761:const:2` | 140 | `1` → `2` | **补判据** | `schema_info` 取主键列 `r[1]`（列名）→ `r[2]`（类型）：主键清单变成类型名，INTEGER 主键（rowid 别名）也认不出来；新增 `test_schema_info`：文本主键 / INTEGER 主键两张表的 pk 与 integer_pk。 | 抓住：FAIL: test_schema_info |
+| `sqlite_doctor:5124:const:4` | 147 | `3` → `4` | **补判据** | `schema_info` 里索引的 origin 取 `index_list` 第 3 列 → 第 4 列（partial 标记）；同 `test_schema_info`：普通索引 c、部分索引 c + partial、主键 / UNIQUE 自动索引 pk / u，外键清单。 | 抓住：FAIL: test_schema_info |
+| `sqlite_doctor:547:delete_stmt` | 182 | `conn.execute('DROP TABLE IF EXISTS sqlite_stat1')` → `pass` | **补判据** | `restore_stat1(conn, None)`（原来没有 sqlite_stat1）时不再 DROP：临时 ANALYZE 产生的统计表留在副本上；新增 `test_restore_stat1_when_absent`：从未 ANALYZE 的库，ANALYZE 后恢复，没有任何统计行（`ANALYZE sqlite_schema` 让规划器重载统计时会重建一张空表，空表与无表对规划器等价）。 | 抓住：FAIL: test_restore_stat1_when_absent |
+| `sqlite_doctor:3990:const:2` | 292 | `1` → `2` | **补判据** | 语句的行数估算 / 成本保留 1 位 → 2 位小数；工作负载里的估算恰好都是整数看不出来；同上测试用 1001 行、无统计的范围扫描（250.25 行 × 1.5 次/秒），断言 (250.2, 375.4)。 | 抓住：FAIL: test_unmeasured_load_and_rounding |
 | `sqlite_doctor:7069:const:4` | 436 | `3` → `4` | **等价** | 延迟事务演示场景的 `seed=3` → `4`（规格层面等价，同 sqlite_load:2013）：三个争用场景的种子 1 / 2 / 3 只要求彼此不同、同 seed 可复现，4 与 1、2 仍不同；换的只是同分布的另一组随机时刻。 | 漏网 |
+| `sqlite_doctor:802:const:300.0` | 447 | `200.0` → `300.0` | **补判据** | `DEFAULTS` 的等待预算 200 ms → 300 ms（需求里 p99 ≤ 200 ms 的判据）；新增 `test_contract.test_diagnose_defaults_match_contract`：CONTRACT 里 diagnose(...) 签名写的每个缺省值都与 `D.DEFAULTS` 相等（按 AST 解析文档里的调用）。 | 抓住：FAIL: test_diagnose_defaults_match_contract |
+| `sqlite_doctor:804:const:7.5` | 447 | `5.0` → `7.5` | **补判据** | `DEFAULTS` 的单条语句测量超时 5 s → 7.5 s；同上，文档签名与代码缺省逐项相等。 | 抓住：FAIL: test_diagnose_defaults_match_contract |
+| `sqlite_doctor:4652:const:1.0` | 615 | `0.0` → `1.0` | **补判据** | 体检表“全部语句合计占库 ms/秒”里没测量的语句按 0 → 1 计；新增 `test_unmeasured_load_and_rounding`：measure_timeout=0 时合计印 0.0 ms/秒。 | 抓住：FAIL: test_unmeasured_load_and_rounding |
+
+### fake_backend 第 2 次重抽样（修 (c) 之后）：8 条
+
+| id | 行 | 突变 | 判定 | 理由 | 替换前 |
+|---|---|---|---|---|---|
+| `fake_backend:1078:const:1` | 71 | `0` → `1` | **补判据** | 对数正态延迟的合法性 `0 < p50_ms` → `1 < p50_ms`（亚毫秒的中位数被拒）；`test_config_validation` 新增：p50 0.5 ms、p99 2 ms 的配置合法。 | 抓住：ERROR: test_config_validation |
+| `fake_backend:2194:const:501` | 218 | `500` → `501` | **等价** | 起不来时异常信息保留子进程输出的最后 500 → 501 个字符：只在输出超过 500 字符时差一个字符，不进任何判定（测试只要求原因的关键字在里面）。 | 漏网 |
+| `fake_backend:106:delete_stmt` | 226 | `proc.terminate()` → `pass` | **补判据** | `stop()` 不再先 `terminate()`：等满 10 s 超时后 SIGKILL，子进程来不及关服务器、写覆盖率；原测试只看退出码非空；新增 `test_stop_is_graceful_and_child_flushes`：退出码 0（走了 SIGTERM → KeyboardInterrupt → finally）、5 s 内结束。 | 抓住：FAIL: test_stop_escalation |
+| `fake_backend:931:const:9` | 228 | `10` → `9` | **补判据** | terminate 之后的等待上限 `wait(10)` → `wait(9)`；同 `test_stop_escalation`（停止协议：SIGTERM 后最多等 10 s 再 SIGKILL）。 | 抓住：FAIL: test_stop_escalation |
+| `fake_backend:1395:const:9` | 231 | `10` → `9` | **补判据** | kill 之后的等待上限 `wait(10)` → `wait(9)`；同 `test_stop_escalation`。 | 抓住：FAIL: test_stop_escalation |
+| `fake_backend:531:delete_stmt` | 231 | `proc.wait(10)` → `pass` | **补判据** | SIGKILL 之后不再 `wait`：停不下来的子进程被杀后不回收（僵尸、returncode 为 None）；新增 `test_stop_escalation`：用一个不理 SIGTERM 的假进程，断言调用序列为 terminate → wait(10) → kill → wait(10)。 | 抓住：FAIL: test_stop_escalation |
+| `fake_backend:959:const:1` | 245 | `0` → `1` | **补判据** | CLI `--port` 缺省 0（系统分配临时端口）→ 1：start() 不传 --port，于是子进程去绑 1 号端口（容器里以 root 运行时还真能绑上）；`test_subprocess_backend_and_main_errors` 新增：子进程假后端的端口 ≥ 1024（各平台的临时端口都在这之上）。 | 抓住：FAIL: test_subprocess_backend_and_main_errors |
+| `fake_backend:292:delete_stmt` | 272 | `common.child_finish()` → `pass` | **等价** | 假后端子进程收尾的显式 `child_finish()` 被删：`child_init` 已用 atexit 注册了同一个（幂等的）`child_finish`，假后端是普通的 `python -m` 进程、经 sys.exit 正常退出，atexit 照样写出覆盖率——显式调用只对用 os._exit 结束的 multiprocessing 子进程才是必需的；`test_stop_is_graceful_and_child_flushes` 实测突变体下覆盖率文件照样写出。 | 漏网 |
+
+### fake_backend 第 3 次重抽样（修 (d) 之后）：8 条
+
+| id | 行 | 突变 | 判定 | 理由 | 最终 |
+|---|---|---|---|---|---|
+| `fake_backend:699:const:63` | 89 | `64` → `63` | **等价** | `load_config` 校验 body_bytes 时 `r.get("body_bytes", 64)` 的缺省 → 63：这个值只拿去做“非负整数”校验（63 / 64 / 65 都合法、都通过），存进路由规格的缺省值取自第 98 行另一个 `r.get("body_bytes", 64)`；没配 body_bytes 的路由行为、校验结论都不变。 | 漏网 |
+| `fake_backend:699:const:65` | 89 | `64` → `65` | **等价** | 同 `fake_backend:699:const:63`（校验用的缺省 64 → 65，仍是合法的非负整数，存储的缺省值不受影响）。 | 漏网 |
+| `fake_backend:1651:binop` | 125 | `1 - 1e-09` → `1 + 1e-09` | **等价** | 延迟分位的上夹 `min(u, 1 - 1e-9)` → `min(u, 1 + 1e-9)`：分层调度 u = (k + 0.5) / 1000 ≤ 0.9995，从不碰到上夹；random 调度 u = random() ∈ [0, 1)，只有 u > 1 − 1e-9（每个请求概率 1e-9）时才有差别，而且 u 仍 < 1，`NormalDist.inv_cdf` 照样有限、不抛错。任何能跑完的测试都观测不到。 | 漏网 |
+| `fake_backend:1261:const:2` | 136 | `1` → `2` | **等价** | 路由匹配前去掉查询串 `path.split("?", 1)[0]` → `split("?", 2)[0]`：maxsplit ≥ 1 时第一个元素都是第一个 `?` 之前的部分，对任何路径完全相同。 | 漏网 |
+| `fake_backend:823:const:15` | 149 | `16` → `15` | **等价** | Handler 的写缓冲 `wbufsize = 1 << 16` → `1 << 15`：只决定超过 32 KiB 的响应要不要分两次 `send`；写出的字节不变，而且同一个 Handler 已关 Nagle（`disable_nagle_algorithm = True`），分两次写也不会撞上延迟 ACK——状态码、头、体、延迟都观测不到差别。 | 漏网 |
+| `fake_backend:239:const:30.0` | 205 | `20.0` → `30.0` | **补判据** | `start(config, timeout=20.0)` 的缺省超时 → 30 s：CONTRACT 原先只写了 `B.start(config)`；现在写成 `B.start(config, timeout=20.0)`，并新增 `test_contract.test_python_api_defaults_match_contract`：CONTRACT 各 python 块里写出的调用，关键字参数 = 签名缺省值、签名里有缺省值的参数都得写出（顺带补齐了 `J.prepare` 的 seed、`J.calibrate_panel` 的 probe_rows）。 | 抓住：FAIL: test_python_api_defaults_match_contract |
+| `fake_backend:516:delete_stmt` | 216 | `proc.kill()` → `pass` | **补判据** | `start()` 等不到就绪时不再先 `proc.kill()`：超时那条路上 `communicate()` 会一直等到子进程自己结束；新增 `test_start_timeout_kills_hung_child`：子进程换成睡 60 s 的进程、`timeout=0.5`，断言 10 s 内抛 RuntimeError、scratch 目录已删。 | 抓住：FAIL: test_start_timeout_kills_hung_child |
+| `fake_backend:968:const:1.0` | 248 | `0.0` → `1.0` | **补判据** | CLI `--seconds` 缺省 0（不自动退出）→ 1：`start()` 起的假后端 1 s 后自己退出；原来用它的测试都在 1 s 内结束。`test_subprocess_backend_and_main_errors` 新增：起来后等 1.5 s，子进程仍在（`poll()` 为 None）且照常应答。 | 抓住：FAIL: test_subprocess_backend_and_main_errors |
 
 ## B. 第 2 轮显形的漏网（第 1 轮被误杀遮住；第 3 轮前已补判据）
 

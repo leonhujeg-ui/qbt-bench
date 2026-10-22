@@ -224,8 +224,8 @@ scan: ^TICK_SCAN knee=(none|wal=(on|off),busy=[\d.]+,compute=(inline|subprocess)
 
 ```python
 from qdperf import tick_jitter as J
-work, master = J.prepare(db=None, scale=0.05)            # tempfile 里的母库
-cal = J.calibrate_panel(master, target_s)                 # {rows, range[lo, hi], seconds, per_row_us, target_seconds, capped}
+work, master = J.prepare(db=None, scale=0.05, seed=20261022)   # tempfile 里的母库
+cal = J.calibrate_panel(master, target_s, probe_rows=20000)   # {rows, range[lo, hi], seconds, per_row_us, target_seconds, capped}
 r   = J.run_once(master, cfg, work, cal)                  # cfg 键见 J.DEFAULTS
 s   = J.scan(quick=False, base=None, db=None, scale=0.05, mitigations=("replica", "chunked", "backoff", "wal"), log=None)
 J.find_knees(results); J.pick_knee(knees); J.first_line_run(r); J.first_line_scan(s); J.format_scan(s)
@@ -298,8 +298,9 @@ A/B 按 A、B、A 交替各跑一档；每个路径的 p50 / p99 与 A 两遍均
 
 ```python
 from qdperf import http_load as H, fake_backend as B
-proc, url = B.start(config); B.stop(proc)                     # 子进程假后端；B.serve(config) 为进程内线程版
-                                                              # 起不来（配置非法等）→ RuntimeError，消息里带子进程报的原因
+proc, url = B.start(config, timeout=20.0); B.stop(proc)       # 子进程假后端；B.serve(config) 为进程内线程版
+                                                              # 起不来（配置非法等）或 timeout 秒内没就绪 → 杀掉子进程、删 scratch 目录、
+                                                              # RuntimeError，消息里带子进程报的原因
 step = H.run_step(base, manifest, c, seconds=3.0, warmup=0.3, seed=0, timeout=10.0, allow_remote=False)
 r    = H.ramp(base, manifest, cmax=32, seconds=3.0, steps=None, growth=0.10, warmup=0.3, seed=0, allow_remote=False)
 res  = H.ab(base_a, base_b, manifest, c=8, seconds=3.0, tol=0.10, warmup=0.3, seed=0, allow_remote=False)

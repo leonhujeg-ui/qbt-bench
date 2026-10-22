@@ -47,7 +47,7 @@
 | G4 | A/B 中 B 比 A 慢 30% → 必红 | `REGRESSION a1.p99_ms=60.76→81.17 (+33.6%)`（4/4 项红）；同配置 A/A：`OK a2.p99_ms=12.99→13.26 (+2.0%) tol=10.0%` | ✅ | 同上 |
 | G5 | 一条命令自检，任何一项失败非零退出 | `python3.12 -m qdperf.selftest`：169 tests 等 8 步，见 README 第一屏 | ✅ | `python3.12 -m qdperf.selftest` |
 | G5 | 语句覆盖率 ≥ 90%（复用 tools/cov.py 做法） | **97.77%**（2938/3005 条，含 119 个子进程的覆盖；表见 §5） | ✅ | `python3.12 qdperf/tools/cov.py --fail-under 90` |
-| G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | 第 3 轮首跑 80.6%（403/500，抓住须确认），97 条漏网逐条判定、补判据并修 3 个真问题后重跑 → **95.4%**（477/500，每模块 50 个；漏网逐条判定见 `mutants/triage.md`） | ✅ | `python3.12 qdperf/mutants/run.py --per-module 50 --jobs 4` |
+| G5 | 突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体，活下来的逐条判定 | 第 3 轮首跑 80.6%（403/500，抓住须确认），97 条漏网逐条判定、补判据、修 4 个真问题（3 个由漏网追查发现、1 个由自检的临时目录检查发现）、改了库的模块重抽样后重跑 → **94.8%**（474/500，每模块 50 个；漏网逐条判定见 `mutants/triage.md`） | ✅ | `python3.12 qdperf/mutants/run.py --per-module 50 --jobs 4` |
 | G5 | 零依赖 / 零出网 / 零写仓外各一条测试 | `test_constraints.py`：grep + AST 只许标准库；静态无 socket / urllib.request、http.client 只经本机校验；运行时审计钩子跑一遍四个工具（含全部子进程），写盘只落 tempfile 与 results/，socket 只连 127.0.0.1 | ✅ | `python3.12 -m unittest qdperf.tests.test_constraints` |
 
 ### 1.1 最贵的 12 条语句（全量合成库，频次 × 行数）
@@ -227,7 +227,7 @@ WAL 开  busy 0.5s     subprocess  1.02T  1.00T         1.33T    1.38T
 | 模块 | 候选 | 突变体 | 第 3 轮首跑抓住率 | 最终抓住 | 超时 | 最终漏网（均已判定） | 最终抓住率 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | `common.py` | 308 | 50 | 96.0% | 48 | 0 | 2 | 96.0% |
-| `fake_backend.py`（改库后重抽样） | 344 | 50 | 76.0% | 48 | 0 | 2 | 96.0% |
+| `fake_backend.py`（改库后重抽样） | 346 | 50 | 76.0% | 45 | 0 | 5 | 90.0% |
 | `http_load.py` | 386 | 50 | 98.0% | 49 | 0 | 1 | 98.0% |
 | `index_advisor.py` | 293 | 50 | 92.0% | 46 | 0 | 4 | 92.0% |
 | `profile_gate.py` | 489 | 50 | 100.0% | 50 | 0 | 0 | 100.0% |
@@ -236,6 +236,6 @@ WAL 开  busy 0.5s     subprocess  1.02T  1.00T         1.33T    1.38T
 | `sqlplan.py` | 1095 | 50 | 84.0% | 46 | 1 | 3 | 94.0% |
 | `synth_db.py` | 479 | 50 | 60.0% | 50 | 0 | 0 | 100.0% |
 | `tick_jitter.py` | 837 | 50 | 64.0% | 49 | 0 | 1 | 98.0% |
-| **合计** | | 500 | 80.6% | 476 | 1 | 23 | **95.4%** |
+| **合计** | | 500 | 80.6% | 473 | 1 | 26 | **94.8%** |
 
 上表“最终”列是补判据、改库之后重跑的结果（`python3.12 qdperf/mutants/run.py --per-module 50 --jobs 4` 起，重跑命令记在 `meta.reruns`）；“第 3 轮首跑”是补判据之前、抓住须确认、跑的过程中不改任何文件的那一轮（`results/mutation_round3.json`）。第 1、2 轮因测试抖动 / 排版判据误杀而作废（留档在 `results/`）。经过、每条漏网的判定（等价 / 补判据，各带理由）见 [mutants/triage.md](mutants/triage.md)。

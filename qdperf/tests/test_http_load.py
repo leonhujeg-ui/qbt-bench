@@ -284,9 +284,27 @@ class TestServer(unittest.TestCase):
         self.assertLess(time.monotonic() - t0, 5.0)
         self.assertTrue(any(n.endswith(".json") for n in os.listdir(d)))      # 子进程的 child_finish 写出了覆盖率
 
+    def test_start_timeout_kills_hung_child(self):
+        """子进程一直不就绪 → timeout 到点就杀掉它并抛错（不等它自己结束），scratch 目录删掉。"""
+        import subprocess
+        import sys
+        from unittest import mock
+        real = subprocess.Popen
+        hang = [sys.executable, "-c", "import time; time.sleep(60)"]
+        made = _record_scratch(self)
+        t0 = time.monotonic()
+        with mock.patch.object(B.subprocess, "Popen", side_effect=lambda args, **kw: real(hang, **kw)):
+            with self.assertRaises(RuntimeError) as cm:
+                B.start(cfg({"/a": {}}), timeout=0.5)
+        self.assertLess(time.monotonic() - t0, 10.0)                       # 没杀的话 communicate 要等满 60 s
+        self.assertIn("fake backend failed to start", str(cm.exception))
+        self.assertFalse(os.path.exists(made[0]))
+
     def test_subprocess_backend_and_main_errors(self):
         proc, url = B.start(cfg({"/a": {}}))
         try:
+            time.sleep(1.5)
+            self.assertIsNone(proc.poll())                                   # --seconds 缺省 0：不会自己退出
             self.assertTrue(url.startswith("http://127.0.0.1:"))
             host, port, _p = H.parse_base(url)
             self.assertGreaterEqual(port, 1024)                              # --port 缺省 0：由系统分配临时端口

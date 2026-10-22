@@ -1,11 +1,14 @@
 # qdperf 突变测试漏网清单（自动生成；逐条判定见 qdperf/mutants/triage.md）
 
-总数 500，抓住 477，漏网 23，抓住率 95.4%
+总数 500，抓住 474，漏网 26，抓住率 94.8%
 
 - `common:1191:const:9` 行 57 [const]: `10` -> `9`
 - `common:866:const:1` 行 92 [const]: `2` -> `1`
-- `fake_backend:2194:const:501` 行 218 [const]: `500` -> `501`
-- `fake_backend:292:delete_stmt` 行 272 [delete_stmt]: `common.child_finish()` -> `pass`
+- `fake_backend:699:const:63` 行 89 [const]: `64` -> `63`
+- `fake_backend:699:const:65` 行 89 [const]: `64` -> `65`
+- `fake_backend:1651:binop` 行 125 [binop]: `1 - 1e-09` -> `1 + 1e-09`
+- `fake_backend:1261:const:2` 行 136 [const]: `1` -> `2`
+- `fake_backend:823:const:15` 行 149 [const]: `16` -> `15`
 - `http_load:1226:delete_stmt` 行 136 [delete_stmt]: `conn.close()` -> `pass`
 - `index_advisor:407:delete_stmt` 行 29 [delete_stmt]: `nd['alias'] = nd['table']` -> `pass`
 - `index_advisor:209:compare` 行 97 [compare]: `hi - lo + 1 <= k` -> `hi - lo + 1 < k`

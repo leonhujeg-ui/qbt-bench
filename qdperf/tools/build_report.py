@@ -309,7 +309,7 @@ def block_mutation_first(cache):
     """行内：第 3 轮首跑（补判据之前）的抓住率与漏网数。"""
     r3 = _load("mutation_round3.json", cache)["summary"]
     return (f"第 3 轮首跑 {r3['kill_rate']:.1f}%（{r3['caught']}/{r3['total']}，抓住须确认），{r3['survived']} 条漏网逐条判定、"
-            f"补判据并修 3 个真问题后重跑 → ")
+            f"补判据、修 4 个真问题（3 个由漏网追查发现、1 个由自检的临时目录检查发现）、改了库的模块重抽样后重跑 → ")
 
 
 BLOCKS = {"machines": block_machines, "g1_top": block_g1_top, "g1_suggestions": block_g1_suggestions,
