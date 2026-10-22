@@ -360,6 +360,50 @@
    "count": 150
   }
  },
+ "ledger": [
+  {
+   "file": "ledger_long_add_partial_close.json",
+   "description": "多头开仓 -> 加仓 -> 部分平仓 -> 全平，带手续费",
+   "bars": 6,
+   "records": 4
+  },
+  {
+   "file": "ledger_short_reverse_funding_settlement.json",
+   "description": "空头 -> 资金费（空头收取）-> 跨日结算 -> 反手做多 -> 平仓",
+   "bars": 7,
+   "records": 6
+  },
+  {
+   "file": "ledger_isolated_x20_liquidations.json",
+   "description": "逐仓 20 倍：跳空穿仓（保险基金补足）与普通强平各一次",
+   "bars": 8,
+   "records": 4
+  },
+  {
+   "file": "ledger_cross_x3_liquidation.json",
+   "description": "全仓 3 倍：权益 <= 5% 名义额时强平",
+   "bars": 6,
+   "records": 2
+  },
+  {
+   "file": "ledger_stream_isolated_x20.json",
+   "description": "随机流：逐仓 20 倍，含强平",
+   "bars": 400,
+   "records": 25
+  },
+  {
+   "file": "ledger_stream_none_settlement.json",
+   "description": "随机流：无保证金，含跨日结算与资金费",
+   "bars": 400,
+   "records": 118
+  },
+  {
+   "file": "ledger_stream_cross_x5.json",
+   "description": "随机流：全仓 5 倍",
+   "bars": 400,
+   "records": 107
+  }
+ ],
  "tolerance": {
   "rel_tol": 1e-09,
   "abs_tol": 1e-12

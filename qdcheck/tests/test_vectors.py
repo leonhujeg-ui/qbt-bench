@@ -110,7 +110,11 @@ class TestWriterAndChecker(unittest.TestCase):
         try:
             counts = G.write_all(tmp)
             manifest = _read_json(os.path.join(tmp, "manifest.json"))
-            self.assertEqual(counts, {k: v["count"] for k, v in manifest["indicators"].items()})
+            self.assertEqual({k: v for k, v in counts.items() if not k.startswith("ledger_")},
+                             {k: v["count"] for k, v in manifest["indicators"].items()})
+            self.assertEqual(sorted(f"ledger_{x['file'][7:-5]}" for x in manifest["ledger"]),
+                             sorted(k for k in counts if k.startswith("ledger_")))
+            self._tamper_ledger(tmp)
             self.assertTrue(G.check_all(tmp, indicators=["cci", "ao"])["ok"])
             path = os.path.join(tmp, "cci.json")
             obj = _read_json(path)
@@ -133,9 +137,33 @@ class TestWriterAndChecker(unittest.TestCase):
             self.assertEqual(res["files"]["cci"]["problems"], 5)
             with captured() as (out, _err):
                 self.assertEqual(G.main(["--check", "--out", tmp, "--json", os.path.join(tmp, "s.json")]), 1)
-            self.assertIn("mismatches 5", out.getvalue())
+            self.assertIn("mismatches 10", out.getvalue())          # 5 处指标向量 + 5 处账本向量
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def _tamper_ledger(self, tmp):
+        self.assertEqual(G.check_ledger_vectors(tmp)["mismatches"], [])
+        edits = {
+            "ledger_long_add_partial_close.json": lambda v: v["expected"]["equity"].__setitem__(2, 0.0),
+            "ledger_cross_x3_liquidation.json": lambda v: v["config"].__setitem__("mmr", 0.06),
+            "ledger_isolated_x20_liquidations.json": lambda v: v["records"][1].__setitem__("price", 91.0),
+            "ledger_short_reverse_funding_settlement.json": lambda v: v["closes"].__setitem__(1, 1.0),
+        }
+        for name, edit in edits.items():
+            path = os.path.join(tmp, name)
+            vec = _read_json(path)
+            edit(vec)
+            _write_json(path, vec)
+        os.remove(os.path.join(tmp, "ledger_stream_cross_x5.json"))
+        res = G.check_ledger_vectors(tmp)
+        text = "\n".join(res["mismatches"])
+        self.assertIn("ledger_long_add_partial_close: expected.equity bar 2", text)
+        self.assertIn("ledger_cross_x3_liquidation: config / record count differs", text)
+        self.assertIn("ledger_isolated_x20_liquidations: record 1 differs", text)
+        self.assertIn("ledger_short_reverse_funding_settlement: closes: MISMATCH [value] first index 1", text)
+        self.assertIn("ledger_stream_cross_x5: missing on disk", text)
+        self.assertEqual(len(res["mismatches"]), 5)
+        self.assertEqual(res["vectors"], 6)
 
     def test_main_writes_and_checks(self):
         tmp = tempfile.mkdtemp()

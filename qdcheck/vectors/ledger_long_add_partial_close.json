@@ -1,0 +1,27 @@
+{"format":"qdcheck.ledger-vector.v1","name":"long_add_partial_close","description":"多头开仓 -> 加仓 -> 部分平仓 -> 全平，带手续费","generator":"python3.12 -m qdcheck.gen_vectors","config":{"initial_cash":100000.0,"margin_mode":"none","leverage":1,"mmr":0.0050000000000000001},"counters":{"open":1,"add":1,"reduce":1,"close":1,"reverse":0,"long":1,"short":0,"funding":0,"settlement":0,"liquidation":0,"bankrupt_capped":0},"closes":[101.0,112.0,118.0,95.0,96.0,97.0],
+"records":[
+{"bar":0,"kind":"trade","side":"buy","qty":10,"price":100.0,"fee":0.5,"funding":0.0},
+{"bar":1,"kind":"trade","side":"buy","qty":5,"price":110.0,"fee":0.29999999999999999,"funding":0.0},
+{"bar":2,"kind":"trade","side":"sell","qty":8,"price":120.0,"fee":0.40000000000000002,"funding":0.0},
+{"bar":3,"kind":"trade","side":"sell","qty":7,"price":94.0,"fee":0.29999999999999999,"funding":0.0}
+],
+"expected":{
+"bar":[0,1,2,3,4,5],
+"close":[101.0,112.0,118.0,95.0,96.0,97.0],
+"cash":[98999.5,98449.199999999997,99408.800000000003,100066.5,100066.5,100066.5],
+"qty":[10,15,7,0,0,0],
+"avg_price":[100.0,103.33333333333333,103.33333333333333,0.0,0.0,0.0],
+"unrealized":[10.0,130.00000000000006,102.6666666666667,0.0,0.0,0.0],
+"realized":[0.0,0.0,133.33333333333337,68.000000000000071,68.000000000000071,68.000000000000071],
+"fees":[0.5,0.80000000000000004,1.2000000000000002,1.5000000000000002,1.5000000000000002,1.5000000000000002],
+"funding":[0.0,0.0,0.0,0.0,0.0,0.0],
+"insurance":[0.0,0.0,0.0,0.0,0.0,0.0],
+"equity":[100009.5,100129.2,100234.8,100066.5,100066.5,100066.5],
+"market_value":[1010.0,1680.0,826.0,0.0,0.0,0.0],
+"margin_used":[0.0,0.0,0.0,0.0,0.0,0.0],
+"maint_margin":[5.0500000000000007,8.4000000000000004,4.1300000000000008,0.0,0.0,0.0],
+"position_equity":[null,null,null,null,null,null],
+"liq_price":[null,null,null,null,null,null],
+"fills":[1,2,3,4,4,4],
+"liquidations":[0,0,0,0,0,0]
+}}

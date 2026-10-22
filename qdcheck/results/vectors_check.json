@@ -38,13 +38,18 @@
    "vectors": 140
   }
  },
+ "ledger": {
+  "bars": 1227,
+  "mismatches": [],
+  "vectors": 7
+ },
  "max_abs_err": 0.0,
  "max_rel_err": 0.0,
  "max_tol_ratio": 0.0,
  "mismatches": [],
  "ok": true,
  "rel_tol": 1e-09,
- "seconds": 2.05,
+ "seconds": 2.53,
  "values": 90303,
  "vec_dir": "qdcheck/vectors",
  "vectors": 1260

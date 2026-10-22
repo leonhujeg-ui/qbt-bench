@@ -22,9 +22,13 @@ import time
 
 from qdcheck import compare, synth
 from qdcheck import indicators_ref as ref
+from qdcheck import ledger
+from qdcheck import ledger_alt
+from qdcheck import stream
 
 SEED = 20261022
 FORMAT = "qdcheck.indicator-vectors.v1"
+LEDGER_FORMAT = "qdcheck.ledger-vector.v1"
 VECTOR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vectors")
 _COLS = ("open", "high", "low", "close", "volume")
 
@@ -155,7 +159,33 @@ def manifest():
                                  "count": len(ref.VARIANTS[ind]) * len(ref.LINES[ind]) * len(series_specs())
                                  * len(param_sets(ind))}
                            for ind in ref.INDICATORS},
+            "ledger": [{"file": f"ledger_{n}.json", "description": d, "bars": len(c), "records": len(r)}
+                       for n, d, _cfg, c, r in stream.ledger_scenarios()],
             "tolerance": {"rel_tol": compare.REL_TOL, "abs_tol": compare.ABS_TOL}}
+
+
+def ledger_vectors():
+    """账本向量：{"name", "description", "config", "closes", "records", "expected": {字段: [逐根值]}, "counters"}。
+    生成时同时用 ledger_alt 独立重算并要求零违背、逐根一致，否则直接报错（不写出错误的向量）。"""
+    out = []
+    for name, desc, cfg, closes, records in stream.ledger_scenarios():
+        res = ledger.run(records, closes, **cfg)
+        alt = ledger_alt.run(records, closes, **cfg)
+        cmp = stream.compare_rows(res["rows"], alt["rows"], cfg["initial_cash"])
+        if res["violations"] or alt["issues"] or not cmp["ok"]:
+            raise RuntimeError(f"ledger scenario {name} is inconsistent: {res['violations'][:2]} {alt['issues'][:2]} {cmp}")
+        out.append({"format": LEDGER_FORMAT, "name": name, "description": desc, "config": cfg, "closes": closes,
+                    "records": records, "expected": ledger.columns(res["rows"]), "counters": res["counters"],
+                    "generator": "python3.12 -m qdcheck.gen_vectors"})
+    return out
+
+
+def _ledger_payload(vec):
+    head = {k: vec[k] for k in ("format", "name", "description", "generator", "config", "counters")}
+    parts = [dumps(head)[:-1], ',"closes":', dumps(vec["closes"]), ',\n"records":[\n',
+             ",\n".join(dumps(r) for r in vec["records"]), '\n],\n"expected":{\n',
+             ",\n".join(f"{json.dumps(k)}:{dumps(v)}" for k, v in vec["expected"].items()), "\n}}\n"]
+    return "".join(parts)
 
 
 def write_all(out_dir=VECTOR_DIR):
@@ -167,6 +197,10 @@ def write_all(out_dir=VECTOR_DIR):
         counts[ind] = len(vecs)
         with open(os.path.join(out_dir, f"{ind}.json"), "w", encoding="utf-8") as f:
             f.write(file_payload(ind, vecs))
+    for vec in ledger_vectors():
+        counts[f"ledger_{vec['name']}"] = len(vec["closes"])
+        with open(os.path.join(out_dir, f"ledger_{vec['name']}.json"), "w", encoding="utf-8") as f:
+            f.write(_ledger_payload(vec))
     with open(os.path.join(out_dir, "manifest.json"), "w", encoding="utf-8") as f:
         f.write(json.dumps(manifest(), indent=1, ensure_ascii=False) + "\n")
     return counts
@@ -208,9 +242,49 @@ def check_all(vec_dir=VECTOR_DIR, rel_tol=compare.REL_TOL, indicators=None):
         summary["files"][ind] = {"vectors": len(on_disk), "problems": len(problems)}
         summary["vectors"] += len(on_disk)
         summary["mismatches"].extend(problems)
+    if indicators is None:
+        summary["ledger"] = check_ledger_vectors(vec_dir, rel_tol)
+        summary["mismatches"].extend(summary["ledger"]["mismatches"])
     summary["ok"] = not summary["mismatches"]
     summary["seconds"] = round(time.perf_counter() - t0, 2)
     return summary
+
+
+def check_ledger_vectors(vec_dir=VECTOR_DIR, rel_tol=1e-9):
+    """重新生成账本向量，与磁盘上的逐根逐字段比较；同时比较成交流与收盘价本身。"""
+    out = {"vectors": 0, "bars": 0, "mismatches": []}
+    for vec in ledger_vectors():
+        path = os.path.join(vec_dir, f"ledger_{vec['name']}.json")
+        if not os.path.exists(path):
+            out["mismatches"].append(f"ledger_{vec['name']}: missing on disk")
+            continue
+        with open(path, encoding="utf-8") as f:
+            disk = json.load(f)
+        out["vectors"] += 1
+        out["bars"] += len(vec["closes"])
+        problems = []
+        if disk["config"] != vec["config"] or len(disk["records"]) != len(vec["records"]):
+            problems.append("config / record count differs")
+        else:
+            res = compare.compare_series(disk["closes"], vec["closes"], rel_tol, 0.0, "none")
+            if not res["ok"]:
+                problems.append(f"closes: {compare.format_result(res)}")
+            for k, (a, b) in enumerate(zip(disk["records"], vec["records"])):
+                if {x: a[x] for x in ("bar", "kind", "side", "qty")} != {x: b[x] for x in ("bar", "kind", "side", "qty")} \
+                        or any(not _rec_close(a[x], b[x], rel_tol) for x in ("price", "fee", "funding")):
+                    problems.append(f"record {k} differs")
+                    break
+            res = ledger.check_vector(disk, vec["expected"], rel_tol)
+            if not res["ok"]:
+                problems.append(f"expected.{res['field']} bar {res['bar']}: {res.get('expected')!r} vs {res.get('actual')!r}")
+        out["mismatches"].extend(f"ledger_{vec['name']}: {p}" for p in problems)
+    return out
+
+
+def _rec_close(a, b, rel_tol):
+    if a is None or b is None:
+        return a is None and b is None
+    return abs(a - b) <= rel_tol * max(abs(a), abs(b), 1e-300)
 
 
 def main(argv=None):
@@ -221,12 +295,17 @@ def main(argv=None):
     args = ap.parse_args(argv)
     if not args.check:
         counts = write_all(args.out)
-        print(json.dumps({"written": counts, "total": sum(counts.values()), "seed": SEED}, sort_keys=True))
+        ind = {k: v for k, v in counts.items() if not k.startswith("ledger_")}
+        print(json.dumps({"indicator_vectors": ind, "total": sum(ind.values()), "seed": SEED,
+                          "ledger_vectors_bars": {k: v for k, v in counts.items() if k.startswith("ledger_")}},
+                         sort_keys=True))
         return 0
     summary = check_all(args.out)
     for line in summary["mismatches"][:20]:
         print(line)
-    print(f"vectors {summary['vectors']}  values {summary['values']}  mismatches {len(summary['mismatches'])}  "
+    led = summary.get("ledger", {"vectors": 0, "bars": 0})
+    print(f"vectors {summary['vectors']}  values {summary['values']}  ledger vectors {led['vectors']} "
+          f"({led['bars']} bars)  mismatches {len(summary['mismatches'])}  "
           f"max_rel_err {summary['max_rel_err']:.3e}  ({summary['seconds']}s)")
     if args.json:
         with open(args.json, "w", encoding="utf-8") as f:
