@@ -8,7 +8,7 @@ from qdperf.tests._util import PKG, UNDER_COVERAGE
 RESULTS = os.path.join(PKG, "results")
 NEEDED = ("g1_synth_verify.json", "g1_doctor.json", "g2_profile_gate.json", "g2_noise_probe.json", "g3_tick_jitter.json",
           "g4_http_load.json",
-          "coverage.json", "mutation.json", "mutation_round1.json", "selftest_summary.json")
+          "coverage.json", "mutation.json", "mutation_round3.json", "selftest_summary.json")
 
 
 class TestReport(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestReport(unittest.TestCase):
         from qdperf.tools import build_report as B
         fake = {"g4_http_load.json": {"summary": {"p99_measured_ms": 140.0, "knee_measured": 12,
                                                   "ab_slow_verdict": "OK", "ab_same_verdict": "OK"}},
-                "mutation.json": {"summary": {"kill_rate": 84.9, "modules": {"m": {"total": 50}}}},
+                "mutation.json": {"summary": {"kill_rate": 84.9, "modules": {"m": {"total": 50}}}, "mutants": []},
                 "coverage.json": {"library": {"total_percent": 89.99}, "tests_failed": 0}}
         with mock.patch.object(B, "_load", side_effect=lambda name, cache: fake[name]):
             for name in ("g4_p99", "g4_knee", "g4_ab", "g5_mutation", "g5_coverage"):

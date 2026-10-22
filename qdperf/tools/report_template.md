@@ -113,4 +113,4 @@ GIL 让进程内算段变慢，放到子进程算则不受影响。
 
 {{@mutation}}
 
-上表是第 2 轮（`{{mutation.json:meta.command}}`，抓住须确认：报失败的测试在同一突变体上单独重跑仍失败才算）。第 1 轮（留档于 `results/mutation_round1.json`）的抓住未经确认，事后发现其中一批是并行满载下的测试抖动误杀，整轮作废；经过、两轮对照与每条漏网的判定（等价 / 补判据，各带理由）见 [mutants/triage.md](mutants/triage.md)。
+上表“最终”列是补判据、改库之后重跑的结果（`{{mutation.json:meta.command}}` 起，重跑命令记在 `meta.reruns`）；“第 3 轮首跑”是补判据之前、抓住须确认、跑的过程中不改任何文件的那一轮（`results/mutation_round3.json`）。第 1、2 轮因测试抖动 / 排版判据误杀而作废（留档在 `results/`）。经过、每条漏网的判定（等价 / 补判据，各带理由）见 [mutants/triage.md](mutants/triage.md)。

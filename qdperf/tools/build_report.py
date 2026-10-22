@@ -198,22 +198,21 @@ def block_coverage(cache):
 
 
 def block_mutation(cache):
-    """第 2 轮（抓住须确认）逐模块结果；最后一列是作废的第 1 轮“抓住”数，供对照（差额即抖动误杀 + 后来补的判据）。"""
-    mut, old = _load("mutation.json", cache), _load("mutation_round1.json", cache)
-    rows = ["| 模块 | 候选 | 突变体 | 抓住 | 超时 | 漏网 | 抓住率 | 第 1 轮“抓住”（作废） |",
+    """最终（补判据 / 改库后重跑）逐模块结果，旁边列第 3 轮首跑（抓住须确认、跑的过程中不改文件）的抓住率作对照。"""
+    mut, r3 = _load("mutation.json", cache), _load("mutation_round3.json", cache)
+    rows = ["| 模块 | 候选 | 突变体 | 第 3 轮首跑抓住率 | 最终抓住 | 超时 | 最终漏网（均已判定） | 最终抓住率 |",
             "|---|---:|---:|---:|---:|---:|---:|---:|"]
     cands = mut["meta"].get("candidates", {})
-    first = {}
-    for r in old["mutants"]:
-        if r.get("first_run", r["status"]) in ("killed", "timeout"):
-            first[r["module"]] = first.get(r["module"], 0) + 1
+    resampled = {m for e in mut["meta"].get("reruns", []) if "--module" in e["command"]
+                 for m in e["command"].split("--module ")[1].split(" --")[0].split()}
     for name, m in sorted(mut["summary"]["modules"].items()):
-        rows.append(f"| `{name}.py` | {cands.get(name, '')} | {m['total']} | {m['killed']} | {m['timeout']} | {m['survived']} | "
-                    f"{m['kill_rate']:.1f}% | {first.get(name, 0)} |")
+        first = r3["summary"]["modules"][name]["kill_rate"]
+        rows.append(f"| `{name}.py`{'（改库后重抽样）' if name in resampled else ''} | {cands.get(name, '')} | {m['total']} | "
+                    f"{first:.1f}% | {m['killed']} | {m['timeout']} | {m['survived']} | {m['kill_rate']:.1f}% |")
     s = mut["summary"]
     timeouts = sum(m["timeout"] for m in s["modules"].values())
-    rows.append(f"| **合计** | | {s['total']} | {s['caught'] - timeouts} | {timeouts} | {s['survived']} | **{s['kill_rate']:.1f}%** | "
-                f"{sum(first.values())} |")
+    rows.append(f"| **合计** | | {s['total']} | {r3['summary']['kill_rate']:.1f}% | {s['caught'] - timeouts} | {timeouts} | "
+                f"{s['survived']} | **{s['kill_rate']:.1f}%** |")
     return "\n".join(rows)
 
 
@@ -262,11 +261,10 @@ def block_g2_per_round(cache):
 
 
 def block_mutation_first(cache):
-    """行内：第 1 轮（作废）的抓住率——留档在 mutation_round1.json，原因见 mutants/triage.md。"""
-    mut = _load("mutation_round1.json", cache)
-    n = len(mut["mutants"])
-    caught = sum(1 for r in mut["mutants"] if r.get("first_run", r["status"]) in ("killed", "timeout"))
-    return f"第 1 轮 {100.0 * caught / n:.1f}%（抓住未经确认、含并行满载下的测试抖动误杀，作废）→ 第 2 轮 "
+    """行内：第 3 轮首跑（补判据之前）的抓住率与漏网数。"""
+    r3 = _load("mutation_round3.json", cache)["summary"]
+    return (f"第 3 轮首跑 {r3['kill_rate']:.1f}%（{r3['caught']}/{r3['total']}，抓住须确认），{r3['survived']} 条漏网逐条判定、"
+            f"补判据并修 2 个真问题后重跑 → ")
 
 
 BLOCKS = {"machines": block_machines, "g1_top": block_g1_top, "g1_suggestions": block_g1_suggestions,
@@ -317,8 +315,13 @@ def _g3_mitig(c):
 
 
 def _mutation_ok(c):
-    s = _load("mutation.json", c)["summary"]
-    return s["kill_rate"] >= 85.0 and all(m["total"] >= 40 for m in s["modules"].values())
+    """≥ 85%、每模块 ≥ 40 个，并且每条最终漏网都在 mutants/triage.md 里有判定（按 id 查）。"""
+    mut = _load("mutation.json", c)
+    s = mut["summary"]
+    with open(os.path.join(REPO, "qdperf", "mutants", "triage.md"), encoding="utf-8") as f:
+        triage = f.read()
+    judged = all(f"`{r['id']}`" in triage for r in mut["mutants"] if r["status"] == "survived")
+    return s["kill_rate"] >= 85.0 and all(m["total"] >= 40 for m in s["modules"].values()) and judged
 
 
 CHECKS = {
