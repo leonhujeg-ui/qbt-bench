@@ -5,6 +5,13 @@ G2：``BACKTEST_SCHEMA`` + 一个写对了的 ``validate_good`` + 三个故意�
     validate_zerodiv      周期下界写成 >= 0（应为 >= 1），随后 10000 // period -> ZeroDivisionError
     validate_recursion    先用递归逐字符检查 symbol、后检查长度 -> 超长字符串上 RecursionError
 受控错误一律是 ``ValidationError``。
+
+G4：determinism harness 的被测对象（全部接收一个可 JSON 序列化的 task dict）：
+    set_order_engine      用 set 存“本根有信号的标的”并按 set 迭代顺序依次下单、先到先得地占用现金
+                          -> 成交顺序 / 数量随 PYTHONHASHSEED 变化（harness 必须抓到）
+    deterministic_engine  同一引擎，只是按 sorted(set) 迭代（harness 必须通过）
+    noisy_engine          确定性引擎 + 与哈希相关的相对噪声 task["noise"]（1e-12 应通过，1e-6 应抓到）
+    qbt_backtest          本仓 qbt 回测引擎的适配器（真实用例）
 """
 from __future__ import annotations
 
@@ -147,3 +154,75 @@ def validate_recursion(cfg):
     _keys(cfg, _TOP, "config")
     out = {"symbol": _str(sym, 1, 16, "symbol"), "period": _int(_require(cfg, "period"), 1, 500, "period")}
     return _rest(cfg, out)
+
+
+# ---- G4：determinism harness 的被测对象 ---------------------------------------------------
+SYMBOLS = ("BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "DOT", "LTC", "AVAX", "LINK")
+
+
+def _toy_prices(task):
+    import random
+    rnd = random.Random(task.get("seed", 1))
+    syms = list(task.get("symbols", SYMBOLS))
+    prices = {s: [100.0] for s in syms}
+    for _ in range(task.get("n_bars", 60) - 1):
+        for s in syms:
+            prices[s].append(prices[s][-1] * (1.0 + 0.02 * (rnd.random() - 0.5)))
+    return syms, prices
+
+
+def _toy_engine(task, order):
+    """极简多标的引擎：每根对“上涨的标的”按 order(信号集合) 的顺序买入，现金先到先得。"""
+    syms, prices = _toy_prices(task)
+    cash, held, trades = float(task.get("cash", 1000.0)), {s: 0 for s in syms}, []
+    for t in range(1, task.get("n_bars", 60)):
+        signals = {s for s in syms if prices[s][t] > prices[s][t - 1]}
+        for s in order(signals):
+            px = prices[s][t]
+            qty = int(min(cash * 0.3, 400.0) // px)
+            if qty <= 0:
+                continue
+            cash -= qty * px
+            held[s] += qty
+            trades.append({"bar": t, "symbol": s, "qty": qty, "price": px})
+        for s in syms:                                   # 跌了就清仓
+            if held[s] and prices[s][t] < prices[s][t - 1]:
+                cash += held[s] * prices[s][t]
+                trades.append({"bar": t, "symbol": s, "qty": -held[s], "price": prices[s][t]})
+                held[s] = 0
+    equity = cash + sum(held[s] * prices[s][-1] for s in syms)
+    return {"trades": trades, "final_cash": cash, "final_equity": equity, "n_trades": len(trades)}
+
+
+def set_order_engine(task):
+    return _toy_engine(task, lambda signals: signals)                  # 故意：按 set 的迭代顺序
+
+
+def deterministic_engine(task):
+    return _toy_engine(task, sorted)
+
+
+def noisy_engine(task):
+    out = _toy_engine(task, sorted)
+    eps = float(task.get("noise", 0.0)) * (hash("noise-probe") % 1000) / 1000.0
+    out["final_equity"] *= 1.0 + eps
+    for tr in out["trades"]:
+        tr["price"] *= 1.0 + eps
+    return out
+
+
+def qbt_backtest(task):
+    """真实用例：task = {"strategy", "params", "n", "seed", "broker": {...}, "data": {...}, "every": k}。"""
+    from qbt.broker import BrokerConfig
+    from qbt.data import generate
+    from qbt.engine import run_backtest
+    from strategies import REGISTRY
+    data = generate(n=task.get("n", 5000), seed=task.get("seed", 1), **task.get("data", {}))
+    res = run_backtest(data, REGISTRY[task.get("strategy", "ma_cross")](**task.get("params", {})),
+                       BrokerConfig(**task.get("broker", {})))
+    every = task.get("every", 50)
+    return {"final_equity": res.final_equity, "equity_sampled": res.equity[::every],
+            "fills": [{"bar": f.bar, "side": f.side, "qty": f.qty, "price": f.price, "fee": f.fee, "tag": f.tag}
+                      for f in res.fills],
+            "trades": [list(t) if isinstance(t, tuple) else t for t in res.trades],
+            "fees": res.fees, "funding": res.funding, "liquidations": res.liquidations, "orders": len(res.orders)}

@@ -150,12 +150,48 @@ def g2():
             "runs": runs, "qbt_genspec_report": qbt_rep}
 
 
+def g4():
+    from qdcheck import determinism as D
+    t0 = time.perf_counter()
+    toy = {"n_bars": 60}
+    cases = [("set_order_engine", "qdcheck.examples:set_order_engine", toy, False),
+             ("deterministic_engine", "qdcheck.examples:deterministic_engine", toy, True),
+             ("noisy_engine_1e-12", "qdcheck.examples:noisy_engine", dict(toy, noise=1e-12), True),
+             ("noisy_engine_1e-6", "qdcheck.examples:noisy_engine", dict(toy, noise=1e-6), False)]
+    from strategies import REGISTRY
+    broker_cfgs = {"default": {}, "levered_funding": {"max_leverage": 3.0, "maintenance_margin": 0.05,
+                                                      "funding_interval": 60, "funding_rate": 0.0001,
+                                                      "max_participation": 0.5}}
+    for cfg_name, broker in broker_cfgs.items():
+        for name in sorted(REGISTRY):
+            cases.append((f"qbt:{name}:{cfg_name}", "qdcheck.examples:qbt_backtest",
+                          {"strategy": name, "n": 20000, "seed": 1, "broker": broker,
+                           "data": {"halt_prob": 0.002, "gap_prob": 0.01}}, True))
+    out = []
+    for label, target, task, expect_ok in cases:
+        rep = D.check(task, target)
+        pair = next(p for p in rep["pairs"] if p["a"] == "PYTHONHASHSEED=0" and p["b"] == "PYTHONHASHSEED=4242")
+        out.append({"case": label, "target": target, "task": task, "expected_ok": expect_ok, "ok": rep["ok"],
+                    "as_expected": rep["ok"] == expect_ok, "hash_seeds_effective": rep["hash_seeds_effective"],
+                    "leaves": pair["leaves"], "first_diff_0_vs_4242": pair["first_diff"],
+                    "pairs": [{k: p[k] for k in ("a", "b", "ok", "first_diff")} for p in rep["pairs"]],
+                    "seconds": [r["seconds"] for r in rep["runs"]]})
+    return {"command": "python3.12 -m qdcheck.tools.selfcheck g4", "machine": machine(),
+            "seconds": round(time.perf_counter() - t0, 1),
+            "summary": {"cases": len(out), "as_expected": sum(r["as_expected"] for r in out),
+                        "qbt_cases_identical": sum(r["ok"] for r in out if r["case"].startswith("qbt:")),
+                        "qbt_cases": sum(r["case"].startswith("qbt:") for r in out),
+                        "qbt_leaves_compared": sum(r["leaves"] for r in out if r["case"].startswith("qbt:")),
+                        "set_order_engine_caught": not out[0]["ok"], "deterministic_engine_passed": out[1]["ok"]},
+            "cases": out}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("goal", choices=["g1", "g2"])
+    ap.add_argument("goal", choices=["g1", "g2", "g4"])
     ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)
-    result = {"g1": g1, "g2": g2}[args.goal]()
+    result = {"g1": g1, "g2": g2, "g4": g4}[args.goal]()
     path = args.out or os.path.join(RESULTS, f"{args.goal}_selfcheck.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=1, sort_keys=True, ensure_ascii=False)

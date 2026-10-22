@@ -1,0 +1,792 @@
+{
+ "cases": [
+  {
+   "as_expected": true,
+   "case": "set_order_engine",
+   "expected_ok": false,
+   "first_diff_0_vs_4242": {
+    "a": 232.2603971576893,
+    "b": 429.18570405488833,
+    "path": "final_cash",
+    "reason": "value"
+   },
+   "hash_seeds_effective": true,
+   "leaves": 1,
+   "ok": false,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": {
+      "a": 336.1149985455305,
+      "b": 232.2603971576893,
+      "path": "final_cash",
+      "reason": "value"
+     },
+     "ok": false
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": {
+      "a": 336.1149985455305,
+      "b": 429.18570405488833,
+      "path": "final_cash",
+      "reason": "value"
+     },
+     "ok": false
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": {
+      "a": 232.2603971576893,
+      "b": 429.18570405488833,
+      "path": "final_cash",
+      "reason": "value"
+     },
+     "ok": false
+    }
+   ],
+   "seconds": [
+    0.003,
+    0.046,
+    0.055
+   ],
+   "target": "qdcheck.examples:set_order_engine",
+   "task": {
+    "n_bars": 60
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "deterministic_engine",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 691,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.001,
+    0.044,
+    0.042
+   ],
+   "target": "qdcheck.examples:deterministic_engine",
+   "task": {
+    "n_bars": 60
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "noisy_engine_1e-12",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 691,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.001,
+    0.046,
+    0.04
+   ],
+   "target": "qdcheck.examples:noisy_engine",
+   "task": {
+    "n_bars": 60,
+    "noise": 1e-12
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "noisy_engine_1e-6",
+   "expected_ok": false,
+   "first_diff_0_vs_4242": {
+    "a": 1059.5472191598417,
+    "b": 1059.54739822327,
+    "path": "final_equity",
+    "reason": "value"
+   },
+   "hash_seeds_effective": true,
+   "leaves": 2,
+   "ok": false,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": {
+      "a": 1059.5478739598343,
+      "b": 1059.5472191598417,
+      "path": "final_equity",
+      "reason": "value"
+     },
+     "ok": false
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": {
+      "a": 1059.5478739598343,
+      "b": 1059.54739822327,
+      "path": "final_equity",
+      "reason": "value"
+     },
+     "ok": false
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": {
+      "a": 1059.5472191598417,
+      "b": 1059.54739822327,
+      "path": "final_equity",
+      "reason": "value"
+     },
+     "ok": false
+    }
+   ],
+   "seconds": [
+    0.001,
+    0.051,
+    0.05
+   ],
+   "target": "qdcheck.examples:noisy_engine",
+   "task": {
+    "n_bars": 60,
+    "noise": 1e-06
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:bollinger_reversion:default",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 35256,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.144,
+    0.274,
+    0.223
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {},
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "bollinger_reversion"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:donchian_breakout:default",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 32706,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.171,
+    0.398,
+    0.26
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {},
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "donchian_breakout"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:grid:default",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 1140,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.146,
+    0.212,
+    0.256
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {},
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "grid"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:ma_cross:default",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 29742,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.101,
+    0.231,
+    0.211
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {},
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "ma_cross"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:rsi_reversion:default",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 15141,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.118,
+    0.219,
+    0.174
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {},
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "rsi_reversion"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:trend_stop:default",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 23790,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.162,
+    0.31,
+    0.247
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {},
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "trend_stop"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:bollinger_reversion:levered_funding",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 19269,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.083,
+    0.207,
+    0.192
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {
+     "funding_interval": 60,
+     "funding_rate": 0.0001,
+     "maintenance_margin": 0.05,
+     "max_leverage": 3.0,
+     "max_participation": 0.5
+    },
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "bollinger_reversion"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:donchian_breakout:levered_funding",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 15615,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.128,
+    0.228,
+    0.2
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {
+     "funding_interval": 60,
+     "funding_rate": 0.0001,
+     "maintenance_margin": 0.05,
+     "max_leverage": 3.0,
+     "max_participation": 0.5
+    },
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "donchian_breakout"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:grid:levered_funding",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 1140,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.171,
+    0.239,
+    0.203
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {
+     "funding_interval": 60,
+     "funding_rate": 0.0001,
+     "maintenance_margin": 0.05,
+     "max_leverage": 3.0,
+     "max_participation": 0.5
+    },
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "grid"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:ma_cross:levered_funding",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 14646,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.17,
+    0.162,
+    0.165
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {
+     "funding_interval": 60,
+     "funding_rate": 0.0001,
+     "maintenance_margin": 0.05,
+     "max_leverage": 3.0,
+     "max_participation": 0.5
+    },
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "ma_cross"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:rsi_reversion:levered_funding",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 8202,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.101,
+    0.154,
+    0.192
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {
+     "funding_interval": 60,
+     "funding_rate": 0.0001,
+     "maintenance_margin": 0.05,
+     "max_leverage": 3.0,
+     "max_participation": 0.5
+    },
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "rsi_reversion"
+   }
+  },
+  {
+   "as_expected": true,
+   "case": "qbt:trend_stop:levered_funding",
+   "expected_ok": true,
+   "first_diff_0_vs_4242": null,
+   "hash_seeds_effective": true,
+   "leaves": 15693,
+   "ok": true,
+   "pairs": [
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=0",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "in_process",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    },
+    {
+     "a": "PYTHONHASHSEED=0",
+     "b": "PYTHONHASHSEED=4242",
+     "first_diff": null,
+     "ok": true
+    }
+   ],
+   "seconds": [
+    0.207,
+    0.221,
+    0.245
+   ],
+   "target": "qdcheck.examples:qbt_backtest",
+   "task": {
+    "broker": {
+     "funding_interval": 60,
+     "funding_rate": 0.0001,
+     "maintenance_margin": 0.05,
+     "max_leverage": 3.0,
+     "max_participation": 0.5
+    },
+    "data": {
+     "gap_prob": 0.01,
+     "halt_prob": 0.002
+    },
+    "n": 20000,
+    "seed": 1,
+    "strategy": "trend_stop"
+   }
+  }
+ ],
+ "command": "python3.12 -m qdcheck.tools.selfcheck g4",
+ "machine": {
+  "cpu_count": 4,
+  "implementation": "CPython",
+  "machine": "x86_64",
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.12.3"
+ },
+ "seconds": 9.5,
+ "summary": {
+  "as_expected": 16,
+  "cases": 16,
+  "deterministic_engine_passed": true,
+  "qbt_cases": 12,
+  "qbt_cases_identical": 12,
+  "qbt_leaves_compared": 212340,
+  "set_order_engine_caught": true
+ }
+}
