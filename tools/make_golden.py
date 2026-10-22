@@ -10,6 +10,8 @@
 import argparse
 import json
 import os
+import platform
+import subprocess
 import sys
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -33,9 +35,21 @@ def _cols(d, n):
     return {c: list(getattr(d, c))[:n] for c in ("ts", "open", "high", "low", "close", "volume")}
 
 
+def provenance():
+    """黄金文件是在哪台机器 / 哪个提交上生成的（没有时间戳：同机两次快照要逐字节相同）。"""
+    try:
+        commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True,
+                                text=True, timeout=10).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        commit = ""
+    return {"platform": platform.platform(), "machine": platform.machine(),
+            "python": platform.python_implementation() + " " + platform.python_version(), "git_commit": commit}
+
+
 def snapshot():
     d = generate(SPEC)
     out = {"format": 2, "command": "python3.12 tools/make_golden.py --update", "spec": SPEC.to_dict(), "config": CFG,
+           "generated_on": provenance(),
            "data_head": _cols(d, HEAD),
            "pinned_data": {"gen_n2000_seed123_head": _cols(generate(n=2000, seed=123), HEAD),
                            "universe_B_n500_seed9_head": _cols(generate_universe(["A", "B"], 500, 9)["B"], HEAD)},

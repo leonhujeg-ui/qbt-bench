@@ -38,7 +38,7 @@ python3.12 bench/bench.py --out bench/results/xx.json        # 性能基准 -> J
 
 | 路径 | 内容 |
 |---|---|
-| `qbt/data.py` | 合成 K 线（GBM + 跳跃 / 停牌 / 缺口），同 seed 逐字节可复现，前缀一致 |
+| `qbt/data.py` | 合成 K 线（GBM + 跳跃 / 停牌 / 缺口），同 seed 同机逐字节可复现、跨机相对 1e-9 内一致，前缀一致 |
 | `qbt/indicators.py` | 36 个指标，全部单遍 / 滚动窗口（单调队列、Wilder 递推、West 滑窗方差） |
 | `qbt/broker.py` | 市价 / 限价 / 止损 / 止盈 / 冰山，maker/taker 费，固定 + 冲击滑点，成交量参与上限，杠杆 / 维持保证金 / 强平 / 破产，资金费率 |
 | `qbt/engine.py` | 事件驱动主循环（T 收盘下单、T+1 撮合），多策略多标的，严格模式守卫列拦截偷看未来 |

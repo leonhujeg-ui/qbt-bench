@@ -58,6 +58,11 @@ class TestGolden(unittest.TestCase):
         self.assertEqual(g["spec"], self.current["spec"])            # 生成脚本 + seed 与黄金文件一致
         self.assertEqual(g["config"], self.current["config"])
         self.assertEqual(sorted(g["strategies"]), sorted(self.current["strategies"]))
+        prov = g["generated_on"]                                        # 跨机对比时要知道黄金来自哪台机器
+        self.assertEqual(sorted(prov), ["git_commit", "machine", "platform", "python"])
+        for k, v in prov.items():
+            self.assertIsInstance(v, str, k)
+            self.assertTrue(v, f"generated_on.{k} is empty")
 
     def test_data_head_within_tolerance(self):
         """数据前 200 根：时间戳整数精确相等，价格 / 成交量相对 1e-9（跨机器 libm 噪声 ~1e-16）。"""

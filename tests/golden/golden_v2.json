@@ -1222,6 +1222,12 @@
 ]
 },
 "format": 2,
+"generated_on": {
+"git_commit": "9bcef0e",
+"machine": "x86_64",
+"platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+"python": "CPython 3.12.3"
+},
 "pinned_data": {
 "gen_n2000_seed123_head": {
 "close": [
