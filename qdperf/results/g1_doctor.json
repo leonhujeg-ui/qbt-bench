@@ -1,0 +1,4597 @@
+{
+ "analyze_seconds": 0.499,
+ "command": "python3.12 -m qdperf.sqlite_doctor <synth.db> --workload qdperf/examples/workload_trading.json --deferred-demo",
+ "contention": {
+  "busy_timeout": 5.0,
+  "scenarios": [
+   {
+    "config": {
+     "begin": "immediate",
+     "budget_ms": 200.0,
+     "busy_timeout": 5.0,
+     "duration": 4.0,
+     "poisson": false,
+     "rates": [
+      2.5,
+      20,
+      10.01
+     ],
+     "synchronous": "NORMAL",
+     "think_ms": 0.0,
+     "writers": 3
+    },
+    "gate": true,
+    "name": "workload",
+    "ok": true,
+    "overall": {
+     "attempts": 130,
+     "busy": 0,
+     "committed": 130,
+     "crashed": [],
+     "wait_ms": {
+      "max": 0.28598600010809605,
+      "mean": 0.07440673844380048,
+      "min": 0.04183099963483983,
+      "n": 130,
+      "p50": 0.06692800002383592,
+      "p95": 0.12472674982291207,
+      "p99": 0.16441254012534035
+     }
+    },
+    "starvation": {
+     "starved": false,
+     "starver": "engine",
+     "text": "无饿死：最差的 http p99 等待 0.27 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 0.5%）",
+     "victim": "http"
+    },
+    "writers": [
+     {
+      "achieved_rate": 2.5,
+      "attempts": 10,
+      "busy": 0,
+      "committed": 10,
+      "crash": null,
+      "errors": {},
+      "hold_ms": {
+       "max": 0.2009260001614166,
+       "mean": 0.0918287999866152,
+       "min": 0.04515799992077518,
+       "n": 10,
+       "p50": 0.07713900004091556,
+       "p95": 0.1679886999909285,
+       "p99": 0.19433854012731902
+      },
+      "late_ms": {
+       "max": 0.3462469200048446,
+       "mean": 0.22771182000417278,
+       "min": 0.130180920065448,
+       "n": 10,
+       "p50": 0.22534941997642832,
+       "p95": 0.309810419964096,
+       "p99": 0.3389596199966949
+      },
+      "lock_share": 0.000229571999966538,
+      "name": "http",
+      "planned": 10,
+      "wait_ms": {
+       "max": 0.28598600010809605,
+       "mean": 0.09403019998899254,
+       "min": 0.05285699990054127,
+       "n": 10,
+       "p50": 0.07644249990335084,
+       "p95": 0.19705790004991264,
+       "p99": 0.2682003800964594
+      }
+     },
+     {
+      "achieved_rate": 20.0,
+      "attempts": 80,
+      "busy": 0,
+      "committed": 80,
+      "crash": null,
+      "errors": {},
+      "hold_ms": {
+       "max": 1.8728400000327383,
+       "mean": 0.26389147499799037,
+       "min": 0.10231900023427443,
+       "n": 80,
+       "p50": 0.23852949993852235,
+       "p95": 0.4391122998640638,
+       "p99": 0.8299523100003998
+      },
+      "late_ms": {
+       "max": 0.37297160192739653,
+       "mean": 0.24449708961488803,
+       "min": 0.15254460208802278,
+       "n": 80,
+       "p50": 0.22456410215465628,
+       "p95": 0.3427689520045684,
+       "p99": 0.36816761215158417
+      },
+      "lock_share": 0.0052778294999598074,
+      "name": "engine",
+      "planned": 80,
+      "wait_ms": {
+       "max": 0.15165100012382027,
+       "mean": 0.07016338747689588,
+       "min": 0.04183099963483983,
+       "n": 80,
+       "p50": 0.059315999806131,
+       "p95": 0.1186242497851708,
+       "p99": 0.14397851971352787
+      }
+     },
+     {
+      "achieved_rate": 10.0,
+      "attempts": 40,
+      "busy": 0,
+      "committed": 40,
+      "crash": null,
+      "errors": {},
+      "hold_ms": {
+       "max": 0.20553700005621067,
+       "mean": 0.05999537501111263,
+       "min": 0.03311099999336875,
+       "n": 40,
+       "p50": 0.044617499952437356,
+       "p95": 0.11450674987827353,
+       "p99": 0.19157422016178313
+      },
+      "late_ms": {
+       "max": 0.34922859506081316,
+       "mean": 0.2442135686101311,
+       "min": 0.11547709333559197,
+       "n": 40,
+       "p50": 0.24582014408261466,
+       "p95": 0.3106049540349747,
+       "p99": 0.3366555801783109
+      },
+      "lock_share": 0.0005999537501111263,
+      "name": "notifier",
+      "planned": 40,
+      "wait_ms": {
+       "max": 0.16962500012596138,
+       "mean": 0.0779875749913117,
+       "min": 0.05551699996431125,
+       "n": 40,
+       "p50": 0.06993199986027321,
+       "p95": 0.11479965007765702,
+       "p99": 0.16159334011263124
+      }
+     }
+    ]
+   },
+   {
+    "config": {
+     "begin": "immediate",
+     "budget_ms": 200.0,
+     "busy_timeout": 5.0,
+     "duration": 4.0,
+     "poisson": false,
+     "rates": [
+      50.0,
+      50.0,
+      50.0
+     ],
+     "synchronous": "NORMAL",
+     "think_ms": 0.0,
+     "writers": 3
+    },
+    "gate": true,
+    "name": "3x50/s",
+    "ok": true,
+    "overall": {
+     "attempts": 600,
+     "busy": 0,
+     "committed": 600,
+     "crashed": [],
+     "wait_ms": {
+      "max": 3.363769999850774,
+      "mean": 0.06743373666722619,
+      "min": 0.027894000140804565,
+      "n": 600,
+      "p50": 0.05930199995418661,
+      "p95": 0.08820275029393085,
+      "p99": 0.1370588099734959
+     }
+    },
+    "starvation": {
+     "starved": false,
+     "starver": "engine",
+     "text": "无饿死：最差的 http p99 等待 0.14 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 1.2%）",
+     "victim": "http"
+    },
+    "writers": [
+     {
+      "achieved_rate": 50.0,
+      "attempts": 200,
+      "busy": 0,
+      "committed": 200,
+      "crash": null,
+      "errors": {},
+      "hold_ms": {
+       "max": 2.72825299998658,
+       "mean": 0.11220280497809654,
+       "min": 0.03295199985586805,
+       "n": 200,
+       "p50": 0.0773805002154404,
+       "p95": 0.1882689998410569,
+       "p99": 0.8399643801067195
+      },
+      "late_ms": {
+       "max": 0.661657641457758,
+       "mean": 0.2592232816332905,
+       "min": 0.13529564142343575,
+       "n": 200,
+       "p50": 0.251074141516483,
+       "p95": 0.32555349162515784,
+       "p99": 0.5728340215228921
+      },
+      "lock_share": 0.005610140248904827,
+      "name": "http",
+      "planned": 200,
+      "wait_ms": {
+       "max": 0.19368099992789212,
+       "mean": 0.07158691001677653,
+       "min": 0.049201999900105875,
+       "n": 200,
+       "p50": 0.06761550002920558,
+       "p95": 0.09365554983560287,
+       "p99": 0.14272398992488886
+      }
+     },
+     {
+      "achieved_rate": 50.0,
+      "attempts": 200,
+      "busy": 0,
+      "committed": 200,
+      "crash": null,
+      "errors": {},
+      "hold_ms": {
+       "max": 10.46660099973451,
+       "mean": 0.23656580500755808,
+       "min": 0.09054399970409577,
+       "n": 200,
+       "p50": 0.17198449995703413,
+       "p95": 0.27141205023326614,
+       "p99": 1.2509025597410024
+      },
+      "late_ms": {
+       "max": 2.601608715220749,
+       "mean": 0.24538155533763284,
+       "min": 0.12896771523598916,
+       "n": 200,
+       "p50": 0.21158871548254687,
+       "p95": 0.31333376553381864,
+       "p99": 1.4438445254659045
+      },
+      "lock_share": 0.011828290250377904,
+      "name": "engine",
+      "planned": 200,
+      "wait_ms": {
+       "max": 0.2857950003090082,
+       "mean": 0.06143008498838753,
+       "min": 0.027894000140804565,
+       "n": 200,
+       "p50": 0.05932849990131217,
+       "p95": 0.08714884993423766,
+       "p99": 0.12457974009976105
+      }
+     },
+     {
+      "achieved_rate": 50.0,
+      "attempts": 200,
+      "busy": 0,
+      "committed": 200,
+      "crash": null,
+      "errors": {},
+      "hold_ms": {
+       "max": 0.5266220000521571,
+       "mean": 0.04712489999747049,
+       "min": 0.02111000003424124,
+       "n": 200,
+       "p50": 0.04186249998383573,
+       "p95": 0.07254740016833239,
+       "p99": 0.09265083009267978
+      },
+      "late_ms": {
+       "max": 0.3961191923843588,
+       "mean": 0.1880507724588682,
+       "min": 0.13308019238156277,
+       "n": 200,
+       "p50": 0.18395619251454498,
+       "p95": 0.23907579255764688,
+       "p99": 0.30354644255574875
+      },
+      "lock_share": 0.0023562449998735246,
+      "name": "notifier",
+      "planned": 200,
+      "wait_ms": {
+       "max": 3.363769999850774,
+       "mean": 0.06928421499651449,
+       "min": 0.03270600018367986,
+       "n": 200,
+       "p50": 0.05209949995332863,
+       "p95": 0.0697129499485527,
+       "p99": 0.10823656029515379
+      }
+     }
+    ]
+   },
+   {
+    "config": {
+     "begin": "deferred",
+     "budget_ms": 200.0,
+     "busy_timeout": 5.0,
+     "duration": 4.0,
+     "poisson": false,
+     "rates": [
+      50.0,
+      50.0,
+      50.0
+     ],
+     "synchronous": "NORMAL",
+     "think_ms": 5.0,
+     "writers": 3
+    },
+    "gate": false,
+    "name": "3x50/s deferred+think5ms",
+    "ok": false,
+    "overall": {
+     "attempts": 600,
+     "busy": 116,
+     "committed": 484,
+     "crashed": [],
+     "wait_ms": {
+      "max": 2.4213950000557816,
+      "mean": 0.07576321900723847,
+      "min": 0.022930000341148116,
+      "n": 484,
+      "p50": 0.06751899991286336,
+      "p95": 0.10126865029178585,
+      "p99": 0.1385594199291518
+     }
+    },
+    "root_cause": [
+     "延迟事务（BEGIN DEFERRED）先读后写：读快照过期时升级写锁直接返回 SQLITE_BUSY_SNAPSHOT，busy_timeout 不生效 → 写事务改用 BEGIN IMMEDIATE"
+    ],
+    "starvation": {
+     "starved": true,
+     "starver": "engine",
+     "text": "engine 持锁占比 0.3%（持锁 p99 0.25 ms），engine 被饿：p99 等待 0.4 ms、SQLITE_BUSY 111 次",
+     "victim": "engine"
+    },
+    "writers": [
+     {
+      "achieved_rate": 49.75,
+      "attempts": 200,
+      "busy": 1,
+      "committed": 199,
+      "crash": null,
+      "errors": {
+       "SQLITE_BUSY_SNAPSHOT": 1
+      },
+      "hold_ms": {
+       "max": 0.3351850000399281,
+       "mean": 0.049119120595793014,
+       "min": 0.011547999747563154,
+       "n": 199,
+       "p50": 0.05103600005895714,
+       "p95": 0.08036059984988239,
+       "p99": 0.14178228015225636
+      },
+      "late_ms": {
+       "max": 0.9333927712882328,
+       "mean": 0.20347723616055774,
+       "min": 0.1292997711352939,
+       "n": 200,
+       "p50": 0.19576027108436644,
+       "p95": 0.2672365713800473,
+       "p99": 0.37617573096499796
+      },
+      "lock_share": 0.0024436762496407027,
+      "name": "http",
+      "planned": 200,
+      "wait_ms": {
+       "max": 0.21095200008858228,
+       "mean": 0.06821784422731865,
+       "min": 0.022930000341148116,
+       "n": 199,
+       "p50": 0.06478299974332913,
+       "p95": 0.09772179978426719,
+       "p99": 0.13865723989511045
+      }
+     },
+     {
+      "achieved_rate": 22.25,
+      "attempts": 200,
+      "busy": 111,
+      "committed": 89,
+      "crash": null,
+      "errors": {
+       "SQLITE_BUSY_SNAPSHOT": 111
+      },
+      "hold_ms": {
+       "max": 0.3100620001532661,
+       "mean": 0.1226842359602834,
+       "min": 0.08049499956541695,
+       "n": 89,
+       "p50": 0.11642600020422833,
+       "p95": 0.180046800232958,
+       "p99": 0.2531647199975854
+      },
+      "late_ms": {
+       "max": 1.682849301629874,
+       "mean": 0.26612502662023546,
+       "min": 0.13956430145900534,
+       "n": 200,
+       "p50": 0.2678778015942074,
+       "p95": 0.32347900174716226,
+       "p99": 0.34241425169221573
+      },
+      "lock_share": 0.0027297242501163055,
+      "name": "engine",
+      "planned": 200,
+      "wait_ms": {
+       "max": 2.4213950000557816,
+       "mean": 0.11009639322080321,
+       "min": 0.05280300001686555,
+       "n": 89,
+       "p50": 0.0839799999994284,
+       "p95": 0.10475079971001833,
+       "p99": 0.4062944398901995
+      }
+     },
+     {
+      "achieved_rate": 49.0,
+      "attempts": 200,
+      "busy": 4,
+      "committed": 196,
+      "crash": null,
+      "errors": {
+       "SQLITE_BUSY_SNAPSHOT": 4
+      },
+      "hold_ms": {
+       "max": 1.4876079999339709,
+       "mean": 0.04552226020065546,
+       "min": 0.012240999694768107,
+       "n": 196,
+       "p50": 0.04439850022208702,
+       "p95": 0.06837174998963746,
+       "p99": 0.11998774973562834
+      },
+      "late_ms": {
+       "max": 4.921656648901207,
+       "mean": 0.2513284839414476,
+       "min": 0.1414276489652977,
+       "n": 200,
+       "p50": 0.20353964898833787,
+       "p95": 0.2849192988618548,
+       "p99": 1.4203804988273125
+      },
+      "lock_share": 0.0022305907498321176,
+      "name": "notifier",
+      "planned": 200,
+      "wait_ms": {
+       "max": 0.18615099997987272,
+       "mean": 0.06783402041640571,
+       "min": 0.03864499967676238,
+       "n": 196,
+       "p50": 0.06572249981218192,
+       "p95": 0.09299850012212119,
+       "p99": 0.12456519993975254
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "db": {
+  "path": "/tmp/qdperf-g1-_90zzf0u/synth.db",
+  "sha256_after": "20bc0568633e7ad1f0f9188518df7182c886545b9e42980b4ea81d4ac8d41451",
+  "sha256_before": "20bc0568633e7ad1f0f9188518df7182c886545b9e42980b4ea81d4ac8d41451",
+  "siblings_after": [
+   "synth.db"
+  ],
+  "siblings_before": [
+   "synth.db"
+  ],
+  "size_bytes": 653643776,
+  "untouched": true
+ },
+ "file": {
+  "analyzed": true,
+  "fk_without_index": [
+   {
+    "column": "user_id",
+    "ref_table": "users",
+    "table": "bots"
+   },
+   {
+    "column": "bot_id",
+    "ref_table": "bots",
+    "table": "events"
+   },
+   {
+    "column": "user_id",
+    "ref_table": "users",
+    "table": "events"
+   },
+   {
+    "column": "bot_id",
+    "ref_table": "bots",
+    "table": "orders"
+   },
+   {
+    "column": "user_id",
+    "ref_table": "users",
+    "table": "trades"
+   },
+   {
+    "column": "bot_id",
+    "ref_table": "bots",
+    "table": "trades"
+   }
+  ],
+  "fragmentation": 0.0096,
+  "journal_mode_header": "wal",
+  "largest_objects": [
+   [
+    "trades",
+    321830912
+   ],
+   [
+    "orders",
+    153178112
+   ],
+   [
+    "qdperf_trades_symbol_ts",
+    107155456
+   ],
+   [
+    "qdperf_trades_user_id_ts",
+    80035840
+   ],
+   [
+    "events",
+    73715712
+   ],
+   [
+    "idx_trades_order",
+    68673536
+   ],
+   [
+    "qdperf_orders_user_id_status_created_at",
+    47304704
+   ],
+   [
+    "qdperf_orders_bot_id_status",
+    37797888
+   ],
+   [
+    "idx_orders_user",
+    24403968
+   ],
+   [
+    "qdperf_events_level_notified_ts",
+    17600512
+   ],
+   [
+    "qdperf_events_user_id_ts",
+    14737408
+   ],
+   [
+    "qdperf_events_ts",
+    12021760
+   ]
+  ],
+  "no_primary_key": [
+   "settings"
+  ],
+  "opened_immutable": true,
+  "pragmas": {
+   "auto_vacuum": 0,
+   "encoding": "UTF-8",
+   "freelist_count": 1533,
+   "page_count": 159581,
+   "page_size": 4096,
+   "user_version": 0
+  },
+  "stat1_entries": 4,
+  "stats_missing": [
+   "events",
+   "idx_trades_order"
+  ],
+  "stats_stale": [
+   {
+    "actual_rows": 2000000,
+    "drift": 1.0,
+    "object": "idx_orders_user",
+    "stat_rows": 1000000,
+    "table": "orders"
+   }
+  ]
+ },
+ "findings": [
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "h_trades_by_user: 全表扫描 trades，10 次/秒 × 5,000,000 行 = 50,000,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "h_bots_of_user: 全表扫描 bots，15 次/秒 × 50,000 行 = 750,000 行/秒"
+  },
+  {
+   "code": "FULL_SCAN",
+   "level": "yellow",
+   "message": "h_setting: 全表扫描 settings，30 次/秒 × 300 行 = 9,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "h_dashboard_pnl: 全表扫描 trades，2 次/秒 × 5,000,000 行 = 10,000,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "h_events_feed: 全表扫描 events，10 次/秒 × 920,000 行 = 9,200,000 行/秒"
+  },
+  {
+   "code": "FULL_SCAN",
+   "level": "yellow",
+   "message": "h_email_search: 全表扫描 users，0.2 次/秒 × 10,000 行 = 2,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "e_open_orders: 全表扫描 orders，50 次/秒 × 2,000,000 行 = 100,000,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "e_running_bots: 全表扫描 bots，1 次/秒 × 50,000 行 = 50,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "e_last_price: 全表扫描 trades，10 次/秒 × 5,000,000 行 = 50,000,000 行/秒"
+  },
+  {
+   "code": "HOT_FULL_SCAN",
+   "level": "red",
+   "message": "n_pending_alerts: 全表扫描 events，1 次/秒 × 920,000 行 = 920,000 行/秒"
+  },
+  {
+   "code": "FULL_SCAN",
+   "level": "yellow",
+   "message": "n_purge_events: 全表扫描 events，0.01 次/秒 × 920,000 行 = 9,200 行/秒"
+  },
+  {
+   "code": "SUGGESTION_REJECTED",
+   "level": "info",
+   "message": "qdperf_trades_ts_symbol: 没有任何语句用到它（语句已被别的建议索引覆盖）"
+  },
+  {
+   "code": "CONTENTION_DEMO",
+   "level": "yellow",
+   "message": "3x50/s deferred+think5ms: p99 等待 0.14 ms、SQLITE_BUSY 116；根因：延迟事务（BEGIN DEFERRED）先读后写：读快照过期时升级写锁直接返回 SQLITE_BUSY_SNAPSHOT，busy_timeout 不生效 → 写事务改用 BEGIN IMMEDIATE"
+  },
+  {
+   "code": "WAL_GROWTH",
+   "level": "yellow",
+   "message": "长读事务下 WAL 6 s 内一次也没能重置，涨到 20.8 MB（autocheckpoint=200 页挡不住）"
+  },
+  {
+   "code": "WAL_GROWTH",
+   "level": "yellow",
+   "message": "长读事务下 WAL 6 s 内一次也没能重置，涨到 19.9 MB（autocheckpoint=1000 页挡不住）"
+  },
+  {
+   "code": "WAL_GROWTH",
+   "level": "yellow",
+   "message": "长读事务下 WAL 6 s 内一次也没能重置，涨到 19.8 MB（autocheckpoint=4000 页挡不住）"
+  },
+  {
+   "code": "NO_PRIMARY_KEY",
+   "level": "yellow",
+   "message": "表 settings 没有声明主键"
+  },
+  {
+   "code": "FK_WITHOUT_INDEX",
+   "level": "yellow",
+   "message": "bots.user_id → users 外键列没有索引"
+  },
+  {
+   "code": "FK_WITHOUT_INDEX",
+   "level": "yellow",
+   "message": "events.bot_id → bots 外键列没有索引"
+  },
+  {
+   "code": "FK_WITHOUT_INDEX",
+   "level": "yellow",
+   "message": "events.user_id → users 外键列没有索引"
+  },
+  {
+   "code": "FK_WITHOUT_INDEX",
+   "level": "yellow",
+   "message": "orders.bot_id → bots 外键列没有索引"
+  },
+  {
+   "code": "FK_WITHOUT_INDEX",
+   "level": "yellow",
+   "message": "trades.user_id → users 外键列没有索引"
+  },
+  {
+   "code": "FK_WITHOUT_INDEX",
+   "level": "yellow",
+   "message": "trades.bot_id → bots 外键列没有索引"
+  },
+  {
+   "code": "STATS_STALE",
+   "level": "yellow",
+   "message": "idx_orders_user: 统计 1,000,000 行 vs 实际 2,000,000 行"
+  },
+  {
+   "code": "STATS_MISSING",
+   "level": "yellow",
+   "message": "2 个表 / 索引没有统计：events, idx_trades_order"
+  }
+ ],
+ "format": "qdperf.sqlite_doctor.v1",
+ "indexes": {
+  "already_indexed": [],
+  "analyze_seconds": 4.437,
+  "rejected": [
+   {
+    "build_seconds": 3.562,
+    "check_analyzed": {
+     "h_dashboard_pnl": {
+      "ok": true,
+      "plan": [
+       "SEARCH trades USING INDEX qdperf_trades_symbol_ts (ANY(symbol) AND ts>?)"
+      ],
+      "uses_index": false,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "h_dashboard_pnl": {
+      "ok": false,
+      "plan": [
+       "SCAN trades USING INDEX qdperf_trades_symbol_ts"
+      ],
+      "uses_index": false,
+      "verdict": "full_scan"
+     }
+    },
+    "columns": [
+     "ts",
+     "symbol"
+    ],
+    "kind": "scan",
+    "name": "qdperf_trades_ts_symbol",
+    "reject_reason": "没有任何语句用到它（语句已被别的建议索引覆盖）",
+    "size_bytes": 107032576,
+    "size_est_bytes": 107114496,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_trades_ts_symbol ON trades(ts, symbol);",
+    "statements": [
+     "h_dashboard_pnl"
+    ],
+    "table": "trades",
+    "why": {
+     "h_dashboard_pnl": {
+      "eq": [],
+      "order": [
+       "symbol"
+      ],
+      "range": [
+       "ts"
+      ]
+     }
+    }
+   }
+  ],
+  "sql": [
+   "CREATE INDEX qdperf_bots_status_updated_at ON bots(status, updated_at);",
+   "CREATE INDEX qdperf_bots_user_id ON bots(user_id);",
+   "CREATE INDEX qdperf_events_level_notified_ts ON events(level, notified, ts);",
+   "CREATE INDEX qdperf_events_user_id_ts ON events(user_id, ts);",
+   "CREATE INDEX qdperf_events_ts ON events(ts);",
+   "CREATE INDEX qdperf_orders_user_id_status_created_at ON orders(user_id, status, created_at);",
+   "CREATE INDEX qdperf_orders_bot_id_status ON orders(bot_id, status);",
+   "CREATE INDEX qdperf_settings_key ON settings(key);",
+   "CREATE INDEX qdperf_trades_symbol_ts ON trades(symbol, ts);",
+   "CREATE INDEX qdperf_trades_user_id_ts ON trades(user_id, ts);",
+   "ANALYZE;"
+  ],
+  "suggestions": [
+   {
+    "build_seconds": 0.034,
+    "check_analyzed": {
+     "e_running_bots": {
+      "ok": true,
+      "plan": [
+       "SEARCH bots USING INDEX qdperf_bots_status_updated_at (status=? AND updated_at<?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "e_running_bots": {
+      "ok": true,
+      "plan": [
+       "SEARCH bots USING INDEX qdperf_bots_status_updated_at (status=? AND updated_at<?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "status",
+     "updated_at"
+    ],
+    "kind": "scan",
+    "name": "qdperf_bots_status_updated_at",
+    "needs_analyze": false,
+    "serves": [
+     "e_running_bots"
+    ],
+    "size_bytes": 1011712,
+    "size_est_bytes": 1007616,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_bots_status_updated_at ON bots(status, updated_at);",
+    "statements": [
+     "e_running_bots"
+    ],
+    "table": "bots",
+    "verified": true,
+    "why": {
+     "e_running_bots": {
+      "eq": [
+       "status"
+      ],
+      "order": [],
+      "range": [
+       "updated_at"
+      ]
+     }
+    }
+   },
+   {
+    "build_seconds": 0.027,
+    "check_analyzed": {
+     "h_bots_of_user": {
+      "ok": true,
+      "plan": [
+       "SEARCH bots USING INDEX qdperf_bots_user_id (user_id=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "h_bots_of_user": {
+      "ok": true,
+      "plan": [
+       "SEARCH bots USING INDEX qdperf_bots_user_id (user_id=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "user_id"
+    ],
+    "kind": "scan",
+    "name": "qdperf_bots_user_id",
+    "needs_analyze": false,
+    "serves": [
+     "h_bots_of_user"
+    ],
+    "size_bytes": 520192,
+    "size_est_bytes": 520192,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_bots_user_id ON bots(user_id);",
+    "statements": [
+     "h_bots_of_user"
+    ],
+    "table": "bots",
+    "verified": true,
+    "why": {
+     "h_bots_of_user": {
+      "eq": [
+       "user_id"
+      ],
+      "order": [],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 0.641,
+    "check_analyzed": {
+     "n_pending_alerts": {
+      "ok": true,
+      "plan": [
+       "SEARCH events USING INDEX qdperf_events_level_notified_ts (level=? AND notified=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "n_pending_alerts": {
+      "ok": true,
+      "plan": [
+       "SEARCH events USING INDEX qdperf_events_level_notified_ts (level=? AND notified=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "level",
+     "notified",
+     "ts"
+    ],
+    "kind": "scan",
+    "name": "qdperf_events_level_notified_ts",
+    "needs_analyze": false,
+    "serves": [
+     "n_pending_alerts"
+    ],
+    "size_bytes": 17600512,
+    "size_est_bytes": 17645568,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_events_level_notified_ts ON events(level, notified, ts);",
+    "statements": [
+     "n_pending_alerts"
+    ],
+    "table": "events",
+    "verified": true,
+    "why": {
+     "n_pending_alerts": {
+      "eq": [
+       "level",
+       "notified"
+      ],
+      "order": [
+       "ts"
+      ],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 0.819,
+    "check_analyzed": {
+     "h_events_feed": {
+      "ok": true,
+      "plan": [
+       "SEARCH events USING INDEX qdperf_events_user_id_ts (user_id=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "h_events_feed": {
+      "ok": true,
+      "plan": [
+       "SEARCH events USING INDEX qdperf_events_user_id_ts (user_id=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "user_id",
+     "ts"
+    ],
+    "kind": "scan",
+    "name": "qdperf_events_user_id_ts",
+    "needs_analyze": false,
+    "serves": [
+     "h_events_feed"
+    ],
+    "size_bytes": 14737408,
+    "size_est_bytes": 14761984,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_events_user_id_ts ON events(user_id, ts);",
+    "statements": [
+     "h_events_feed"
+    ],
+    "table": "events",
+    "verified": true,
+    "why": {
+     "h_events_feed": {
+      "eq": [
+       "user_id"
+      ],
+      "order": [
+       "ts"
+      ],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 0.482,
+    "check_analyzed": {
+     "n_purge_events": {
+      "ok": true,
+      "plan": [
+       "SEARCH events USING INDEX qdperf_events_ts (ts<?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "n_purge_events": {
+      "ok": true,
+      "plan": [
+       "SEARCH events USING INDEX qdperf_events_ts (ts<?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "ts"
+    ],
+    "kind": "scan",
+    "name": "qdperf_events_ts",
+    "needs_analyze": false,
+    "serves": [
+     "n_purge_events"
+    ],
+    "size_bytes": 12021760,
+    "size_est_bytes": 12046336,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_events_ts ON events(ts);",
+    "statements": [
+     "n_purge_events"
+    ],
+    "table": "events",
+    "verified": true,
+    "why": {
+     "n_purge_events": {
+      "eq": [],
+      "order": [],
+      "range": [
+       "ts"
+      ]
+     }
+    }
+   },
+   {
+    "build_seconds": 3.124,
+    "check_analyzed": {
+     "h_orders_by_user": {
+      "ok": true,
+      "plan": [
+       "SEARCH orders USING INDEX qdperf_orders_user_id_status_created_at (user_id=? AND status=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "h_orders_by_user": {
+      "ok": true,
+      "plan": [
+       "SEARCH orders USING INDEX qdperf_orders_user_id_status_created_at (user_id=? AND status=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "user_id",
+     "status",
+     "created_at"
+    ],
+    "kind": "sort",
+    "name": "qdperf_orders_user_id_status_created_at",
+    "needs_analyze": false,
+    "serves": [
+     "h_orders_by_user"
+    ],
+    "size_bytes": 47304704,
+    "size_est_bytes": 47263744,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_orders_user_id_status_created_at ON orders(user_id, status, created_at);",
+    "statements": [
+     "h_orders_by_user"
+    ],
+    "table": "orders",
+    "verified": true,
+    "why": {
+     "h_orders_by_user": {
+      "eq": [
+       "user_id",
+       "status"
+      ],
+      "order": [
+       "created_at"
+      ],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 2.006,
+    "check_analyzed": {
+     "e_open_orders": {
+      "ok": true,
+      "plan": [
+       "SEARCH orders USING INDEX qdperf_orders_bot_id_status (bot_id=? AND status=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "e_open_orders": {
+      "ok": true,
+      "plan": [
+       "SEARCH orders USING INDEX qdperf_orders_bot_id_status (bot_id=? AND status=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "bot_id",
+     "status"
+    ],
+    "kind": "scan",
+    "name": "qdperf_orders_bot_id_status",
+    "needs_analyze": false,
+    "serves": [
+     "e_open_orders"
+    ],
+    "size_bytes": 37797888,
+    "size_est_bytes": 37785600,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_orders_bot_id_status ON orders(bot_id, status);",
+    "statements": [
+     "e_open_orders"
+    ],
+    "table": "orders",
+    "verified": true,
+    "why": {
+     "e_open_orders": {
+      "eq": [
+       "bot_id",
+       "status"
+      ],
+      "order": [],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 0.001,
+    "check_analyzed": {
+     "h_setting": {
+      "ok": true,
+      "plan": [
+       "SEARCH settings USING INDEX qdperf_settings_key (key=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "h_setting": {
+      "ok": true,
+      "plan": [
+       "SEARCH settings USING INDEX qdperf_settings_key (key=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "key"
+    ],
+    "kind": "scan",
+    "name": "qdperf_settings_key",
+    "needs_analyze": false,
+    "serves": [
+     "h_setting"
+    ],
+    "size_bytes": 12288,
+    "size_est_bytes": 8192,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_settings_key ON settings(key);",
+    "statements": [
+     "h_setting"
+    ],
+    "table": "settings",
+    "verified": true,
+    "why": {
+     "h_setting": {
+      "eq": [
+       "key"
+      ],
+      "order": [],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 5.978,
+    "check_analyzed": {
+     "e_last_price": {
+      "ok": true,
+      "plan": [
+       "SEARCH trades USING INDEX qdperf_trades_symbol_ts (symbol=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "e_last_price": {
+      "ok": true,
+      "plan": [
+       "SEARCH trades USING INDEX qdperf_trades_symbol_ts (symbol=?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "symbol",
+     "ts"
+    ],
+    "kind": "scan",
+    "name": "qdperf_trades_symbol_ts",
+    "needs_analyze": false,
+    "serves": [
+     "h_dashboard_pnl",
+     "e_last_price"
+    ],
+    "size_bytes": 107155456,
+    "size_est_bytes": 107114496,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_trades_symbol_ts ON trades(symbol, ts);",
+    "statements": [
+     "e_last_price"
+    ],
+    "table": "trades",
+    "verified": true,
+    "why": {
+     "e_last_price": {
+      "eq": [
+       "symbol"
+      ],
+      "order": [
+       "ts"
+      ],
+      "range": []
+     }
+    }
+   },
+   {
+    "build_seconds": 4.554,
+    "check_analyzed": {
+     "h_trades_by_user": {
+      "ok": true,
+      "plan": [
+       "SEARCH trades USING INDEX qdperf_trades_user_id_ts (user_id=? AND ts>?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "check_as_is": {
+     "h_trades_by_user": {
+      "ok": true,
+      "plan": [
+       "SEARCH trades USING INDEX qdperf_trades_user_id_ts (user_id=? AND ts>?)"
+      ],
+      "uses_index": true,
+      "verdict": "index"
+     }
+    },
+    "columns": [
+     "user_id",
+     "ts"
+    ],
+    "kind": "scan",
+    "name": "qdperf_trades_user_id_ts",
+    "needs_analyze": false,
+    "serves": [
+     "h_trades_by_user"
+    ],
+    "size_bytes": 80035840,
+    "size_est_bytes": 80232448,
+    "size_source": "dbstat",
+    "sql": "CREATE INDEX qdperf_trades_user_id_ts ON trades(user_id, ts);",
+    "statements": [
+     "h_trades_by_user"
+    ],
+    "table": "trades",
+    "verified": true,
+    "why": {
+     "h_trades_by_user": {
+      "eq": [
+       "user_id"
+      ],
+      "order": [],
+      "range": [
+       "ts"
+      ]
+     }
+    }
+   }
+  ],
+  "unsolvable": [
+   {
+    "kind": "scan",
+    "reasons": [
+     "email LIKE ?: LIKE / GLOB（缺省大小写不敏感，普通索引用不上）"
+    ],
+    "statement": "h_email_search",
+    "table": "users"
+   }
+  ],
+  "verdict_after_all": {
+   "e_insert_order": "none",
+   "e_insert_trade": "none",
+   "e_last_price": "index",
+   "e_open_orders": "index",
+   "e_running_bots": "index",
+   "e_touch_bot": "rowid",
+   "e_update_order": "rowid",
+   "h_bots_of_user": "index",
+   "h_dashboard_pnl": "index",
+   "h_email_search": "full_scan",
+   "h_events_feed": "index",
+   "h_login_event": "none",
+   "h_orders_by_user": "index",
+   "h_orders_join_bots": "index",
+   "h_setting": "index",
+   "h_toggle_bot": "rowid",
+   "h_trades_by_user": "index",
+   "h_user": "rowid",
+   "n_insert_event": "none",
+   "n_mark_sent": "rowid",
+   "n_pending_alerts": "index",
+   "n_purge_events": "index",
+   "n_user_email": "rowid"
+  },
+  "write_amplification": {
+   "btree_writes_per_second_after": 299.04,
+   "btree_writes_per_second_before": 132.51,
+   "per_suggestion_extra_btree_writes_per_second": {
+    "qdperf_bots_status_updated_at": 20.5,
+    "qdperf_bots_user_id": 0.0,
+    "qdperf_events_level_notified_ts": 12.01,
+    "qdperf_events_ts": 7.01,
+    "qdperf_events_user_id_ts": 7.01,
+    "qdperf_orders_bot_id_status": 40.0,
+    "qdperf_orders_user_id_status_created_at": 40.0,
+    "qdperf_settings_key": 0.0,
+    "qdperf_trades_symbol_ts": 20.0,
+    "qdperf_trades_user_id_ts": 20.0
+   },
+   "relative_increase": 1.2567,
+   "statements": [
+    {
+     "btrees_after": 4,
+     "btrees_before": 1,
+     "id": "h_login_event",
+     "rate": 2,
+     "table": "events"
+    },
+    {
+     "btrees_after": 2,
+     "btrees_before": 1,
+     "id": "h_toggle_bot",
+     "rate": 0.5,
+     "table": "bots"
+    },
+    {
+     "btrees_after": 4,
+     "btrees_before": 2,
+     "id": "e_insert_order",
+     "rate": 20,
+     "table": "orders"
+    },
+    {
+     "btrees_after": 4,
+     "btrees_before": 2,
+     "id": "e_insert_trade",
+     "rate": 20,
+     "table": "trades"
+    },
+    {
+     "btrees_after": 3,
+     "btrees_before": 1,
+     "id": "e_update_order",
+     "rate": 20,
+     "table": "orders"
+    },
+    {
+     "btrees_after": 2,
+     "btrees_before": 1,
+     "id": "e_touch_bot",
+     "rate": 20,
+     "table": "bots"
+    },
+    {
+     "btrees_after": 2,
+     "btrees_before": 1,
+     "id": "n_mark_sent",
+     "rate": 5,
+     "table": "events"
+    },
+    {
+     "btrees_after": 4,
+     "btrees_before": 1,
+     "id": "n_insert_event",
+     "rate": 5,
+     "table": "events"
+    },
+    {
+     "btrees_after": 4,
+     "btrees_before": 1,
+     "id": "n_purge_events",
+     "rate": 0.01,
+     "table": "events"
+    }
+   ]
+  },
+  "write_us_after": {
+   "e_insert_order": 4.08,
+   "e_insert_trade": 4.14,
+   "e_touch_bot": 2.75,
+   "e_update_order": 3.79,
+   "h_login_event": 3.85,
+   "h_toggle_bot": 2.66,
+   "n_insert_event": 3.72,
+   "n_mark_sent": 3.47,
+   "n_purge_events": 1.69
+  },
+  "write_us_before": {
+   "e_insert_order": 2.8,
+   "e_insert_trade": 2.63,
+   "e_touch_bot": 2.04,
+   "e_update_order": 2.03,
+   "h_login_event": 1.66,
+   "h_toggle_bot": 1.99,
+   "n_insert_event": 1.65,
+   "n_mark_sent": 1.77,
+   "n_purge_events": 61266.14
+  }
+ },
+ "machine": {
+  "cpu_count": 4,
+  "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "git_commit": "eccc1a0",
+  "implementation": "CPython",
+  "load_avg_1m": 0.99,
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-22T15:10:24"
+ },
+ "ok": false,
+ "options": {
+  "budget_ms": 200.0,
+  "busy_timeout": null,
+  "deferred_demo": true,
+  "duration": 4.0,
+  "measure_timeout": 5.0,
+  "rate": 50.0,
+  "scan_cost_red": 10000.0,
+  "sections": [
+   "plans",
+   "indexes",
+   "contention",
+   "wal",
+   "file"
+  ],
+  "top": 20,
+  "wal_checkpoints": [
+   200,
+   1000,
+   4000
+  ],
+  "wal_duration": 6.0,
+  "writers": 3
+ },
+ "seconds": 152.7,
+ "sqlite_version": "3.45.1",
+ "statements": [
+  {
+   "cost": 4800.0,
+   "db_ms_per_second": 40.66,
+   "flags": [
+    "index",
+    "temp_btree"
+   ],
+   "id": "h_orders_by_user",
+   "kind": "select",
+   "measured": {
+    "ms_best": 2.033,
+    "rows_returned": 50,
+    "timed_out": false,
+    "vm_kilo_steps": 7
+   },
+   "per_second": 20,
+   "plan": [
+    "SEARCH orders USING INDEX idx_orders_user (user_id=?)",
+    "USE TEMP B-TREE FOR ORDER BY"
+   ],
+   "process": "http",
+   "rows_est": 240.0,
+   "scan_tables": [],
+   "sql": "SELECT id, symbol, side, price, qty, status, created_at FROM orders WHERE user_id = ? AND status = ? ORDER BY created_at DESC LIMIT 50",
+   "temp_btree": [
+    "ORDER BY"
+   ],
+   "verdict": "temp_btree",
+   "verdict_after_analyze": "temp_btree"
+  },
+  {
+   "cost": 50000000.0,
+   "db_ms_per_second": 2581.07,
+   "flags": [
+    "full_scan",
+    "temp_btree"
+   ],
+   "id": "h_trades_by_user",
+   "kind": "select",
+   "measured": {
+    "ms_best": 258.107,
+    "rows_returned": 100,
+    "timed_out": false,
+    "vm_kilo_steps": 15020
+   },
+   "per_second": 10,
+   "plan": [
+    "SCAN trades",
+    "USE TEMP B-TREE FOR ORDER BY"
+   ],
+   "process": "http",
+   "rows_est": 5000000.0,
+   "scan_tables": [
+    "trades"
+   ],
+   "sql": "SELECT id, symbol, side, price, qty, fee, ts FROM trades WHERE user_id = ? AND ts >= ? ORDER BY ts DESC LIMIT 100",
+   "temp_btree": [
+    "ORDER BY"
+   ],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 750000.0,
+   "db_ms_per_second": 79.395,
+   "flags": [
+    "full_scan"
+   ],
+   "id": "h_bots_of_user",
+   "kind": "select",
+   "measured": {
+    "ms_best": 5.293,
+    "rows_returned": 34,
+    "timed_out": false,
+    "vm_kilo_steps": 150
+   },
+   "per_second": 15,
+   "plan": [
+    "SCAN bots"
+   ],
+   "process": "http",
+   "rows_est": 50000.0,
+   "scan_tables": [
+    "bots"
+   ],
+   "sql": "SELECT id, name, strategy, symbol, status FROM bots WHERE user_id = ?",
+   "temp_btree": [],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 30.0,
+   "db_ms_per_second": 0.24,
+   "flags": [
+    "rowid"
+   ],
+   "id": "h_user",
+   "kind": "select",
+   "measured": {
+    "ms_best": 0.008,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 30,
+   "plan": [
+    "SEARCH users USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "http",
+   "rows_est": 1.0,
+   "scan_tables": [],
+   "sql": "SELECT id, email, tier FROM users WHERE id = ?",
+   "temp_btree": [],
+   "verdict": "rowid",
+   "verdict_after_analyze": "rowid"
+  },
+  {
+   "cost": 9000.0,
+   "db_ms_per_second": 0.87,
+   "flags": [
+    "full_scan"
+   ],
+   "id": "h_setting",
+   "kind": "select",
+   "measured": {
+    "ms_best": 0.029,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 1
+   },
+   "per_second": 30,
+   "plan": [
+    "SCAN settings"
+   ],
+   "process": "http",
+   "rows_est": 300.0,
+   "scan_tables": [
+    "settings"
+   ],
+   "sql": "SELECT value FROM settings WHERE key = ?",
+   "temp_btree": [],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 10000000.0,
+   "db_ms_per_second": 664.364,
+   "flags": [
+    "full_scan",
+    "temp_btree"
+   ],
+   "id": "h_dashboard_pnl",
+   "kind": "select",
+   "measured": {
+    "ms_best": 332.182,
+    "rows_returned": 20,
+    "timed_out": false,
+    "vm_kilo_steps": 15586
+   },
+   "per_second": 2,
+   "plan": [
+    "SCAN trades",
+    "USE TEMP B-TREE FOR GROUP BY"
+   ],
+   "process": "http",
+   "rows_est": 5000000.0,
+   "scan_tables": [
+    "trades"
+   ],
+   "sql": "SELECT symbol, count(*), sum(price * qty) FROM trades WHERE ts >= ? GROUP BY symbol",
+   "temp_btree": [
+    "GROUP BY"
+   ],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 9200000.0,
+   "db_ms_per_second": 530.72,
+   "flags": [
+    "full_scan",
+    "temp_btree"
+   ],
+   "id": "h_events_feed",
+   "kind": "select",
+   "measured": {
+    "ms_best": 53.072,
+    "rows_returned": 20,
+    "timed_out": false,
+    "vm_kilo_steps": 2768
+   },
+   "per_second": 10,
+   "plan": [
+    "SCAN events",
+    "USE TEMP B-TREE FOR ORDER BY"
+   ],
+   "process": "http",
+   "rows_est": 920000.0,
+   "scan_tables": [
+    "events"
+   ],
+   "sql": "SELECT id, kind, level, ts, payload FROM events WHERE user_id = ? ORDER BY ts DESC LIMIT 20",
+   "temp_btree": [
+    "ORDER BY"
+   ],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 2000.0,
+   "db_ms_per_second": 0.159,
+   "flags": [
+    "full_scan"
+   ],
+   "id": "h_email_search",
+   "kind": "select",
+   "measured": {
+    "ms_best": 0.795,
+    "rows_returned": 99,
+    "timed_out": false,
+    "vm_kilo_steps": 40
+   },
+   "per_second": 0.2,
+   "plan": [
+    "SCAN users USING COVERING INDEX ux_users_email"
+   ],
+   "process": "http",
+   "rows_est": 10000.0,
+   "scan_tables": [
+    "users"
+   ],
+   "sql": "SELECT id, email FROM users WHERE email LIKE ?",
+   "temp_btree": [],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 2400.0,
+   "db_ms_per_second": 14.755,
+   "flags": [
+    "index",
+    "rowid"
+   ],
+   "id": "h_orders_join_bots",
+   "kind": "select",
+   "measured": {
+    "ms_best": 2.951,
+    "rows_returned": 607,
+    "timed_out": false,
+    "vm_kilo_steps": 10
+   },
+   "per_second": 5,
+   "plan": [
+    "SEARCH o USING INDEX idx_orders_user (user_id=?)",
+    "SEARCH b USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "http",
+   "rows_est": 480.0,
+   "scan_tables": [],
+   "sql": "SELECT o.id, o.price, b.name FROM orders o JOIN bots b ON b.id = o.bot_id WHERE o.user_id = ? AND o.created_at >= ?",
+   "temp_btree": [],
+   "verdict": "index",
+   "verdict_after_analyze": "index"
+  },
+  {
+   "cost": 0.0,
+   "db_ms_per_second": 0.016,
+   "flags": [],
+   "id": "h_login_event",
+   "kind": "insert",
+   "measured": {
+    "ms_best": 0.008,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 2,
+   "plan": [],
+   "process": "http",
+   "rows_est": 0.0,
+   "scan_tables": [],
+   "sql": "INSERT INTO events(user_id, bot_id, kind, level, notified, ts, payload) VALUES (?, ?, 'login', 'info', 1, ?, ?)",
+   "temp_btree": [],
+   "verdict": "none",
+   "verdict_after_analyze": "none"
+  },
+  {
+   "cost": 0.5,
+   "db_ms_per_second": 0.004,
+   "flags": [
+    "rowid"
+   ],
+   "id": "h_toggle_bot",
+   "kind": "update",
+   "measured": {
+    "ms_best": 0.009,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 0.5,
+   "plan": [
+    "SEARCH bots USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "http",
+   "rows_est": 1.0,
+   "scan_tables": [],
+   "sql": "UPDATE bots SET status = ?, updated_at = ? WHERE id = ?",
+   "temp_btree": [],
+   "verdict": "rowid",
+   "verdict_after_analyze": "rowid"
+  },
+  {
+   "cost": 100000000.0,
+   "db_ms_per_second": 6621.35,
+   "flags": [
+    "full_scan"
+   ],
+   "id": "e_open_orders",
+   "kind": "select",
+   "measured": {
+    "ms_best": 132.427,
+    "rows_returned": 11,
+    "timed_out": false,
+    "vm_kilo_steps": 6000
+   },
+   "per_second": 50,
+   "plan": [
+    "SCAN orders"
+   ],
+   "process": "engine",
+   "rows_est": 2000000.0,
+   "scan_tables": [
+    "orders"
+   ],
+   "sql": "SELECT id, side, price, qty, filled FROM orders WHERE bot_id = ? AND status = 'open'",
+   "temp_btree": [],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 50000.0,
+   "db_ms_per_second": 21.098,
+   "flags": [
+    "full_scan"
+   ],
+   "id": "e_running_bots",
+   "kind": "select",
+   "measured": {
+    "ms_best": 21.098,
+    "rows_returned": 15885,
+    "timed_out": false,
+    "vm_kilo_steps": 265
+   },
+   "per_second": 1,
+   "plan": [
+    "SCAN bots"
+   ],
+   "process": "engine",
+   "rows_est": 50000.0,
+   "scan_tables": [
+    "bots"
+   ],
+   "sql": "SELECT id, user_id, symbol, config FROM bots WHERE status = 'running' AND updated_at < ?",
+   "temp_btree": [],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 50000000.0,
+   "db_ms_per_second": 4412.16,
+   "flags": [
+    "full_scan",
+    "temp_btree"
+   ],
+   "id": "e_last_price",
+   "kind": "select",
+   "measured": {
+    "ms_best": 441.216,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 16681
+   },
+   "per_second": 10,
+   "plan": [
+    "SCAN trades",
+    "USE TEMP B-TREE FOR ORDER BY"
+   ],
+   "process": "engine",
+   "rows_est": 5000000.0,
+   "scan_tables": [
+    "trades"
+   ],
+   "sql": "SELECT price FROM trades WHERE symbol = ? ORDER BY ts DESC LIMIT 1",
+   "temp_btree": [
+    "ORDER BY"
+   ],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 0.0,
+   "db_ms_per_second": 0.18,
+   "flags": [],
+   "id": "e_insert_order",
+   "kind": "insert",
+   "measured": {
+    "ms_best": 0.009,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 20,
+   "plan": [],
+   "process": "engine",
+   "rows_est": 0.0,
+   "scan_tables": [],
+   "sql": "INSERT INTO orders(bot_id, user_id, symbol, side, type, price, qty, filled, status, created_at, updated_at) VALUES (?, ?, ?, ?, 'limit', ?, ?, 0, 'open', ?, ?)",
+   "temp_btree": [],
+   "verdict": "none",
+   "verdict_after_analyze": "none"
+  },
+  {
+   "cost": 0.0,
+   "db_ms_per_second": 0.18,
+   "flags": [],
+   "id": "e_insert_trade",
+   "kind": "insert",
+   "measured": {
+    "ms_best": 0.009,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 20,
+   "plan": [],
+   "process": "engine",
+   "rows_est": 0.0,
+   "scan_tables": [],
+   "sql": "INSERT INTO trades(order_id, bot_id, user_id, symbol, side, price, qty, fee, ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+   "temp_btree": [],
+   "verdict": "none",
+   "verdict_after_analyze": "none"
+  },
+  {
+   "cost": 20.0,
+   "db_ms_per_second": 0.18,
+   "flags": [
+    "rowid"
+   ],
+   "id": "e_update_order",
+   "kind": "update",
+   "measured": {
+    "ms_best": 0.009,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 20,
+   "plan": [
+    "SEARCH orders USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "engine",
+   "rows_est": 1.0,
+   "scan_tables": [],
+   "sql": "UPDATE orders SET status = ?, filled = ?, updated_at = ? WHERE id = ?",
+   "temp_btree": [],
+   "verdict": "rowid",
+   "verdict_after_analyze": "rowid"
+  },
+  {
+   "cost": 20.0,
+   "db_ms_per_second": 0.16,
+   "flags": [
+    "rowid"
+   ],
+   "id": "e_touch_bot",
+   "kind": "update",
+   "measured": {
+    "ms_best": 0.008,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 20,
+   "plan": [
+    "SEARCH bots USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "engine",
+   "rows_est": 1.0,
+   "scan_tables": [],
+   "sql": "UPDATE bots SET updated_at = ? WHERE id = ?",
+   "temp_btree": [],
+   "verdict": "rowid",
+   "verdict_after_analyze": "rowid"
+  },
+  {
+   "cost": 920000.0,
+   "db_ms_per_second": 60.891,
+   "flags": [
+    "full_scan",
+    "temp_btree"
+   ],
+   "id": "n_pending_alerts",
+   "kind": "select",
+   "measured": {
+    "ms_best": 60.891,
+    "rows_returned": 100,
+    "timed_out": false,
+    "vm_kilo_steps": 2858
+   },
+   "per_second": 1,
+   "plan": [
+    "SCAN events",
+    "USE TEMP B-TREE FOR ORDER BY"
+   ],
+   "process": "notifier",
+   "rows_est": 920000.0,
+   "scan_tables": [
+    "events"
+   ],
+   "sql": "SELECT id, user_id, kind, payload FROM events WHERE level = 'alert' AND notified = 0 ORDER BY ts LIMIT 100",
+   "temp_btree": [
+    "ORDER BY"
+   ],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  },
+  {
+   "cost": 5.0,
+   "db_ms_per_second": 0.035,
+   "flags": [
+    "rowid"
+   ],
+   "id": "n_mark_sent",
+   "kind": "update",
+   "measured": {
+    "ms_best": 0.007,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 5,
+   "plan": [
+    "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "notifier",
+   "rows_est": 1.0,
+   "scan_tables": [],
+   "sql": "UPDATE events SET notified = 1 WHERE id = ?",
+   "temp_btree": [],
+   "verdict": "rowid",
+   "verdict_after_analyze": "rowid"
+  },
+  {
+   "cost": 0.0,
+   "db_ms_per_second": 0.035,
+   "flags": [],
+   "id": "n_insert_event",
+   "kind": "insert",
+   "measured": {
+    "ms_best": 0.007,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 5,
+   "plan": [],
+   "process": "notifier",
+   "rows_est": 0.0,
+   "scan_tables": [],
+   "sql": "INSERT INTO events(user_id, bot_id, kind, level, notified, ts, payload) VALUES (?, ?, 'alert', 'alert', 0, ?, ?)",
+   "temp_btree": [],
+   "verdict": "none",
+   "verdict_after_analyze": "none"
+  },
+  {
+   "cost": 5.0,
+   "db_ms_per_second": 0.02,
+   "flags": [
+    "rowid"
+   ],
+   "id": "n_user_email",
+   "kind": "select",
+   "measured": {
+    "ms_best": 0.004,
+    "rows_returned": 1,
+    "timed_out": false,
+    "vm_kilo_steps": 0
+   },
+   "per_second": 5,
+   "plan": [
+    "SEARCH users USING INTEGER PRIMARY KEY (rowid=?)"
+   ],
+   "process": "notifier",
+   "rows_est": 1.0,
+   "scan_tables": [],
+   "sql": "SELECT email FROM users WHERE id = ?",
+   "temp_btree": [],
+   "verdict": "rowid",
+   "verdict_after_analyze": "rowid"
+  },
+  {
+   "cost": 9200.0,
+   "db_ms_per_second": 0.549,
+   "flags": [
+    "full_scan"
+   ],
+   "id": "n_purge_events",
+   "kind": "delete",
+   "measured": {
+    "ms_best": 54.913,
+    "rows_returned": 0,
+    "timed_out": false,
+    "vm_kilo_steps": 2760
+   },
+   "per_second": 0.01,
+   "plan": [
+    "SCAN events"
+   ],
+   "process": "notifier",
+   "rows_est": 920000.0,
+   "scan_tables": [
+    "events"
+   ],
+   "sql": "DELETE FROM events WHERE ts < ?",
+   "temp_btree": [],
+   "verdict": "full_scan",
+   "verdict_after_analyze": "full_scan"
+  }
+ ],
+ "tables": {
+  "bots": {
+   "indexes": {},
+   "rows": 50000
+  },
+  "events": {
+   "indexes": {},
+   "rows": 920000
+  },
+  "orders": {
+   "indexes": {
+    "idx_orders_user": {
+     "columns": [
+      "user_id"
+     ],
+     "origin": "c",
+     "partial": false,
+     "unique": false
+    }
+   },
+   "rows": 2000000
+  },
+  "settings": {
+   "indexes": {},
+   "rows": 300
+  },
+  "trades": {
+   "indexes": {
+    "idx_trades_order": {
+     "columns": [
+      "order_id"
+     ],
+     "origin": "c",
+     "partial": false,
+     "unique": false
+    }
+   },
+   "rows": 5000000
+  },
+  "users": {
+   "indexes": {
+    "ux_users_email": {
+     "columns": [
+      "email"
+     ],
+     "origin": "c",
+     "partial": false,
+     "unique": true
+    }
+   },
+   "rows": 10000
+  }
+ },
+ "top": [
+  "e_open_orders",
+  "e_last_price",
+  "h_trades_by_user",
+  "h_dashboard_pnl",
+  "h_events_feed",
+  "n_pending_alerts",
+  "h_bots_of_user",
+  "e_running_bots",
+  "n_purge_events",
+  "h_setting",
+  "h_orders_by_user",
+  "h_orders_join_bots",
+  "h_email_search",
+  "h_user",
+  "e_touch_bot",
+  "e_update_order",
+  "n_mark_sent",
+  "n_user_email",
+  "h_toggle_bot",
+  "e_insert_order"
+ ],
+ "wal": {
+  "scenarios": [
+   {
+    "commit_ms": {
+     "max": 5.540995000046678,
+     "mean": 0.27140256165353094,
+     "min": 0.06361200030369218,
+     "n": 1200,
+     "p50": 0.14476399996965483,
+     "p95": 0.54813050028315,
+     "p99": 3.970038159923206
+    },
+    "config": {
+     "autocheckpoint": 200,
+     "duration": 6.0,
+     "hold": 2.0,
+     "long_reader": false,
+     "rate": 200.0,
+     "rows_per_txn": 20,
+     "synchronous": "NORMAL"
+    },
+    "crashed": [],
+    "curve": [
+     [
+      0.0,
+      0,
+      0,
+      0
+     ],
+     [
+      0.1,
+      412032,
+      100,
+      0
+     ],
+     [
+      0.201,
+      824032,
+      200,
+      0
+     ],
+     [
+      0.301,
+      824032,
+      100,
+      0
+     ],
+     [
+      0.401,
+      824032,
+      200,
+      0
+     ],
+     [
+      0.502,
+      824032,
+      100,
+      0
+     ],
+     [
+      0.602,
+      824032,
+      200,
+      0
+     ],
+     [
+      0.702,
+      824032,
+      100,
+      0
+     ],
+     [
+      0.803,
+      824032,
+      200,
+      0
+     ],
+     [
+      0.904,
+      824032,
+      100,
+      0
+     ],
+     [
+      1.004,
+      824032,
+      200,
+      200
+     ],
+     [
+      1.104,
+      824032,
+      105,
+      0
+     ],
+     [
+      1.205,
+      824032,
+      0,
+      0
+     ],
+     [
+      1.305,
+      824032,
+      105,
+      0
+     ],
+     [
+      1.406,
+      824032,
+      5,
+      0
+     ],
+     [
+      1.506,
+      824032,
+      105,
+      0
+     ],
+     [
+      1.606,
+      824032,
+      5,
+      0
+     ],
+     [
+      1.707,
+      824032,
+      105,
+      0
+     ],
+     [
+      1.807,
+      824032,
+      5,
+      0
+     ],
+     [
+      1.907,
+      824032,
+      105,
+      0
+     ],
+     [
+      2.008,
+      824032,
+      5,
+      0
+     ],
+     [
+      2.108,
+      824032,
+      105,
+      0
+     ],
+     [
+      2.209,
+      824032,
+      5,
+      0
+     ],
+     [
+      2.309,
+      824032,
+      105,
+      0
+     ],
+     [
+      2.409,
+      840512,
+      0,
+      0
+     ],
+     [
+      2.51,
+      840512,
+      107,
+      0
+     ],
+     [
+      2.61,
+      840512,
+      5,
+      0
+     ],
+     [
+      2.711,
+      840512,
+      105,
+      0
+     ],
+     [
+      2.811,
+      840512,
+      5,
+      0
+     ],
+     [
+      2.911,
+      840512,
+      105,
+      0
+     ],
+     [
+      3.012,
+      840512,
+      5,
+      0
+     ],
+     [
+      3.112,
+      840512,
+      105,
+      0
+     ],
+     [
+      3.212,
+      840512,
+      5,
+      0
+     ],
+     [
+      3.313,
+      840512,
+      105,
+      0
+     ],
+     [
+      3.413,
+      840512,
+      5,
+      0
+     ],
+     [
+      3.513,
+      840512,
+      105,
+      0
+     ],
+     [
+      3.614,
+      840512,
+      5,
+      0
+     ],
+     [
+      3.714,
+      840512,
+      107,
+      0
+     ],
+     [
+      3.815,
+      840512,
+      10,
+      0
+     ],
+     [
+      3.915,
+      840512,
+      110,
+      0
+     ],
+     [
+      4.015,
+      840512,
+      10,
+      0
+     ],
+     [
+      4.116,
+      840512,
+      110,
+      0
+     ],
+     [
+      4.216,
+      840512,
+      10,
+      0
+     ],
+     [
+      4.316,
+      840512,
+      112,
+      0
+     ],
+     [
+      4.417,
+      840512,
+      10,
+      0
+     ],
+     [
+      4.517,
+      840512,
+      112,
+      0
+     ],
+     [
+      4.617,
+      840512,
+      10,
+      0
+     ],
+     [
+      4.718,
+      840512,
+      114,
+      0
+     ],
+     [
+      4.818,
+      840512,
+      20,
+      0
+     ],
+     [
+      4.918,
+      840512,
+      120,
+      0
+     ],
+     [
+      5.019,
+      840512,
+      20,
+      0
+     ],
+     [
+      5.119,
+      840512,
+      125,
+      0
+     ],
+     [
+      5.22,
+      840512,
+      25,
+      0
+     ],
+     [
+      5.32,
+      840512,
+      125,
+      0
+     ],
+     [
+      5.421,
+      840512,
+      25,
+      0
+     ],
+     [
+      5.521,
+      840512,
+      125,
+      0
+     ],
+     [
+      5.621,
+      840512,
+      25,
+      0
+     ],
+     [
+      5.722,
+      840512,
+      125,
+      0
+     ],
+     [
+      5.822,
+      840512,
+      25,
+      0
+     ],
+     [
+      5.922,
+      840512,
+      128,
+      0
+     ]
+    ],
+    "curve_fields": [
+     "t_s",
+     "wal_file_bytes",
+     "wal_live_frames",
+     "backfilled_frames"
+    ],
+    "final_bytes": 840512,
+    "final_live_frames": 128,
+    "max_bytes": 840512,
+    "max_live_frames": 200,
+    "read_txns": 0,
+    "resets": 24
+   },
+   {
+    "commit_ms": {
+     "max": 12.999377000141976,
+     "mean": 0.27205604583514287,
+     "min": 0.047282000195991714,
+     "n": 1200,
+     "p50": 0.199884000039674,
+     "p95": 0.37872500004141324,
+     "p99": 1.1020693999853373
+    },
+    "config": {
+     "autocheckpoint": 200,
+     "duration": 6.0,
+     "hold": 2.0,
+     "long_reader": true,
+     "rate": 200.0,
+     "rows_per_txn": 20,
+     "synchronous": "NORMAL"
+    },
+    "crashed": [],
+    "curve": [
+     [
+      0.0,
+      0,
+      0,
+      0
+     ],
+     [
+      0.1,
+      412032,
+      100,
+      0
+     ],
+     [
+      0.201,
+      824032,
+      200,
+      0
+     ],
+     [
+      0.301,
+      1236032,
+      300,
+      0
+     ],
+     [
+      0.402,
+      1660392,
+      403,
+      0
+     ],
+     [
+      0.502,
+      2072392,
+      503,
+      0
+     ],
+     [
+      0.602,
+      2484392,
+      603,
+      0
+     ],
+     [
+      0.703,
+      2908752,
+      706,
+      0
+     ],
+     [
+      0.803,
+      3320752,
+      806,
+      0
+     ],
+     [
+      0.904,
+      3757472,
+      912,
+      0
+     ],
+     [
+      1.004,
+      4210672,
+      1022,
+      0
+     ],
+     [
+      1.104,
+      4622672,
+      1122,
+      0
+     ],
+     [
+      1.205,
+      5022312,
+      1219,
+      0
+     ],
+     [
+      1.305,
+      5351912,
+      1299,
+      0
+     ],
+     [
+      1.405,
+      5681512,
+      1379,
+      0
+     ],
+     [
+      1.506,
+      6011112,
+      1459,
+      0
+     ],
+     [
+      1.606,
+      6340712,
+      1539,
+      0
+     ],
+     [
+      1.706,
+      6670312,
+      1619,
+      0
+     ],
+     [
+      1.807,
+      6999912,
+      1699,
+      0
+     ],
+     [
+      1.909,
+      7313032,
+      1775,
+      806
+     ],
+     [
+      2.009,
+      7659112,
+      1859,
+      806
+     ],
+     [
+      2.11,
+      8017552,
+      1946,
+      806
+     ],
+     [
+      2.21,
+      8347152,
+      2026,
+      806
+     ],
+     [
+      2.311,
+      8676752,
+      2106,
+      806
+     ],
+     [
+      2.411,
+      8989872,
+      2182,
+      806
+     ],
+     [
+      2.511,
+      9348312,
+      2269,
+      806
+     ],
+     [
+      2.612,
+      9677912,
+      2349,
+      806
+     ],
+     [
+      2.713,
+      10019872,
+      2432,
+      806
+     ],
+     [
+      2.814,
+      10370072,
+      2521,
+      1695
+     ],
+     [
+      2.914,
+      10744992,
+      2608,
+      1695
+     ],
+     [
+      3.014,
+      11074592,
+      2692,
+      1695
+     ],
+     [
+      3.115,
+      11420672,
+      2772,
+      1695
+     ],
+     [
+      3.215,
+      11750272,
+      2852,
+      1695
+     ],
+     [
+      3.315,
+      12079872,
+      2932,
+      1695
+     ],
+     [
+      3.416,
+      12409472,
+      3012,
+      1695
+     ],
+     [
+      3.516,
+      12739072,
+      3092,
+      1695
+     ],
+     [
+      3.617,
+      13068672,
+      3172,
+      1695
+     ],
+     [
+      3.717,
+      13398272,
+      3252,
+      1695
+     ],
+     [
+      3.817,
+      13727872,
+      3332,
+      2510
+     ],
+     [
+      3.918,
+      14069832,
+      3415,
+      2510
+     ],
+     [
+      4.018,
+      14399432,
+      3495,
+      2510
+     ],
+     [
+      4.118,
+      14729032,
+      3575,
+      2510
+     ],
+     [
+      4.219,
+      15058632,
+      3655,
+      2510
+     ],
+     [
+      4.319,
+      15400592,
+      3738,
+      2510
+     ],
+     [
+      4.419,
+      15730192,
+      3818,
+      2510
+     ],
+     [
+      4.52,
+      16088632,
+      3905,
+      2510
+     ],
+     [
+      4.62,
+      16430592,
+      3988,
+      2510
+     ],
+     [
+      4.72,
+      16813752,
+      4081,
+      2510
+     ],
+     [
+      4.821,
+      17143352,
+      4161,
+      3320
+     ],
+     [
+      4.921,
+      17472952,
+      4241,
+      3320
+     ],
+     [
+      5.021,
+      17802552,
+      4321,
+      3320
+     ],
+     [
+      5.122,
+      18132152,
+      4401,
+      3320
+     ],
+     [
+      5.222,
+      18461752,
+      4481,
+      3320
+     ],
+     [
+      5.323,
+      18791352,
+      4561,
+      3320
+     ],
+     [
+      5.423,
+      19120952,
+      4641,
+      3320
+     ],
+     [
+      5.524,
+      19450552,
+      4721,
+      3320
+     ],
+     [
+      5.624,
+      19780152,
+      4801,
+      3320
+     ],
+     [
+      5.724,
+      20119552,
+      4885,
+      3320
+     ],
+     [
+      5.825,
+      20468192,
+      4968,
+      4145
+     ],
+     [
+      5.925,
+      20797792,
+      5048,
+      4145
+     ]
+    ],
+    "curve_fields": [
+     "t_s",
+     "wal_file_bytes",
+     "wal_live_frames",
+     "backfilled_frames"
+    ],
+    "final_bytes": 20797792,
+    "final_live_frames": 5048,
+    "max_bytes": 20797792,
+    "max_live_frames": 5048,
+    "read_txns": 7,
+    "resets": 0
+   },
+   {
+    "commit_ms": {
+     "max": 14.376813000126276,
+     "mean": 0.2072711058292498,
+     "min": 0.03363799987710081,
+     "n": 1200,
+     "p50": 0.1503789999333094,
+     "p95": 0.2258756499259106,
+     "p99": 0.691985500134251
+    },
+    "config": {
+     "autocheckpoint": 1000,
+     "duration": 6.0,
+     "hold": 2.0,
+     "long_reader": false,
+     "rate": 200.0,
+     "rows_per_txn": 20,
+     "synchronous": "NORMAL"
+    },
+    "crashed": [],
+    "curve": [
+     [
+      0.0,
+      0,
+      0,
+      0
+     ],
+     [
+      0.1,
+      329632,
+      80,
+      0
+     ],
+     [
+      0.201,
+      659232,
+      160,
+      0
+     ],
+     [
+      0.301,
+      1001192,
+      243,
+      0
+     ],
+     [
+      0.403,
+      1330792,
+      323,
+      0
+     ],
+     [
+      0.503,
+      1672752,
+      406,
+      0
+     ],
+     [
+      0.604,
+      2051792,
+      498,
+      0
+     ],
+     [
+      0.704,
+      2397872,
+      582,
+      0
+     ],
+     [
+      0.804,
+      2727472,
+      662,
+      0
+     ],
+     [
+      0.905,
+      3073552,
+      746,
+      0
+     ],
+     [
+      1.005,
+      3403152,
+      826,
+      0
+     ],
+     [
+      1.105,
+      3732752,
+      906,
+      0
+     ],
+     [
+      1.206,
+      4062352,
+      986,
+      0
+     ],
+     [
+      1.306,
+      4128272,
+      64,
+      0
+     ],
+     [
+      1.406,
+      4128272,
+      144,
+      0
+     ],
+     [
+      1.507,
+      4128272,
+      224,
+      0
+     ],
+     [
+      1.607,
+      4128272,
+      304,
+      0
+     ],
+     [
+      1.707,
+      4128272,
+      387,
+      0
+     ],
+     [
+      1.808,
+      4128272,
+      467,
+      0
+     ],
+     [
+      1.908,
+      4128272,
+      547,
+      0
+     ],
+     [
+      2.009,
+      4128272,
+      627,
+      0
+     ],
+     [
+      2.109,
+      4128272,
+      710,
+      0
+     ],
+     [
+      2.209,
+      4128272,
+      790,
+      0
+     ],
+     [
+      2.31,
+      4128272,
+      877,
+      0
+     ],
+     [
+      2.41,
+      4128272,
+      960,
+      0
+     ],
+     [
+      2.51,
+      4132392,
+      50,
+      0
+     ],
+     [
+      2.611,
+      4132392,
+      130,
+      0
+     ],
+     [
+      2.711,
+      4132392,
+      210,
+      0
+     ],
+     [
+      2.811,
+      4132392,
+      290,
+      0
+     ],
+     [
+      2.911,
+      4132392,
+      370,
+      0
+     ],
+     [
+      3.012,
+      4132392,
+      450,
+      0
+     ],
+     [
+      3.112,
+      4132392,
+      530,
+      0
+     ],
+     [
+      3.212,
+      4132392,
+      610,
+      0
+     ],
+     [
+      3.313,
+      4132392,
+      690,
+      0
+     ],
+     [
+      3.413,
+      4132392,
+      770,
+      0
+     ],
+     [
+      3.513,
+      4132392,
+      850,
+      0
+     ],
+     [
+      3.613,
+      4132392,
+      933,
+      0
+     ],
+     [
+      3.714,
+      4132392,
+      12,
+      0
+     ],
+     [
+      3.814,
+      4132392,
+      92,
+      0
+     ],
+     [
+      3.915,
+      4132392,
+      176,
+      0
+     ],
+     [
+      4.015,
+      4132392,
+      259,
+      0
+     ],
+     [
+      4.115,
+      4132392,
+      339,
+      0
+     ],
+     [
+      4.216,
+      4132392,
+      422,
+      0
+     ],
+     [
+      4.316,
+      4132392,
+      505,
+      0
+     ],
+     [
+      4.416,
+      4132392,
+      598,
+      0
+     ],
+     [
+      4.517,
+      4132392,
+      678,
+      0
+     ],
+     [
+      4.617,
+      4132392,
+      758,
+      0
+     ],
+     [
+      4.717,
+      4132392,
+      838,
+      0
+     ],
+     [
+      4.818,
+      4132392,
+      918,
+      0
+     ],
+     [
+      4.918,
+      4132392,
+      998,
+      0
+     ],
+     [
+      5.018,
+      4132392,
+      76,
+      0
+     ],
+     [
+      5.119,
+      4132392,
+      156,
+      0
+     ],
+     [
+      5.219,
+      4132392,
+      236,
+      0
+     ],
+     [
+      5.32,
+      4132392,
+      320,
+      0
+     ],
+     [
+      5.42,
+      4132392,
+      400,
+      0
+     ],
+     [
+      5.52,
+      4132392,
+      483,
+      0
+     ],
+     [
+      5.621,
+      4132392,
+      563,
+      0
+     ],
+     [
+      5.721,
+      4132392,
+      643,
+      0
+     ],
+     [
+      5.822,
+      4132392,
+      723,
+      0
+     ],
+     [
+      5.922,
+      4132392,
+      806,
+      0
+     ]
+    ],
+    "curve_fields": [
+     "t_s",
+     "wal_file_bytes",
+     "wal_live_frames",
+     "backfilled_frames"
+    ],
+    "final_bytes": 4132392,
+    "final_live_frames": 806,
+    "max_bytes": 4132392,
+    "max_live_frames": 998,
+    "read_txns": 0,
+    "resets": 4
+   },
+   {
+    "commit_ms": {
+     "max": 16.850935999627836,
+     "mean": 0.28979642415796053,
+     "min": 0.0362910000148986,
+     "n": 1200,
+     "p50": 0.21551050008383754,
+     "p95": 0.38927629984755163,
+     "p99": 1.4294287898019307
+    },
+    "config": {
+     "autocheckpoint": 1000,
+     "duration": 6.0,
+     "hold": 2.0,
+     "long_reader": true,
+     "rate": 200.0,
+     "rows_per_txn": 20,
+     "synchronous": "NORMAL"
+    },
+    "crashed": [],
+    "curve": [
+     [
+      0.0,
+      0,
+      0,
+      0
+     ],
+     [
+      0.1,
+      341992,
+      83,
+      0
+     ],
+     [
+      0.201,
+      683952,
+      166,
+      0
+     ],
+     [
+      0.301,
+      1067112,
+      259,
+      0
+     ],
+     [
+      0.402,
+      1396712,
+      339,
+      0
+     ],
+     [
+      0.502,
+      1726312,
+      419,
+      0
+     ],
+     [
+      0.602,
+      2055912,
+      499,
+      0
+     ],
+     [
+      0.703,
+      2385512,
+      579,
+      0
+     ],
+     [
+      0.803,
+      2715112,
+      659,
+      0
+     ],
+     [
+      0.903,
+      3044712,
+      739,
+      0
+     ],
+     [
+      1.004,
+      3374312,
+      819,
+      0
+     ],
+     [
+      1.104,
+      3703912,
+      899,
+      0
+     ],
+     [
+      1.205,
+      4046848,
+      983,
+      0
+     ],
+     [
+      1.305,
+      4379592,
+      1063,
+      0
+     ],
+     [
+      1.405,
+      4721552,
+      1146,
+      0
+     ],
+     [
+      1.506,
+      5051152,
+      1226,
+      0
+     ],
+     [
+      1.606,
+      5380752,
+      1306,
+      0
+     ],
+     [
+      1.706,
+      5710352,
+      1386,
+      0
+     ],
+     [
+      1.807,
+      6052312,
+      1469,
+      0
+     ],
+     [
+      1.907,
+      6381912,
+      1549,
+      659
+     ],
+     [
+      2.008,
+      6723872,
+      1632,
+      659
+     ],
+     [
+      2.108,
+      7065832,
+      1715,
+      659
+     ],
+     [
+      2.208,
+      7448992,
+      1808,
+      659
+     ],
+     [
+      2.309,
+      7778592,
+      1888,
+      659
+     ],
+     [
+      2.409,
+      8108192,
+      1968,
+      659
+     ],
+     [
+      2.509,
+      8437792,
+      2048,
+      659
+     ],
+     [
+      2.61,
+      8783872,
+      2132,
+      659
+     ],
+     [
+      2.71,
+      9113472,
+      2212,
+      659
+     ],
+     [
+      2.811,
+      9426592,
+      2288,
+      659
+     ],
+     [
+      2.911,
+      9756192,
+      2368,
+      1465
+     ],
+     [
+      3.011,
+      10102272,
+      2452,
+      1465
+     ],
+     [
+      3.112,
+      10431872,
+      2532,
+      1465
+     ],
+     [
+      3.212,
+      10761472,
+      2612,
+      1465
+     ],
+     [
+      3.313,
+      11103432,
+      2695,
+      1465
+     ],
+     [
+      3.413,
+      11433032,
+      2775,
+      1465
+     ],
+     [
+      3.513,
+      11762632,
+      2855,
+      1465
+     ],
+     [
+      3.614,
+      12092232,
+      2935,
+      1465
+     ],
+     [
+      3.714,
+      12434192,
+      3018,
+      1465
+     ],
+     [
+      3.814,
+      12763792,
+      3098,
+      2284
+     ],
+     [
+      3.915,
+      13122232,
+      3185,
+      2284
+     ],
+     [
+      4.015,
+      13476552,
+      3271,
+      2284
+     ],
+     [
+      4.115,
+      13847352,
+      3361,
+      2284
+     ],
+     [
+      4.216,
+      14176952,
+      3441,
+      2284
+     ],
+     [
+      4.316,
+      14506552,
+      3521,
+      2284
+     ],
+     [
+      4.417,
+      14836152,
+      3601,
+      2284
+     ],
+     [
+      4.517,
+      15165752,
+      3681,
+      2284
+     ],
+     [
+      4.617,
+      15495352,
+      3761,
+      2284
+     ],
+     [
+      4.718,
+      15824952,
+      3841,
+      2284
+     ],
+     [
+      4.818,
+      16154552,
+      3921,
+      3090
+     ],
+     [
+      4.918,
+      16484152,
+      4001,
+      3090
+     ],
+     [
+      5.019,
+      16813752,
+      4081,
+      3090
+     ],
+     [
+      5.119,
+      17143352,
+      4161,
+      3090
+     ],
+     [
+      5.219,
+      17501792,
+      4248,
+      3090
+     ],
+     [
+      5.32,
+      17831392,
+      4328,
+      3090
+     ],
+     [
+      5.42,
+      18160992,
+      4408,
+      3090
+     ],
+     [
+      5.521,
+      18490592,
+      4488,
+      3090
+     ],
+     [
+      5.621,
+      18832552,
+      4571,
+      3090
+     ],
+     [
+      5.721,
+      19162152,
+      4651,
+      3090
+     ],
+     [
+      5.822,
+      19504112,
+      4734,
+      3909
+     ],
+     [
+      5.922,
+      19858432,
+      4820,
+      3909
+     ]
+    ],
+    "curve_fields": [
+     "t_s",
+     "wal_file_bytes",
+     "wal_live_frames",
+     "backfilled_frames"
+    ],
+    "final_bytes": 19858432,
+    "final_live_frames": 4820,
+    "max_bytes": 19858432,
+    "max_live_frames": 4820,
+    "read_txns": 7,
+    "resets": 0
+   },
+   {
+    "commit_ms": {
+     "max": 38.669486999879155,
+     "mean": 0.21904845249954025,
+     "min": 0.04289600019546924,
+     "n": 1200,
+     "p50": 0.1558895000925986,
+     "p95": 0.26569225035473204,
+     "p99": 1.0996826396922177
+    },
+    "config": {
+     "autocheckpoint": 4000,
+     "duration": 6.0,
+     "hold": 2.0,
+     "long_reader": false,
+     "rate": 200.0,
+     "rows_per_txn": 20,
+     "synchronous": "NORMAL"
+    },
+    "crashed": [],
+    "curve": [
+     [
+      0.0,
+      0,
+      0,
+      0
+     ],
+     [
+      0.1,
+      329632,
+      80,
+      0
+     ],
+     [
+      0.201,
+      659232,
+      160,
+      0
+     ],
+     [
+      0.301,
+      988832,
+      240,
+      0
+     ],
+     [
+      0.402,
+      1318432,
+      320,
+      0
+     ],
+     [
+      0.502,
+      1648032,
+      400,
+      0
+     ],
+     [
+      0.602,
+      1977632,
+      480,
+      0
+     ],
+     [
+      0.703,
+      2307232,
+      560,
+      0
+     ],
+     [
+      0.803,
+      2636832,
+      640,
+      0
+     ],
+     [
+      0.903,
+      2966432,
+      720,
+      0
+     ],
+     [
+      1.004,
+      3296032,
+      800,
+      0
+     ],
+     [
+      1.104,
+      3637992,
+      883,
+      0
+     ],
+     [
+      1.204,
+      3967592,
+      963,
+      0
+     ],
+     [
+      1.305,
+      4313672,
+      1047,
+      0
+     ],
+     [
+      1.405,
+      4643272,
+      1127,
+      0
+     ],
+     [
+      1.505,
+      4985232,
+      1210,
+      0
+     ],
+     [
+      1.606,
+      5314832,
+      1290,
+      0
+     ],
+     [
+      1.706,
+      5656792,
+      1373,
+      0
+     ],
+     [
+      1.806,
+      6011112,
+      1459,
+      0
+     ],
+     [
+      1.907,
+      6381912,
+      1549,
+      0
+     ],
+     [
+      2.007,
+      6711512,
+      1629,
+      0
+     ],
+     [
+      2.107,
+      7041112,
+      1709,
+      0
+     ],
+     [
+      2.208,
+      7370712,
+      1789,
+      0
+     ],
+     [
+      2.308,
+      7700312,
+      1869,
+      0
+     ],
+     [
+      2.408,
+      8029912,
+      1949,
+      0
+     ],
+     [
+      2.509,
+      8359512,
+      2029,
+      0
+     ],
+     [
+      2.609,
+      8689112,
+      2109,
+      0
+     ],
+     [
+      2.71,
+      9035192,
+      2193,
+      0
+     ],
+     [
+      2.81,
+      9364792,
+      2273,
+      0
+     ],
+     [
+      2.91,
+      9694392,
+      2353,
+      0
+     ],
+     [
+      3.011,
+      10036352,
+      2436,
+      0
+     ],
+     [
+      3.111,
+      10365952,
+      2516,
+      0
+     ],
+     [
+      3.211,
+      10695552,
+      2596,
+      0
+     ],
+     [
+      3.312,
+      11025152,
+      2676,
+      0
+     ],
+     [
+      3.412,
+      11367112,
+      2759,
+      0
+     ],
+     [
+      3.512,
+      11696712,
+      2839,
+      0
+     ],
+     [
+      3.613,
+      12038672,
+      2922,
+      0
+     ],
+     [
+      3.713,
+      12405352,
+      3011,
+      0
+     ],
+     [
+      3.813,
+      12763792,
+      3098,
+      0
+     ],
+     [
+      3.914,
+      13093392,
+      3178,
+      0
+     ],
+     [
+      4.014,
+      13422992,
+      3258,
+      0
+     ],
+     [
+      4.114,
+      13769072,
+      3342,
+      0
+     ],
+     [
+      4.215,
+      14098672,
+      3422,
+      0
+     ],
+     [
+      4.316,
+      14428272,
+      3502,
+      0
+     ],
+     [
+      4.416,
+      14757872,
+      3582,
+      0
+     ],
+     [
+      4.516,
+      15087472,
+      3662,
+      0
+     ],
+     [
+      4.617,
+      15417072,
+      3742,
+      0
+     ],
+     [
+      4.717,
+      15746672,
+      3822,
+      0
+     ],
+     [
+      4.818,
+      16088632,
+      3905,
+      0
+     ],
+     [
+      4.918,
+      16418232,
+      3985,
+      0
+     ],
+     [
+      5.018,
+      16484152,
+      64,
+      0
+     ],
+     [
+      5.119,
+      16484152,
+      144,
+      0
+     ],
+     [
+      5.219,
+      16484152,
+      224,
+      0
+     ],
+     [
+      5.319,
+      16484152,
+      307,
+      0
+     ],
+     [
+      5.42,
+      16484152,
+      391,
+      0
+     ],
+     [
+      5.52,
+      16484152,
+      474,
+      0
+     ],
+     [
+      5.621,
+      16484152,
+      570,
+      0
+     ],
+     [
+      5.722,
+      16484152,
+      650,
+      0
+     ],
+     [
+      5.822,
+      16484152,
+      730,
+      0
+     ],
+     [
+      5.922,
+      16484152,
+      810,
+      0
+     ]
+    ],
+    "curve_fields": [
+     "t_s",
+     "wal_file_bytes",
+     "wal_live_frames",
+     "backfilled_frames"
+    ],
+    "final_bytes": 16484152,
+    "final_live_frames": 810,
+    "max_bytes": 16484152,
+    "max_live_frames": 3985,
+    "read_txns": 0,
+    "resets": 1
+   },
+   {
+    "commit_ms": {
+     "max": 24.29885399988052,
+     "mean": 0.18638379167555286,
+     "min": 0.035274999845569255,
+     "n": 1200,
+     "p50": 0.1408475000062026,
+     "p95": 0.2179870498821401,
+     "p99": 0.4740784998057265
+    },
+    "config": {
+     "autocheckpoint": 4000,
+     "duration": 6.0,
+     "hold": 2.0,
+     "long_reader": true,
+     "rate": 200.0,
+     "rows_per_txn": 20,
+     "synchronous": "NORMAL"
+    },
+    "crashed": [],
+    "curve": [
+     [
+      0.0,
+      0,
+      0,
+      0
+     ],
+     [
+      0.1,
+      329632,
+      80,
+      0
+     ],
+     [
+      0.201,
+      659232,
+      160,
+      0
+     ],
+     [
+      0.301,
+      988832,
+      240,
+      0
+     ],
+     [
+      0.401,
+      1318432,
+      320,
+      0
+     ],
+     [
+      0.502,
+      1648032,
+      400,
+      0
+     ],
+     [
+      0.602,
+      1977632,
+      480,
+      0
+     ],
+     [
+      0.703,
+      2336072,
+      567,
+      0
+     ],
+     [
+      0.803,
+      2665672,
+      647,
+      0
+     ],
+     [
+      0.904,
+      2995272,
+      727,
+      0
+     ],
+     [
+      1.004,
+      3324872,
+      807,
+      0
+     ],
+     [
+      1.105,
+      3654472,
+      887,
+      0
+     ],
+     [
+      1.205,
+      3996432,
+      970,
+      0
+     ],
+     [
+      1.305,
+      4326032,
+      1050,
+      0
+     ],
+     [
+      1.405,
+      4667992,
+      1133,
+      0
+     ],
+     [
+      1.506,
+      5047032,
+      1225,
+      0
+     ],
+     [
+      1.606,
+      5393112,
+      1309,
+      0
+     ],
+     [
+      1.707,
+      5722712,
+      1389,
+      0
+     ],
+     [
+      1.807,
+      6052312,
+      1469,
+      0
+     ],
+     [
+      1.907,
+      6398392,
+      1553,
+      0
+     ],
+     [
+      2.008,
+      6727992,
+      1633,
+      0
+     ],
+     [
+      2.108,
+      7057592,
+      1713,
+      0
+     ],
+     [
+      2.208,
+      7387192,
+      1793,
+      0
+     ],
+     [
+      2.309,
+      7716792,
+      1873,
+      0
+     ],
+     [
+      2.409,
+      8046392,
+      1953,
+      0
+     ],
+     [
+      2.51,
+      8375992,
+      2033,
+      0
+     ],
+     [
+      2.61,
+      8717952,
+      2116,
+      0
+     ],
+     [
+      2.71,
+      9047552,
+      2196,
+      0
+     ],
+     [
+      2.811,
+      9377152,
+      2276,
+      0
+     ],
+     [
+      2.911,
+      9706752,
+      2356,
+      0
+     ],
+     [
+      3.011,
+      10048712,
+      2439,
+      0
+     ],
+     [
+      3.112,
+      10378312,
+      2519,
+      0
+     ],
+     [
+      3.212,
+      10720272,
+      2606,
+      0
+     ],
+     [
+      3.313,
+      11078712,
+      2689,
+      0
+     ],
+     [
+      3.413,
+      11461872,
+      2782,
+      0
+     ],
+     [
+      3.513,
+      11791472,
+      2862,
+      0
+     ],
+     [
+      3.614,
+      12121072,
+      2942,
+      0
+     ],
+     [
+      3.714,
+      12450672,
+      3022,
+      0
+     ],
+     [
+      3.814,
+      12780272,
+      3102,
+      0
+     ],
+     [
+      3.915,
+      13109872,
+      3182,
+      0
+     ],
+     [
+      4.015,
+      13439472,
+      3262,
+      0
+     ],
+     [
+      4.116,
+      13769072,
+      3342,
+      0
+     ],
+     [
+      4.216,
+      14098672,
+      3422,
+      0
+     ],
+     [
+      4.316,
+      14428272,
+      3502,
+      0
+     ],
+     [
+      4.416,
+      14757872,
+      3582,
+      0
+     ],
+     [
+      4.517,
+      15099832,
+      3665,
+      0
+     ],
+     [
+      4.617,
+      15429432,
+      3745,
+      0
+     ],
+     [
+      4.717,
+      15775512,
+      3829,
+      0
+     ],
+     [
+      4.818,
+      16105112,
+      3909,
+      0
+     ],
+     [
+      4.918,
+      16447072,
+      3992,
+      0
+     ],
+     [
+      5.018,
+      16776672,
+      4072,
+      3090
+     ],
+     [
+      5.119,
+      17118632,
+      4155,
+      3090
+     ],
+     [
+      5.219,
+      17460592,
+      4238,
+      3090
+     ],
+     [
+      5.319,
+      17843752,
+      4331,
+      3090
+     ],
+     [
+      5.419,
+      18173352,
+      4411,
+      3090
+     ],
+     [
+      5.52,
+      18502952,
+      4491,
+      3090
+     ],
+     [
+      5.62,
+      18832552,
+      4571,
+      3090
+     ],
+     [
+      5.72,
+      19162152,
+      4651,
+      3090
+     ],
+     [
+      5.821,
+      19491752,
+      4731,
+      3893
+     ],
+     [
+      5.921,
+      19821352,
+      4811,
+      3893
+     ]
+    ],
+    "curve_fields": [
+     "t_s",
+     "wal_file_bytes",
+     "wal_live_frames",
+     "backfilled_frames"
+    ],
+    "final_bytes": 19821352,
+    "final_live_frames": 4811,
+    "max_bytes": 19821352,
+    "max_live_frames": 4811,
+    "read_txns": 7,
+    "resets": 0
+   }
+  ]
+ },
+ "workload_name": "synthetic trading system (qdperf.synth_db)"
+}

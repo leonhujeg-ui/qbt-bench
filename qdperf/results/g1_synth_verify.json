@@ -1,0 +1,252 @@
+{
+ "machine": {
+  "cpu_count": 4,
+  "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "git_commit": "eccc1a0",
+  "implementation": "CPython",
+  "load_avg_1m": 0.58,
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-22T15:13:18"
+ },
+ "summary": {
+  "contention_3x50": {
+   "busy": 0,
+   "max_ms": 3.363769999850774,
+   "met_200ms": true,
+   "p99_ms": 0.1370588099734959,
+   "root_cause": [],
+   "starvation": "无饿死：最差的 http p99 等待 0.14 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 1.2%）"
+  },
+  "contention_criterion_ok": true,
+  "deferred_demo_busy": 116,
+  "deferred_demo_root_cause": [
+   "延迟事务（BEGIN DEFERRED）先读后写：读快照过期时升级写锁直接返回 SQLITE_BUSY_SNAPSHOT，busy_timeout 不生效 → 写事务改用 BEGIN IMMEDIATE"
+  ],
+  "doctor_exit_code": 1,
+  "doctor_seconds": 152.7,
+  "first_line": "SQLITE_DOCTOR FAIL statements=23 full_scan=11 temp_btree=6 suggestions=10/11 contention_p99_ms=0.16 busy=0 wal_max_mb=20.8 red=8 yellow=16",
+  "full_scan": 11,
+  "original_untouched": true,
+  "rejected": 1,
+  "rows": 7980300,
+  "scale": 1.0,
+  "size_est_error_max_ge_1mb": 0.002559925529439144,
+  "size_est_pages_off_max": 48,
+  "statements": 23,
+  "still_scanning_after_apply": [
+   "h_email_search"
+  ],
+  "suggestions": 10,
+  "suggestions_verified_independently": true,
+  "synth_deterministic": true,
+  "synth_le_180s": true,
+  "synth_seconds": 52.34,
+  "temp_btree": 6,
+  "unsolvable": [
+   "h_email_search"
+  ],
+  "verify_checks": 11,
+  "wal_free_capped": true,
+  "wal_long_reader_never_reset": true,
+  "wal_peaks_mb": {
+   "1000/long": 19.86,
+   "1000/none": 4.13,
+   "200/long": 20.8,
+   "200/none": 0.84,
+   "4000/long": 19.82,
+   "4000/none": 16.48
+  }
+ },
+ "synth": {
+  "command": "python3.12 -m qdperf.synth_db --scale 1 --seed 20261022 --fingerprint",
+  "determinism": {
+   "identical_fingerprint": true,
+   "second_run_seconds": 51.25
+  },
+  "fingerprint": {
+   "all": "7ce458e324c8f6bf612cfa3a961433d45823648a2d1fe58ca6c57ada24e6fab0",
+   "bots": {
+    "rows": 50000,
+    "sha256": "2229f72b3f552c0fdd2e19a2e4c135de192356b2ca2476067e1d2be1cbc7093e"
+   },
+   "events": {
+    "rows": 920000,
+    "sha256": "727510b9e234b3288f5a2448ad5611d7b5f4d605074e3a51a0ddc89348ebe110"
+   },
+   "orders": {
+    "rows": 2000000,
+    "sha256": "89b00f11a304dcb2387aad2f89b944fde7a00ef1dc42dafe20574757425f0522"
+   },
+   "settings": {
+    "rows": 300,
+    "sha256": "dad3ea12f8a550679ad4012672ec94408661f2b14efaf5e15fe8533de42d3247"
+   },
+   "trades": {
+    "rows": 5000000,
+    "sha256": "922292bc74b5c688d033f37e1f9ca9b92ba3680bb0bb2bfebe5d83ff82f497ed"
+   },
+   "users": {
+    "rows": 10000,
+    "sha256": "88b6fc3e2c8030c737f0e07e6b420ff1440a57913b689fcb79d64a597ed1b56e"
+   }
+  },
+  "fingerprint_seconds": 40.05,
+  "path": "/tmp/qdperf-g1-_90zzf0u/synth.db",
+  "phases_seconds": {
+   "bots": 0.288,
+   "events": 5.135,
+   "housekeeping": 0.017,
+   "indexes_analyze": 0.518,
+   "orders_1": 4.964,
+   "orders_2": 10.519,
+   "settings": 0.001,
+   "trades": 30.852,
+   "users": 0.042
+  },
+  "rows": {
+   "bots": 50000,
+   "events": 1000000,
+   "orders": 2000000,
+   "settings": 300,
+   "trades": 5000000,
+   "users": 10000
+  },
+  "rows_after_housekeeping": {
+   "bots": 50000,
+   "events": 920000,
+   "orders": 2000000,
+   "settings": 300,
+   "trades": 5000000,
+   "users": 10000
+  },
+  "scale": 1.0,
+  "seconds": 52.34,
+  "seed": 20261022,
+  "size_bytes": 653643776,
+  "sqlite_version": "3.45.1"
+ },
+ "verify": {
+  "all_ok": true,
+  "apply_seconds": 19.03,
+  "checks": [
+   {
+    "index": "qdperf_bots_status_updated_at",
+    "ok": true,
+    "plan": [
+     "SEARCH bots USING INDEX qdperf_bots_status_updated_at (status=? AND updated_at<?)"
+    ],
+    "statement": "e_running_bots"
+   },
+   {
+    "index": "qdperf_bots_user_id",
+    "ok": true,
+    "plan": [
+     "SEARCH bots USING INDEX qdperf_bots_user_id (user_id=?)"
+    ],
+    "statement": "h_bots_of_user"
+   },
+   {
+    "index": "qdperf_events_level_notified_ts",
+    "ok": true,
+    "plan": [
+     "SEARCH events USING INDEX qdperf_events_level_notified_ts (level=? AND notified=?)"
+    ],
+    "statement": "n_pending_alerts"
+   },
+   {
+    "index": "qdperf_events_user_id_ts",
+    "ok": true,
+    "plan": [
+     "SEARCH events USING INDEX qdperf_events_user_id_ts (user_id=?)"
+    ],
+    "statement": "h_events_feed"
+   },
+   {
+    "index": "qdperf_events_ts",
+    "ok": true,
+    "plan": [
+     "SEARCH events USING INDEX qdperf_events_ts (ts<?)"
+    ],
+    "statement": "n_purge_events"
+   },
+   {
+    "index": "qdperf_orders_user_id_status_created_at",
+    "ok": true,
+    "plan": [
+     "SEARCH orders USING INDEX qdperf_orders_user_id_status_created_at (user_id=? AND status=?)"
+    ],
+    "statement": "h_orders_by_user"
+   },
+   {
+    "index": "qdperf_orders_bot_id_status",
+    "ok": true,
+    "plan": [
+     "SEARCH orders USING INDEX qdperf_orders_bot_id_status (bot_id=? AND status=?)"
+    ],
+    "statement": "e_open_orders"
+   },
+   {
+    "index": "qdperf_settings_key",
+    "ok": true,
+    "plan": [
+     "SEARCH settings USING INDEX qdperf_settings_key (key=?)"
+    ],
+    "statement": "h_setting"
+   },
+   {
+    "index": "qdperf_trades_symbol_ts",
+    "ok": true,
+    "plan": [
+     "SEARCH trades USING INDEX qdperf_trades_symbol_ts (symbol=?)"
+    ],
+    "statement": "e_last_price"
+   },
+   {
+    "index": "qdperf_trades_symbol_ts",
+    "ok": true,
+    "plan": [
+     "SEARCH trades USING INDEX qdperf_trades_symbol_ts (ANY(symbol) AND ts>?)"
+    ],
+    "statement": "h_dashboard_pnl"
+   },
+   {
+    "index": "qdperf_trades_user_id_ts",
+    "ok": true,
+    "plan": [
+     "SEARCH trades USING INDEX qdperf_trades_user_id_ts (user_id=? AND ts>?)"
+    ],
+    "statement": "h_trades_by_user"
+   }
+  ],
+  "final_verdicts": {
+   "e_insert_order": "none",
+   "e_insert_trade": "none",
+   "e_last_price": "index",
+   "e_open_orders": "index",
+   "e_running_bots": "index",
+   "e_touch_bot": "rowid",
+   "e_update_order": "rowid",
+   "h_bots_of_user": "index",
+   "h_dashboard_pnl": "index",
+   "h_email_search": "full_scan",
+   "h_events_feed": "index",
+   "h_login_event": "none",
+   "h_orders_by_user": "index",
+   "h_orders_join_bots": "index",
+   "h_setting": "index",
+   "h_toggle_bot": "rowid",
+   "h_trades_by_user": "index",
+   "h_user": "rowid",
+   "n_insert_event": "none",
+   "n_mark_sent": "rowid",
+   "n_pending_alerts": "index",
+   "n_purge_events": "index",
+   "n_user_email": "rowid"
+  },
+  "statements_still_scanning": [
+   "h_email_search"
+  ]
+ }
+}

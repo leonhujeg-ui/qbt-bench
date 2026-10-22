@@ -1,0 +1,262 @@
+{
+ "format": "qdperf.workload.v1",
+ "name": "synthetic trading system (qdperf.synth_db)",
+ "description": "三进程共用一个 SQLite（WAL）：http = 面板 / API，engine = 交易引擎 tick，notifier = 通知。参数样例对任意 --scale 的合成库都有效。",
+ "connection": {
+  "synchronous": "NORMAL",
+  "busy_timeout_ms": 5000,
+  "begin": "immediate"
+ },
+ "processes": {
+  "http": {
+   "description": "HTTP 进程：面板轮询与 API"
+  },
+  "engine": {
+   "description": "交易引擎：每 tick 读挂单、写订单 / 成交 / bot 心跳（一个事务）"
+  },
+  "notifier": {
+   "description": "通知进程：取待发告警、标记已发、写事件、清理旧事件"
+  }
+ },
+ "statements": [
+  {
+   "id": "h_orders_by_user",
+   "process": "http",
+   "sql": "SELECT id, symbol, side, price, qty, status, created_at FROM orders WHERE user_id = ? AND status = ? ORDER BY created_at DESC LIMIT 50",
+   "params": [
+    7,
+    "open"
+   ],
+   "per_second": 20
+  },
+  {
+   "id": "h_trades_by_user",
+   "process": "http",
+   "sql": "SELECT id, symbol, side, price, qty, fee, ts FROM trades WHERE user_id = ? AND ts >= ? ORDER BY ts DESC LIMIT 100",
+   "params": [
+    7,
+    1721600000
+   ],
+   "per_second": 10
+  },
+  {
+   "id": "h_bots_of_user",
+   "process": "http",
+   "sql": "SELECT id, name, strategy, symbol, status FROM bots WHERE user_id = ?",
+   "params": [
+    7
+   ],
+   "per_second": 15
+  },
+  {
+   "id": "h_user",
+   "process": "http",
+   "sql": "SELECT id, email, tier FROM users WHERE id = ?",
+   "params": [
+    7
+   ],
+   "per_second": 30
+  },
+  {
+   "id": "h_setting",
+   "process": "http",
+   "sql": "SELECT value FROM settings WHERE key = ?",
+   "params": [
+    "cfg.risk.k000"
+   ],
+   "per_second": 30
+  },
+  {
+   "id": "h_dashboard_pnl",
+   "process": "http",
+   "sql": "SELECT symbol, count(*), sum(price * qty) FROM trades WHERE ts >= ? GROUP BY symbol",
+   "params": [
+    1725833600
+   ],
+   "per_second": 2
+  },
+  {
+   "id": "h_events_feed",
+   "process": "http",
+   "sql": "SELECT id, kind, level, ts, payload FROM events WHERE user_id = ? ORDER BY ts DESC LIMIT 20",
+   "params": [
+    7
+   ],
+   "per_second": 10
+  },
+  {
+   "id": "h_email_search",
+   "process": "http",
+   "sql": "SELECT id, email FROM users WHERE email LIKE ?",
+   "params": [
+    "%u00000%"
+   ],
+   "per_second": 0.2
+  },
+  {
+   "id": "h_orders_join_bots",
+   "process": "http",
+   "sql": "SELECT o.id, o.price, b.name FROM orders o JOIN bots b ON b.id = o.bot_id WHERE o.user_id = ? AND o.created_at >= ?",
+   "params": [
+    7,
+    1717280000
+   ],
+   "per_second": 5
+  },
+  {
+   "id": "h_login_event",
+   "process": "http",
+   "sql": "INSERT INTO events(user_id, bot_id, kind, level, notified, ts, payload) VALUES (?, ?, 'login', 'info', 1, ?, ?)",
+   "params": [
+    7,
+    42,
+    1726006400,
+    "{\"ip\":\"127.0.0.1\"}"
+   ],
+   "per_second": 2
+  },
+  {
+   "id": "h_toggle_bot",
+   "process": "http",
+   "sql": "UPDATE bots SET status = ?, updated_at = ? WHERE id = ?",
+   "params": [
+    "paused",
+    1726006400,
+    42
+   ],
+   "per_second": 0.5
+  },
+  {
+   "id": "e_open_orders",
+   "process": "engine",
+   "sql": "SELECT id, side, price, qty, filled FROM orders WHERE bot_id = ? AND status = 'open'",
+   "params": [
+    42
+   ],
+   "per_second": 50
+  },
+  {
+   "id": "e_running_bots",
+   "process": "engine",
+   "sql": "SELECT id, user_id, symbol, config FROM bots WHERE status = 'running' AND updated_at < ?",
+   "params": [
+    1725920000
+   ],
+   "per_second": 1
+  },
+  {
+   "id": "e_last_price",
+   "process": "engine",
+   "sql": "SELECT price FROM trades WHERE symbol = ? ORDER BY ts DESC LIMIT 1",
+   "params": [
+    "BTCUSDT"
+   ],
+   "per_second": 10
+  },
+  {
+   "id": "e_insert_order",
+   "process": "engine",
+   "sql": "INSERT INTO orders(bot_id, user_id, symbol, side, type, price, qty, filled, status, created_at, updated_at) VALUES (?, ?, ?, ?, 'limit', ?, ?, 0, 'open', ?, ?)",
+   "params": [
+    42,
+    7,
+    "BTCUSDT",
+    "buy",
+    65000.0,
+    0.01,
+    1726006400,
+    1726006400
+   ],
+   "per_second": 20,
+   "txn": "tick"
+  },
+  {
+   "id": "e_insert_trade",
+   "process": "engine",
+   "sql": "INSERT INTO trades(order_id, bot_id, user_id, symbol, side, price, qty, fee, ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+   "params": [
+    1234,
+    42,
+    7,
+    "BTCUSDT",
+    "buy",
+    65000.0,
+    0.01,
+    0.26,
+    1726006400
+   ],
+   "per_second": 20,
+   "txn": "tick"
+  },
+  {
+   "id": "e_update_order",
+   "process": "engine",
+   "sql": "UPDATE orders SET status = ?, filled = ?, updated_at = ? WHERE id = ?",
+   "params": [
+    "filled",
+    0.01,
+    1726006400,
+    1234
+   ],
+   "per_second": 20,
+   "txn": "tick"
+  },
+  {
+   "id": "e_touch_bot",
+   "process": "engine",
+   "sql": "UPDATE bots SET updated_at = ? WHERE id = ?",
+   "params": [
+    1726006400,
+    42
+   ],
+   "per_second": 20,
+   "txn": "tick"
+  },
+  {
+   "id": "n_pending_alerts",
+   "process": "notifier",
+   "sql": "SELECT id, user_id, kind, payload FROM events WHERE level = 'alert' AND notified = 0 ORDER BY ts LIMIT 100",
+   "params": [],
+   "per_second": 1
+  },
+  {
+   "id": "n_mark_sent",
+   "process": "notifier",
+   "sql": "UPDATE events SET notified = 1 WHERE id = ?",
+   "params": [
+    123456
+   ],
+   "per_second": 5
+  },
+  {
+   "id": "n_insert_event",
+   "process": "notifier",
+   "sql": "INSERT INTO events(user_id, bot_id, kind, level, notified, ts, payload) VALUES (?, ?, 'alert', 'alert', 0, ?, ?)",
+   "params": [
+    7,
+    42,
+    1726006400,
+    "{\"msg\":\"risk\"}"
+   ],
+   "per_second": 5
+  },
+  {
+   "id": "n_user_email",
+   "process": "notifier",
+   "sql": "SELECT email FROM users WHERE id = ?",
+   "params": [
+    7
+   ],
+   "per_second": 5
+  },
+  {
+   "id": "n_purge_events",
+   "process": "notifier",
+   "sql": "DELETE FROM events WHERE ts < ?",
+   "params": [
+    1708726400
+   ],
+   "per_second": 0.01
+  }
+ ]
+}

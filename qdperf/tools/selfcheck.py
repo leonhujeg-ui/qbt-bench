@@ -1,0 +1,158 @@
+"""四个工具的自检（产出 REPORT.md 引用的结果文件）。每个 gN() 返回 {"summary": {...判据...}, ...} 并写 JSON。
+
+    python3.12 -m qdperf.tools.selfcheck g1 [--scale 1] [--out qdperf/results]     # 合成库 + 体检 + 独立复核
+    python3.12 -m qdperf.tools.selfcheck g2 ...                                     # 见各函数说明
+
+缺省写到 qdperf/results/（--out 可改）；中间文件全部在 tempfile 里，结束删除。
+"""
+import argparse
+import os
+import shutil
+import sqlite3
+import sys
+import time
+
+from qdperf import common
+from qdperf import index_advisor as A
+from qdperf import sqlite_doctor as D
+from qdperf import sqlplan as P
+from qdperf import synth_db
+
+WORKLOAD = os.path.join(common.PKG, "examples", "workload_trading.json")
+
+
+# ---- G1 ------------------------------------------------------------------------------
+def verify_suggestions(db, rep):
+    """独立复核：把体检器输出的 SQL 原样在原库的一份新拷贝上执行，再对每条建议对应 / 实际服务的语句跑 EXPLAIN QUERY PLAN。"""
+    work = common.scratch_dir("qdperf-verify-")
+    try:
+        dst = os.path.join(work, "patched.db")
+        shutil.copyfile(db, dst)
+        conn = sqlite3.connect(dst)
+        t0 = time.perf_counter()
+        conn.executescript("\n".join(rep["indexes"]["sql"]))
+        apply_s = time.perf_counter() - t0
+        wl = D.load_workload(WORKLOAD)
+        by = {s["id"]: s for s in wl["statements"]}
+        cols = {t: [r[1] for r in conn.execute(f'PRAGMA table_info("{t}")')] for t in rep["tables"]}
+        checks = []
+        for sug in rep["indexes"]["suggestions"]:
+            for sid in sorted(set(sug["statements"]) | set(sug["serves"])):
+                st = by[sid]
+                nodes = A.resolve_aliases(D.explain(conn, st["sql"], st["param_samples"][0]),
+                                          P.parse_statement(st["sql"], cols))
+                scanned = sorted({n["table"] for n in nodes if n["op"] == "scan"})
+                temp = P.classify(nodes)["temp_btree"]
+                ok = sug["table"] not in scanned and (sug["kind"] != "sort" or not temp)
+                checks.append({"index": sug["name"], "statement": sid, "ok": ok, "plan": [n["detail"] for n in nodes]})
+        final = {}
+        for sid, st in by.items():
+            nodes = A.resolve_aliases(D.explain(conn, st["sql"], st["param_samples"][0]),
+                                      P.parse_statement(st["sql"], cols))
+            final[sid] = P.classify(nodes)["verdict"]
+        conn.close()
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    return {"apply_seconds": round(apply_s, 2), "checks": checks, "all_ok": bool(checks) and all(c["ok"] for c in checks),
+            "statements_still_scanning": sorted(k for k, v in final.items() if v == "full_scan"), "final_verdicts": final}
+
+
+def g1(scale=1.0, out_dir=common.RESULTS, seed=synth_db.DEFAULT_SEED, doctor_kw=None):
+    work = common.scratch_dir("qdperf-g1-")
+    try:
+        db = os.path.join(work, "synth.db")
+        gen = synth_db.generate(db, seed=seed, scale=scale)
+        t0 = time.perf_counter()
+        gen["fingerprint"] = synth_db.fingerprint(db)
+        gen["fingerprint_seconds"] = round(time.perf_counter() - t0, 2)
+        db2 = os.path.join(work, "synth2.db")
+        gen2 = synth_db.generate(db2, seed=seed, scale=scale)
+        same = synth_db.fingerprint(db2) == gen["fingerprint"]
+        os.remove(db2)
+        gen["determinism"] = {"second_run_seconds": gen2["seconds"], "identical_fingerprint": same}
+        gen["command"] = f"python3.12 -m qdperf.synth_db --scale {scale:g} --seed {seed} --fingerprint"
+        rep = D.diagnose(db, WORKLOAD, deferred_demo=True, **(doctor_kw or {}))
+        rep["command"] = (f"python3.12 -m qdperf.sqlite_doctor <synth.db> --workload qdperf/examples/workload_trading.json "
+                          f"--deferred-demo")
+        ver = verify_suggestions(db, rep)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    summary = g1_summary(gen, rep, ver, scale)
+    out = {"summary": summary, "synth": gen, "verify": ver, "machine": common.machine()}
+    if out_dir:
+        common.write_json(os.path.join(out_dir, "g1_synth_verify.json"), out)
+        common.write_json(os.path.join(out_dir, "g1_doctor.json"), rep)
+    out["doctor"] = rep
+    return out
+
+
+def g1_summary(gen, rep, ver, scale):
+    gate = [s for s in rep["contention"]["scenarios"] if s["gate"]]
+    crit = gate[1]
+    demo = [s for s in rep["contention"]["scenarios"] if not s["gate"]]
+    wal = rep["wal"]["scenarios"]
+    free = [w for w in wal if not w["config"]["long_reader"]]
+    held = [w for w in wal if w["config"]["long_reader"]]
+    p99 = crit["overall"]["wait_ms"]["p99"]
+    met = p99 is not None and p99 <= 200.0 and crit["overall"]["busy"] == 0
+    return {
+        "scale": scale, "rows": sum(gen["rows_after_housekeeping"].values()), "synth_seconds": gen["seconds"],
+        "synth_le_180s": gen["seconds"] <= 180.0, "synth_deterministic": gen["determinism"]["identical_fingerprint"],
+        "statements": len(rep["statements"]), "full_scan": sum(s["verdict"] == "full_scan" for s in rep["statements"]),
+        "temp_btree": sum("temp_btree" in s["flags"] for s in rep["statements"]),
+        "suggestions": len(rep["indexes"]["suggestions"]), "rejected": len(rep["indexes"]["rejected"]),
+        "suggestions_verified_independently": ver["all_ok"], "verify_checks": len(ver["checks"]),
+        "still_scanning_after_apply": ver["statements_still_scanning"],
+        "unsolvable": [u["statement"] for u in rep["indexes"]["unsolvable"]],
+        "size_est_error_max_ge_1mb": max((abs(s["size_est_bytes"] - s["size_bytes"]) / s["size_bytes"]
+                                          for s in rep["indexes"]["suggestions"] if s["size_bytes"] >= 1 << 20),
+                                         default=None),
+        "size_est_pages_off_max": max(abs(s["size_est_bytes"] - s["size_bytes"]) // 4096
+                                      for s in rep["indexes"]["suggestions"]),
+        "contention_3x50": {"p99_ms": p99, "max_ms": crit["overall"]["wait_ms"]["max"], "busy": crit["overall"]["busy"],
+                            "met_200ms": met, "root_cause": crit.get("root_cause", []),
+                            "starvation": crit["starvation"]["text"]},
+        "contention_criterion_ok": met or bool(crit.get("root_cause")),
+        "deferred_demo_root_cause": demo[0].get("root_cause", []) if demo else [],
+        "deferred_demo_busy": demo[0]["overall"]["busy"] if demo else None,
+        "wal_free_capped": all(w["max_live_frames"] <= 1.1 * w["config"]["autocheckpoint"] + 50 for w in free),
+        "wal_long_reader_never_reset": all(w["resets"] == 0 for w in held),
+        "wal_peaks_mb": {f"{w['config']['autocheckpoint']}/{'long' if w['config']['long_reader'] else 'none'}":
+                         round(w["max_bytes"] / 1e6, 2) for w in wal},
+        "original_untouched": rep["db"]["untouched"], "doctor_exit_code": 0 if rep["ok"] else 1,
+        "doctor_seconds": rep["seconds"], "first_line": D.first_line(rep)}
+
+
+def g1_ok(s):
+    return (s["synth_deterministic"] and (s["scale"] < 1 or s["synth_le_180s"]) and s["suggestions"] > 0
+            and s["suggestions_verified_independently"] and s["contention_criterion_ok"] and s["original_untouched"]
+            and s["wal_free_capped"] and s["wal_long_reader_never_reset"] and s["doctor_exit_code"] == 1
+            and any("BUSY_SNAPSHOT" in c for c in s["deferred_demo_root_cause"]))
+
+
+def resummarize_g1(out_dir=common.RESULTS):
+    """只用已入库的 g1 结果文件重算 summary（判据口径改了而实验不必重跑时用）。"""
+    sv = common.read_json(os.path.join(out_dir, "g1_synth_verify.json"))
+    rep = common.read_json(os.path.join(out_dir, "g1_doctor.json"))
+    sv["summary"] = g1_summary(sv["synth"], rep, sv["verify"], sv["summary"]["scale"])
+    common.write_json(os.path.join(out_dir, "g1_synth_verify.json"), sv)
+    return sv["summary"]
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="python3.12 -m qdperf.tools.selfcheck")
+    ap.add_argument("which", choices=["g1"])
+    ap.add_argument("--scale", type=float, default=1.0, help="g1：合成库比例")
+    ap.add_argument("--out", default=common.RESULTS)
+    args = ap.parse_args(argv)
+    if args.which == "g1":
+        res = g1(scale=args.scale, out_dir=args.out)
+        s = res["summary"]
+        print(f"G1 {'OK' if g1_ok(s) else 'FAIL'} " + " ".join(f"{k}={v}" for k, v in s.items()
+                                                              if not isinstance(v, (dict, list))))
+        return 0 if g1_ok(s) else 1
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
