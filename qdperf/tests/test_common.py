@@ -136,8 +136,19 @@ class TestAudit(unittest.TestCase):
         C._audit_event("socket.connect", (None, ("127.0.0.1", 80)), emit)
         C._audit_event("socket.connect", (None, "/run/sock"), emit)
         C._audit_event("os.listdir", ("/x",), emit)
+        d = tmpdir(self)
+        fd = os.open(d, os.O_RDONLY)
+        try:
+            C._audit_event("os.remove", ("f.db", fd), emit)
+        finally:
+            os.close(fd)
+        C._audit_event("os.remove", ("g.db", 99999), emit)                 # 解析不了的目录 fd：跳过（外层事件有全路径）
+        C._audit_event("os.rename", ("/x/a", "/x/b", -1, -1), emit)
         self.assertEqual(got, [("write", "/x/y"), ("os.remove", "/x/r"), ("sqlite3.connect", "/x/db"),
-                               ("socket.connect", ["127.0.0.1", 80]), ("socket.connect", "/run/sock")])
+                               ("socket.connect", ["127.0.0.1", 80]), ("socket.connect", "/run/sock"),
+                               ("os.remove", os.path.join(os.path.realpath(d), "f.db")), ("os.rename", "/x/a"),
+                               ("os.rename", "/x/b")])
+        self.assertIsNone(C._fd_dir(99999))
 
     def test_child_hooks_in_subprocess(self):
         """子进程里装审计钩子 + 覆盖率：写文件 / sqlite / socket 事件进日志；覆盖行写进 QDPERF_COV_DIR。"""

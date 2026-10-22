@@ -129,6 +129,7 @@ class TestRealProcesses(unittest.TestCase):
     def setUpClass(cls):
         cls.work, cls.master = J.prepare(scale=0.02)
         cls.cal = J.calibrate_panel(cls.master, 3.0 * 0.04)
+        cls.starved = cls.run_cfg(cls, q=10.0, wal=False)        # 同一会话里的“饿死”参照（rollback 模式 + 面板长查询）
 
     @classmethod
     def tearDownClass(cls):
@@ -151,30 +152,28 @@ class TestRealProcesses(unittest.TestCase):
         quiet = self.run_cfg(q=0.0, wal=False)
         self.assertGreater(quiet["ticks"], 30)
         self.assertEqual(quiet["crashed"], [])
+        self.assertLess(abs(quiet["interval_T"]["p50"] - 1.0), 0.05)
+        self.assertLess(quiet["interval_T"]["p99"], 0.5 * self.starved["interval_T"]["p99"])
         if TIMING:
-            self.assertLessEqual(quiet["interval_T"]["p99"], 1.2)
             self.assertFalse(quiet["starved"])
         self.assertGreater(quiet["notifier"]["writes"], 0)
-        starved = self.run_cfg(q=10.0, wal=False)
+        starved = self.starved
         self.assertTrue(starved["starved"], starved["interval_T"])
         self.assertGreater(starved["over_2T"], 0)
         self.assertGreater(starved["segments_ms"]["write"]["max"], 2 * 40.0 - 20)
         wal_fix = self.run_cfg(q=10.0, wal=False, mitigation="wal")
-        if TIMING:
-            self.assertFalse(wal_fix["starved"], wal_fix["interval_T"])
+        self.assertLess(wal_fix["interval_T"]["p99"], 0.5 * starved["interval_T"]["p99"])   # 形状：短跑 p99≈最大值，不卡绝对 2T
         self.assertLess(wal_fix["segments_ms"]["write"]["max"], starved["segments_ms"]["write"]["max"])
         self.assertGreater(starved["panel"]["polls"], 5)
         chunked = self.run_cfg(q=10.0, wal=False, mitigation="chunked")          # 分块读在 rollback 模式下不一定有效：只验能跑
         self.assertGreater(chunked["panel"]["polls"], 3)
         self.assertEqual(chunked["crashed"], [])
         wal = self.run_cfg(q=10.0, wal=True)
-        if TIMING:
-            self.assertFalse(wal["starved"], wal["interval_T"])
+        self.assertLess(wal["interval_T"]["p99"], 0.5 * starved["interval_T"]["p99"])
 
     def test_replica_backoff_subprocess_bg(self):
         rep = self.run_cfg(q=10.0, wal=False, mitigation="replica", replica_every=0.5)
-        if TIMING:
-            self.assertFalse(rep["starved"], rep["interval_T"])
+        self.assertLess(rep["interval_T"]["p99"], 0.5 * self.starved["interval_T"]["p99"])
         self.assertGreater(rep["panel"]["replica_refreshes"], 0)
         bo = self.run_cfg(q=10.0, wal=False, mitigation="backoff", backoff_k=4.0)
         self.assertLess(bo["panel"]["achieved_q"], 10.0)

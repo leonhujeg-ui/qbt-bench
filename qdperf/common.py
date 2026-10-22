@@ -239,9 +239,16 @@ def _audit_event(event, args, emit):
         if isinstance(path, (str, bytes)) and _is_write(mode, flags):
             emit("write", os.path.abspath(os.fsdecode(path)))
     elif event in _PATH_EVENTS:
+        fds = [a for a in args if isinstance(a, int) and not isinstance(a, bool) and a >= 0]
+        base = _fd_dir(fds[0]) if fds else None
         for p in args:
             if isinstance(p, (str, bytes)):
-                emit(event, os.path.abspath(os.fsdecode(p)))
+                p = os.fsdecode(p)
+                if fds and not os.path.isabs(p):
+                    if base is None:
+                        continue                  # 相对某个目录 fd 的名字（shutil.rmtree 内部）：外层 rmtree 事件已带全路径
+                    p = os.path.join(base, p)
+                emit(event, os.path.abspath(p))
     elif event == "sqlite3.connect":
         db = args[0] if args else None
         if isinstance(db, (str, bytes, os.PathLike)):
@@ -249,6 +256,14 @@ def _audit_event(event, args, emit):
     elif event == "socket.connect":
         addr = args[1] if len(args) > 1 else None
         emit("socket.connect", list(addr) if isinstance(addr, tuple) else str(addr))
+
+
+def _fd_dir(fd):
+    """目录 fd → 路径（Linux 的 /proc/self/fd）；拿不到返回 None。"""
+    try:
+        return os.readlink(f"/proc/self/fd/{fd}")
+    except OSError:
+        return None
 
 
 def _is_write(mode, flags):
