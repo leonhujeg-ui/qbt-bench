@@ -49,7 +49,8 @@ def step_constraints(mode, out_dir, state):
     log = state.get("unittest_log", "")
     found = {}
     for name in REQUIRED_CONSTRAINTS:
-        m = re.search(rf"^{name} \(qdperf\.tests\.test_constraints\.\w+\.{name}\)[^\n]*?\.\.\. (\w+)", log, re.M | re.S)
+        # 有 docstring 的测试，-v 会把 docstring 首行另起一行打在 "... ok" 前面
+        m = re.search(rf"^{name} \(qdperf\.tests\.test_constraints\.\w+\.{name}\)\n?[^\n]*?\.\.\. (\w+)", log, re.M)
         found[name] = m.group(1) if m else "missing"
     ok = all(v == "ok" for v in found.values())
     return _row("3 tests (deps / network / writes)", ok,

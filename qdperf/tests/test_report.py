@@ -58,5 +58,24 @@ class TestReport(unittest.TestCase):
         self.assertEqual(len(rows), 8)
 
 
+class TestSelftestParsing(unittest.TestCase):
+    def test_constraints_read_from_verbose_log(self):
+        """-v 日志里有 docstring 的测试多占一行；三条约束测试都要认出来，失败要认成失败。"""
+        from qdperf import selftest
+        log = ("test_stdlib_only (qdperf.tests.test_constraints.TestDependencies.test_stdlib_only)\n"
+               "grep ^import|^from 与 AST 两种方式：只许标准库。 ... ok\n"
+               "test_static (qdperf.tests.test_constraints.TestNoNetwork.test_static) ... ok\n"
+               "test_allowed_path_rule (qdperf.tests.test_constraints.TestRuntimeAudit.test_allowed_path_rule) ... ok\n"
+               "test_writes_and_connects (qdperf.tests.test_constraints.TestRuntimeAudit.test_writes_and_connects)\n"
+               "装审计钩子跑一遍四个工具： ... FAIL\n")
+        row = selftest.step_constraints("default", None, {"unittest_log": log})
+        self.assertEqual(row["detail"], {"test_stdlib_only": "ok", "test_static": "ok", "test_writes_and_connects": "FAIL"})
+        self.assertFalse(row["ok"])
+        row = selftest.step_constraints("default", None, {"unittest_log": log.replace("FAIL", "ok")})
+        self.assertTrue(row["ok"])
+        row = selftest.step_constraints("default", None, {"unittest_log": ""})
+        self.assertEqual(set(row["detail"].values()), {"missing"})
+
+
 if __name__ == "__main__":
     unittest.main()
