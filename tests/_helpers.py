@@ -33,6 +33,7 @@ def random_params(space, seed):
 
 class QBTTestCase(unittest.TestCase):
     def assertCloseList(self, a, b, rel=REL_TOL, abs_tol=1e-12, msg=""):
+        # abs_tol=1e-12：序列经过 0 时纯相对容差退化为精确相等；1e-12 ≪ 任何非零指标值 × rel，不影响 1e-6 量级的放水判据
         self.assertEqual(len(a), len(b), f"length differs {msg}")
         for i, (x, y) in enumerate(zip(a, b)):
             if x is None or y is None:

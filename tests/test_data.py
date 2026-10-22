@@ -14,8 +14,10 @@ class TestReproducibility(QBTTestCase):
         a = generate(n=scale(20_000, 2_000), seed=7)
         b = generate(n=scale(20_000, 2_000), seed=7)
         self.assertEqual(a.fingerprint(), b.fingerprint())
+        from tests._compare import compare
         for col in ("ts", "open", "high", "low", "close", "volume"):
-            self.assertEqual(getattr(a, col), getattr(b, col))   # 精确相等，无容差：确定性要求逐字节一致
+            d = compare(getattr(a, col), getattr(b, col), 0.0, 0.0)  # 精确相等，无容差：确定性要求逐字节一致
+            self.assertIsNone(d, f"{col}: {d}")                      # compare 只报第一处差异（assertEqual 对长列表会生成 difflib 全量 diff，2000 元素要几分钟）
 
     def test_different_seed_differs(self):
         a = generate(n=500, seed=1)
@@ -27,9 +29,10 @@ class TestReproducibility(QBTTestCase):
         """每根 bar 消耗固定随机数 => 长序列的前缀等于短序列。"""
         short = generate(n=300, seed=11)
         long = generate(n=1000, seed=11)
-        self.assertEqual(short.close, long.close[:300])
-        self.assertEqual(short.volume, long.volume[:300])
-        self.assertEqual(short.ts, long.ts[:300])
+        from tests._compare import compare
+        for col in ("close", "volume", "ts"):
+            d = compare(getattr(short, col), getattr(long, col)[:300], 0.0, 0.0)
+            self.assertIsNone(d, f"{col}: {d}")
 
     def test_fingerprint_sensitive_to_single_value(self):
         a = generate(n=200, seed=3)
@@ -326,7 +329,7 @@ class TestGeneratorInternals(QBTTestCase):
     def test_pinned_cross_machine_within_tolerance(self):
         """跨机：与黄金文件里存的全序列（2000 根 / 500 根）逐列对比，时间戳精确、价格/成交量相对 1e-9（libm 的 1 ulp 远小于此）。"""
         import json
-        from tests._compare import assert_close, perturb, ShapeMismatch, MONEY_REL
+        from tests._compare import assert_close, compare, perturb, ShapeMismatch, MONEY_REL
         from tools.make_golden import GOLDEN_PATH
         with open(GOLDEN_PATH, encoding="utf-8") as f:
             pinned = json.load(f)["pinned_data"]
@@ -334,7 +337,8 @@ class TestGeneratorInternals(QBTTestCase):
         uni = generate_universe(["A", "B"], 500, 9)["B"]
         for key, d in (("gen_n2000_seed123_head", gen), ("universe_B_n500_seed9_head", uni)):
             g = pinned[key]
-            self.assertEqual(d.ts[:len(g["ts"])], g["ts"])
+            diff = compare(d.ts[:len(g["ts"])], g["ts"])                 # 时间戳整数精确；只报第一处差异（2000 元素的 assertEqual 失败时会卡在 difflib 上几分钟）
+            self.assertIsNone(diff, f"{key}.ts: {diff}")
             for col in ("open", "high", "low", "close", "volume"):
                 assert_close(getattr(d, col)[:len(g[col])], g[col], MONEY_REL, 0.0, what=f"{key}.{col}")
             with self.assertRaises(ShapeMismatch):                       # 放水判据：改错 1e-6 必红

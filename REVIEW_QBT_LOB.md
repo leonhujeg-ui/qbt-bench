@@ -142,6 +142,28 @@ python3.12 -m unittest discover -s qdcheck/tests -t .      # dce50d9 树：Ran 1
 
 **结论**：通过（≥ 85% / ≥ 90% / 零崩溃），报告改了。源码改过的 5 个模块候选集已变，突变 id 与历史不可逐个对应（`broker` / `indicators` / `report` 可比：历史 broker 的 7 条漏网全部被新判据抓住）；REPORT.md §4 新增「4.1 本机复测」（历史 / 本机两列的模块表 + 32 条漏网逐条表：id、行、变异、为什么等价 / 补了哪条判据；3 条 optimizer 独立 CLI 默认值如实标「未补判据」），历史表与漏网清单整体保留为 4.2；§1 3a/3b/3c 的实测列写两组数字（历史 / 本机）；§5 加本机复测段。没有删除或放松任何判据；所有新判据都是增加的。
 
+### 1.8 对抗复核（独立代理在草稿副本上探测容差判据的漏洞）
+
+**检查命令**（复核代理，只在 scratch 副本上改代码；仓库未动）
+
+```
+cp -r qbt tests tools <scratch>/audit2 && 对副本做 1e-6 相对错 / 整数 ±1 / 换边 / 丢一笔成交 / 字段改 float 或 bool 等改动，
+逐个跑 tests.test_golden、test_data（pinned）、test_indicators.test_cci_vs_bruteforce、test_optimizer.serial_vs_parallel、test_determinism
+python3.12 -c "from tests._compare import *; ..."     # 对 assert_close / compare / perturb 做对抗输入（大整数、bool、NaN、inf、-0.0、长度不等、键序、哨兵值）
+```
+
+**实际输出**（代理报告，审核员逐条复现后处理）：1e-6 相对错在费用 / 价格 / CCI / 夏普 / 权益 / 子进程侧各处均红；整数 ±1、换边、丢成交、换单号、maker↔taker、跨进程成交数 −1 均红；同机判据按设计对一致性错误不敏感（docstring 已写明）；黄金 JSON 浮点 repr 全部可逐位往返，无 NaN / −0.0。发现 5 处可放水或不精确之处，全部修了：
+
+| # | 发现 | 修了什么 |
+|---|---|---|
+| 1 | 黄金钉住改为全序列后，`assertEqual` 比较 2000 元素的时间戳列表：一旦不等，unittest 的 difflib 全量 diff 要跑几分钟（副本上时间戳 +1 → 2 分钟超时无结论） | `tests/test_data.py`、`tests/test_golden.py` 的长列表相等改用 `tests/_compare.compare`（只报第一处差异），判据语义不变 |
+| 2 | `test_golden._check_strategy` 对成交的整数字段用 `!=` 比较：`1 == 1.0 == True`，经纪端把 side / bar / order_id 记成 float 或 bool 不会红，多出 / 缺少字段也不会红（副本上 `order.side * 1.0` 全套件 262 条仍绿） | 改为类型严格的 `compare()` + 每笔成交键集合相等；`test_integer_fields_exact` 增加 int→float（bar / side / order_id）、side→True、多出字段 5 个放水用例 |
+| 3 | CCI 对拍的默认绝对下限 = 1e-9 × max\|cci\|（≈ 6.5e-7）：\|cci\| ≤ 1.3 的 16 个小元素可带 1e-6 相对错通过，全体 +2e-7 绝对偏置也通过 | 改为按误差模型显式给绝对下限 1e-8（SMA 漂移 ~1e-13×价格 / (0.015×MAD) ≈ 3e-9，留 3 倍）；放水判据增加「最小非零元素改错 1e-6 必红」「全体 +2e-7 必红」 |
+| 4 | `assert_close` 默认 `abs_floor = 1e-9 × 结构内最大浮点`：含优化器 −1e300 哨兵值的结构会让其余所有比较放水（现有判据都显式传了 0.0，未暴露） | `_compare._scale` 忽略 \|x\| ≥ 1e200 的哨兵值；新增放水判据 `test_sentinel_values_do_not_loosen_floor` |
+| 5 | 两个绝对容差常量无说明：度量的 1e-12、权益的 1e-9×max\|equity\|、`_helpers.assertCloseList` 的 1e-12 | 逐处加注释（经过 0 的序列纯相对容差退化为精确相等；1e-12 ≪ rel × 最小非零值，不影响 1e-6 放水判据） |
+
+**结论**：修了。复跑 `python3.12 -m qbt.cli test` → **263 条 OK**（+1 放水判据）；覆盖率仍 100%；突变数字未重跑（判据只增不减，抓住率只会不低于 95.0%）。复核代理另确认：仓库在整个探测期间未被改动（所有改动在 scratch 副本），没有跑 bench / stress / 突变。
+
 ## 2. lob
 
 ### 2.1 事件流可复现（平台无关）
@@ -328,14 +350,14 @@ python3.12 -m lob.tools.build_report | cmp - lob/REPORT.md     # 逐字节相同
 
 | 命令 | 实际输出 | 结论 |
 |---|---|---|
-| `python3.12 -m qbt.cli test` | Ran 262 tests in 23.189s，OK，exit=0 | 通过（退出码 0） |
+| `python3.12 -m qbt.cli test` | Ran 263 tests in 26.7s，OK，exit=0（对抗复核后 +1 放水判据） | 通过（退出码 0） |
 | `python3.12 -m qbt.cli test --quick` | Ran 126 tests in 1.200s，OK，exit=0 | 通过 |
 | `python3.12 -m lob.cli test`（standard） | Ran 443 tests in 83.769s，OK (skipped=1)，exit=0 | 通过（退出码 0；`LOB_TEST_SCALE=full` 含 1,000 万对拍未在本机重跑，10M 对拍另由 2.2 的 CLI 命令复现） |
 | `python3.12 -m lob.cli test --quick` | Ran 87 tests in 8.4s，OK，exit=0 | 通过 |
 | `python3.12 -m unittest discover -s qdcheck/tests -t .` | dce50d9 树：Ran 164 tests in 34.8s，OK；最终树（含上游 01917c0）：Ran 201 tests in 55.8s，FAILED (errors=2)，exit=1——两条 test_report 缺未入库产物 perf.json / mutation_replay.json | 不通过（上游中间提交遗留，非本审核改动；审核员提交未改 `qdcheck/`：`git log --format=%an -- qdcheck/` 只有另一会话的提交） |
 | `python3.12 -m unittest tests.test_limits` / `python3.12 -m lob.tools.lint_limits` | Ran 3 tests OK；39 files checked, 0 problems | 通过：函数 ≤ 60 行、文件 ≤ 800 行、仅标准库、随机显式 seed |
 | `python3.12 bench/bench.py --repeat 3 --label audit_rerun --out bench/results/05_audit_rerun.json` | 冷 1.941 s（样本 1.941/2.058/2.073）/ 热 1.039 s；网格 8 进程 20.1 s（样本 22.3/20.2/20.1，实际子进程 8）/ 1 进程 77.5 s；pass={'grid': True, 'single_core': True}；real 5m35.553s | 通过（≤ 3 s / ≤ 90 s），见 1.4 |
-| `python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json` | 262 tests，100.0%（1950/1950），real 0m23.263s | 通过（≥ 90%） |
+| `python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json` | 263 tests，100.0%（1950/1950） | 通过（≥ 90%） |
 | `python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --out mutants/results_audit.json …` | 640 突变体 / 抓住 608 / 漏网 32 / 95.0%，real 9m19.010s | 通过（≥ 85%）；漏网逐条判定见 REPORT.md §4 |
 | `python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2 --out fuzz/results_audit.json` | 100,000 次 / 0 崩溃 / 5.0 s | 通过（0 次未捕获异常） |
 | `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label audit_rerun --json lob/results/stress_audit_rerun.json` | engine-only 720,901 / engine+checker 539,614 / 端到端 328,583 ev/s，real 1m24.221s | 见 2.9（平台相关，只记录不判达标） |

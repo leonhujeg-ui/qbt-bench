@@ -163,18 +163,24 @@ class TestOscillators(QBTTestCase):
     def test_cci_vs_bruteforce(self):
         """CCI = (tp - SMA)/(0.015*MAD) 是抵消型量：tp - SMA 的绝对误差来自 SMA 滚动和的累积舍入（~n*eps*|tp|），
         再被 0.015*MAD（~0.005）放大，在 3000 根上约 1e-9 绝对；跨机器 libm 噪声同样被放大（macOS arm64 实测 index 1895
-        相对差 1.1e-8）。因此用指标档位 IND_REL=5e-7（相对值）+ 1e-9*序列量级 的绝对下限。"""
+        相对差 1.1e-8）。因此用指标档位 IND_REL=5e-7（相对值）+ 显式绝对下限 1e-8：按误差模型，SMA 滚动和漂移 ~1e-13×价格，
+        除以 0.015×MAD（MAD ≈ 价格×0.2%）后约 3e-9，取 1e-8 留 3 倍余量；不用默认的 1e-9×max|cci|（≈ 6.5e-7），那会让
+        |cci| ≤ 1.3 的小元素可以带着 1e-6 的相对错误通过。"""
         from tests._compare import assert_close, perturb, ShapeMismatch, IND_REL
         d = self.d
         mine, ref = I.cci(d.high, d.low, d.close, 20), B.cci(d.high, d.low, d.close, 20)
-        assert_close(mine, ref, IND_REL, what="cci")
+        CCI_ABS = 1e-8
+        assert_close(mine, ref, IND_REL, CCI_ABS, what="cci")
         with self.assertRaises(ShapeMismatch):                            # 放水判据：实现改错 1e-6（相对）必红
-            assert_close(perturb(mine, 1e-6), ref, IND_REL)
-        with self.assertRaises(ShapeMismatch):                            # 单个元素改错 1e-6 也必红
-            bad = list(mine)
-            k = max(range(len(bad)), key=lambda i: abs(bad[i] or 0.0))
-            bad[k] = bad[k] * (1 + 1e-6)
-            assert_close(bad, ref, IND_REL)
+            assert_close(perturb(mine, 1e-6), ref, IND_REL, CCI_ABS)
+        nonzero = [i for i, v in enumerate(mine) if v]
+        for k in (max(nonzero, key=lambda i: abs(mine[i])), min(nonzero, key=lambda i: abs(mine[i]))):
+            with self.assertRaises(ShapeMismatch, msg=f"index {k} value {mine[k]}"):   # 最大与最小非零元素单独改错 1e-6 都必红
+                bad = list(mine)
+                bad[k] = bad[k] * (1 + 1e-6)
+                assert_close(bad, ref, IND_REL, CCI_ABS)
+        with self.assertRaises(ShapeMismatch):                            # 全体加 2e-7 的绝对偏置也必红
+            assert_close([v if v is None else v + 2e-7 for v in mine], ref, IND_REL, CCI_ABS)
         flat = [2.0] * 30
         self.assertEqual(I.cci(flat, flat, flat, 5)[10], 0.0)
 

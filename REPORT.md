@@ -24,7 +24,7 @@
 
 复现命令：目标 1 `python3.12 -m unittest tests.test_golden tests.test_data tests.test_optimizer tests.test_determinism tests.test_engine`；目标 2 `python3.12 bench/bench.py --repeat 3 --label audit_rerun --out bench/results/05_audit_rerun.json`；目标 3 `python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json`、`python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --out mutants/results_audit.json --md mutants/survivors_audit.md --tests "-f tests.test_golden tests.test_indicators tests.test_broker tests.test_engine tests.test_metrics tests.test_optimizer tests.test_strategies tests.test_data tests.test_report tests.test_cli tests.test_limits tests.test_perf tests.test_contract tests.test_boundaries tests.test_determinism"`、`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2 --out fuzz/results_audit.json`；整套判据 `python3.12 -m qbt.cli test`（冒烟 `--quick`，退出码见 README）。
 
-测试套件（本审核复测，Linux x86_64）：`python3.12 -m qbt.cli test` = `python3.12 -m unittest discover -s tests -p 'test_*.py'` → **262 条判据**（test_boundaries 43、test_broker 31、test_cli 11、test_contract 29、test_data 34、test_determinism 3、test_engine 12、test_golden 8、test_indicators 33、test_limits 3、test_metrics 19、test_optimizer 18、test_perf 3、test_report 6、test_strategies 9），全部通过（OK），23.189 s，退出码 0；`--quick` 126 条 1.200 s。性能判据（`test_perf`）在覆盖率监控 / 突变快速模式（`QBT_FAST_TESTS=1`）下跳过并注明原因（这两种环境下计时无意义），正常模式下真实运行并有阈值（阈值是 PLAN.md 目标按数据量折算：200k 根 ≤ 0.6 s 等，平台相关，慢机器上会红——这是有意的，不放宽）。
+测试套件（本审核复测，Linux x86_64）：`python3.12 -m qbt.cli test` = `python3.12 -m unittest discover -s tests -p 'test_*.py'` → **263 条判据**（test_boundaries 43、test_broker 31、test_cli 11、test_contract 29、test_data 34、test_determinism 3、test_engine 12、test_golden 9、test_indicators 33、test_limits 3、test_metrics 19、test_optimizer 18、test_perf 3、test_report 6、test_strategies 9），全部通过（OK），26.7 s，退出码 0；`--quick` 126 条 1.2 s。性能判据（`test_perf`）在覆盖率监控 / 突变快速模式（`QBT_FAST_TESTS=1`）下跳过并注明原因（这两种环境下计时无意义），正常模式下真实运行并有阈值（阈值是 PLAN.md 目标按数据量折算：200k 根 ≤ 0.6 s 等，平台相关，慢机器上会红——这是有意的，不放宽）。
 
 覆盖率明细（`python3.12 tools/cov.py`，sys.monitoring 语句覆盖；子进程内执行不计入，优化器因此保留串行路径覆盖同一代码）：
 
@@ -351,4 +351,5 @@
 ### 7.2 审核（2026-10-22）改了什么、没改什么
 
 - 改了：确定性判据（§1.1–1.3）、CCI 对拍容差与放水判据、`cli test --quick` 与退出码、策略 / 成交 / 订单字段契约 `qbt/CONTRACT.md` 及其判据、各入口的边界判据与错误码表、`bench.py` 的计时口径（best-of-N、CPU 型号、负载、实际进程数）、本报告 §1 / §3 / §4 / §7。每条检查的「命令 → 输出 → 结论」见 `REVIEW_QBT_LOB.md`。
+- 对抗复核（REVIEW §1.8）后又补了 5 处：长列表比较改为只报首个差异、成交整数字段类型严格、CCI 显式绝对下限 1e-8、哨兵值不参与量级、绝对容差常量逐处注明理由；判据 262 → 263 条。
 - 没改：`qdcheck/`（审核员的提交一行未改，只调用；审核期间 origin 上另一会话合入了两个 qdcheck 提交 dce50d9 / 01917c0，与本审核无关）；没有删除任何已有判据来换绿；放松的唯一一处容差（CCI 对拍：相对 1e-8 + 绝对 1e-12 → 相对 5e-7 + 1e-9·量级的绝对下限）附带了放水判据证明容差仍能抓住 1e-6 的错。

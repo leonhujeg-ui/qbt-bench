@@ -23,12 +23,15 @@ class ShapeMismatch(AssertionError):
     pass
 
 
+SENTINEL_ABS = 1e200    # |x| >= 1e200 视为哨兵值（如优化器的 -1e300 目标），不参与量级，否则 abs_floor 会把其余比较全部放水
+
+
 def _scale(obj):
-    """序列量级：嵌套结构里所有有限浮点绝对值的最大值（用于 abs_floor = rel * scale）。"""
+    """序列量级：嵌套结构里所有有限浮点绝对值的最大值（用于 abs_floor = FLOOR_REL * scale），哨兵值除外。"""
     if isinstance(obj, bool) or obj is None:
         return 0.0
     if isinstance(obj, float):
-        return abs(obj) if math.isfinite(obj) else 0.0
+        return abs(obj) if math.isfinite(obj) and abs(obj) < SENTINEL_ABS else 0.0
     if isinstance(obj, int):
         return 0.0                      # 整数精确比较，不参与量级
     if isinstance(obj, dict):

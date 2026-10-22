@@ -23,6 +23,7 @@ def _check_strategy(cur, gold, name):
         d = compare(cur[key], gold[key])
         if d:
             return f"{name}.{key}: {d}"
+    # 权益的绝对下限 = 1e-9 × 最大权益：权益曲线可能经过 0 附近（爆仓），纯相对容差在 0 处退化为精确相等；1e-9×量级仍远小于 1e-6 的放水判据
     d = compare(cur["equity"], gold["equity"], MONEY_REL, MONEY_REL * max(abs(x) for x in gold["equity"]))
     if d:
         return f"{name}.equity: {d}"
@@ -33,13 +34,17 @@ def _check_strategy(cur, gold, name):
     if len(cur["fills"]) != len(gold["fills"]):
         return f"{name}.fills: length {len(cur['fills'])} != {len(gold['fills'])}"
     for i, (a, b) in enumerate(zip(cur["fills"], gold["fills"])):
+        if set(a) != set(b):
+            return f"{name}.fills[{i}]: keys {sorted(set(a) ^ set(b))} differ"
         for k in FILL_INT:
-            if a[k] != b[k]:
-                return f"{name}.fills[{i}].{k}: {a[k]!r} != {b[k]!r}"
+            d = compare(a[k], b[k])                                  # 类型严格：int 与 float / bool 不互换（`!=` 会放过 1 == 1.0 == True）
+            if d:
+                return f"{name}.fills[{i}].{k}: {d}"
         for k in FILL_MONEY:
             d = compare(a[k], b[k], MONEY_REL)
             if d:
                 return f"{name}.fills[{i}].{k}: {d}"
+    # 度量的绝对下限 1e-12：胜率 / 盈亏比等可能恰为 0，纯相对容差在 0 处退化为精确相等；1e-12 ≪ IND_REL × 最小非零度量（~1e-3），不影响 1e-6 放水判据
     d = compare(cur["metrics"], gold["metrics"], IND_REL, 1e-12)
     return f"{name}.metrics: {d}" if d else None
 
@@ -67,7 +72,8 @@ class TestGolden(unittest.TestCase):
     def test_data_head_within_tolerance(self):
         """数据前 200 根：时间戳整数精确相等，价格 / 成交量相对 1e-9（跨机器 libm 噪声 ~1e-16）。"""
         cur, gold = self.current["data_head"], self.golden["data_head"]
-        self.assertEqual(cur["ts"], gold["ts"])
+        d = compare(cur["ts"], gold["ts"])                                # 只报第一处差异（长列表 assertEqual 的 difflib 很慢）
+        self.assertIsNone(d, f"data_head.ts: {d}")
         for col in ("open", "high", "low", "close", "volume"):
             assert_close(cur[col], gold[col], MONEY_REL, 0.0, what=f"data_head.{col}")
 
@@ -112,10 +118,25 @@ class TestGoldenTolerance(unittest.TestCase):
                        lambda b: b["fills"][0].__setitem__("bar", b["fills"][0]["bar"] + 1),
                        lambda b: b["fills"][0].__setitem__("side", -b["fills"][0]["side"]),
                        lambda b: b["order_sequence"].__setitem__(0, b["order_sequence"][1]),
-                       lambda b: b["fills"][0].__setitem__("liquidity", "taker" if b["fills"][0]["liquidity"] == "maker" else "maker")):
+                       lambda b: b["fills"][0].__setitem__("liquidity", "taker" if b["fills"][0]["liquidity"] == "maker" else "maker"),
+                       lambda b: b["fills"][0].__setitem__("bar", float(b["fills"][0]["bar"])),          # int → float 也红（类型严格）
+                       lambda b: b["fills"][0].__setitem__("side", float(b["fills"][0]["side"])),
+                       lambda b: b["fills"][0].__setitem__("order_id", float(b["fills"][0]["order_id"])),
+                       lambda b: b["fills"][1].__setitem__("side", True),                                 # bool 不当作 int
+                       lambda b: b["fills"][0].__setitem__("venue", "x")):                                # 多出 / 缺少字段也红
             bad = json.loads(json.dumps(gold))
             mutate(bad)
             self.assertIsNotNone(_check_strategy(bad, gold, "ma_cross"))
+
+    def test_sentinel_values_do_not_loosen_floor(self):
+        """放水判据：结构里含哨兵值（优化器的 -1e300 目标）时，默认 abs_floor 不得被它撑大。"""
+        from tests._compare import _scale
+        self.assertEqual(_scale([-1e300, 2.0]), 2.0)
+        with self.assertRaises(ShapeMismatch):
+            assert_close({"obj": -1e300, "x": 0.0}, {"obj": -1e300, "x": 1e-6})
+        assert_close([1e12, 0.0], [1e12, 100.0])                          # 有意为之：下限随序列量级（1e-9×1e12 = 1e3）缩放，100 在 1e12 量级下是 1e-10 的误差
+        with self.assertRaises(ShapeMismatch):
+            assert_close([1e12, 0.0], [1e12, 2000.0])                       # 超过 1e-9×量级即红
 
 
 class TestGoldenCrossMachineSimulation(unittest.TestCase):
