@@ -14,13 +14,13 @@
 
 | 目标 | 要求 | 判据 | 平台相关？ | Linux x86_64（本机实测） | macOS arm64 | 达成 |
 |---|---|---|---|---|---|---|
-| 1a 确定性：同机逐字节 | 同策略同数据，任何执行顺序 / 进程数下结果一致 | 同 seed 两次生成数据逐字节相同（进程内两次 + 子进程各一次，`test_data`）；网格 2,000 组 1 进程 vs 2 进程（逆序提交）vs 8 进程（chunksize=1）结果 JSON 逐字节相同（`test_optimizer` 同机断言，`bench` 的 `bytewise_identical`）；中途 SIGKILL 续跑与一次跑完逐字节相同；黄金文件两次快照逐字节相同（`test_golden.TestGoldenSameMachine`） | 无关（任何机器上都应成立，但只在同一台机器内比较） | 全部通过 | 未复测（旧的 sha256 判据在该机红 3 条，见 §1.1；新判据不依赖 sha256） | ✅ Linux；macOS 未复测 |
+| 1a 确定性：同机逐字节 | 同策略同数据，任何执行顺序 / 进程数下结果一致 | 同 seed 两次生成数据逐字节相同（进程内两次 + 子进程各一次，`test_data`）；`bench` 的 2,000 组网格 1 进程 vs 8 进程结果 JSON 逐字节相同（05 JSON `bytewise_identical = True`）；`test_optimizer` 的 8 组网格 1 vs 2 进程（逆序提交）vs 8 进程（chunksize=1）形状 + 容差一致，其中 1 vs 8 另加同机逐字节断言；中途 SIGKILL 续跑与一次跑完逐字节相同；黄金文件两次快照逐字节相同（`test_golden.TestGoldenSameMachine`） | 无关（任何机器上都应成立，但只在同一台机器内比较） | 全部通过 | 未复测（旧的 sha256 判据在该机红 3 条，见 §1.1；新判据不依赖 sha256） | ✅ Linux；macOS 未复测 |
 | 1b 确定性：跨机形状 + 容差 | 同上，跨机器 | 黄金文件 `tests/golden/golden_v2.json`（JSON，浮点 repr 17 位；生成机器 / 提交写在 `generated_on`）：整数字段精确，资金类浮点相对 1e-9，度量类 5e-7；跨 `PYTHONHASHSEED`（本进程 + 0 + 4242 两个子进程）回测与网格 + walk-forward 结果形状 + 容差一致（`tests/test_determinism.py`，harness 来自 `qdcheck/`，未改）；1-ulp 价格噪声模拟（±2.2e-16 交替）下 6 个策略全部在容差内；放水判据：浮点改错 1e-6 必红、整数字段 ±1 必红 | 浮点量级平台相关，判据按跨机设计 | 全部通过 | 未复测。预期在容差内（题面给出的 CCI 差异 1e-9 量级，远小于容差），但这不是数学保证：某根 bar 上信号恰落在相等边界时整数字段会翻转，判据会红并给出首个差异路径 | ✅ Linux；macOS 未复测 |
 | 2 够快 | 1M 根 × 1 策略单核 ≤ 3 s；8 进程 2,000 组网格 ≤ 90 s | `bench/bench.py`：1,000,000 根 × ma_cross 单进程冷缓存（指标缓存清空，数据在内存）；2,000 组 × 20,000 根，进程池 8，`os.cpu_count()` = 4 | **相关** | 历史（04，单次）：冷 1.932 s / 热 0.884 s；网格 8 进程 18.6 s / 1 进程 70.1 s。**本审核复测（best-of-3，`bench/results/05_audit_rerun.json`）**：冷 **1.941 s**（样本 [1.941, 2.058, 2.073]）/ 热 1.039 s；网格 8 进程 **20.1 s**（样本 [22.268, 20.181, 20.081]；实际观察到的子进程数 8）/ 1 进程 77.5 s；复测前 1 分钟负载 0.14 | 题面未提供计时，**未测** | ✅ Linux；macOS 未测 |
 | 3a 够硬：覆盖率 | 语句覆盖率 ≥ 90% | `tools/cov.py`（sys.monitoring 语句覆盖，子进程不计入） | 语句计数无关；前提是该平台上测试全绿 | 历史 99.8%（1915/1918，`results/coverage_final.json`）；**本审核复测 100.0%**（1950/1950 语句，`results/coverage_audit.json`；语句数变化来自边界修复新增的代码） | 未复测 | ✅ Linux |
 | 3b 够硬：突变 | 抓住率 ≥ 85% | `mutants/run_mutations.py`，8 个模块 × 80 个突变体，seed 0，fail-fast | 整数计数无关；**但抓住率只在测试全绿的平台上有意义**：旧判据在 macOS 红 4 条时，fail-fast 会把每个突变体都算「抓住」，所以此前的 93.1% 只对 Linux 成立 | 历史：640 / 抓住 596 / 漏网 44 / **93.1%**（`mutants/results.json`，原测试集）。本审核：5 个模块源码改过（cli / data / engine / metrics / optimizer）且判据集扩大（contract / boundaries / determinism），8 个模块 × 80 个突变体**全部重抽重跑** → 640 个突变体 / 抓住 608 / 漏网 32 / **95.0%**（`mutants/results_audit.json`；历史 640 / 596 / 44 / 93.1% 在 `mutants/results.json`）（§4 的表与漏网清单给出历史 / 本机两列） | 未复测 | ✅ Linux |
 | 3c 够硬：模糊 | 10 万次零未捕获异常 | `fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2` | 无关（全部随机显式 seed） | 历史 100,000 次 / 0 崩溃 / 8.7 s（`fuzz/results.json`）；本审核复测 100,000 次 / 0 崩溃 / 5.0 s（`fuzz/results_audit.json`） | 未复测 | ✅ Linux |
-| 4 够诚实 | 数字来自真实运行，结论可复现 | 本报告所有表格由 `bench/results/*.json`、`fuzz/results.json`、`mutants/results.json`（各轮在 `mutants/history/`）、`results/coverage_final.json`、`results/walk_forward.json` 生成，全部入库；提交信息逐阶段记录判据数 / 覆盖率 / 抓住率（例外见 §7.1）；本次审核的每条检查「命令 → 输出 → 结论」在 `REVIEW_QBT_LOB.md` | — | — | — | ✅ |
+| 4 够诚实 | 数字来自真实运行，结论可复现 | 本报告所有表格由 `bench/results/*.json`、`fuzz/results.json`、`mutants/results.json`（`mutants/history/` 只保存第 1–4 轮与最终合并 run8（= results.json），第 5–7 轮定向重跑的原始 JSON 未保留）、`results/coverage_final.json`、`results/walk_forward.json` 生成，全部入库；提交信息逐阶段记录判据数 / 覆盖率 / 抓住率（例外见 §7.1）；本次审核的每条检查「命令 → 输出 → 结论」在 `REVIEW_QBT_LOB.md` | — | — | — | ✅ |
 
 复现命令：目标 1 `python3.12 -m unittest tests.test_golden tests.test_data tests.test_optimizer tests.test_determinism tests.test_engine`；目标 2 `python3.12 bench/bench.py --repeat 3 --label audit_rerun --out bench/results/05_audit_rerun.json`；目标 3 `python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json`、`python3.12 mutants/run_mutations.py --per-module 80 --jobs 3 --out mutants/results_audit.json --md mutants/survivors_audit.md --tests "-f tests.test_golden tests.test_indicators tests.test_broker tests.test_engine tests.test_metrics tests.test_optimizer tests.test_strategies tests.test_data tests.test_report tests.test_cli tests.test_limits tests.test_perf tests.test_contract tests.test_boundaries tests.test_determinism"`、`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2 --out fuzz/results_audit.json`；整套判据 `python3.12 -m qbt.cli test`（冒烟 `--quick`，退出码见 README）。
 
@@ -136,8 +136,8 @@
 | 起跑时 1 分钟负载 | — | — | — | — | 0.14 |  |
 
 每次改动的收益：
-1. `metrics.period_returns` 去掉每根 bar 的 `datetime.fromtimestamp`，改为整数天序号 + Hinnant 民用历算法（与 datetime 逐周对拍 1962–2101 零差异）：metrics 1M 根 5.41s → 1.81s；网格每组开销随之下降，8 进程 74.0s → 23.4s，1 进程 215.7s → 88.6s。
-2. `Broker.on_bar` 盯市热循环改用预构造的 (symbol, Position, close 列表) 行表，去掉每根 bar 的 `dict.items()` 与 `data[sym].close` 属性链：热回测 1.112s → 0.933s（cProfile 300k 根：broker.on_bar 0.362s → 0.226s）；网格 8 进程 23.4s → 21.3s。黄金文件逐字节不变。
+1. `metrics.period_returns` 去掉每根 bar 的 `datetime.fromtimestamp`，改为整数天序号 + Hinnant 民用历算法（与 datetime 每 7 天一点对拍 1961-10 至 2101-05 零差异）：metrics 1M 根 5.41s → 1.81s；网格每组开销随之下降，8 进程 74.0s → 23.4s，1 进程 215.7s → 88.6s。
+2. `Broker.on_bar` 盯市热循环改用预构造的 (symbol, Position, close 列表) 行表，去掉每根 bar 的 `dict.items()` 与 `data[sym].close` 属性链：热回测 1.112s → 0.933s（提交 abe23a1 信息另记有 cProfile 300k 根的数字「broker.on_bar tottime 0.214s；热回测 0.362s → 0.226s」，profile 输出未入库，仅作参考）；网格 8 进程 23.4s → 21.3s。黄金文件逐字节不变。
 3. 数据规模自始至终固定（1,000,000 根；2,000 组 × 20,000 根），没有缩小数据换达标；单核基线在优化前就已达标（2.209s），优化主要兑现在网格搜索上。
 4. 基准 JSON 里的 `machine.git_commit` 是基准运行时的 HEAD：基准总是在把本轮改动提交之前运行，所以 02/03 记录的提交号是其父提交（被测代码在下一个提交里）。04 是验收修复后的重跑。
 
@@ -200,7 +200,7 @@
 
 ### 4.2 历史运行（2026-10-21，原测试集；下文表格与漏网清单是当时的结果，保留不改）
 
-6. **验收评审后（第六、七轮，定向）**：独立验收评审（7 个维度 + 对抗复核，见第 7.0 节）确认的缺陷修复后，broker / indicators / metrics 三个改过源码的模块全量重抽样重跑并合并，`cli:301` 两个此前标为“不可观察”的 id 用 `unittest.mock` 判据定向重跑（全部抓住）；随后删掉 `_margin_ok` 里因修复而变死的 `reduce_only` 分支并补 4 条判据，broker 再次全量重跑合并；最后对补了判据但尚未重跑的 5 个 id 定向重跑（全部抓住）。下表是合并后的最终结果（`mutants/results.json`，各轮原始 JSON 在 `mutants/history/`）。
+6. **验收评审后（第六、七轮，定向）**：独立验收评审（7 个维度 + 对抗复核，见第 7.0 节）确认的缺陷修复后，broker / indicators / metrics 三个改过源码的模块全量重抽样重跑并合并，`cli:301` 两个此前标为“不可观察”的 id 用 `unittest.mock` 判据定向重跑（全部抓住）；随后删掉 `_margin_ok` 里因修复而变死的 `reduce_only` 分支并补 4 条判据，broker 再次全量重跑合并；最后对补了判据但尚未重跑的 5 个 id 定向重跑（全部抓住）。下表是合并后的最终结果（`mutants/results.json`，`mutants/history/` 只保存第 1–4 轮与最终合并 run8（= results.json），第 5–7 轮定向重跑的原始 JSON 未保留）。
 
 总数 **640**（8 个模块，每模块 80 个，抽样 seed=0），抓住 **596**（其中 timeout 0 个：死循环类突变体超过 4 倍基线时长判定），漏网 **44**，抓住率 **93.1%**。
 
@@ -280,7 +280,7 @@
 | indicators | ok | 20596 |
 | metrics | ok | 25000 |
 
-总计 100000 次（seed=0，4 类目标轮转），未捕获异常 0 次，耗时 8.72s；复现：`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2`（结果在 `fuzz/results.json`；验收后另用 seed=5 跑 30,000 次同样 0 崩溃）。
+总计 100000 次（seed=0，4 类目标轮转），未捕获异常 0 次，耗时 8.72s；复现：`python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2`（结果在 `fuzz/results.json`；「验收后另用 seed=5 跑 30,000 次 0 崩溃」仅见于提交 d2481ca 的信息，结果未入库，不作为依据）。
 
 **本机复测（审核 2026-10-22，`fuzz/results_audit.json`）**：同 seed 0 再跑 100,000 次，未捕获异常 0 次，4.97 s；分类计数与上表只差一处——`engine:ConfigError` 4409 → 4414、`engine:ok` 13418 → 13413：`random_params` 抽到的 5 个 grid 参数（levels ≤ 0 或 spacing ≤ 0）此前被静默接受（levels=0 实际是裸 ZeroDivisionError 被 fuzzer 归入 ok 之外的类别？否——它们此前跑完了，因为 `_place_grid` 只在重铺网格时除法，1–120 根数据上未必触发），本审核的 `grid.on_start` 校验把它们改判为受控的 ConfigError；其余 6 个类别逐个相同。
 模糊测试发现并修复的 bug（均有对应单元判据）：
@@ -325,7 +325,7 @@
 
 ### 7.0 验收评审发现并已修复的缺陷（独立评审，见 7.1）
 
-- **reduce_only 可反手**：减仓单数量不封顶时，部分成交的入场配上全量止损会把多头打成空头（`trend_stop` 在默认 10% 参与上限下 46/72 次运行出现）。修复：成交时数量封顶在持仓、仓位归零后余量撤销（`cancelled/reduce_only`）、无仓或同向直接拒绝；判据 `tests/test_broker.py::TestReduceOnlyAndMargin`、`tests/test_strategies.py`（默认配置下仓位永不为负）。
+- **reduce_only 可反手**：减仓单数量不封顶时，部分成交的入场配上全量止损会把多头打成空头（评审时在 `trend_stop` 默认 10% 参与上限的随机运行里多次出现；当时的计数脚本与结果未入库）。修复：成交时数量封顶在持仓、仓位归零后余量撤销（`cancelled/reduce_only`）、无仓或同向直接拒绝；判据 `tests/test_broker.py::TestReduceOnlyAndMargin`、`tests/test_strategies.py`（默认配置下仓位永不为负）。
 - **`trend_stop` 看账户级挂单**：入场门槛用 `ctx.broker.pending`，与网格等常挂单的策略同账户时永远不入场。修复：只看自己的入场单；判据：与 `grid` 同跑仍有止损单。
 - **`trend_stop` 在极端波动下抛 OrderError**（止损价 ≤ 0）：修复为不入场；判据：σ=80 的数据上跑完。
 - **部分成交后保证金不足被标为 rejected**：改为 `cancelled/margin` 并保留已成交部分；判据见上。
@@ -351,4 +351,4 @@
 ### 7.2 审核（2026-10-22）改了什么、没改什么
 
 - 改了：确定性判据（§1.1–1.3）、CCI 对拍容差与放水判据、`cli test --quick` 与退出码、策略 / 成交 / 订单字段契约 `qbt/CONTRACT.md` 及其判据、各入口的边界判据与错误码表、`bench.py` 的计时口径（best-of-N、CPU 型号、负载、实际进程数）、本报告 §1 / §3 / §4 / §7。每条检查的「命令 → 输出 → 结论」见 `REVIEW_QBT_LOB.md`。
-- 没改：`qdcheck/`（只调用）；没有删除任何已有判据来换绿；放松的唯一一处容差（CCI 1e-9 绝对 → 5e-7 相对）附带了放水判据证明容差仍能抓住 1e-6 的错。
+- 没改：`qdcheck/`（审核员的提交一行未改，只调用；审核期间 origin 上另一会话合入了两个 qdcheck 提交 dce50d9 / 01917c0，与本审核无关）；没有删除任何已有判据来换绿；放松的唯一一处容差（CCI 对拍：相对 1e-8 + 绝对 1e-12 → 相对 5e-7 + 1e-9·量级的绝对下限）附带了放水判据证明容差仍能抓住 1e-6 的错。

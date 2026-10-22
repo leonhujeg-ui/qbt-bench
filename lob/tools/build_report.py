@@ -60,7 +60,7 @@ def _audit_mutation():
     if not all(os.path.exists(os.path.join(T.RESULTS, n)) for n in names):
         return ''
     b, q = load(names[0]), load(names[1])
-    return ('本机复测（判定集含 test_boundaries / test_contract，queue_model 源码已改、候选 %d）：book.py %d/%d = %.1f%%；'
+    return ('本机复测（book 判定集 = 历史 8 模块 + test_boundaries / test_contract；queue_model 判定集仍为 test_queue_model（含 4 条新判据）；queue_model 源码已改、候选 %d）：book.py %d/%d = %.1f%%；'
             'queue_model.py %d/%d = %.1f%%（第一轮 %d 条漏网，4 条补判据后定向重跑抓住）' % (
                 q['candidates'], b['killed'], b['run'], b['kill_rate'], q['killed'], q['run'], q['kill_rate'],
                 q['survived'] + sum(len(r['ids']) for r in q.get('reruns', []))))
@@ -94,7 +94,7 @@ def goal_table():
 def _correct_row(c, m):
     return ('1 正确：1,000 万事件与参考实现逐笔一致',
             '事件 %s / 成交 %s 笔 / 成交量 %s lot / 首次分歧：%s（4 进程 lockstep = 原 VM 的 os.cpu_count()=%d，'
-            '不变量常开）。耗时 %.0f s 为历史·原 VM 的单次数字（平台相关）；事件 / 成交 / 成交量 / 分歧为整数结果，平台无关（见 7.1）' % (
+            '不变量常开）。耗时 %.0f s 为历史单次数字（平台相关；该值无机器记录，见 4.1 注）；事件 / 成交 / 成交量 / 分歧为整数结果，平台无关（见 7.1）' % (
                 c['events'], c['trades'], c['volume'],
                 '无' if c['first_divergence'] is None else c['first_divergence'], m['cpus'], c['seconds']),
             '', '达成' if c['first_divergence'] is None and c['events'] == 10_000_000 else '未达成',
@@ -247,7 +247,7 @@ def _stress_items(s):
         ('Python / 平台', '%s %s / %s' % (m['implementation'], m['python'], m['platform'])),
         ('起跑时 1 分钟负载', m.get('load_avg_1m_at_start', '未记录')),
         ('命令', '`%s`' % m.get('command', STRESS_CMD % s['label'])),
-        ('冷 / 热缓存', 'engine、快照、延迟：热（端到端回放之后）；端到端：冷（独立子进程，流文件已在页缓存）'),
+        ('冷 / 热缓存', 'engine、快照、延迟：热（端到端回放之后）；端到端：独立子进程，运行前页缓存状态未记录'),
     ]
 
 
@@ -273,7 +273,8 @@ def main():
              prose('design.md').replace('{BENCH_TABLE}', T.bench_table()), '',
              '## 4. 对拍与压测', '', '### 4.1 对拍（lockstep：状态码 + 逐笔成交 + 周期档位/计数器/订单集合，不变量常开）', '',
              T.compare_table(), '',
-             '（「秒」列为平台相关的单次耗时，取自生成该 JSON 的机器——compare JSON 没有 machine 字段，机器见提交记录；'
+             '（「秒」列为平台相关的单次耗时，取自生成该 JSON 的机器——compare JSON 没有 machine 字段，提交记录里也没有：1,000 万行的 645 s 来自 0be998f 刷新的 JSON（该提交未记录机器），'
+             '更早的 16547bb 提交信息记录的是 401 s，因此这个数字没有可靠的机器出处，只作历史参考；本机 4 进程复测为 220 s（REVIEW 2.2）；'
              '其余列为整数结果，给定同一份流文件时平台无关，见 7.1。）', '',
              '### 4.2 压测：优化轮次（每轮前后 JSON 均已入库）', '', prose('stress_notes.md'), '',
              '**历史数字与本机复测**（历史列由 `results/stress_%s.json` 生成；复测列%s）：' % (

@@ -324,7 +324,7 @@ class TestGeneratorInternals(QBTTestCase):
         self.assertEqual(out, fp)
 
     def test_pinned_cross_machine_within_tolerance(self):
-        """跨机：与黄金文件里存的前 200 根逐列对比，时间戳精确、价格/成交量相对 1e-9（libm 的 1 ulp 远小于此）。"""
+        """跨机：与黄金文件里存的全序列（2000 根 / 500 根）逐列对比，时间戳精确、价格/成交量相对 1e-9（libm 的 1 ulp 远小于此）。"""
         import json
         from tests._compare import assert_close, perturb, ShapeMismatch, MONEY_REL
         from tools.make_golden import GOLDEN_PATH

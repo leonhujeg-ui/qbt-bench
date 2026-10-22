@@ -1,6 +1,6 @@
 ## 8. 验证运行记录
 
-- `LOB_TEST_SCALE=full python3.12 -m unittest discover -s lob/tests -t .` → **382 tests OK，788.5 s**（**原 VM**，阶段 7 时的测试数；含 1,000 万条 4 进程 lockstep 对拍、100 万对拍、分片回放逐字节一致、模糊 2 万、排队模型、CLI 端到端）；提交 9fd7864 的信息只有标题行，并没有日志摘要（审核核实，原文「日志摘要见提交 9fd7864 说明」不成立）。full 规模（含 1,000 万对拍）**只在原 VM 上跑过，本次审核未重跑**。
+- `LOB_TEST_SCALE=full python3.12 -m unittest discover -s lob/tests -t .` → **382 tests OK，788.5 s**（**原 VM**，阶段 7 时的测试数；含 1,000 万条 4 进程 lockstep 对拍、100 万对拍、分片回放逐字节一致、模糊 2 万、排队模型、CLI 端到端）；提交 9fd7864 的信息只有标题行和签名 trailer，并没有日志摘要（审核核实，原文「日志摘要见提交 9fd7864 说明」不成立）。full 规模（含 1,000 万对拍）**只在原 VM 上跑过，本次审核未重跑**。
 - 审核复跑（standard 规模，10M 级在 standard 下 skip；测试数 382 → 384 是阶段 7 之后新增的判据，384 → 443 是审核新增的 `test_contract`（23）、`test_boundaries`（35）与 `test_queue_model` 的 1 条（突变漏网补判据））：
   - 本审核 VM（Intel Xeon @ 2.10GHz，os.cpu_count()=4，Linux 6.18.44-fc-v140 x86_64，CPython 3.12.3）：`python3.12 -m lob.cli test`（= `unittest discover -s lob/tests -t .`，standard）→ `Ran 443 tests in 83.8s` / `OK (skipped=1)`，退出码 0（收尾时的最终树）；`python3.12 -m lob.cli test --quick` → `Ran 87 tests in 8.4s` / `OK`。
   - 审核员另一台机器（macOS arm64，Python 3.12.15，契约 / 边界判据落地前的树）同一 discover 命令 → 384 OK（skipped 1）；443 条的树未在该机复跑。

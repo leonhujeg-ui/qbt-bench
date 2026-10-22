@@ -20,7 +20,7 @@
 ### 1.1 黄金文件 / 指纹 → 形状 + 容差
 
 **检查命令**（原判据，本机 Linux）：`python3.12 -m unittest tests.test_golden tests.test_data -v 2>&1 | tail -3`
-**实际输出**：`Ran 35 tests … OK`（本机绿；题面事实：macOS 上 3 条 sha256 判据红）。
+**实际输出**：审核前的树（90ecf9f）这两个模块共 36 条、本机全绿（题面事实：macOS 上其中 3 条 sha256 判据红）；改写后的最终树 `Ran 42 tests … OK`。
 **结论**：修了。原判据比较 sha256(原始 double) 与 `repr` 字符串，任何机器的 libm 最后 1 ulp 差异都会让它红，判据本身不可跨机。改动：
 
 - `tests/golden/golden_v2.json`（由 `python3.12 tools/make_golden.py --update` 生成，文件内记录生成命令、GenSpec（含 seed=20240601）、BrokerConfig）：浮点用 JSON 数值（Python `repr`，最短往返表示，≤ 17 位有效数字，读回逐位相同），存 6 个策略的完整权益曲线（3000 点）、全部成交记录、订单顺序、11 项度量、数据前 200 根；文件内另有 `generated_on`（平台 / 架构 / Python / git 提交，无时间戳，同机两次快照仍逐字节相同），`test_format_and_provenance` 要求四个来源字段齐全且非空（缺失 → 红），跨机对比时能知道黄金来自哪台机器；删除 sha256 版 `golden_v1.json`。
@@ -32,7 +32,7 @@
 
 **同机 vs 跨机两条判据**：
 - 同机逐字节：`tests.test_golden.TestGoldenSameMachine.test_two_snapshots_bytewise_identical`（两次快照 JSON 逐字节相同）与 `tests.test_data.TestGeneratorInternals.test_pinned_same_machine_bytewise`（进程内两次 + 一个子进程，sha256 指纹相同）；
-- 跨机容差：`tests.test_data.TestGeneratorInternals.test_pinned_cross_machine_within_tolerance`（seed=123 / universe seed=9 的前 200 根与黄金 JSON 对比，时间戳精确、价格 1e-9，附改错 1e-6 必红）；
+- 跨机容差：`tests.test_data.TestGeneratorInternals.test_pinned_cross_machine_within_tolerance`（seed=123 的 2000 根 / universe seed=9 的 500 根**全序列**与黄金 JSON 对比——复核发现第一版只钉前 200 根、弱于原 sha256 判据的覆盖范围，已改为全序列（黄金文件 895 KB）；时间戳精确、价格 1e-9，附改错 1e-6 必红）；
 - 跨机模拟（本机可执行）：`tests.test_golden.TestGoldenCrossMachineSimulation.test_robust_to_one_ulp_price_noise`——把每个价格乘以 (1 ± 2.2e-16) 交替扰动后重跑 6 个策略。
   **实际输出**（直接脚本版）：`bollinger_reversion OK within tolerance … trend_stop OK within tolerance / ulp-noise simulation: PASS`。
   这说明在 1 ulp 量级的输入差异下，本数据集上没有任何比较恰好处在平局点，整数字段不变；但这不是数学保证——若某台机器的差异恰好翻转一个 `f > s` 的平局，整数字段会变，届时判据会如实变红（见 §4 局限）。
@@ -134,7 +134,10 @@ python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json
   Ran 262 tests in 23.1s  OK (skipped=3)   TOTAL 1950 语句 / 漏 0 / 100.0%（历史 1915/1918 = 99.8%，177 条）
 python3.12 fuzz/fuzz.py --iterations 100000 --seed 0 --workers 2 --out fuzz/results_audit.json
   100,000 次 / 0 崩溃 / 4.97 s；分类计数与历史只差 engine:ConfigError 4409→4414、engine:ok 13418→13413（grid 参数校验把 5 个输入改判为受控拒绝）
-python3.12 -m unittest discover -s qdcheck/tests -t .      # Ran 164 tests in 34.8s  OK（qdcheck/ 未改；origin 上另一会话推送的 qdcheck G5 收尾已合入）
+python3.12 -m unittest discover -s qdcheck/tests -t .      # dce50d9 树：Ran 164 tests in 34.8s  OK
+  # 收尾前 origin 又合入另一会话的 01917c0（qdcheck 接入方评审，标明「中间提交」）→ 最终树 Ran 201 tests，FAILED (errors=2)：test_report 的两条需要未入库的生成产物
+  # （results/perf.json、results/mutation_replay.json）；本地用 python3.12 -m qdcheck.tools.perf 生成 perf.json 后仍缺 mutation_replay.json；其余 199 条通过。
+  # 本审核不改 qdcheck/，也不代为生成 / 提交其产物（本地生成的 perf.json 已删除）；这是上游中间提交的遗留，记入 §4。
 ```
 
 **结论**：通过（≥ 85% / ≥ 90% / 零崩溃），报告改了。源码改过的 5 个模块候选集已变，突变 id 与历史不可逐个对应（`broker` / `indicators` / `report` 可比：历史 broker 的 7 条漏网全部被新判据抓住）；REPORT.md §4 新增「4.1 本机复测」（历史 / 本机两列的模块表 + 32 条漏网逐条表：id、行、变异、为什么等价 / 补了哪条判据；3 条 optimizer 独立 CLI 默认值如实标「未补判据」），历史表与漏网清单整体保留为 4.2；§1 3a/3b/3c 的实测列写两组数字（历史 / 本机）；§5 加本机复测段。没有删除或放松任何判据；所有新判据都是增加的。
@@ -213,10 +216,10 @@ triage classes: {'补判据': 45, '等价': 16}；report survivor rows: 15 = 10 
 
 ```
 probes 192918 = train 135042 + test 57876（True）；各 T 的 n = 57876 − censored_test（182/278/574/898）精确成立
-| T=1  | n 57694 | 整体 Brier 0.1726 | d=0 0.0751 | d=1 0.1655 | … |   normal 0.1752 / shock 0.1942 / withdraw 0.1670
-| T=2  | n 57598 | 0.1771 | d=0 0.0644 | …
-| T=5  | n 57302 | 0.1472 | d=0 0.0504 | …
-| T=10 | n 56978 | 0.1170 | d=0 0.0411 | d=1 0.0732 | …
+| T=1 | n 57694 | 整体 Brier 0.1726 | d=0 0.0751 | d=1 0.1801 | d=2 0.2308 | d≥3 0.1892 |   normal 0.1752 / shock 0.1942 / withdraw 0.1670   censored_test=182
+| T=2 | n 57598 | 整体 Brier 0.1771 | d=0 0.0644 | d=1 0.1384 | d=2 0.2124 | d≥3 0.2361 |   normal 0.1840 / shock 0.1968 / withdraw 0.1687   censored_test=278
+| T=5 | n 57302 | 整体 Brier 0.1472 | d=0 0.0504 | d=1 0.0939 | d=2 0.1590 | d≥3 0.2175 |   normal 0.1527 / shock 0.1943 / withdraw 0.1353   censored_test=574
+| T=10 | n 56978 | 整体 Brier 0.1170 | d=0 0.0411 | d=1 0.0732 | d=2 0.1223 | d≥3 0.1755 |   normal 0.1230 / shock 0.1798 / withdraw 0.1022   censored_test=898
 summary.json == eval.json for h=1/2/5/10: True
 ```
 
@@ -302,10 +305,10 @@ queue_model  第一轮 real 9m56s：295 候选 / 120 / 114 / 6 / 95.0%；6 条�
 ```
 git archive 0be998f~1 / 0be998f / 9fd7864 / 3500a1c → unittest.TestLoader().discover('lob/tests').countTestCases()
   0be998f~1: 382    0be998f（+2 条 queue_model 判据，21:13:34 提交）: 384    之后一直 384
-git show 9fd7864 → 提交信息只有标题行
+git show 9fd7864 → 提交信息只有标题行和两行签名 trailer，没有日志摘要
 ```
 
-**结论**：解释清楚，报告改了。788.5 s ≈ 13 分钟的全量运行必然始于 ≈21:02，即 0be998f 之前的 382 条树；现树（契约前）384 条，standard 下 383 跑 + 1 skip。`lob/REPORT.md` §8 改为：382 OK / 788.5 s 是原 VM 的 full 规模与阶段 7 时的树；full（含 1,000 万对拍）本次审核未重跑；新增本审核 VM 的 standard 结果（442 OK / skipped 1 / 85.4 s）与审核员 macOS arm64 的 384 OK（题面事实，契约前的树）；「日志摘要见提交 9fd7864 说明」不成立，已删。
+**结论**：解释清楚，报告改了。788.5 s ≈ 13 分钟的全量运行必然始于 ≈21:02，即 0be998f 之前的 382 条树；现树（契约前）384 条，standard 下 383 跑 + 1 skip。`lob/REPORT.md` §8 改为：382 OK / 788.5 s 是原 VM 的 full 规模与阶段 7 时的树；full（含 1,000 万对拍）本次审核未重跑；新增本审核 VM 的 standard 结果（最终树 443 OK / skipped 1 / 83.8 s；契约落地时 442）与审核员 macOS arm64 的 384 OK（题面事实，契约前的树）；「日志摘要见提交 9fd7864 说明」不成立（该提交信息只有标题行与签名 trailer），已改写。
 
 ### 2.11 报告可追溯性与工程约束
 
@@ -329,7 +332,7 @@ python3.12 -m lob.tools.build_report | cmp - lob/REPORT.md     # 逐字节相同
 | `python3.12 -m qbt.cli test --quick` | Ran 126 tests in 1.200s，OK，exit=0 | 通过 |
 | `python3.12 -m lob.cli test`（standard） | Ran 443 tests in 83.769s，OK (skipped=1)，exit=0 | 通过（退出码 0；`LOB_TEST_SCALE=full` 含 1,000 万对拍未在本机重跑，10M 对拍另由 2.2 的 CLI 命令复现） |
 | `python3.12 -m lob.cli test --quick` | Ran 87 tests in 8.4s，OK，exit=0 | 通过 |
-| `python3.12 -m unittest discover -s qdcheck/tests -t .` | Ran 164 tests in 34.754s，OK，exit=0 | 通过（`qdcheck/` 未改） |
+| `python3.12 -m unittest discover -s qdcheck/tests -t .` | dce50d9 树：Ran 164 tests in 34.8s，OK；最终树（含上游 01917c0）：Ran 201 tests in 55.8s，FAILED (errors=2)，exit=1——两条 test_report 缺未入库产物 perf.json / mutation_replay.json | 不通过（上游中间提交遗留，非本审核改动；审核员提交未改 `qdcheck/`：`git log --format=%an -- qdcheck/` 只有另一会话的提交） |
 | `python3.12 -m unittest tests.test_limits` / `python3.12 -m lob.tools.lint_limits` | Ran 3 tests OK；39 files checked, 0 problems | 通过：函数 ≤ 60 行、文件 ≤ 800 行、仅标准库、随机显式 seed |
 | `python3.12 bench/bench.py --repeat 3 --label audit_rerun --out bench/results/05_audit_rerun.json` | 冷 1.941 s（样本 1.941/2.058/2.073）/ 热 1.039 s；网格 8 进程 20.1 s（样本 22.3/20.2/20.1，实际子进程 8）/ 1 进程 77.5 s；pass={'grid': True, 'single_core': True}；real 5m35.553s | 通过（≤ 3 s / ≤ 90 s），见 1.4 |
 | `python3.12 tools/cov.py --fail-under 90 --json results/coverage_audit.json` | 262 tests，100.0%（1950/1950），real 0m23.263s | 通过（≥ 90%） |
@@ -340,13 +343,15 @@ python3.12 -m lob.tools.build_report | cmp - lob/REPORT.md     # 逐字节相同
 | `python3.12 -m lob.cli mutate --target book --max 120 --seed 1 --workers 4 --json lob/results/mutations_book_audit.json` | 候选 484 / 抽样 120 / 抓住 110（含超时 15）/ 漏网 10 / 91.7%，real 25m46.263s | 通过（≥ 85%） |
 | `python3.12 -m lob.cli coverage --json lob/results/coverage_audit.json` | 443 tests OK (skipped=1)，核心 96.48%，93.2 s | 通过（≥ 90%），见 2.8 |
 | `python3.12 -m lob.tools.build_report \| cmp - lob/REPORT.md` | identical | 通过：报告是生成产物 |
-| 占位符检查：`grep -c` 填充 token（双角括号）/ HTML 注释占位 / 「待本机复测」 | REPORT.md 0 / 0；REVIEW_QBT_LOB.md 0 / 0（1.6 提到的 `contract-table` 标记是契约文件自身的表格标记，不是占位）；lob/REPORT.md 0 | 通过：无遗留占位符 |
+| 占位符检查：`grep -c` 双角括号 token / HTML 注释 / 「待本机复测」 | REPORT.md 0 / 0 / 0；lob/REPORT.md 0 / 0 / 0；REVIEW_QBT_LOB.md 0 / 1 / 1——这两个命中都是本文件自身的引用（1.6 提到的 `contract-table` 表格标记；本行的检查项名称），不是遗留占位 | 通过：无遗留占位符 |
 
 提交信息更正：审核中间提交 71658d9 的信息写「判据数 182」，实际加载计数是 186（177 + test_data 1 + test_golden 5 + test_determinism 3）；历史已推送不改写，在此更正。
 
 `lob/results/compare_10k.json` / `compare_1m.json`：standard 套件每次运行都重写其 `seconds` / `shard_seconds`（只有计时字段），审核收尾时按 `git checkout` 恢复为已提交版本后再生成 `lob/REPORT.md`，因此 4.1 表的「秒」列仍是原 VM 的历史数字（本机值见 2.2 / 2.5 的对拍命令输出）。
 
 ## 4. 审核员认为仍然存在的局限
+
+- **qdcheck/ 的状态不由本审核掌握**：审核期间 origin 上另一会话合入了 dce50d9、01917c0 两个 qdcheck 提交（后者标明「中间提交」）；最终树上 qdcheck 套件 201 条中 2 条因缺少未入库的生成产物报错（见 §3），`qdcheck/fuzz.py` 929 行、`run()` 76 行超出本仓库 ≤ 800 / ≤ 60 的工程约束（qbt / lob 的 test_limits 与 lint_limits 都不扫描 qdcheck/）。本审核按题面「不改 qdcheck/」未动它，只如实记录。
 
 - **macOS arm64 没有复测**：题面给出的 4 条红判据已按「形状 + 容差」改写，并用 1-ulp 噪声模拟与跨哈希种子 harness 在 Linux 上验证，但审核员没有 macOS 机器，新判据在该平台的实际结果是「未复测」而不是「通过」。容差判据也不是数学保证：若某根 bar 的信号恰落在相等边界，整数字段会翻转并使判据变红，届时需要人工判断。
 - **lob 流文件 sha256 的跨平台性未验证**：生成器经 `random.gauss / expovariate / uniform`（libm），同 seed 在 arm64 上重新生成是否逐字节相同未知；跨平台复现应复制流文件或先核对 sha256（已写进 lob/REPORT.md 7.1）。

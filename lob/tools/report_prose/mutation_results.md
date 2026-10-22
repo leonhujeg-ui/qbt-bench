@@ -1,4 +1,4 @@
-**抽样与分母**：两个模块各运行 `python3.12 -m lob.cli mutate --target <book|queue_model> --max 120 --seed 1 --workers 4`（`--seed 1` 是 CLI 默认值）。结果 JSON 没有 `seed` 字段，审核时用 `run_mutations.make_mutants` + `sample_mutants(…, 120, seed=1)` 对 HEAD 源码重新枚举：候选数 484 / 292 与 JSON 一致，抽中的 120 个 id 与 JSON 的 `results` 逐一相同（seed=0 / 2 分别只重合 43 / 44 与 62 / 66 个），即表中样本确由 seed=1 产生。**抓住率的分母始终是抽样运行的 120 个突变体，不是候选总数**（book 484 / queue_model 292）；上面的「模块 → 候选位点 → 抽样 → 结果」表与「按算子」表给出模块、算子与突变体数量的对应关系。
+**抽样与分母**：两个模块各运行 `python3.12 -m lob.cli mutate --target <book|queue_model> --max 120 --seed 1 --workers 4`（`--seed 1` 是 CLI 默认值）。结果 JSON 没有 `seed` 字段，审核时用 `run_mutations.make_mutants` + `sample_mutants(…, 120, seed=1)` 对审核前的树（dce50d9，即历史运行所用的源码）重新枚举：候选数 484 / 292 与 JSON 一致，抽中的 120 个 id 与 JSON 的 `results` 逐一相同（seed=0 / 2 分别只重合 43 / 44 与 62 / 66 个），即表中样本确由 seed=1 产生；当前 HEAD 的 `queue_model.py` 经边界修复后候选为 295、seed 0 / 2 重合 61 / 67，见下方本机复测。**抓住率的分母始终是抽样运行的 120 个突变体，不是候选总数**（book 484 / queue_model 292）；上面的「模块 → 候选位点 → 抽样 → 结果」表与「按算子」表给出模块、算子与突变体数量的对应关系。
 
 **book.py**：484 个候选位点，按算子分层抽样 120 个（seed=1）。第一轮抓住 100/120 = 83.3%（其中 15 个超时：循环条件被改成死循环，按「抓住」计）。20 条漏网逐条人工判定：10 条等价（见上表「等价」行：初值随后被覆盖、`continue→break` 后外层循环重入同一档、FOK 纯模拟只用布尔结论等），10 条补判据后单独复跑被抓住（已抓住的突变不重跑——只增加了测试，不会让已失败的突变变为存活；第一次复跑后仍漏网的 13 个 id 记录在 `mutations_book.json` 的 `rerun.survivor_ids`，第一轮原始结果保留在 `mutations_book_run1.json`）。补判据时发现的一个真实问题：三条「压实阈值」漏网（id 315 / 398 / 461）落在 `_cancel` 内联的条件上而非 `_unlink` 的同形条件——第一版补的判据打错了位置，复跑仍漏网，随后补了撤单路径的判据才抓住。最终 **110/120 = 91.7%**，剩余 10 条全部为等价突变。
 
@@ -6,7 +6,7 @@
 
 **诚实说明**：抓住率的分母是抽样的 120 个突变而非全部候选（book 484 / queue_model 292）；超时（死循环）计为抓住；「等价」判定为人工阅读所得，逐条理由在上表（id、改动、为什么等价）；复跑只针对漏网者（增加测试不会使已失败的突变存活）；突变运行的秒数（`seconds` 字段）是原 VM 的历史数字。
 
-**本机复测（审核，机器 Intel Xeon @ 2.10GHz VM，os.cpu_count()=4，CPython 3.12.3，4 workers，`--max 120 --seed 1`，判定集 = 上表 + `test_boundaries` / `test_contract`）**：
+**本机复测（审核，机器 Intel Xeon @ 2.10GHz VM，os.cpu_count()=4，CPython 3.12.3，4 workers，`--max 120 --seed 1`；判定集：book = 上表 8 模块 + `test_boundaries` / `test_contract`，queue_model = `test_queue_model`（含补的 4 条判据））**：
 - `book`：候选 484（历史 484），抽样 120，抓住 110（超时 15），漏网 10，抓住率 **91.7%**（历史 91.7%）；本机漏网 id [169, 210, 263, 276, 284, 297, 307, 431, 458, 459]——与历史逐条相同：15 条超时的 id 与历史完全一致（循环条件被改成死循环），本机非超时最慢 108 s（超时阈 300 s，历史最慢 193 s），不存在因负载造成的假超时；10 条漏网与历史同 id，判定沿用
 - `queue_model`：候选 295（历史 292），抽样 120；第一轮抓住 114 / 漏网 6（95.0%），6 条逐条判定后 2 条等价、4 条真缺口（SVG 标题的 Brier 文本、by_regime base_rate 四位舍入、parametric_params 键集合、`_horizon` 取最近的表）补判据，`python3.12 -m lob.cli mutate --target queue_model --ids 195 247 267 272 --merge` 定向重跑全部抓住 → 抓住 118（超时 0），漏网 2，抓住率 **98.3%**（历史 95.8%）；本机漏网 id [125, 189]
 - 两列不可按 id 直接比较的原因：`queue_model.py` 在边界修复中多了一个条件表达式，候选集与抽样都变了；`book.py` 源码未变，候选集相同，但判定集扩大后抽样仍由 seed=1 决定、id 可比。本机漏网逐条判定见上方漏网表「本机复测」行；`seconds` 为本机墙钟。

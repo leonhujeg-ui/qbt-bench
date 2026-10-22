@@ -51,8 +51,8 @@ def snapshot():
     out = {"format": 2, "command": "python3.12 tools/make_golden.py --update", "spec": SPEC.to_dict(), "config": CFG,
            "generated_on": provenance(),
            "data_head": _cols(d, HEAD),
-           "pinned_data": {"gen_n2000_seed123_head": _cols(generate(n=2000, seed=123), HEAD),
-                           "universe_B_n500_seed9_head": _cols(generate_universe(["A", "B"], 500, 9)["B"], HEAD)},
+           "pinned_data": {"gen_n2000_seed123_head": _cols(generate(n=2000, seed=123), 2000),        # 全序列钉住（原 sha256 判据覆盖的范围）
+                           "universe_B_n500_seed9_head": _cols(generate_universe(["A", "B"], 500, 9)["B"], 500)},
            "strategies": {}}
     for name, cls in sorted(REGISTRY.items()):
         r = run_backtest(d, cls(), BrokerConfig(**CFG))
