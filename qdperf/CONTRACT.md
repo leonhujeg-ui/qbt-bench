@@ -321,4 +321,4 @@ python3.12 -m qdperf.selftest [--quick | --full]
 
 退出码 0 = 全部步骤通过，1 = 任一步骤失败。第一行 `qdperf selftest (<模式>) <平台> Python <版本> SQLite <版本> <核数> CPU`，
 其后每步一行 `<步骤> <规模> <秒>s OK|FAIL <关键数字>`，最后一行 `TOTAL ... <通过>/<总数> steps passed`。
-步骤：`unittest`、`constraints`（零依赖 / 零出网 / 零写仓外三条测试）、`coverage`、`g1_sqlite`、`g2_gate`、`g3_tick`、`g4_http`、`perf_qbt`。
+步骤：`unittest`（另查测试跑完后 tempfile 下没有新留下的 `qdperf-*` 目录）、`constraints`（零依赖 / 零出网 / 零写仓外三条测试）、`coverage`、`g1_sqlite`、`g2_gate`、`g3_tick`、`g4_http`、`perf_qbt`。

@@ -20,6 +20,20 @@ def cfg(routes, **kw):
     return dict({"format": B.FORMAT, "seed": 1, "routes": routes}, **kw)
 
 
+def _record_scratch(case):
+    """记下 fake_backend.start 建的 scratch 目录（测试结束时还原 scratch_dir）。"""
+    from unittest import mock
+    made, real = [], B.common.scratch_dir
+
+    def rec(prefix="qdperf-"):
+        made.append(real(prefix))
+        return made[-1]
+    patcher = mock.patch.object(B.common, "scratch_dir", side_effect=rec)
+    patcher.start()
+    case.addCleanup(patcher.stop)
+    return made
+
+
 class TestManifest(unittest.TestCase):
     def test_defaults(self):
         m = H.load_manifest({"format": H.FORMAT, "targets": [{"path": "/a"}]})
@@ -202,7 +216,7 @@ class TestServer(unittest.TestCase):
         self.assertGreaterEqual(max(done) - t0, 0.18)                  # 3 × 60 ms 串行
 
     def test_subprocess_backend_start_failure(self):
-        """子进程起不来（配置非法）→ start 立即抛错并带上子进程的 stderr，不能一直等。"""
+        """子进程起不来（配置非法）→ start 立即抛错并带上子进程的 stderr，不能一直等；scratch 目录删掉。"""
         box = {}
 
         def go():
@@ -211,11 +225,14 @@ class TestServer(unittest.TestCase):
             except RuntimeError as exc:
                 box["err"] = str(exc)
 
+        made = _record_scratch(self)
         t = threading.Thread(target=go, daemon=True)
         t.start()
         t.join(30)
         self.assertIn("fake backend failed to start", box.get("err", "(still waiting)"))
         self.assertIn("config.format must be", box.get("err", ""))                # 带上子进程报的原因
+        self.assertEqual(len(made), 1)
+        self.assertFalse(os.path.exists(made[0]))
 
     def test_start_failure_carries_stderr(self):
         """子进程起不来时，异常里带上它的 stdout 与 stderr（崩溃的 Traceback 在 stderr 上）。"""
@@ -224,10 +241,13 @@ class TestServer(unittest.TestCase):
         from unittest import mock
         real = subprocess.Popen
         crash = [sys.executable, "-c", "import sys; sys.stderr.write('boom on stderr'); sys.exit(3)"]
+        made = _record_scratch(self)
         with mock.patch.object(B.subprocess, "Popen", side_effect=lambda args, **kw: real(crash, **kw)):
             with self.assertRaises(RuntimeError) as cm:
                 B.start(cfg({"/a": {}}), timeout=20.0)
         self.assertIn("boom on stderr", str(cm.exception))
+        self.assertEqual(len(made), 1)
+        self.assertFalse(os.path.exists(made[0]))                               # 起不来也不留 tempfile 目录
 
     def test_stop_escalation(self):
         """停不下来的子进程：SIGTERM → 最多等 10 s → SIGKILL → 再等（回收，避免僵尸、returncode 有值）。"""

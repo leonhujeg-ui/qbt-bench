@@ -76,6 +76,30 @@ class TestSelftestParsing(unittest.TestCase):
         row = selftest.step_constraints("default", None, {"unittest_log": ""})
         self.assertEqual(set(row["detail"].values()), {"missing"})
 
+    def test_unittest_step_flags_leftover_tmp_dirs(self):
+        """测试跑完 tempfile 下多出 qdperf-* 目录 → unittest 这步算失败并列出目录名。"""
+        import shutil
+        import subprocess
+        import tempfile
+        from unittest import mock
+        from qdperf import selftest
+        done = subprocess.CompletedProcess([], 0, "", "Ran 3 tests in 0.1s\n\nOK\n")
+        made = []
+
+        def leaky_run(*a, **kw):
+            made.append(tempfile.mkdtemp(prefix="qdperf-leaktest-"))
+            return done
+        with mock.patch.object(selftest.subprocess, "run", side_effect=leaky_run):
+            row = selftest.step_unittest("default", None, {})
+        shutil.rmtree(made[0])
+        self.assertFalse(row["ok"])
+        self.assertIn(os.path.basename(made[0]), row["detail"]["leaked_tmp_dirs"])
+        self.assertIn("tmp dirs left", row["summary"])
+        with mock.patch.object(selftest.subprocess, "run", return_value=done):
+            row = selftest.step_unittest("default", None, {})
+        self.assertFalse(any(n.startswith("qdperf-leaktest-") for n in row["detail"]["leaked_tmp_dirs"]))
+        self.assertEqual(row["ok"], not row["detail"]["leaked_tmp_dirs"])     # 别的进程同时建目录时也不误判方向
+
 
 if __name__ == "__main__":
     unittest.main()

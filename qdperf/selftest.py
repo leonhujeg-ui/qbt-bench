@@ -26,6 +26,12 @@ def _row(scale, ok, summary, detail=None):
     return {"scale": scale, "ok": bool(ok), "summary": summary, "detail": detail or {}}
 
 
+def scratch_dirs():
+    """tempfile 下所有 qdperf-* 目录（工具与测试的 scratch 都用这个前缀）。"""
+    tmp = tempfile.gettempdir()
+    return {n for n in os.listdir(tmp) if n.startswith("qdperf-")}
+
+
 # ---- 各步 ------------------------------------------------------------------------------
 def step_unittest(mode, out_dir, state):
     env = dict(os.environ)
@@ -33,16 +39,20 @@ def step_unittest(mode, out_dir, state):
         env["QDPERF_FAST"] = "1"
     for k in ("QDPERF_COVERAGE", "QDPERF_COV_DIR", "QDPERF_NO_TIMING"):
         env.pop(k, None)
+    before = scratch_dirs()
     proc = subprocess.run([sys.executable, "-m", "unittest", "discover", "-v", "-s", "qdperf/tests", "-t", "."],
                           cwd=common.REPO, env=env, capture_output=True, text=True)
+    leaked = sorted(scratch_dirs() - before)                 # 测试跑完还留在 tempfile 下的目录 = 清理漏了
     ran = re.search(r"Ran (\d+) tests? in ([\d.]+)s", proc.stderr)
     skipped = re.search(r"skipped=(\d+)", proc.stderr)
     state["unittest_log"] = proc.stderr
     n = int(ran.group(1)) if ran else 0
     tail = proc.stderr.strip().splitlines()[-1] if proc.stderr.strip() else ""
-    return _row(f"{n} tests" + (" (QDPERF_FAST=1)" if mode == "quick" else ""), proc.returncode == 0 and n > 0,
-                f"{tail}; skipped {int(skipped.group(1)) if skipped else 0}",
-                {"tests_run": n, "returncode": proc.returncode, "stderr_tail": proc.stderr[-3000:]})
+    return _row(f"{n} tests" + (" (QDPERF_FAST=1)" if mode == "quick" else ""),
+                proc.returncode == 0 and n > 0 and not leaked,
+                f"{tail}; skipped {int(skipped.group(1)) if skipped else 0}; tmp dirs left {len(leaked)}",
+                {"tests_run": n, "returncode": proc.returncode, "leaked_tmp_dirs": leaked,
+                 "stderr_tail": proc.stderr[-3000:]})
 
 
 def step_constraints(mode, out_dir, state):
@@ -135,7 +145,7 @@ def step_perf(mode, out_dir, state):
     from qdperf.tools import selfcheck as S
     n = {"quick": 100_000, "default": 200_000, "full": 1_000_000}[mode]
     s = S.g2(n=n, out_dir=out_dir)["summary"]
-    return _row(f"qbt {n:,} bars x ma_cross, best-of-5 procs, 3 runs", S.g2_ok(s),
+    return _row(f"qbt {n:,} bars x ma_cross, best-of-{s['repeat']} procs, {s['runs']} runs", S.g2_ok(s),
                 f"noise {s['noise']['hot_wall_rel'] * 100:.1f}%; 12%: {s['slow']['12pct']['first_line']}; "
                 f"5%: {s['slow']['5pct']['verdict_default']} (expected {s['slow5_expected_by_noise']}); rerun {s['rerun_verdict']}",
                 s)

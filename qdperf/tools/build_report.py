@@ -133,8 +133,9 @@ def block_g2_slow(cache):
 
 
 def block_g2_noise(cache):
-    b = _load("g2_profile_gate.json", cache)["baseline"]["noise"]["per_run"]
-    rows = ["| 基线第几遍 | 热墙钟 s（5 进程最快） | 冷墙钟 s（5 进程最快） | tracemalloc 峰值字节 |", "|---:|---:|---:|---:|"]
+    base = _load("g2_profile_gate.json", cache)["baseline"]
+    b, n = base["noise"]["per_run"], base["repeat"]
+    rows = [f"| 基线第几遍 | 热墙钟 s（{n} 进程最快） | 冷墙钟 s（{n} 进程最快） | tracemalloc 峰值字节 |", "|---:|---:|---:|---:|"]
     for k, r in enumerate(b):
         rows.append(f"| {k + 1} | {r['hot_wall_s']:.4f} | {r['cold_wall_s']:.4f} | {r['peak_bytes']:,} |")
     return "\n".join(rows)

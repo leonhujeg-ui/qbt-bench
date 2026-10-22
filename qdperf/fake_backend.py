@@ -215,6 +215,7 @@ def start(config, timeout=20.0):
         if proc.poll() is not None or time.monotonic() > deadline:
             proc.kill()
             out, err = proc.communicate()                   # 原因在子进程 stdout（FAKE_BACKEND ERROR ...）或 stderr
+            shutil.rmtree(work, ignore_errors=True)
             raise RuntimeError("fake backend failed to start: " + ((out or "") + (err or "")).strip()[-500:])
         time.sleep(0.02)
     with open(ready, encoding="utf-8") as f:
