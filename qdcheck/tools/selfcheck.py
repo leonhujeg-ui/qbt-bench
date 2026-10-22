@@ -95,12 +95,67 @@ def g1():
             "cross_check_max_tol_ratio": worst, "details": out}
 
 
+QBT_GENSPEC_SCHEMA = {"type": "object", "fields": {
+    "n": {"type": "int", "min": 0, "max": 100000, "required": False},
+    "seed": {"type": "int", "min": 0, "max": 2 ** 31, "required": False},
+    "symbol": {"type": "str", "min_len": 1, "max_len": 12, "required": False},
+    "s0": {"type": "float", "min": 0.01, "max": 1e6, "required": False},
+    "mu": {"type": "float", "min": -1.0, "max": 1.0, "required": False},
+    "sigma": {"type": "float", "min": 0.0, "max": 3.0, "required": False},
+    "bar_seconds": {"type": "int", "min": 1, "max": 86400, "required": False},
+    "jump_prob": {"type": "float", "min": 0.0, "max": 1.0, "required": False},
+    "halt_len": {"type": "int", "min": 1, "max": 100, "required": False}}}
+
+
+def _qbt_genspec_validate(d):
+    from qbt.data import GenSpec
+    return GenSpec.from_dict(d).check()
+
+
+def g2():
+    from qdcheck import examples as E
+    from qdcheck import fuzz as F
+    t0 = time.perf_counter()
+    runs = {}
+    cases = [("validate_good", E.validate_good, None), ("validate_keyerror", E.validate_keyerror, "KeyError"),
+             ("validate_zerodiv", E.validate_zerodiv, "ZeroDivisionError"),
+             ("validate_recursion", E.validate_recursion, "RecursionError")]
+    for name, fn, must in cases:
+        t = time.perf_counter()
+        rep = F.run(fn, E.BACKTEST_SCHEMA, n=20000, seed=0, controlled=E.ValidationError)
+        wall = time.perf_counter() - t
+        groups = [g for g in rep["bare"] if must and g["exc_type"] == must]
+        runs[name] = {"wall_seconds_incl_shrink": round(wall, 2), "report": rep,
+                      "criteria": {"caught": (not must) or bool(groups),
+                                   "max_ratio": max((g["ratio"] for g in groups), default=None),
+                                   "ratio_le_30pct": all(g["ratio"] <= 0.3 for g in groups),
+                                   "no_bare": rep["outcomes"]["bare"] == 0 if not must else None}}
+    cov = runs["validate_good"]["report"]["categories"]
+    from qdcheck.examples import ValidationError
+    from qbt.errors import QBTError
+    qbt_rep = F.run(_qbt_genspec_validate, QBT_GENSPEC_SCHEMA, n=20000, seed=0, controlled=QBTError)
+    del ValidationError
+    return {"command": "python3.12 -m qdcheck.tools.selfcheck g2", "machine": machine(),
+            "seconds": round(time.perf_counter() - t0, 1),
+            "summary": {"coverage_cases": {c: cov[c]["cases"] for c in ("nan", "inf", "missing_key", "type_wrong")},
+                        "coverage_ge_500": all(cov[c]["cases"] >= 500 for c in ("nan", "inf", "missing_key", "type_wrong")),
+                        "good_validate_seconds": runs["validate_good"]["report"]["elapsed_s"],
+                        "good_validate_le_20s": runs["validate_good"]["report"]["elapsed_s"] <= 20.0,
+                        "per_validate": {k: dict(v["criteria"], outcomes=v["report"]["outcomes"],
+                                                 bare_by_type=v["report"]["bare_by_type"]) for k, v in runs.items()},
+                        "qbt_genspec": {"outcomes": qbt_rep["outcomes"], "bare_by_type": qbt_rep["bare_by_type"],
+                                        "signatures": [{"exc_type": g["exc_type"], "count": g["count"],
+                                                        "message": g["message"], "minimal": g["minimal_preview"],
+                                                        "top": g["top3"][-1:] } for g in qbt_rep["bare"]]}},
+            "runs": runs, "qbt_genspec_report": qbt_rep}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("goal", choices=["g1"])
+    ap.add_argument("goal", choices=["g1", "g2"])
     ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)
-    result = {"g1": g1}[args.goal]()
+    result = {"g1": g1, "g2": g2}[args.goal]()
     path = args.out or os.path.join(RESULTS, f"{args.goal}_selfcheck.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=1, sort_keys=True, ensure_ascii=False)

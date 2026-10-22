@@ -1,0 +1,1042 @@
+{
+ "command": "python3.12 -m qdcheck.tools.selfcheck g2",
+ "machine": {
+  "cpu_count": 4,
+  "implementation": "CPython",
+  "machine": "x86_64",
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.12.3"
+ },
+ "qbt_genspec_report": {
+  "accepted_invalid": {
+   "count": 1000,
+   "first_cases": [
+    26,
+    31,
+    33,
+    42,
+    45,
+    51,
+    57,
+    63,
+    70,
+    76,
+    83,
+    117,
+    121,
+    126,
+    136,
+    146,
+    162,
+    179,
+    195,
+    201
+   ]
+  },
+  "bare": [
+   {
+    "categories": [
+     "extra_key",
+     "type_wrong"
+    ],
+    "count": 2686,
+    "exc_type": "TypeError",
+    "first_case": 14,
+    "message": "GenSpec.__init__() got an unexpected keyword argument '__class__'",
+    "minimal_input": {
+     "__class__": []
+    },
+    "minimal_preview": "{'__class__': []}",
+    "minimal_size": 16,
+    "original_size": 125,
+    "ratio": 0.128,
+    "shrink_calls": 18,
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | GenSpec.__init__() got an unexpected keyword argument …",
+    "top3": [
+     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:164 in from_dict: return cls(**d)"
+    ]
+   },
+   {
+    "categories": [
+     "extra_key",
+     "inf"
+    ],
+    "count": 765,
+    "exc_type": "TypeError",
+    "first_case": 10,
+    "message": "keywords must be strings",
+    "minimal_input": {
+     "$dict": [
+      [
+       null,
+       []
+      ]
+     ]
+    },
+    "minimal_preview": "{None: []}",
+    "minimal_size": 9,
+    "original_size": 83,
+    "ratio": 0.10843373493975904,
+    "shrink_calls": 17,
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | keywords must be strings",
+    "top3": [
+     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:164 in from_dict: return cls(**d)"
+    ]
+   },
+   {
+    "categories": [
+     "extra_key",
+     "type_wrong"
+    ],
+    "count": 28,
+    "exc_type": "TypeError",
+    "first_case": 463,
+    "message": "qbt.data.GenSpec() argument after ** must be a mapping, not list",
+    "minimal_input": [
+     {}
+    ],
+    "minimal_preview": "[{}]",
+    "minimal_size": 4,
+    "original_size": 111,
+    "ratio": 0.036036036036036036,
+    "shrink_calls": 6,
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not list",
+    "top3": [
+     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:164 in from_dict: return cls(**d)"
+    ]
+   },
+   {
+    "categories": [
+     "type_wrong"
+    ],
+    "count": 24,
+    "exc_type": "TypeError",
+    "first_case": 404,
+    "message": "qbt.data.GenSpec() argument after ** must be a mapping, not str",
+    "minimal_input": "config",
+    "minimal_preview": "'config'",
+    "minimal_size": 8,
+    "original_size": 8,
+    "ratio": 1.0,
+    "shrink_calls": 0,
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not str",
+    "top3": [
+     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:164 in from_dict: return cls(**d)"
+    ]
+   },
+   {
+    "categories": [
+     "type_wrong"
+    ],
+    "count": 24,
+    "exc_type": "TypeError",
+    "first_case": 897,
+    "message": "qbt.data.GenSpec() argument after ** must be a mapping, not int",
+    "minimal_input": 42,
+    "minimal_preview": "42",
+    "minimal_size": 2,
+    "original_size": 2,
+    "ratio": 1.0,
+    "shrink_calls": 0,
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not int",
+    "top3": [
+     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:164 in from_dict: return cls(**d)"
+    ]
+   },
+   {
+    "categories": [
+     "key_case",
+     "extra_key",
+     "type_wrong"
+    ],
+    "count": 13,
+    "exc_type": "TypeError",
+    "first_case": 1628,
+    "message": "qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
+    "minimal_input": null,
+    "minimal_preview": "None",
+    "minimal_size": 4,
+    "original_size": 4,
+    "ratio": 1.0,
+    "shrink_calls": 0,
+    "signature": "TypeError | /home/user/qbt-bench/qbt/data.py | from_dict | 164 | qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
+    "top3": [
+     "qdcheck/tools/selfcheck.py:112 in _qbt_genspec_validate: return GenSpec.from_dict(d).check()",
+     "qbt/data.py:164 in from_dict: return cls(**d)"
+    ]
+   }
+  ],
+  "bare_by_type": {
+   "TypeError": 3540
+  },
+  "bare_unrecorded": 0,
+  "categories": {
+   "boundary": {
+    "bare": 205,
+    "cases": 1899,
+    "controlled": 879,
+    "pass": 815
+   },
+   "empty": {
+    "bare": 212,
+    "cases": 1872,
+    "controlled": 1470,
+    "pass": 190
+   },
+   "extra_key": {
+    "bare": 1755,
+    "cases": 1789,
+    "controlled": 34,
+    "pass": 0
+   },
+   "huge": {
+    "bare": 170,
+    "cases": 1848,
+    "controlled": 994,
+    "pass": 684
+   },
+   "inf": {
+    "bare": 188,
+    "cases": 1857,
+    "controlled": 1638,
+    "pass": 31
+   },
+   "key_case": {
+    "bare": 1799,
+    "cases": 1831,
+    "controlled": 25,
+    "pass": 7
+   },
+   "long_string": {
+    "bare": 187,
+    "cases": 1919,
+    "controlled": 1103,
+    "pass": 629
+   },
+   "missing_key": {
+    "bare": 161,
+    "cases": 1874,
+    "controlled": 630,
+    "pass": 1083
+   },
+   "nan": {
+    "bare": 203,
+    "cases": 1802,
+    "controlled": 1572,
+    "pass": 27
+   },
+   "neg_zero": {
+    "bare": 171,
+    "cases": 1805,
+    "controlled": 1226,
+    "pass": 408
+   },
+   "negative": {
+    "bare": 193,
+    "cases": 1898,
+    "controlled": 1495,
+    "pass": 210
+   },
+   "nested_garbage": {
+    "bare": 149,
+    "cases": 1856,
+    "controlled": 1679,
+    "pass": 28
+   },
+   "numeric_string": {
+    "bare": 211,
+    "cases": 1846,
+    "controlled": 1456,
+    "pass": 179
+   },
+   "type_wrong": {
+    "bare": 251,
+    "cases": 1825,
+    "controlled": 1521,
+    "pass": 53
+   },
+   "unicode": {
+    "bare": 195,
+    "cases": 1835,
+    "controlled": 1037,
+    "pass": 603
+   },
+   "valid": {
+    "bare": 0,
+    "cases": 999,
+    "controlled": 0,
+    "pass": 999
+   }
+  },
+  "elapsed_s": 3.575,
+  "format": 1,
+  "n": 20000,
+  "outcomes": {
+   "bare": 3540,
+   "controlled": 11316,
+   "pass": 5144
+  },
+  "per_case_us": 178.8,
+  "rejected_valid": {
+   "count": 0,
+   "first_cases": []
+  },
+  "schema_valid_cases": 3297,
+  "seed": 0,
+  "tool": "qdcheck.fuzz",
+  "validate": "__main__:_qbt_genspec_validate"
+ },
+ "runs": {
+  "validate_good": {
+   "criteria": {
+    "caught": true,
+    "max_ratio": null,
+    "no_bare": true,
+    "ratio_le_30pct": true
+   },
+   "report": {
+    "accepted_invalid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "bare": [],
+    "bare_by_type": {},
+    "bare_unrecorded": 0,
+    "categories": {
+     "boundary": {
+      "bare": 0,
+      "cases": 1792,
+      "controlled": 1641,
+      "pass": 151
+     },
+     "empty": {
+      "bare": 0,
+      "cases": 1850,
+      "controlled": 1690,
+      "pass": 160
+     },
+     "extra_key": {
+      "bare": 0,
+      "cases": 1867,
+      "controlled": 1863,
+      "pass": 4
+     },
+     "huge": {
+      "bare": 0,
+      "cases": 1858,
+      "controlled": 1812,
+      "pass": 46
+     },
+     "inf": {
+      "bare": 0,
+      "cases": 1785,
+      "controlled": 1778,
+      "pass": 7
+     },
+     "key_case": {
+      "bare": 0,
+      "cases": 1790,
+      "controlled": 1787,
+      "pass": 3
+     },
+     "long_string": {
+      "bare": 0,
+      "cases": 1824,
+      "controlled": 1819,
+      "pass": 5
+     },
+     "missing_key": {
+      "bare": 0,
+      "cases": 1845,
+      "controlled": 1431,
+      "pass": 414
+     },
+     "nan": {
+      "bare": 0,
+      "cases": 1830,
+      "controlled": 1822,
+      "pass": 8
+     },
+     "neg_zero": {
+      "bare": 0,
+      "cases": 1818,
+      "controlled": 1501,
+      "pass": 317
+     },
+     "negative": {
+      "bare": 0,
+      "cases": 1898,
+      "controlled": 1892,
+      "pass": 6
+     },
+     "nested_garbage": {
+      "bare": 0,
+      "cases": 1900,
+      "controlled": 1893,
+      "pass": 7
+     },
+     "numeric_string": {
+      "bare": 0,
+      "cases": 1901,
+      "controlled": 1863,
+      "pass": 38
+     },
+     "type_wrong": {
+      "bare": 0,
+      "cases": 1798,
+      "controlled": 1794,
+      "pass": 4
+     },
+     "unicode": {
+      "bare": 0,
+      "cases": 1892,
+      "controlled": 1864,
+      "pass": 28
+     },
+     "valid": {
+      "bare": 0,
+      "cases": 1029,
+      "controlled": 0,
+      "pass": 1029
+     }
+    },
+    "elapsed_s": 1.714,
+    "format": 1,
+    "n": 20000,
+    "outcomes": {
+     "bare": 0,
+     "controlled": 17879,
+     "pass": 2121
+    },
+    "per_case_us": 85.7,
+    "rejected_valid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "schema_valid_cases": 2121,
+    "seed": 0,
+    "tool": "qdcheck.fuzz",
+    "validate": "qdcheck.examples:validate_good"
+   },
+   "wall_seconds_incl_shrink": 1.71
+  },
+  "validate_keyerror": {
+   "criteria": {
+    "caught": true,
+    "max_ratio": 0.022727272727272728,
+    "no_bare": null,
+    "ratio_le_30pct": true
+   },
+   "report": {
+    "accepted_invalid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "bare": [
+     {
+      "categories": [
+       "missing_key",
+       "unicode"
+      ],
+      "count": 510,
+      "exc_type": "KeyError",
+      "first_case": 23,
+      "message": "'symbol'",
+      "minimal_input": {},
+      "minimal_preview": "{}",
+      "minimal_size": 2,
+      "original_size": 88,
+      "ratio": 0.022727272727272728,
+      "shrink_calls": 5,
+      "signature": "KeyError | /home/user/qbt-bench/qdcheck/examples.py | validate_keyerror | 116 | …",
+      "top3": [
+       "qdcheck/examples.py:116 in validate_keyerror: out = {\"period\": _int(cfg[\"period\"], 1, 500, \"period\"), \"symbol\": _str(cfg[\"symbol\"], 1, 16, \"symbol\")}"
+      ]
+     }
+    ],
+    "bare_by_type": {
+     "KeyError": 510
+    },
+    "bare_unrecorded": 0,
+    "categories": {
+     "boundary": {
+      "bare": 24,
+      "cases": 1792,
+      "controlled": 1617,
+      "pass": 151
+     },
+     "empty": {
+      "bare": 31,
+      "cases": 1850,
+      "controlled": 1659,
+      "pass": 160
+     },
+     "extra_key": {
+      "bare": 9,
+      "cases": 1867,
+      "controlled": 1854,
+      "pass": 4
+     },
+     "huge": {
+      "bare": 27,
+      "cases": 1858,
+      "controlled": 1785,
+      "pass": 46
+     },
+     "inf": {
+      "bare": 25,
+      "cases": 1785,
+      "controlled": 1753,
+      "pass": 7
+     },
+     "key_case": {
+      "bare": 10,
+      "cases": 1790,
+      "controlled": 1777,
+      "pass": 3
+     },
+     "long_string": {
+      "bare": 24,
+      "cases": 1824,
+      "controlled": 1795,
+      "pass": 5
+     },
+     "missing_key": {
+      "bare": 510,
+      "cases": 1845,
+      "controlled": 921,
+      "pass": 414
+     },
+     "nan": {
+      "bare": 23,
+      "cases": 1830,
+      "controlled": 1799,
+      "pass": 8
+     },
+     "neg_zero": {
+      "bare": 28,
+      "cases": 1818,
+      "controlled": 1473,
+      "pass": 317
+     },
+     "negative": {
+      "bare": 23,
+      "cases": 1898,
+      "controlled": 1869,
+      "pass": 6
+     },
+     "nested_garbage": {
+      "bare": 13,
+      "cases": 1900,
+      "controlled": 1880,
+      "pass": 7
+     },
+     "numeric_string": {
+      "bare": 27,
+      "cases": 1901,
+      "controlled": 1836,
+      "pass": 38
+     },
+     "type_wrong": {
+      "bare": 24,
+      "cases": 1798,
+      "controlled": 1770,
+      "pass": 4
+     },
+     "unicode": {
+      "bare": 30,
+      "cases": 1892,
+      "controlled": 1834,
+      "pass": 28
+     },
+     "valid": {
+      "bare": 0,
+      "cases": 1029,
+      "controlled": 0,
+      "pass": 1029
+     }
+    },
+    "elapsed_s": 1.718,
+    "format": 1,
+    "n": 20000,
+    "outcomes": {
+     "bare": 510,
+     "controlled": 17369,
+     "pass": 2121
+    },
+    "per_case_us": 85.9,
+    "rejected_valid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "schema_valid_cases": 2121,
+    "seed": 0,
+    "tool": "qdcheck.fuzz",
+    "validate": "qdcheck.examples:validate_keyerror"
+   },
+   "wall_seconds_incl_shrink": 1.72
+  },
+  "validate_recursion": {
+   "criteria": {
+    "caught": true,
+    "max_ratio": 0.001105891622620983,
+    "no_bare": null,
+    "ratio_le_30pct": true
+   },
+   "report": {
+    "accepted_invalid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "bare": [
+     {
+      "categories": [
+       "long_string",
+       "type_wrong"
+      ],
+      "count": 430,
+      "exc_type": "RecursionError",
+      "first_case": 8,
+      "message": "maximum recursion depth exceeded",
+      "minimal_input": {
+       "symbol": {
+        "$repeat": "ab",
+        "tail": "a",
+        "times": 546
+       }
+      },
+      "minimal_preview": "{'symbol': 'abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab",
+      "minimal_size": 1106,
+      "original_size": 1000098,
+      "ratio": 0.001105891622620983,
+      "shrink_calls": 38,
+      "signature": "RecursionError | /home/user/qbt-bench/qdcheck/examples.py | _all_printable | 0 | maximum recursion depth exceeded",
+      "top3": [
+       "qdcheck/examples.py:137 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)",
+       "qdcheck/examples.py:137 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)",
+       "qdcheck/examples.py:137 in _all_printable: return s[i].isascii() and s[i].isprintable() and _all_printable(s, i + 1)"
+      ]
+     }
+    ],
+    "bare_by_type": {
+     "RecursionError": 430
+    },
+    "bare_unrecorded": 0,
+    "categories": {
+     "boundary": {
+      "bare": 21,
+      "cases": 1792,
+      "controlled": 1620,
+      "pass": 151
+     },
+     "empty": {
+      "bare": 23,
+      "cases": 1850,
+      "controlled": 1667,
+      "pass": 160
+     },
+     "extra_key": {
+      "bare": 25,
+      "cases": 1867,
+      "controlled": 1838,
+      "pass": 4
+     },
+     "huge": {
+      "bare": 19,
+      "cases": 1858,
+      "controlled": 1793,
+      "pass": 46
+     },
+     "inf": {
+      "bare": 29,
+      "cases": 1785,
+      "controlled": 1749,
+      "pass": 7
+     },
+     "key_case": {
+      "bare": 22,
+      "cases": 1790,
+      "controlled": 1765,
+      "pass": 3
+     },
+     "long_string": {
+      "bare": 430,
+      "cases": 1824,
+      "controlled": 1389,
+      "pass": 5
+     },
+     "missing_key": {
+      "bare": 15,
+      "cases": 1845,
+      "controlled": 1416,
+      "pass": 414
+     },
+     "nan": {
+      "bare": 22,
+      "cases": 1830,
+      "controlled": 1800,
+      "pass": 8
+     },
+     "neg_zero": {
+      "bare": 25,
+      "cases": 1818,
+      "controlled": 1476,
+      "pass": 317
+     },
+     "negative": {
+      "bare": 24,
+      "cases": 1898,
+      "controlled": 1868,
+      "pass": 6
+     },
+     "nested_garbage": {
+      "bare": 24,
+      "cases": 1900,
+      "controlled": 1869,
+      "pass": 7
+     },
+     "numeric_string": {
+      "bare": 29,
+      "cases": 1901,
+      "controlled": 1834,
+      "pass": 38
+     },
+     "type_wrong": {
+      "bare": 26,
+      "cases": 1798,
+      "controlled": 1768,
+      "pass": 4
+     },
+     "unicode": {
+      "bare": 23,
+      "cases": 1892,
+      "controlled": 1841,
+      "pass": 28
+     },
+     "valid": {
+      "bare": 0,
+      "cases": 1029,
+      "controlled": 0,
+      "pass": 1029
+     }
+    },
+    "elapsed_s": 2.28,
+    "format": 1,
+    "n": 20000,
+    "outcomes": {
+     "bare": 430,
+     "controlled": 17449,
+     "pass": 2121
+    },
+    "per_case_us": 114.0,
+    "rejected_valid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "schema_valid_cases": 2121,
+    "seed": 0,
+    "tool": "qdcheck.fuzz",
+    "validate": "qdcheck.examples:validate_recursion"
+   },
+   "wall_seconds_incl_shrink": 2.32
+  },
+  "validate_zerodiv": {
+   "criteria": {
+    "caught": true,
+    "max_ratio": 0.08391608391608392,
+    "no_bare": null,
+    "ratio_le_30pct": true
+   },
+   "report": {
+    "accepted_invalid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "bare": [
+     {
+      "categories": [
+       "boundary",
+       "inf",
+       "empty"
+      ],
+      "count": 103,
+      "exc_type": "ZeroDivisionError",
+      "first_case": 85,
+      "message": "integer division or modulo by zero",
+      "minimal_input": {
+       "period": 0
+      },
+      "minimal_preview": "{'period': 0}",
+      "minimal_size": 12,
+      "original_size": 143,
+      "ratio": 0.08391608391608392,
+      "shrink_calls": 12,
+      "signature": "ZeroDivisionError | /home/user/qbt-bench/qdcheck/examples.py | validate_zerodiv | 127 | integer division or modulo by zero",
+      "top3": [
+       "qdcheck/examples.py:127 in validate_zerodiv: bars_per_period = 10000 // period"
+      ]
+     }
+    ],
+    "bare_by_type": {
+     "ZeroDivisionError": 103
+    },
+    "bare_unrecorded": 0,
+    "categories": {
+     "boundary": {
+      "bare": 103,
+      "cases": 1792,
+      "controlled": 1538,
+      "pass": 151
+     },
+     "empty": {
+      "bare": 6,
+      "cases": 1850,
+      "controlled": 1684,
+      "pass": 160
+     },
+     "extra_key": {
+      "bare": 6,
+      "cases": 1867,
+      "controlled": 1857,
+      "pass": 4
+     },
+     "huge": {
+      "bare": 0,
+      "cases": 1858,
+      "controlled": 1812,
+      "pass": 46
+     },
+     "inf": {
+      "bare": 7,
+      "cases": 1785,
+      "controlled": 1771,
+      "pass": 7
+     },
+     "key_case": {
+      "bare": 7,
+      "cases": 1790,
+      "controlled": 1780,
+      "pass": 3
+     },
+     "long_string": {
+      "bare": 4,
+      "cases": 1824,
+      "controlled": 1815,
+      "pass": 5
+     },
+     "missing_key": {
+      "bare": 5,
+      "cases": 1845,
+      "controlled": 1426,
+      "pass": 414
+     },
+     "nan": {
+      "bare": 2,
+      "cases": 1830,
+      "controlled": 1820,
+      "pass": 8
+     },
+     "neg_zero": {
+      "bare": 1,
+      "cases": 1818,
+      "controlled": 1500,
+      "pass": 317
+     },
+     "negative": {
+      "bare": 8,
+      "cases": 1898,
+      "controlled": 1884,
+      "pass": 6
+     },
+     "nested_garbage": {
+      "bare": 3,
+      "cases": 1900,
+      "controlled": 1890,
+      "pass": 7
+     },
+     "numeric_string": {
+      "bare": 8,
+      "cases": 1901,
+      "controlled": 1855,
+      "pass": 38
+     },
+     "type_wrong": {
+      "bare": 8,
+      "cases": 1798,
+      "controlled": 1786,
+      "pass": 4
+     },
+     "unicode": {
+      "bare": 1,
+      "cases": 1892,
+      "controlled": 1863,
+      "pass": 28
+     },
+     "valid": {
+      "bare": 0,
+      "cases": 1029,
+      "controlled": 0,
+      "pass": 1029
+     }
+    },
+    "elapsed_s": 1.852,
+    "format": 1,
+    "n": 20000,
+    "outcomes": {
+     "bare": 103,
+     "controlled": 17776,
+     "pass": 2121
+    },
+    "per_case_us": 92.6,
+    "rejected_valid": {
+     "count": 0,
+     "first_cases": []
+    },
+    "schema_valid_cases": 2121,
+    "seed": 0,
+    "tool": "qdcheck.fuzz",
+    "validate": "qdcheck.examples:validate_zerodiv"
+   },
+   "wall_seconds_incl_shrink": 1.86
+  }
+ },
+ "seconds": 11.2,
+ "summary": {
+  "coverage_cases": {
+   "inf": 1785,
+   "missing_key": 1845,
+   "nan": 1830,
+   "type_wrong": 1798
+  },
+  "coverage_ge_500": true,
+  "good_validate_le_20s": true,
+  "good_validate_seconds": 1.714,
+  "per_validate": {
+   "validate_good": {
+    "bare_by_type": {},
+    "caught": true,
+    "max_ratio": null,
+    "no_bare": true,
+    "outcomes": {
+     "bare": 0,
+     "controlled": 17879,
+     "pass": 2121
+    },
+    "ratio_le_30pct": true
+   },
+   "validate_keyerror": {
+    "bare_by_type": {
+     "KeyError": 510
+    },
+    "caught": true,
+    "max_ratio": 0.022727272727272728,
+    "no_bare": null,
+    "outcomes": {
+     "bare": 510,
+     "controlled": 17369,
+     "pass": 2121
+    },
+    "ratio_le_30pct": true
+   },
+   "validate_recursion": {
+    "bare_by_type": {
+     "RecursionError": 430
+    },
+    "caught": true,
+    "max_ratio": 0.001105891622620983,
+    "no_bare": null,
+    "outcomes": {
+     "bare": 430,
+     "controlled": 17449,
+     "pass": 2121
+    },
+    "ratio_le_30pct": true
+   },
+   "validate_zerodiv": {
+    "bare_by_type": {
+     "ZeroDivisionError": 103
+    },
+    "caught": true,
+    "max_ratio": 0.08391608391608392,
+    "no_bare": null,
+    "outcomes": {
+     "bare": 103,
+     "controlled": 17776,
+     "pass": 2121
+    },
+    "ratio_le_30pct": true
+   }
+  },
+  "qbt_genspec": {
+   "bare_by_type": {
+    "TypeError": 3540
+   },
+   "outcomes": {
+    "bare": 3540,
+    "controlled": 11316,
+    "pass": 5144
+   },
+   "signatures": [
+    {
+     "count": 2686,
+     "exc_type": "TypeError",
+     "message": "GenSpec.__init__() got an unexpected keyword argument '__class__'",
+     "minimal": "{'__class__': []}",
+     "top": [
+      "qbt/data.py:164 in from_dict: return cls(**d)"
+     ]
+    },
+    {
+     "count": 765,
+     "exc_type": "TypeError",
+     "message": "keywords must be strings",
+     "minimal": "{None: []}",
+     "top": [
+      "qbt/data.py:164 in from_dict: return cls(**d)"
+     ]
+    },
+    {
+     "count": 28,
+     "exc_type": "TypeError",
+     "message": "qbt.data.GenSpec() argument after ** must be a mapping, not list",
+     "minimal": "[{}]",
+     "top": [
+      "qbt/data.py:164 in from_dict: return cls(**d)"
+     ]
+    },
+    {
+     "count": 24,
+     "exc_type": "TypeError",
+     "message": "qbt.data.GenSpec() argument after ** must be a mapping, not str",
+     "minimal": "'config'",
+     "top": [
+      "qbt/data.py:164 in from_dict: return cls(**d)"
+     ]
+    },
+    {
+     "count": 24,
+     "exc_type": "TypeError",
+     "message": "qbt.data.GenSpec() argument after ** must be a mapping, not int",
+     "minimal": "42",
+     "top": [
+      "qbt/data.py:164 in from_dict: return cls(**d)"
+     ]
+    },
+    {
+     "count": 13,
+     "exc_type": "TypeError",
+     "message": "qbt.data.GenSpec() argument after ** must be a mapping, not NoneType",
+     "minimal": "None",
+     "top": [
+      "qbt/data.py:164 in from_dict: return cls(**d)"
+     ]
+    }
+   ]
+  }
+ }
+}
