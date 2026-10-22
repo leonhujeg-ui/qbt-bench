@@ -2,32 +2,32 @@
  "machine": {
   "cpu_count": 4,
   "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-  "git_commit": "441e683",
+  "git_commit": "02e27bf",
   "implementation": "CPython",
-  "load_avg_1m": 0.57,
+  "load_avg_1m": 0.53,
   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
   "python": "3.12.3",
   "sqlite_version": "3.45.1",
-  "timestamp": "2026-10-22T22:18:06"
+  "timestamp": "2026-10-22T23:28:14"
  },
  "summary": {
   "contention_3x50": {
    "busy": 0,
-   "max_ms": 3.991546000179369,
+   "max_ms": 2.394628998445114,
    "met_200ms": true,
-   "p99_ms": 0.21932149997155634,
+   "p99_ms": 0.10644616111676439,
    "root_cause": [],
-   "starvation": "无饿死：最差的 notifier p99 等待 0.49 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 1.1%）"
+   "starvation": "无饿死：最差的 engine p99 等待 0.11 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 0.9%）"
   },
   "contention_criterion_ok": true,
-  "deferred_demo_busy": 113,
+  "deferred_demo_busy": 112,
   "deferred_demo_root_cause": [
    "延迟事务（BEGIN DEFERRED）先读后写：读快照过期时升级写锁直接返回 SQLITE_BUSY_SNAPSHOT，busy_timeout 不生效 → 写事务改用 BEGIN IMMEDIATE",
    "busy_timeout=5.0 s 内拿不到写锁：同时写者 × 持锁时间超过超时 → 缩短事务 / 合并写 / 加大超时"
   ],
   "doctor_exit_code": 1,
-  "doctor_seconds": 134.5,
-  "first_line": "SQLITE_DOCTOR FAIL statements=23 full_scan=11 temp_btree=6 suggestions=10/11 contention_p99_ms=0.22 busy=0 wal_max_mb=20.8 red=8 yellow=16",
+  "doctor_seconds": 128.13,
+  "first_line": "SQLITE_DOCTOR FAIL statements=23 full_scan=11 temp_btree=6 suggestions=10/11 contention_p99_ms=0.11 busy=0 wal_max_mb=20.8 red=8 yellow=16",
   "full_scan": 11,
   "original_untouched": true,
   "rejected": 1,
@@ -43,7 +43,7 @@
   "suggestions_verified_independently": true,
   "synth_deterministic": true,
   "synth_le_180s": true,
-  "synth_seconds": 42.15,
+  "synth_seconds": 38.72,
   "temp_btree": 6,
   "unsolvable": [
    "h_email_search"
@@ -52,11 +52,11 @@
   "wal_free_capped": true,
   "wal_long_reader_never_reset": true,
   "wal_peaks_mb": {
-   "1000/long": 19.86,
+   "1000/long": 19.84,
    "1000/none": 4.13,
-   "200/long": 20.78,
+   "200/long": 20.76,
    "200/none": 0.84,
-   "4000/long": 19.82,
+   "4000/long": 19.92,
    "4000/none": 16.48
   }
  },
@@ -64,7 +64,7 @@
   "command": "python3.12 -m qdperf.synth_db --scale 1 --seed 20261022 --fingerprint",
   "determinism": {
    "identical_fingerprint": true,
-   "second_run_seconds": 41.8
+   "second_run_seconds": 38.25
   },
   "fingerprint": {
    "all": "7ce458e324c8f6bf612cfa3a961433d45823648a2d1fe58ca6c57ada24e6fab0",
@@ -93,18 +93,18 @@
     "sha256": "88b6fc3e2c8030c737f0e07e6b420ff1440a57913b689fcb79d64a597ed1b56e"
    }
   },
-  "fingerprint_seconds": 35.24,
-  "path": "/tmp/qdperf-g1-ks1hfc5v/synth.db",
+  "fingerprint_seconds": 32.0,
+  "path": "/tmp/qdperf-g1-8ta5yk20/synth.db",
   "phases_seconds": {
-   "bots": 0.262,
-   "events": 4.163,
-   "housekeeping": 0.021,
-   "indexes_analyze": 0.528,
-   "orders_1": 4.501,
-   "orders_2": 8.246,
+   "bots": 0.243,
+   "events": 3.722,
+   "housekeeping": 0.017,
+   "indexes_analyze": 0.47,
+   "orders_1": 3.978,
+   "orders_2": 8.129,
    "settings": 0.001,
-   "trades": 24.395,
-   "users": 0.031
+   "trades": 22.134,
+   "users": 0.028
   },
   "rows": {
    "bots": 50000,
@@ -123,14 +123,14 @@
    "users": 10000
   },
   "scale": 1.0,
-  "seconds": 42.15,
+  "seconds": 38.72,
   "seed": 20261022,
   "size_bytes": 653643776,
   "sqlite_version": "3.45.1"
  },
  "verify": {
   "all_ok": true,
-  "apply_seconds": 15.32,
+  "apply_seconds": 14.55,
   "checks": [
    {
     "index": "qdperf_bots_status_updated_at",
