@@ -1,0 +1,136 @@
+{
+ "command": "python3.12 -m qdcheck.tools.selfcheck g1",
+ "cross_check_max_tol_ratio": {
+  "cross_check_extra": 0.21357787444667753,
+  "cross_check_vectors": 0.1955071905473361
+ },
+ "details": {
+  "causality": {
+   "checks": 2884,
+   "failures": []
+  },
+  "chikou_displacement": {
+   "checks": 8,
+   "failures": []
+  },
+  "constant_closed_form": {
+   "checks": 630,
+   "failures": []
+  },
+  "cross_check_extra": {
+   "checks": 656,
+   "failures": [],
+   "max_tol_ratio": 0.21357787444667753
+  },
+  "cross_check_vectors": {
+   "checks": 820,
+   "failures": [],
+   "max_tol_ratio": 0.1955071905473361
+  },
+  "length": {
+   "checks": 61,
+   "failures": []
+  },
+  "vectors_check": {
+   "abs_tol": 1e-12,
+   "files": {
+    "ao": {
+     "problems": 0,
+     "vectors": 60
+    },
+    "cci": {
+     "problems": 0,
+     "vectors": 40
+    },
+    "dema": {
+     "problems": 0,
+     "vectors": 140
+    },
+    "force": {
+     "problems": 0,
+     "vectors": 50
+    },
+    "ichimoku": {
+     "problems": 0,
+     "vectors": 150
+    },
+    "kdj": {
+     "problems": 0,
+     "vectors": 300
+    },
+    "stochrsi": {
+     "problems": 0,
+     "vectors": 240
+    },
+    "tema": {
+     "problems": 0,
+     "vectors": 140
+    },
+    "trix": {
+     "problems": 0,
+     "vectors": 140
+    }
+   },
+   "max_abs_err": 0.0,
+   "max_rel_err": 0.0,
+   "max_tol_ratio": 0.0,
+   "mismatches": [],
+   "ok": true,
+   "rel_tol": 1e-09,
+   "seconds": 2.08,
+   "values": 90303,
+   "vec_dir": "qdcheck/vectors",
+   "vectors": 1260
+  },
+  "warmup_formula": {
+   "checks": 252,
+   "failures": []
+  }
+ },
+ "machine": {
+  "cpu_count": 4,
+  "implementation": "CPython",
+  "machine": "x86_64",
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.12.3"
+ },
+ "seconds": 17.5,
+ "summary": {
+  "causality": {
+   "checks": 2884,
+   "failures": 0
+  },
+  "chikou_displacement": {
+   "checks": 8,
+   "failures": 0
+  },
+  "constant_closed_form": {
+   "checks": 630,
+   "failures": 0
+  },
+  "cross_check_extra": {
+   "checks": 656,
+   "failures": 0
+  },
+  "cross_check_vectors": {
+   "checks": 820,
+   "failures": 0
+  },
+  "length": {
+   "checks": 61,
+   "failures": 0
+  },
+  "warmup_formula": {
+   "checks": 252,
+   "failures": 0
+  }
+ },
+ "vectors": {
+  "max_abs_err": 0.0,
+  "max_rel_err": 0.0,
+  "max_tol_ratio": 0.0,
+  "ok": true,
+  "values": 90303,
+  "vectors": 1260
+ }
+}

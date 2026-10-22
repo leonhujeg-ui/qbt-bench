@@ -1,0 +1,104 @@
+{
+ "command": "python3.12 -m qdcheck.tools.qbt_indicators_vs_vectors",
+ "results": [
+  {
+   "checked": 20,
+   "failed": 0,
+   "first_failures": [],
+   "indicator": "dema",
+   "lines": [
+    "value"
+   ],
+   "max_rel_err": 1.154681294261426e-15,
+   "max_tol_ratio": 1.154681294261426e-06,
+   "passed": 20,
+   "variant": "ma=ema;seed=first"
+  },
+  {
+   "checked": 20,
+   "failed": 0,
+   "first_failures": [],
+   "indicator": "tema",
+   "lines": [
+    "value"
+   ],
+   "max_rel_err": 2.5550913548655103e-15,
+   "max_tol_ratio": 2.5550913548655098e-06,
+   "passed": 20,
+   "variant": "ma=ema;seed=first"
+  },
+  {
+   "checked": 20,
+   "failed": 0,
+   "first_failures": [],
+   "indicator": "trix",
+   "lines": [
+    "value"
+   ],
+   "max_rel_err": 1.8884609375881192e-11,
+   "max_tol_ratio": 0.01888460937588119,
+   "passed": 20,
+   "variant": "ma=ema;seed=first"
+  },
+  {
+   "checked": 10,
+   "failed": 1,
+   "first_failures": [
+    {
+     "id": "cci|src=hlc3;zero_dev=zero|value|longflat",
+     "message": "MISMATCH [value] first index 59: expected 0.0, actual 66.66666666666667 -- value differs at 59: expected 0.0, actual 66.66666666666667, rel_err 1.000e+00"
+    }
+   ],
+   "indicator": "cci",
+   "lines": [
+    "value"
+   ],
+   "max_rel_err": 6.812978306492405e-12,
+   "max_tol_ratio": 0.006812978306492404,
+   "passed": 9,
+   "variant": "src=hlc3;zero_dev=zero"
+  },
+  {
+   "checked": 40,
+   "failed": 0,
+   "first_failures": [],
+   "indicator": "ichimoku",
+   "lines": [
+    "tenkan",
+    "kijun",
+    "senkou_a",
+    "senkou_b"
+   ],
+   "max_rel_err": 0.0,
+   "max_tol_ratio": 0.0,
+   "passed": 40,
+   "variant": "shift=forward"
+  },
+  {
+   "checked": 10,
+   "failed": 7,
+   "first_failures": [
+    {
+     "id": "ichimoku|shift=forward|chikou|const",
+     "message": "MISMATCH [warmup] first index 0: expected 100.0, actual None -- expected 100.0 at 0, actual has no value"
+    },
+    {
+     "id": "ichimoku|shift=forward|chikou|mono_up",
+     "message": "MISMATCH [warmup] first index 0: expected 113.0, actual None -- expected 113.0 at 0, actual has no value"
+    },
+    {
+     "id": "ichimoku|shift=forward|chikou|mono_down",
+     "message": "MISMATCH [warmup] first index 0: expected 127.0, actual None -- expected 127.0 at 0, actual has no value"
+    }
+   ],
+   "indicator": "ichimoku",
+   "lines": [
+    "chikou"
+   ],
+   "max_rel_err": 0.0,
+   "max_tol_ratio": 0.0,
+   "passed": 3,
+   "variant": "shift=forward"
+  }
+ ]
+}

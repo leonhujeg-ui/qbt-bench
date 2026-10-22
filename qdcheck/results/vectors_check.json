@@ -1,0 +1,51 @@
+{
+ "abs_tol": 1e-12,
+ "files": {
+  "ao": {
+   "problems": 0,
+   "vectors": 60
+  },
+  "cci": {
+   "problems": 0,
+   "vectors": 40
+  },
+  "dema": {
+   "problems": 0,
+   "vectors": 140
+  },
+  "force": {
+   "problems": 0,
+   "vectors": 50
+  },
+  "ichimoku": {
+   "problems": 0,
+   "vectors": 150
+  },
+  "kdj": {
+   "problems": 0,
+   "vectors": 300
+  },
+  "stochrsi": {
+   "problems": 0,
+   "vectors": 240
+  },
+  "tema": {
+   "problems": 0,
+   "vectors": 140
+  },
+  "trix": {
+   "problems": 0,
+   "vectors": 140
+  }
+ },
+ "max_abs_err": 0.0,
+ "max_rel_err": 0.0,
+ "max_tol_ratio": 0.0,
+ "mismatches": [],
+ "ok": true,
+ "rel_tol": 1e-09,
+ "seconds": 2.05,
+ "values": 90303,
+ "vec_dir": "qdcheck/vectors",
+ "vectors": 1260
+}

@@ -1,0 +1,367 @@
+{
+ "format": "qdcheck.indicator-vectors.v1",
+ "seed": 20261022,
+ "generator": "python3.12 -m qdcheck.gen_vectors",
+ "series": [
+  {
+   "name": "const",
+   "description": "常数序列 OHLC=100, volume=1000",
+   "spec": {
+    "kind": "const",
+    "n": 80
+   }
+  },
+  {
+   "name": "mono_up",
+   "description": "严格单调上升 close=100+0.5t",
+   "spec": {
+    "kind": "mono",
+    "n": 80,
+    "start": 100.0,
+    "step": 0.5
+   }
+  },
+  {
+   "name": "mono_down",
+   "description": "严格单调下降 close=140-0.5t",
+   "spec": {
+    "kind": "mono",
+    "n": 80,
+    "start": 140.0,
+    "step": -0.5
+   }
+  },
+  {
+   "name": "randwalk",
+   "description": "随机游走（无事件）",
+   "spec": {
+    "kind": "synth",
+    "n": 150,
+    "seed": 20261023,
+    "kw": {
+     "gap_prob": 0.0,
+     "jump_prob": 0.0,
+     "weights": {
+      "random": 1
+     }
+    }
+   }
+  },
+  {
+   "name": "trend",
+   "description": "趋势段交替",
+   "spec": {
+    "kind": "synth",
+    "n": 150,
+    "seed": 20261024,
+    "kw": {
+     "gap_prob": 0.0,
+     "jump_prob": 0.0,
+     "weights": {
+      "trend_up": 1,
+      "trend_down": 1
+     },
+     "seg_min": 25,
+     "seg_max": 50
+    }
+   }
+  },
+  {
+   "name": "jumps",
+   "description": "带跳空缺口 >=3% 与单根 ±8% 跳跃",
+   "spec": {
+    "kind": "synth",
+    "n": 150,
+    "seed": 20261025,
+    "kw": {
+     "weights": {
+      "random": 1
+     },
+     "gap_prob": 0.03,
+     "jump_prob": 0.03,
+     "events": {
+      "30": "gap_up",
+      "60": "jump_down",
+      "90": "gap_down",
+      "120": "jump_up"
+     }
+    }
+   }
+  },
+  {
+   "name": "longflat",
+   "description": "带 70 根精确横盘（量>0）+ 20 根停牌（量=0）",
+   "spec": {
+    "kind": "synth",
+    "n": 170,
+    "seed": 20261026,
+    "kw": {
+     "gap_prob": 0.0,
+     "jump_prob": 0.0,
+     "weights": {
+      "random": 1
+     },
+     "flat_noise": 0.0,
+     "segments": [
+      [
+       40,
+       70,
+       "flat"
+      ],
+      [
+       125,
+       20,
+       "halt"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "short1",
+   "description": "极短 n=1",
+   "spec": {
+    "kind": "synth",
+    "n": 1,
+    "seed": 20261027,
+    "kw": {}
+   }
+  },
+  {
+   "name": "short2",
+   "description": "极短 n=2",
+   "spec": {
+    "kind": "synth",
+    "n": 2,
+    "seed": 20261027,
+    "kw": {}
+   }
+  },
+  {
+   "name": "short5",
+   "description": "极短 n=5",
+   "spec": {
+    "kind": "synth",
+    "n": 5,
+    "seed": 20261027,
+    "kw": {}
+   }
+  }
+ ],
+ "indicators": {
+  "dema": {
+   "file": "dema.json",
+   "variants": [
+    "ma=ema;seed=sma",
+    "ma=ema;seed=first",
+    "ma=ema;seed=adjusted",
+    "ma=rma;seed=sma",
+    "ma=rma;seed=first",
+    "ma=rma;seed=adjusted",
+    "ma=sma"
+   ],
+   "lines": [
+    "value"
+   ],
+   "default_params": {
+    "period": 5
+   },
+   "extra_params": [
+    {
+     "period": 14
+    }
+   ],
+   "count": 140
+  },
+  "tema": {
+   "file": "tema.json",
+   "variants": [
+    "ma=ema;seed=sma",
+    "ma=ema;seed=first",
+    "ma=ema;seed=adjusted",
+    "ma=rma;seed=sma",
+    "ma=rma;seed=first",
+    "ma=rma;seed=adjusted",
+    "ma=sma"
+   ],
+   "lines": [
+    "value"
+   ],
+   "default_params": {
+    "period": 5
+   },
+   "extra_params": [
+    {
+     "period": 14
+    }
+   ],
+   "count": 140
+  },
+  "trix": {
+   "file": "trix.json",
+   "variants": [
+    "ma=ema;seed=sma",
+    "ma=ema;seed=first",
+    "ma=ema;seed=adjusted",
+    "ma=rma;seed=sma",
+    "ma=rma;seed=first",
+    "ma=rma;seed=adjusted",
+    "ma=sma"
+   ],
+   "lines": [
+    "value"
+   ],
+   "default_params": {
+    "period": 5,
+    "scale": 100.0
+   },
+   "extra_params": [
+    {
+     "period": 15
+    }
+   ],
+   "count": 140
+  },
+  "stochrsi": {
+   "file": "stochrsi.json",
+   "variants": [
+    "flat=talib;rsi=wilder",
+    "flat=neutral;rsi=wilder",
+    "flat=null;rsi=wilder",
+    "flat=pine;rsi=wilder",
+    "flat=talib;rsi=ema",
+    "flat=neutral;rsi=ema",
+    "flat=null;rsi=ema",
+    "flat=pine;rsi=ema",
+    "flat=talib;rsi=sma",
+    "flat=neutral;rsi=sma",
+    "flat=null;rsi=sma",
+    "flat=pine;rsi=sma"
+   ],
+   "lines": [
+    "k",
+    "d"
+   ],
+   "default_params": {
+    "rsi_period": 14,
+    "stoch_period": 14,
+    "k_period": 3,
+    "d_period": 3,
+    "scale": 100.0,
+    "range_eps": 1e-09
+   },
+   "extra_params": [],
+   "count": 240
+  },
+  "cci": {
+   "file": "cci.json",
+   "variants": [
+    "src=hlc3;zero_dev=zero",
+    "src=hlc3;zero_dev=null",
+    "src=close;zero_dev=zero",
+    "src=close;zero_dev=null"
+   ],
+   "lines": [
+    "value"
+   ],
+   "default_params": {
+    "period": 20,
+    "constant": 0.015
+   },
+   "extra_params": [],
+   "count": 40
+  },
+  "ao": {
+   "file": "ao.json",
+   "variants": [
+    "ma=sma;src=hl2",
+    "ma=sma;src=close",
+    "ma=ema;src=hl2",
+    "ma=ema;src=close",
+    "ma=rma;src=hl2",
+    "ma=rma;src=close"
+   ],
+   "lines": [
+    "value"
+   ],
+   "default_params": {
+    "fast": 5,
+    "slow": 34
+   },
+   "extra_params": [],
+   "count": 60
+  },
+  "force": {
+   "file": "force.json",
+   "variants": [
+    "ma=ema;seed=sma",
+    "ma=ema;seed=first",
+    "ma=ema;seed=adjusted",
+    "ma=sma",
+    "ma=raw"
+   ],
+   "lines": [
+    "value"
+   ],
+   "default_params": {
+    "period": 13
+   },
+   "extra_params": [],
+   "count": 50
+  },
+  "kdj": {
+   "file": "kdj.json",
+   "variants": [
+    "init=50;ma=rma;zero_range=zero",
+    "init=50;ma=rma;zero_range=half",
+    "init=first;ma=rma;zero_range=zero",
+    "init=first;ma=rma;zero_range=half",
+    "init=50;ma=ema;zero_range=zero",
+    "init=50;ma=ema;zero_range=half",
+    "init=first;ma=ema;zero_range=zero",
+    "init=first;ma=ema;zero_range=half",
+    "ma=sma;zero_range=zero",
+    "ma=sma;zero_range=half"
+   ],
+   "lines": [
+    "k",
+    "d",
+    "j"
+   ],
+   "default_params": {
+    "n": 9,
+    "m1": 3,
+    "m2": 3
+   },
+   "extra_params": [],
+   "count": 300
+  },
+  "ichimoku": {
+   "file": "ichimoku.json",
+   "variants": [
+    "shift=forward",
+    "shift=forward_tv",
+    "shift=none"
+   ],
+   "lines": [
+    "tenkan",
+    "kijun",
+    "senkou_a",
+    "senkou_b",
+    "chikou"
+   ],
+   "default_params": {
+    "tenkan": 9,
+    "kijun": 26,
+    "senkou_b": 52,
+    "displacement": 26
+   },
+   "extra_params": [],
+   "count": 150
+  }
+ },
+ "tolerance": {
+  "rel_tol": 1e-09,
+  "abs_tol": 1e-12
+ }
+}
