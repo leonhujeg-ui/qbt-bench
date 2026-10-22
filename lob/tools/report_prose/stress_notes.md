@@ -8,7 +8,7 @@
 | 延迟分位 | 同上 | 单次：1,000 万事件逐条 `perf_counter_ns` | 热 | 1 / 4 |
 | RSS / tracemalloc | 同上 | 单次：RSS = 端到端子进程 `ru_maxrss`；tracemalloc 另跑 100 万事件 | — | 1 / 4 |
 
-**本机复测**：下方「历史数字与本机复测」表的复测列是占位符 `<待本机复测>`，由审核员在空闲 CPU 上用上表命令重跑后填写（机器 / Python / 命令 / N / 冷热缓存一并填），本报告不预填任何复测数字。
+**本机复测**（审核员，Intel(R) Xeon(R) Processor @ 2.10GHz，os.cpu_count()=4，CPython 3.12.3，Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，起跑时 1 分钟负载 1.07，命令 `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label audit_rerun --json lob/results/stress_audit_rerun.json`，同一份流 sha256 fc064598e6320a01…，压测 1 进程）：engine-only best-of-3 = **720,901 ev/s**（样本 637171 / 718887 / 720901），engine+checker best-of-3 = **539,614 ev/s**（样本 523647 / 539614 / 478932），端到端 **328,583 ev/s**（单次，RSS 46 MB），Top-10 快照 0.91 µs，延迟 p50 / p99 / p999 = 1.2 / 7.5 / 33.7 µs，tracemalloc 峰值 12.5 MB。下方「历史数字与本机复测」表两列并排；两台 VM 不同（历史 Intel(R) Xeon(R) Processor @ 2.80GHz vs 本机 Intel(R) Xeon(R) Processor @ 2.10GHz），数字不可直接比较，只用于说明本机是否达标：纯引擎 ≥ 30 万/秒，端到端 ≥ 30 万/秒。
 
 **测量方法**（`stress.py`，每轮前后 JSON 均在 `results/stress_r*.json`）：
 

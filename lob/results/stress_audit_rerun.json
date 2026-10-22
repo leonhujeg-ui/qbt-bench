@@ -1,0 +1,67 @@
+{
+ "check_every": 10000,
+ "e2e": {
+  "events": 10000000,
+  "events_per_second": 328583,
+  "max_resting_orders": 7559,
+  "ru_maxrss_mb": 46.4,
+  "seconds": 30.434,
+  "snapshots": 4992,
+  "trades": 1820774,
+  "volume": 14206029
+ },
+ "engine_checked": {
+  "events": 1000000,
+  "events_per_second": 539614,
+  "runs": [
+   523647,
+   539614,
+   478932
+  ],
+  "seconds": 1.8532
+ },
+ "engine_only": {
+  "events": 1000000,
+  "events_per_second": 720901,
+  "runs": [
+   637171,
+   718887,
+   720901
+  ],
+  "seconds": 1.3872
+ },
+ "harness": "v2 (gc.freeze on pre-decoded input)",
+ "label": "audit_rerun",
+ "latency_ns": {
+  "events": 10000000,
+  "max": 11067894,
+  "mean": 1593.4076272,
+  "p50": 1181,
+  "p90": 2416,
+  "p99": 7482,
+  "p99_9": 33681
+ },
+ "machine": {
+  "command": "python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label audit_rerun --json lob/results/stress_audit_rerun.json",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpus": 4,
+  "implementation": "CPython",
+  "load_avg_1m_at_start": 1.07421875,
+  "machine": "x86_64",
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "python": "3.12.3"
+ },
+ "n_events": 10000000,
+ "snapshot": {
+  "after_every_event_ns": 907.3,
+  "cached_ns": 41.8,
+  "events": 500000,
+  "forced_rebuild_ns": 741.9
+ },
+ "stream": "events_10m.bin",
+ "stream_sha256": "fc064598e6320a01fdebe3136f972fa835fc5d78c6c3ac0d35920dd0d0e6919d",
+ "tracemalloc": {
+  "events": 1000000,
+  "peak_mb": 12.5
+ }
+}

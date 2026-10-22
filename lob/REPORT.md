@@ -1,22 +1,22 @@
 # LOB 工程报告
 
-> 全部数据为合成数据，**不构成任何交易结论**。所有数字来自 `lob/results/*.json`，表格由 `python -m lob.tools.report_tables` / `build_report` 生成。性能数字均为历史（原 VM）；`<待本机复测>` 是留给审核员在空闲 CPU 上复测后填写的占位符，本脚本不生成任何复测数字。
+> 全部数据为合成数据，**不构成任何交易结论**。所有数字来自 `lob/results/*.json`，表格由 `python -m lob.tools.report_tables` / `build_report` 生成。性能数字分「历史·原 VM」与「本机复测」两列；复测列由审核员在空闲 CPU 上重跑得到的 `results/stress_audit_rerun.json` 生成（机器 / Python / 命令 / N / 冷热 / 进程数 / 起跑负载一并记录）；两台 VM 不同，历史列与复测列不可直接比较。
 
-机器（**历史·原 VM**，取自 `results/stress_r*.json` 的 `machine` 字段）：Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4（压测 1 进程 / 1 核；对拍 / 分片回放 4 进程 = 全部核），CPython 3.12.3，Linux-6.18.44-fc-v139-x86_64-with-glibc2.39；流：events_10m.bin（sha256 fc064598e6320a01…，`python3.12 -m lob.cli gen --n 10000000 --symbols 8 --seed 12345 --out lob/data/events_10m.bin`）。本机复测：<待本机复测>（机器 / Python / 命令 / N / 冷热缓存见 4.2 的复测表；平台相关性见 7.1）
+机器（**历史·原 VM**，取自 `results/stress_r*.json` 的 `machine` 字段）：Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4（压测 1 进程 / 1 核；对拍 / 分片回放 4 进程 = 全部核），CPython 3.12.3，Linux-6.18.44-fc-v139-x86_64-with-glibc2.39；流：events_10m.bin（sha256 fc064598e6320a01…，`python3.12 -m lob.cli gen --n 10000000 --symbols 8 --seed 12345 --out lob/data/events_10m.bin`）。本机复测：Intel(R) Xeon(R) Processor @ 2.10GHz，os.cpu_count()=4，CPython 3.12.3，Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，流 sha256 fc064598e6320a01…（与历史相同：True）（机器 / Python / 命令 / N / 冷热缓存见 4.2 的复测表；平台相关性见 7.1）
 
 ## 1. 目标达成情况
 
 | 目标 | 实测 | 结论 | 复现命令 |
 |---|---|---|---|
 | 1 正确：1,000 万事件与参考实现逐笔一致 | 事件 10000000 / 成交 1820774 笔 / 成交量 14206029 lot / 首次分歧：无（4 进程 lockstep = 原 VM 的 os.cpu_count()=4，不变量常开）。耗时 645 s 为历史·原 VM 的单次数字（平台相关）；事件 / 成交 / 成交量 / 分歧为整数结果，平台无关（见 7.1） | **达成** | `LOB_TEST_SCALE=full python3.12 -m unittest lob.tests.test_compare.Compare10MTest` |
-| 2a 快：撮合吞吐 ≥ 300k/s（单核） | engine-only 424678/s（best-of-3，三次 333193/424678/372537；热：流文件已在页缓存，每次重新解码前 1000000 条、新建簿）；engine+每事件不变量检查 309381/s（best-of-3，三次 258986/276302/309381，同上）；端到端回放（解码+撮合+检查+落盘）213568/s（单次 N=1，独立子进程，harness 中第一个运行的项目，运行前页缓存状态未记录）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）；本机复测：<待本机复测> | **历史：引擎 达成；引擎+检查器 临界（三次 258986–309381）；端到端 未达成** | `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label rX` |
-| 2b 快：Top-10 快照 ≤ 2 µs（amortized） | 每事件后调用 1.95 µs（单次，500000 事件有/无快照两遍差分）；缓存命中 93 ns；强制重建 1.94 µs（各 20 万次重复调用取均值，单次；热）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）；本机复测：<待本机复测> | **历史：达成** | `同上` |
-| 2c 内存：1,000 万回放峰值 ≤ 1.5 GB | ru_maxrss 46 MB（端到端独立子进程，单次）；tracemalloc 峰值 12.5 MB（1000000 事件，单次）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）；本机复测：<待本机复测> | **历史：达成** | `同上` |
+| 2a 快：撮合吞吐 ≥ 300k/s（单核） | engine-only 424678/s（best-of-3，三次 333193/424678/372537；热：流文件已在页缓存，每次重新解码前 1000000 条、新建簿）；engine+每事件不变量检查 309381/s（best-of-3，三次 258986/276302/309381，同上）；端到端回放（解码+撮合+检查+落盘）213568/s（单次 N=1，独立子进程，harness 中第一个运行的项目，运行前页缓存状态未记录）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）。本机复测：engine-only 720901/s（best-of-3，三次 637171/718887/720901）；engine+检查器 539614/s（best-of-3，三次 523647/539614/478932）；端到端 328583/s（单次）（Intel(R) Xeon(R) Processor @ 2.10GHz，os.cpu_count()=4，1 进程，CPython 3.12.3，起跑负载 1.07，`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label audit_rerun --json lob/results/stress_audit_rerun.json`，同一份流 sha256 fc064598…） | **历史：引擎 达成；引擎+检查器 临界（三次 258986–309381）；端到端 未达成；本机：引擎 达成；引擎+检查器 达成（三次 478932–539614）；端到端 达成** | `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label rX` |
+| 2b 快：Top-10 快照 ≤ 2 µs（amortized） | 每事件后调用 1.95 µs（单次，500000 事件有/无快照两遍差分）；缓存命中 93 ns；强制重建 1.94 µs（各 20 万次重复调用取均值，单次；热）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）。本机复测：每事件后调用 0.91 µs（单次） | **历史：达成；本机：达成** | `同上` |
+| 2c 内存：1,000 万回放峰值 ≤ 1.5 GB | ru_maxrss 46 MB（端到端独立子进程，单次）；tracemalloc 峰值 12.5 MB（1000000 事件，单次）。历史·原 VM（Intel(R) Xeon(R) Processor @ 2.80GHz，os.cpu_count()=4，压测用 1 进程；CPython 3.12.3；`python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks`）。本机复测：ru_maxrss 46 MB；tracemalloc 峰值 12.5 MB | **历史：达成；本机：达成** | `同上` |
 | 3 真实：排队模型 Brier ≤ 0.08 | 整体（前 5 档均匀取样的测试集）Brier T=1/2/5/10 = 0.17264/0.1771/0.1472/0.11699，均 > 0.08（常数预测 0.24718/0.22312/0.16644/0.12674）。达成的子集（`by_d` 中 ≤ 0.08 的格，共 5 格）：d=0 T=1s 0.07514；d=0 T=2s 0.06442；d=0 T=5s 0.05039；d=0 T=10s 0.04108；d=1 T=10s 0.0732。未达成的格（共 11 格）：d=1 T=1s 0.18011；d=1 T=2s 0.13843；d=1 T=5s 0.09394；d=2 T=1s 0.23085；d=2 T=2s 0.21238；d=2 T=5s 0.15901；d=2 T=10s 0.12227；d≥3 T=1s 0.18917；d≥3 T=2s 0.23615；d≥3 T=5s 0.21755；d≥3 T=10s 0.17547（原因见第 5 节） | **未达成** | `python3.12 -m lob.cli queue-collect … && python3.12 -m lob.cli queue-model …` |
 | 4a 硬：语句覆盖率 ≥ 90% | 核心模块 97.40%（384 个测试） | **达成** | `python3.12 -m lob.cli coverage --json lob/results/coverage.json` |
 | 4b 硬：突变抓住率 ≥ 85%（分母 = 抽样的 120 个突变体） | book.py 110/120 = 91.7%；queue_model.py 115/120 = 95.8%（候选 484 / 292，seed=1 分层抽样） | **达成** | `python3.12 -m lob.cli mutate --target book|queue_model --max 120 --seed 1` |
 | 4c 硬：模糊 20 万次零崩溃零不变量违背 | 400000 次（2 轮），崩溃 0 / 违背 0 / 分歧 0 | **达成** | `python3.12 -m lob.cli fuzz --n 200000 --json lob/results/fuzz_200k.json` |
-| 5 诚实：数字来自真实运行、附复现命令 | 本报告全部表格由 tools/report_tables.py / build_report.py 从 results/*.json 生成；性能数字标为历史（原 VM），本机复测格为占位符 <待本机复测> | **达成** | `python3.12 -m lob.tools.build_report` |
+| 5 诚实：数字来自真实运行、附复现命令 | 本报告全部表格由 tools/report_tables.py / build_report.py 从 results/*.json 生成；性能数字分「历史·原 VM」与「本机复测」两列，复测列由 results/stress_audit_rerun.json 生成 | **达成** | `python3.12 -m lob.tools.build_report` |
 
 ## 2. 订单簿数据结构选型与备选方案实测
 
@@ -73,7 +73,7 @@
 | 延迟分位 | 同上 | 单次：1,000 万事件逐条 `perf_counter_ns` | 热 | 1 / 4 |
 | RSS / tracemalloc | 同上 | 单次：RSS = 端到端子进程 `ru_maxrss`；tracemalloc 另跑 100 万事件 | — | 1 / 4 |
 
-**本机复测**：下方「历史数字与本机复测」表的复测列是占位符 `<待本机复测>`，由审核员在空闲 CPU 上用上表命令重跑后填写（机器 / Python / 命令 / N / 冷热缓存一并填），本报告不预填任何复测数字。
+**本机复测**（审核员，Intel(R) Xeon(R) Processor @ 2.10GHz，os.cpu_count()=4，CPython 3.12.3，Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，起跑时 1 分钟负载 1.07，命令 `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label audit_rerun --json lob/results/stress_audit_rerun.json`，同一份流 sha256 fc064598e6320a01…，压测 1 进程）：engine-only best-of-3 = **720,901 ev/s**（样本 637171 / 718887 / 720901），engine+checker best-of-3 = **539,614 ev/s**（样本 523647 / 539614 / 478932），端到端 **328,583 ev/s**（单次，RSS 46 MB），Top-10 快照 0.91 µs，延迟 p50 / p99 / p999 = 1.2 / 7.5 / 33.7 µs，tracemalloc 峰值 12.5 MB。下方「历史数字与本机复测」表两列并排；两台 VM 不同（历史 Intel(R) Xeon(R) Processor @ 2.80GHz vs 本机 Intel(R) Xeon(R) Processor @ 2.10GHz），数字不可直接比较，只用于说明本机是否达标：纯引擎 ≥ 30 万/秒，端到端 ≥ 30 万/秒。
 
 **测量方法**（`stress.py`，每轮前后 JSON 均在 `results/stress_r*.json`）：
 
@@ -101,22 +101,22 @@
 
 **结论（历史·原 VM）**：在该 VM 上，纯引擎吞吐 ≈ 40 万事件/秒（达标），加上每事件不变量检查 ≈ 26–31 万/秒（三次 258,986–309,381，临界），端到端回放 ≈ 21 万/秒（**未达 30 万**）。端到端每事件 ≈ 4.7 µs 的构成（profile）：撮合 ≈ 2.4 µs、检查器 ≈ 0.7 µs、解码 ≈ 0.35 µs、循环 / 状态流 / 快照边界 ≈ 0.5 µs、成交落盘 ≈ 0.2 µs。进一步的 Python 级微优化收益已低于测量噪声；要跨过 30 万/秒需要 C 扩展（约束排除）。Top-10 快照 1.95 µs（每事件后都调用的最坏情形）与缓存命中 93 ns 达标；内存 46 MB 远低于 1.5 GB。这些结论在其他机器上是否成立，以复测列为准。
 
-**历史数字与本机复测**（历史列由 `results/stress_r4_status_chunks.json` 生成；复测列待填）：
+**历史数字与本机复测**（历史列由 `results/stress_r4_status_chunks.json` 生成；复测列由 `results/stress_audit_rerun.json` 生成）：
 
-| 项目 | 历史（原 VM，r4_status_chunks） | 本机复测（待填） |
+| 项目 | 历史（原 VM，r4_status_chunks） | 本机复测（audit_rerun） |
 |---|---|---|
-| engine-only ev/s（best-of-N，括号内为全部样本） | 424678 （best-of-3：333193 / 424678 / 372537） | <待本机复测> |
-| engine+checker ev/s（best-of-N，括号内为全部样本） | 309381 （best-of-3：258986 / 276302 / 309381） | <待本机复测> |
-| 端到端 ev/s（单次，独立子进程） | 213568 | <待本机复测> |
-| Top-10 快照 µs（每事件后调用，单次） | 1.95 | <待本机复测> |
-| 延迟 p50 / p99 / p999 µs（单次，10000000 事件） | 2.0 / 13.5 / 53.7 | <待本机复测> |
-| RSS 峰值 MB（端到端子进程 ru_maxrss，单次） | 46 | <待本机复测> |
-| tracemalloc 峰值 MB（1000000 事件，单次） | 12.5 | <待本机复测> |
-| 机器 / os.cpu_count() / 进程数 | Intel(R) Xeon(R) Processor @ 2.80GHz / 4 / 1 | <待本机复测> |
-| Python / 平台 | CPython 3.12.3 / Linux-6.18.44-fc-v139-x86_64-with-glibc2.39 | <待本机复测> |
-| 起跑时 1 分钟负载 | 未记录 | <待本机复测> |
-| 命令 | `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks` | <待本机复测> |
-| 冷 / 热缓存 | engine、快照、延迟：热（端到端回放之后）；端到端：冷（独立子进程，流文件已在页缓存） | <待本机复测> |
+| engine-only ev/s（best-of-N，括号内为全部样本） | 424678 （best-of-3：333193 / 424678 / 372537） | 720901 （best-of-3：637171 / 718887 / 720901） |
+| engine+checker ev/s（best-of-N，括号内为全部样本） | 309381 （best-of-3：258986 / 276302 / 309381） | 539614 （best-of-3：523647 / 539614 / 478932） |
+| 端到端 ev/s（单次，独立子进程） | 213568 | 328583 |
+| Top-10 快照 µs（每事件后调用，单次） | 1.95 | 0.91 |
+| 延迟 p50 / p99 / p999 µs（单次，10000000 事件） | 2.0 / 13.5 / 53.7 | 1.2 / 7.5 / 33.7 |
+| RSS 峰值 MB（端到端子进程 ru_maxrss，单次） | 46 | 46 |
+| tracemalloc 峰值 MB（1000000 事件，单次） | 12.5 | 12.5 |
+| 机器 / os.cpu_count() / 进程数 | Intel(R) Xeon(R) Processor @ 2.80GHz / 4 / 1 | Intel(R) Xeon(R) Processor @ 2.10GHz / 4 / 1 |
+| Python / 平台 | CPython 3.12.3 / Linux-6.18.44-fc-v139-x86_64-with-glibc2.39 | CPython 3.12.3 / Linux-6.18.44-fc-v140-x86_64-with-glibc2.39 |
+| 起跑时 1 分钟负载 | 未记录 | 1.07421875 |
+| 命令 | `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label r4_status_chunks` | `python3.12 -m lob.cli stress --stream lob/data/events_10m.bin --out lob/data/stress --label audit_rerun --json lob/results/stress_audit_rerun.json` |
+| 冷 / 热缓存 | engine、快照、延迟：热（端到端回放之后）；端到端：冷（独立子进程，流文件已在页缓存） | engine、快照、延迟：热（端到端回放之后）；端到端：冷（独立子进程，流文件已在页缓存） |
 
 **各轮压测结果（全部为历史·原 VM）**：
 

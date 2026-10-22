@@ -33,7 +33,7 @@ def load(name):
 
 def latest_stress():
     paths = sorted(glob.glob(os.path.join(T.RESULTS, 'stress_r*.json')))
-    v2 = [p for p in paths if 'v2' in open(p).read()]
+    v2 = [p for p in paths if 'v2' in load(os.path.basename(p)).get('harness', '')]
     best = None
     for p in v2:
         r = load(os.path.basename(p))
@@ -81,31 +81,54 @@ def _correct_row(c, m):
             'LOB_TEST_SCALE=full python3.12 -m unittest lob.tests.test_compare.Compare10MTest')
 
 
+def _audit_perf(a):
+    """本机复测 sentences for rows 2a / 2b / 2c (from stress_audit_rerun.json), or the placeholder."""
+    if not a:
+        return PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, '', '', ''
+    eo, ec, ee, sn, m = a['engine_only'], a['engine_checked'], a['e2e'], a['snapshot'], a['machine']
+    ok = lambda v, lim: '达成' if v >= lim else '未达成'
+    prov = '（%s，os.cpu_count()=%d，1 进程，%s %s，起跑负载 %.2f，`%s`，同一份流 sha256 %s…）' % (
+        m['cpu'], m['cpus'], m['implementation'], m['python'], m.get('load_avg_1m_at_start') or 0.0,
+        m.get('command', ''), a['stream_sha256'][:8])
+    r2a = 'engine-only %s/s（best-of-%d，三次 %s）；engine+检查器 %s/s（best-of-%d，三次 %s）；端到端 %s/s（单次）%s' % (
+        eo['events_per_second'], len(eo['runs']), '/'.join(map(str, eo['runs'])),
+        ec['events_per_second'], len(ec['runs']), '/'.join(map(str, ec['runs'])), ee['events_per_second'], prov)
+    r2b = '每事件后调用 %.2f µs（单次）' % (sn['after_every_event_ns'] / 1000)
+    r2c = 'ru_maxrss %.0f MB；tracemalloc 峰值 %.1f MB' % (ee['ru_maxrss_mb'], a['tracemalloc']['peak_mb'])
+    v2a = '；本机：引擎 %s；引擎+检查器 %s（三次 %s–%s）；端到端 %s' % (
+        ok(eo['events_per_second'], 300000), ok(min(ec['runs']), 300000), min(ec['runs']), max(ec['runs']),
+        ok(ee['events_per_second'], 300000))
+    v2b = '；本机：%s' % ('达成' if sn['after_every_event_ns'] <= 2000 else '未达成')
+    v2c = '；本机：%s' % ('达成' if ee['ru_maxrss_mb'] <= 1536 else '未达成')
+    return r2a, r2b, r2c, v2a, v2b, v2c
+
+
 def _perf_rows(s):
     eo, ec, ee, sn, m = s['engine_only'], s['engine_checked'], s['e2e'], s['snapshot'], s['machine']
-    prov = '历史·原 VM（%s，os.cpu_count()=%d，压测用 1 进程；%s %s；`%s`）；本机复测：%s' % (
-        m['cpu'], m['cpus'], m['implementation'], m['python'], STRESS_CMD % s['label'], PLACEHOLDER)
+    a2a, a2b, a2c, av2a, av2b, av2c = _audit_perf(audit_stress())
+    prov = '历史·原 VM（%s，os.cpu_count()=%d，压测用 1 进程；%s %s；`%s`）。本机复测：%s' % (
+        m['cpu'], m['cpus'], m['implementation'], m['python'], STRESS_CMD % s['label'], '%s')
     runs = ec['runs']
-    v2a = '历史：引擎 %s；引擎+检查器 %s（三次 %s–%s）；端到端 %s' % (
+    v2a = '历史：引擎 %s；引擎+检查器 %s（三次 %s–%s）；端到端 %s%s' % (
         '达成' if eo['events_per_second'] >= 300000 else '未达成',
         '达成' if min(runs) >= 300000 else ('临界' if ec['events_per_second'] >= 300000 else '未达成'),
-        min(runs), max(runs), '达成' if ee['events_per_second'] >= 300000 else '未达成')
+        min(runs), max(runs), '达成' if ee['events_per_second'] >= 300000 else '未达成', av2a)
     return [
         ('2a 快：撮合吞吐 ≥ 300k/s（单核）',
          'engine-only %s/s（best-of-%d，三次 %s；热：流文件已在页缓存，每次重新解码前 %d 条、新建簿）；'
          'engine+每事件不变量检查 %s/s（best-of-%d，三次 %s，同上）；'
          '端到端回放（解码+撮合+检查+落盘）%s/s（单次 N=1，独立子进程，harness 中第一个运行的项目，运行前页缓存状态未记录）。%s' % (
              eo['events_per_second'], len(eo['runs']), '/'.join(map(str, eo['runs'])), eo['events'],
-             ec['events_per_second'], len(runs), '/'.join(map(str, runs)), ee['events_per_second'], prov),
+             ec['events_per_second'], len(runs), '/'.join(map(str, runs)), ee['events_per_second'], prov % a2a),
          '', v2a, STRESS_CMD % 'rX'),
         ('2b 快：Top-10 快照 ≤ 2 µs（amortized）',
          '每事件后调用 %.2f µs（单次，%d 事件有/无快照两遍差分）；缓存命中 %.0f ns；强制重建 %.2f µs（各 20 万次重复调用取均值，单次；热）。%s' % (
-             sn['after_every_event_ns'] / 1000, sn['events'], sn['cached_ns'], sn['forced_rebuild_ns'] / 1000, prov),
-         '', '历史：%s' % ('达成' if sn['after_every_event_ns'] <= 2000 else '未达成'), '同上'),
+             sn['after_every_event_ns'] / 1000, sn['events'], sn['cached_ns'], sn['forced_rebuild_ns'] / 1000, prov % a2b),
+         '', '历史：%s%s' % ('达成' if sn['after_every_event_ns'] <= 2000 else '未达成', av2b), '同上'),
         ('2c 内存：1,000 万回放峰值 ≤ 1.5 GB',
          'ru_maxrss %.0f MB（端到端独立子进程，单次）；tracemalloc 峰值 %.1f MB（%d 事件，单次）。%s' % (
-             ee['ru_maxrss_mb'], s['tracemalloc']['peak_mb'], s['tracemalloc']['events'], prov),
-         '', '历史：%s' % ('达成' if ee['ru_maxrss_mb'] <= 1536 else '未达成'), '同上'),
+             ee['ru_maxrss_mb'], s['tracemalloc']['peak_mb'], s['tracemalloc']['events'], prov % a2c),
+         '', '历史：%s%s' % ('达成' if ee['ru_maxrss_mb'] <= 1536 else '未达成', av2c), '同上'),
     ]
 
 
@@ -151,8 +174,9 @@ def _quality_rows(cov, mb, mq, fz, fuzz_ok, fuzz_events):
          '', '达成' if fuzz_ok and fuzz_events >= 200000 else '未达成',
          'python3.12 -m lob.cli fuzz --n 200000 --json lob/results/fuzz_200k.json'),
         ('5 诚实：数字来自真实运行、附复现命令',
-         '本报告全部表格由 tools/report_tables.py / build_report.py 从 results/*.json 生成；'
-         '性能数字标为历史（原 VM），本机复测格为占位符 %s' % PLACEHOLDER,
+         '本报告全部表格由 tools/report_tables.py / build_report.py 从 results/*.json 生成；' + (
+             ('性能数字分「历史·原 VM」与「本机复测」两列，复测列由 results/%s 生成' % AUDIT_STRESS) if audit_stress()
+             else '性能数字标为历史（原 VM），本机复测格为占位符 %s' % PLACEHOLDER),
          '', '达成', 'python3.12 -m lob.tools.build_report'),
     ]
 
@@ -220,8 +244,11 @@ def rerun_table():
 def main():
     parts = ['# LOB 工程报告', '',
              '> 全部数据为合成数据，**不构成任何交易结论**。所有数字来自 `lob/results/*.json`，'
-             '表格由 `python -m lob.tools.report_tables` / `build_report` 生成。性能数字均为历史（原 VM）；'
-             '`%s` 是留给审核员在空闲 CPU 上复测后填写的占位符，本脚本不生成任何复测数字。' % PLACEHOLDER, '',
+             '表格由 `python -m lob.tools.report_tables` / `build_report` 生成。' + (
+                 ('性能数字分「历史·原 VM」与「本机复测」两列；复测列由审核员在空闲 CPU 上重跑得到的 `results/%s` 生成'
+                  '（机器 / Python / 命令 / N / 冷热 / 进程数 / 起跑负载一并记录）；两台 VM 不同，历史列与复测列不可直接比较。' % AUDIT_STRESS)
+                 if audit_stress() else
+                 '性能数字均为历史（原 VM）；`%s` 是留给审核员在空闲 CPU 上复测后填写的占位符，本脚本不生成任何复测数字。' % PLACEHOLDER), '',
              machine(), '', '## 1. 目标达成情况', '', goal_table(), '',
              prose('design.md').replace('{BENCH_TABLE}', T.bench_table()), '',
              '## 4. 对拍与压测', '', '### 4.1 对拍（lockstep：状态码 + 逐笔成交 + 周期档位/计数器/订单集合，不变量常开）', '',
@@ -229,7 +256,8 @@ def main():
              '（「秒」列为平台相关的单次耗时，取自生成该 JSON 的机器——compare JSON 没有 machine 字段，机器见提交记录；'
              '其余列为整数结果，给定同一份流文件时平台无关，见 7.1。）', '',
              '### 4.2 压测：优化轮次（每轮前后 JSON 均已入库）', '', prose('stress_notes.md'), '',
-             '**历史数字与本机复测**（历史列由 `results/stress_%s.json` 生成；复测列待填）：' % latest_stress()['label'], '',
+             '**历史数字与本机复测**（历史列由 `results/stress_%s.json` 生成；复测列%s）：' % (
+                 latest_stress()['label'], '由 `results/%s` 生成' % AUDIT_STRESS if audit_stress() else '待填'), '',
              rerun_table(), '',
              '**各轮压测结果（全部为历史·原 VM）**：', '', T.stress_table(), '',
              prose('queue.md'), '', '### 5.x 结果', '', T.queue_table(), '', prose('queue_results.md'), '',
