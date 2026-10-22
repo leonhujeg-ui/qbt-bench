@@ -3,29 +3,30 @@
  "machine": {
   "cpu_count": 4,
   "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-  "git_commit": "7c602ea",
+  "git_commit": "e31fe1d",
   "implementation": "CPython",
   "load_avg_1m": 1.0,
   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
   "python": "3.12.3",
   "sqlite_version": "3.45.1",
-  "timestamp": "2026-10-22T22:49:13"
+  "timestamp": "2026-10-22T23:58:58"
  },
  "mode": "full",
  "ok": true,
- "seconds": 2466.1,
+ "seconds": 2427.0,
  "steps": [
   {
    "detail": {
+    "leaked_tmp_dirs": [],
     "returncode": 0,
-    "stderr_tail": " ... ok\ntest_matches_sqlite_payload (qdperf.tests.test_sqlplan.TestRecordBytes.test_matches_sqlite_payload)\nΣ record_bytes == dbstat 统计的表 / 索引负载字节（真 SQLite 对账，逐字节相等）。 ... ok\ntest_value_and_varint_boundaries (qdperf.tests.test_sqlplan.TestRecordBytes.test_value_and_varint_boundaries) ... ok\ntest_kinds (qdperf.tests.test_sqlplan.TestTokenize.test_kinds) ... ok\ntest_main (qdperf.tests.test_synth_db.TestCli.test_main) ... ok\ntest_exists_and_force (qdperf.tests.test_synth_db.TestGenerate.test_exists_and_force) ... ok\ntest_golden_fingerprint (qdperf.tests.test_synth_db.TestGenerate.test_golden_fingerprint)\n“同 seed 同结果”跨版本、跨平台也成立：生成器只用 random() 与四则运算 / round()（不用 libm），所以缺省 seed、 ... ok\ntest_integer_columns_and_notified_rule (qdperf.tests.test_synth_db.TestGenerate.test_integer_columns_and_notified_rule)\n声明为 INTEGER 的列（时间戳、外键、计数）存的都是整数——用 bots = 65 这种除不尽 300 天秒数的规模； ... ok\ntest_planted_problems (qdperf.tests.test_synth_db.TestGenerate.test_planted_problems) ... ok\ntest_report_and_counts (qdperf.tests.test_synth_db.TestGenerate.test_report_and_counts) ... ok\ntest_same_seed_same_result (qdperf.tests.test_synth_db.TestGenerate.test_same_seed_same_result) ... ok\ntest_generators_shape (qdperf.tests.test_synth_db.TestRows.test_generators_shape) ... ok\ntest_pick_and_cum (qdperf.tests.test_synth_db.TestRows.test_pick_and_cum) ... ok\ntest_rows_for (qdperf.tests.test_synth_db.TestRows.test_rows_for) ... ok\ntest_backoff_sleep (qdperf.tests.test_tick_jitter.TestPanelParts.test_backoff_sleep)\n退避：下一次至少等 max(1/Q, k × 上次耗时)。 ... ok\ntest_open_loop_caps_inflight (qdperf.tests.test_tick_jitter.TestPanelParts.test_open_loop_caps_inflight)\n开环轮询：在途最多 2 × 线程数，其余记为丢弃（不无限排队）。_poll 换成卡住直到放行的假查询。 ... ok\ntest_replica_refresh_sees_new_rows (qdperf.tests.test_tick_jitter.TestPanelParts.test_replica_refresh_sees_new_rows) ... ok\ntest_burn_and_calibrate (qdperf.tests.test_tick_jitter.TestPure.test_burn_and_calibrate) ... ok\ntest_chunked_equals_whole_query (qdperf.tests.test_tick_jitter.TestPure.test_chunked_equals_whole_query) ... ok\ntest_chunks_and_merge (qdperf.tests.test_tick_jitter.TestPure.test_chunks_and_merge) ... ok\ntest_knees_and_pick (qdperf.tests.test_tick_jitter.TestPure.test_knees_and_pick) ... ok\ntest_summarize (qdperf.tests.test_tick_jitter.TestPure.test_summarize) ... ok\ntest_calibration (qdperf.tests.test_tick_jitter.TestRealProcesses.test_calibration) ... ok\ntest_cli (qdperf.tests.test_tick_jitter.TestRealProcesses.test_cli) ... ok\ntest_q0_no_jitter_and_wal_off_starves (qdperf.tests.test_tick_jitter.TestRealProcesses.test_q0_no_jitter_and_wal_off_starves) ... ok\ntest_replica_backoff_subprocess_bg (qdperf.tests.test_tick_jitter.TestRealProcesses.test_replica_backoff_subprocess_bg) ... ok\ntest_scan_cleanup_never_loses_results (qdperf.tests.test_tick_jitter.TestScanCleanup.test_scan_cleanup_never_loses_results)\n扫描跑几十分钟：收尾删临时目录失败（例如子进程还占着文件）不能把结果一起丢掉。 ... ok\n\n----------------------------------------------------------------------\nRan 169 tests in 145.510s\n\nOK (skipped=1)\n",
-    "tests_run": 169
+    "stderr_tail": "lete_insert) ... ok\ntest_matches_sqlite_payload (qdperf.tests.test_sqlplan.TestRecordBytes.test_matches_sqlite_payload)\nΣ record_bytes == dbstat 统计的表 / 索引负载字节（真 SQLite 对账，逐字节相等）。 ... ok\ntest_value_and_varint_boundaries (qdperf.tests.test_sqlplan.TestRecordBytes.test_value_and_varint_boundaries) ... ok\ntest_kinds (qdperf.tests.test_sqlplan.TestTokenize.test_kinds) ... ok\ntest_main (qdperf.tests.test_synth_db.TestCli.test_main) ... ok\ntest_exists_and_force (qdperf.tests.test_synth_db.TestGenerate.test_exists_and_force) ... ok\ntest_golden_fingerprint (qdperf.tests.test_synth_db.TestGenerate.test_golden_fingerprint)\n“同 seed 同结果”跨版本、跨平台也成立：生成器只用 random() 与四则运算 / round()（不用 libm），所以缺省 seed、 ... ok\ntest_integer_columns_and_notified_rule (qdperf.tests.test_synth_db.TestGenerate.test_integer_columns_and_notified_rule)\n声明为 INTEGER 的列（时间戳、外键、计数）存的都是整数——用 bots = 65 这种除不尽 300 天秒数的规模； ... ok\ntest_planted_problems (qdperf.tests.test_synth_db.TestGenerate.test_planted_problems) ... ok\ntest_report_and_counts (qdperf.tests.test_synth_db.TestGenerate.test_report_and_counts) ... ok\ntest_same_seed_same_result (qdperf.tests.test_synth_db.TestGenerate.test_same_seed_same_result) ... ok\ntest_generators_shape (qdperf.tests.test_synth_db.TestRows.test_generators_shape) ... ok\ntest_pick_and_cum (qdperf.tests.test_synth_db.TestRows.test_pick_and_cum) ... ok\ntest_rows_for (qdperf.tests.test_synth_db.TestRows.test_rows_for) ... ok\ntest_backoff_sleep (qdperf.tests.test_tick_jitter.TestPanelParts.test_backoff_sleep)\n退避：下一次至少等 max(1/Q, k × 上次耗时)。 ... ok\ntest_open_loop_caps_inflight (qdperf.tests.test_tick_jitter.TestPanelParts.test_open_loop_caps_inflight)\n开环轮询：在途最多 2 × 线程数，其余记为丢弃（不无限排队）。_poll 换成卡住直到放行的假查询。 ... ok\ntest_replica_refresh_sees_new_rows (qdperf.tests.test_tick_jitter.TestPanelParts.test_replica_refresh_sees_new_rows) ... ok\ntest_burn_and_calibrate (qdperf.tests.test_tick_jitter.TestPure.test_burn_and_calibrate) ... ok\ntest_chunked_equals_whole_query (qdperf.tests.test_tick_jitter.TestPure.test_chunked_equals_whole_query) ... ok\ntest_chunks_and_merge (qdperf.tests.test_tick_jitter.TestPure.test_chunks_and_merge) ... ok\ntest_knees_and_pick (qdperf.tests.test_tick_jitter.TestPure.test_knees_and_pick) ... ok\ntest_summarize (qdperf.tests.test_tick_jitter.TestPure.test_summarize) ... ok\ntest_calibration (qdperf.tests.test_tick_jitter.TestRealProcesses.test_calibration) ... ok\ntest_cli (qdperf.tests.test_tick_jitter.TestRealProcesses.test_cli) ... ok\ntest_q0_no_jitter_and_wal_off_starves (qdperf.tests.test_tick_jitter.TestRealProcesses.test_q0_no_jitter_and_wal_off_starves) ... ok\ntest_replica_backoff_subprocess_bg (qdperf.tests.test_tick_jitter.TestRealProcesses.test_replica_backoff_subprocess_bg) ... ok\ntest_scan_cleanup_never_loses_results (qdperf.tests.test_tick_jitter.TestScanCleanup.test_scan_cleanup_never_loses_results)\n扫描跑几十分钟：收尾删临时目录失败（例如子进程还占着文件）不能把结果一起丢掉。 ... ok\n\n----------------------------------------------------------------------\nRan 172 tests in 147.074s\n\nOK\n",
+    "tests_run": 172
    },
    "ok": true,
-   "scale": "169 tests",
-   "seconds": 145.8,
+   "scale": "172 tests",
+   "seconds": 147.3,
    "step": "unittest",
-   "summary": "OK (skipped=1); skipped 1"
+   "summary": "OK; skipped 0; tmp dirs left 0"
   },
   {
    "detail": {
@@ -42,12 +43,12 @@
   {
    "detail": {
     "returncode": 0,
-    "stdout_tail": "                   495     27   94.5%  79,125,163-164,175-178,226,253,277,280-281,319,371,388-392,4\nTOTAL                                      3005     67   97.8%\n-- tools / examples / selftest (reported, not counted)\nfile                                      stmts   miss   cover  missing\nqdperf/selftest.py                          116     83   28.4%  31-36,38-43,62-65,67-70,77-82,91-101,103-105,107,109-110,116\nqdperf/tools/__init__.py                      0      0  100.0%  \nqdperf/tools/build_report.py                227    165   27.3%  18,29-31,35-37,41-55,59,65-66,69-70,74-76,78-80,82,86-88,90-\nqdperf/tools/cov.py                          78     74    5.1%  15-21,23-25,27,29-30,33-34,37-42,45,47-56,59,61-66,69-71,75-\nqdperf/tools/noise_probe.py                  56     56    0.0%  11-17,19-21,23,25,28-32,35-41,44,46,48,51-60,62,68-69,74-87,\nqdperf/tools/selfcheck.py                   221    221    0.0%  8-14,16-25,27,31,33-48,50-56,58-59,61-62,66-81,83,85-92,95-1\nqdperf/examples/__init__.py                   0      0  100.0%  \nqdperf/examples/demo_work.py                 37      0  100.0%  \nqdperf/examples/qbt_case.py                  32     32    0.0%  13-15,17-19,21-22,25-30,33,35-41,44-49,51-54\nqdperf/mutants/__init__.py                    0      0  100.0%  \nqdperf/mutants/run.py                       187    187    0.0%  16-27,29-31,33,35-38,40,47,50-51,54-56,59,61-79,82-93,96-99,\nTOTAL                                       954    818   14.3%\nchild processes merged: 119\n",
-    "total_percent": 97.7703826955075
+    "stdout_tail": "                   495     27   94.5%  79,125,163-164,175-178,226,253,277,280-281,319,371,388-392,4\nTOTAL                                      3006     67   97.8%\n-- tools / examples / selftest (reported, not counted)\nfile                                      stmts   miss   cover  missing\nqdperf/selftest.py                          121     72   40.5%  39,72-75,77-80,87-92,101-111,113-115,117,119-120,126-129,136\nqdperf/tools/__init__.py                      0      0  100.0%  \nqdperf/tools/build_report.py                250    184   26.4%  18,29-31,35-37,41-55,59,65-66,69-70,74-76,78-80,82,86-88,90-\nqdperf/tools/cov.py                          78     74    5.1%  15-21,23-25,27,29-30,33-34,37-42,45,47-56,59,61-66,69-71,75-\nqdperf/tools/noise_probe.py                  56     56    0.0%  11-17,19-21,23,25,28-32,35-41,44,46,48,51-60,62,68-69,74-87,\nqdperf/tools/selfcheck.py                   221    221    0.0%  8-14,16-25,27,31,33-48,50-56,58-59,61-62,66-81,83,85-92,95-1\nqdperf/examples/__init__.py                   0      0  100.0%  \nqdperf/examples/demo_work.py                 37      0  100.0%  \nqdperf/examples/qbt_case.py                  32     32    0.0%  13-15,17-19,21-22,25-30,33,35-41,44-49,51-54\nqdperf/mutants/__init__.py                    0      0  100.0%  \nqdperf/mutants/run.py                       187    187    0.0%  16-27,29-31,33,35-38,40,47,50-51,54-56,59,61-79,82-93,96-99,\nTOTAL                                       982    826   15.9%\nchild processes merged: 119\n",
+    "total_percent": 97.771124417831
    },
    "ok": true,
-   "scale": "3005 statements, 169 tests",
-   "seconds": 147.7,
+   "scale": "3006 statements, 172 tests",
+   "seconds": 148.3,
    "step": "coverage",
    "summary": "97.77% (>= 90% required); child processes merged 119"
   },
@@ -55,21 +56,21 @@
    "detail": {
     "contention_3x50": {
      "busy": 0,
-     "max_ms": 3.991546000179369,
+     "max_ms": 2.394628998445114,
      "met_200ms": true,
-     "p99_ms": 0.21932149997155634,
+     "p99_ms": 0.10644616111676439,
      "root_cause": [],
-     "starvation": "无饿死：最差的 notifier p99 等待 0.49 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 1.1%）"
+     "starvation": "无饿死：最差的 engine p99 等待 0.11 ms ≤ 200 ms，SQLITE_BUSY 0；主要持锁者 engine（占比 0.9%）"
     },
     "contention_criterion_ok": true,
-    "deferred_demo_busy": 113,
+    "deferred_demo_busy": 112,
     "deferred_demo_root_cause": [
      "延迟事务（BEGIN DEFERRED）先读后写：读快照过期时升级写锁直接返回 SQLITE_BUSY_SNAPSHOT，busy_timeout 不生效 → 写事务改用 BEGIN IMMEDIATE",
      "busy_timeout=5.0 s 内拿不到写锁：同时写者 × 持锁时间超过超时 → 缩短事务 / 合并写 / 加大超时"
     ],
     "doctor_exit_code": 1,
-    "doctor_seconds": 134.5,
-    "first_line": "SQLITE_DOCTOR FAIL statements=23 full_scan=11 temp_btree=6 suggestions=10/11 contention_p99_ms=0.22 busy=0 wal_max_mb=20.8 red=8 yellow=16",
+    "doctor_seconds": 128.13,
+    "first_line": "SQLITE_DOCTOR FAIL statements=23 full_scan=11 temp_btree=6 suggestions=10/11 contention_p99_ms=0.11 busy=0 wal_max_mb=20.8 red=8 yellow=16",
     "full_scan": 11,
     "original_untouched": true,
     "rejected": 1,
@@ -85,7 +86,7 @@
     "suggestions_verified_independently": true,
     "synth_deterministic": true,
     "synth_le_180s": true,
-    "synth_seconds": 42.15,
+    "synth_seconds": 38.72,
     "temp_btree": 6,
     "unsolvable": [
      "h_email_search"
@@ -94,19 +95,19 @@
     "wal_free_capped": true,
     "wal_long_reader_never_reset": true,
     "wal_peaks_mb": {
-     "1000/long": 19.86,
+     "1000/long": 19.84,
      "1000/none": 4.13,
-     "200/long": 20.78,
+     "200/long": 20.76,
      "200/none": 0.84,
-     "4000/long": 19.82,
+     "4000/long": 19.92,
      "4000/none": 16.48
     }
    },
    "ok": true,
    "scale": "synth 7,980,300 rows, 23 statements",
-   "seconds": 306.0,
+   "seconds": 286.9,
    "step": "g1_sqlite",
-   "summary": "synth 42.15s deterministic=True; suggestions 10 verified=True; 3x50/s p99 0.22 ms busy 0; untouched=True"
+   "summary": "synth 38.72s deterministic=True; suggestions 10 verified=True; 3x50/s p99 0.11 ms busy 0; untouched=True"
   },
   {
    "detail": {
@@ -116,15 +117,15 @@
      "qdperf/examples/demo_work.py:extra",
      "<builtin>:decode"
     ],
-    "noise_hot": 0.010922634090438962,
-    "rerun": "OK hot.wall_s=0.01831→0.0184 (+0.5%) tol=10.0%",
-    "slow12": "REGRESSION hot.wall_s=0.01831→0.02067 (+12.9%)"
+    "noise_hot": 0.01947691915932724,
+    "rerun": "OK hot.wall_s=0.01845→0.01846 (+0.0%) tol=10.0%",
+    "slow12": "REGRESSION cold.wall_s=0.01888→0.02125 (+12.6%)"
    },
    "ok": true,
    "scale": "demo_work.spin: pair x3 (12% slower) + rerun",
-   "seconds": 12.0,
+   "seconds": 11.9,
    "step": "g2_gate",
-   "summary": "noise 1.1%; REGRESSION hot.wall_s=0.01831→0.02067 (+12.9%); rerun OK hot.wall_s=0.01831→0.0184 (+0.5%) tol=10.0%; names equal True"
+   "summary": "noise 1.9%; REGRESSION cold.wall_s=0.01888→0.02125 (+12.6%); rerun OK hot.wall_s=0.01845→0.01846 (+0.0%) tol=10.0%; names equal True"
   },
   {
    "detail": {
@@ -132,8 +133,8 @@
     "busy_timeout_pairs": [
      {
       "compute": "inline",
-      "p99_T_busy_0_5": 1.0095688633926327,
-      "p99_T_busy_5": 1.006573651597864,
+      "p99_T_busy_0_5": 1.0058661487710197,
+      "p99_T_busy_5": 1.0036979586089727,
       "q": 0.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -141,8 +142,8 @@
      },
      {
       "compute": "inline",
-      "p99_T_busy_0_5": 1.0055948181827261,
-      "p99_T_busy_5": 1.0066697978225418,
+      "p99_T_busy_0_5": 1.0038393425929826,
+      "p99_T_busy_5": 1.0068095515365711,
       "q": 5.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -150,8 +151,8 @@
      },
      {
       "compute": "inline",
-      "p99_T_busy_0_5": 1.1636174297716924,
-      "p99_T_busy_5": 1.154682127597334,
+      "p99_T_busy_0_5": 1.0597033110054326,
+      "p99_T_busy_5": 1.0697648995977942,
       "q": 20.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -159,8 +160,8 @@
      },
      {
       "compute": "inline",
-      "p99_T_busy_0_5": 1.316834115612437,
-      "p99_T_busy_5": 1.3850949447587482,
+      "p99_T_busy_0_5": 1.0759159191555228,
+      "p99_T_busy_5": 1.1320690071821444,
       "q": 50.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -168,8 +169,8 @@
      },
      {
       "compute": "subprocess",
-      "p99_T_busy_0_5": 1.0210305940112443,
-      "p99_T_busy_5": 1.002749979552027,
+      "p99_T_busy_0_5": 1.0044957335776417,
+      "p99_T_busy_5": 1.0141246035862421,
       "q": 0.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -177,8 +178,8 @@
      },
      {
       "compute": "subprocess",
-      "p99_T_busy_0_5": 1.0047502634195553,
-      "p99_T_busy_5": 1.0320558840110605,
+      "p99_T_busy_0_5": 1.0035441988700766,
+      "p99_T_busy_5": 1.003579547184927,
       "q": 5.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -186,8 +187,8 @@
      },
      {
       "compute": "subprocess",
-      "p99_T_busy_0_5": 1.331921607422555,
-      "p99_T_busy_5": 1.070142659787234,
+      "p99_T_busy_0_5": 1.0611008064181076,
+      "p99_T_busy_5": 1.069672042401362,
       "q": 20.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -195,8 +196,8 @@
      },
      {
       "compute": "subprocess",
-      "p99_T_busy_0_5": 1.375177085010364,
-      "p99_T_busy_5": 1.3240737991989595,
+      "p99_T_busy_0_5": 1.0714713957888307,
+      "p99_T_busy_5": 1.281913074399928,
       "q": 50.0,
       "wal": true,
       "write_errors_busy_0_5": {},
@@ -204,8 +205,8 @@
      },
      {
       "compute": "inline",
-      "p99_T_busy_0_5": 1.0030977040092692,
-      "p99_T_busy_5": 1.0040879292420868,
+      "p99_T_busy_0_5": 1.0156223983736705,
+      "p99_T_busy_5": 1.0038079775811637,
       "q": 0.0,
       "wal": false,
       "write_errors_busy_0_5": {},
@@ -213,54 +214,8 @@
      },
      {
       "compute": "inline",
-      "p99_T_busy_0_5": 14.344727934760144,
-      "p99_T_busy_5": 19.637802790430577,
-      "q": 5.0,
-      "wal": false,
-      "write_errors_busy_0_5": {
-       "SQLITE_BUSY": 3
-      },
-      "write_errors_busy_5": {}
-     },
-     {
-      "compute": "inline",
-      "p99_T_busy_0_5": 21.110823349782002,
-      "p99_T_busy_5": 102.07058504399029,
-      "q": 20.0,
-      "wal": false,
-      "write_errors_busy_0_5": {
-       "SQLITE_BUSY": 20
-      },
-      "write_errors_busy_5": {
-       "SQLITE_BUSY": 3
-      }
-     },
-     {
-      "compute": "inline",
-      "p99_T_busy_0_5": 21.127862292611827,
-      "p99_T_busy_5": 197.95214196140145,
-      "q": 50.0,
-      "wal": false,
-      "write_errors_busy_0_5": {
-       "SQLITE_BUSY": 20
-      },
-      "write_errors_busy_5": {
-       "SQLITE_BUSY": 3
-      }
-     },
-     {
-      "compute": "subprocess",
-      "p99_T_busy_0_5": 1.0025432342074054,
-      "p99_T_busy_5": 1.0031252322201907,
-      "q": 0.0,
-      "wal": false,
-      "write_errors_busy_0_5": {},
-      "write_errors_busy_5": {}
-     },
-     {
-      "compute": "subprocess",
-      "p99_T_busy_0_5": 10.606473204190113,
-      "p99_T_busy_5": 16.98202110959098,
+      "p99_T_busy_0_5": 10.34755456483108,
+      "p99_T_busy_5": 7.662032223632556,
       "q": 5.0,
       "wal": false,
       "write_errors_busy_0_5": {
@@ -269,10 +224,23 @@
       "write_errors_busy_5": {}
      },
      {
-      "compute": "subprocess",
-      "p99_T_busy_0_5": 20.78394638382451,
-      "p99_T_busy_5": 101.53575868959886,
+      "compute": "inline",
+      "p99_T_busy_0_5": 21.379598565482592,
+      "p99_T_busy_5": 101.28181595931527,
       "q": 20.0,
+      "wal": false,
+      "write_errors_busy_0_5": {
+       "SQLITE_BUSY": 20
+      },
+      "write_errors_busy_5": {
+       "SQLITE_BUSY": 3
+      }
+     },
+     {
+      "compute": "inline",
+      "p99_T_busy_0_5": 20.793068507731366,
+      "p99_T_busy_5": 105.68440955187978,
+      "q": 50.0,
       "wal": false,
       "write_errors_busy_0_5": {
        "SQLITE_BUSY": 21
@@ -283,15 +251,48 @@
      },
      {
       "compute": "subprocess",
-      "p99_T_busy_0_5": 20.925699410431115,
-      "p99_T_busy_5": 100.80641182679682,
+      "p99_T_busy_0_5": 1.0019334978438563,
+      "p99_T_busy_5": 1.0040316279599208,
+      "q": 0.0,
+      "wal": false,
+      "write_errors_busy_0_5": {},
+      "write_errors_busy_5": {}
+     },
+     {
+      "compute": "subprocess",
+      "p99_T_busy_0_5": 10.366184747967052,
+      "p99_T_busy_5": 16.246504149591747,
+      "q": 5.0,
+      "wal": false,
+      "write_errors_busy_0_5": {
+       "SQLITE_BUSY": 2
+      },
+      "write_errors_busy_5": {}
+     },
+     {
+      "compute": "subprocess",
+      "p99_T_busy_0_5": 21.438357548389465,
+      "p99_T_busy_5": 198.26584574997682,
+      "q": 20.0,
+      "wal": false,
+      "write_errors_busy_0_5": {
+       "SQLITE_BUSY": 21
+      },
+      "write_errors_busy_5": {
+       "SQLITE_BUSY": 2
+      }
+     },
+     {
+      "compute": "subprocess",
+      "p99_T_busy_0_5": 21.012274124218674,
+      "p99_T_busy_5": 103.99910320243215,
       "q": 50.0,
       "wal": false,
       "write_errors_busy_0_5": {
        "SQLITE_BUSY": 20
       },
       "write_errors_busy_5": {
-       "SQLITE_BUSY": 4
+       "SQLITE_BUSY": 3
       }
      }
     ],
@@ -301,29 +302,29 @@
      "replica",
      "wal"
     ],
-    "first_line": "TICK_SCAN knee=wal=off,busy=5,compute=inline:Q=5 q0_p99_max=1.02T mitigations=replica:1.22T,chunked:1.02T,backoff:3.96T,wal:1.00T",
+    "first_line": "TICK_SCAN knee=wal=off,busy=5,compute=inline:Q=5 q0_p99_max=1.02T mitigations=replica:1.14T,chunked:1.37T,backoff:2.95T,wal:1.00T",
     "gil": {
      "inline/bg0": {
-      "compute_p50_ms": 12.856008001108421,
-      "p99_T": 1.0109892043888975
+      "compute_p50_ms": 15.040005000628298,
+      "p99_T": 1.0042155858172919
      },
      "inline/bg1": {
-      "compute_p50_ms": 23.503364998759935,
-      "p99_T": 7.593109851044573
+      "compute_p50_ms": 24.409498000750318,
+      "p99_T": 6.486336115153973
      },
      "subprocess/bg0": {
-      "compute_p50_ms": 13.802848001432722,
-      "p99_T": 1.002920511967386
+      "compute_p50_ms": 15.270800999132916,
+      "p99_T": 1.0103547307182452
      },
      "subprocess/bg1": {
-      "compute_p50_ms": 24.440765999315772,
-      "p99_T": 8.18518633200438
+      "compute_p50_ms": 24.64208399760537,
+      "p99_T": 7.367884929658612
      }
     },
     "knee": {
      "busy": 5.0,
      "compute": "inline",
-     "knee_p99_T": 19.637802790430577,
+     "knee_p99_T": 7.662032223632556,
      "knee_q": 5.0,
      "last_ok_q": 0.0,
      "wal": false
@@ -333,7 +334,7 @@
      {
       "busy": 5.0,
       "compute": "inline",
-      "knee_p99_T": 19.637802790430577,
+      "knee_p99_T": 7.662032223632556,
       "knee_q": 5.0,
       "last_ok_q": 0.0,
       "wal": false
@@ -341,7 +342,7 @@
      {
       "busy": 5.0,
       "compute": "subprocess",
-      "knee_p99_T": 16.98202110959098,
+      "knee_p99_T": 16.246504149591747,
       "knee_q": 5.0,
       "last_ok_q": 0.0,
       "wal": false
@@ -349,7 +350,7 @@
      {
       "busy": 0.5,
       "compute": "inline",
-      "knee_p99_T": 14.344727934760144,
+      "knee_p99_T": 10.34755456483108,
       "knee_q": 5.0,
       "last_ok_q": 0.0,
       "wal": false
@@ -357,7 +358,7 @@
      {
       "busy": 0.5,
       "compute": "subprocess",
-      "knee_p99_T": 10.606473204190113,
+      "knee_p99_T": 10.366184747967052,
       "knee_q": 5.0,
       "last_ok_q": 0.0,
       "wal": false
@@ -398,57 +399,57 @@
     "mitigations": {
      "backoff": {
       "effective": false,
-      "improvement_x": 4.962686168802157,
+      "improvement_x": 2.5994993738617294,
       "over_2T": 7,
-      "p99_T": 3.9570914062394866,
+      "p99_T": 2.947503007954219,
       "panel_q": 0.35,
       "replica_refreshes": 0
      },
      "chunked": {
       "effective": true,
-      "improvement_x": 19.162285636711132,
-      "over_2T": 2,
-      "p99_T": 1.0248152627893432,
+      "improvement_x": 5.593785697731505,
+      "over_2T": 0,
+      "p99_T": 1.3697400361153993,
       "panel_q": 5.0,
       "replica_refreshes": 0
      },
      "replica": {
       "effective": true,
-      "improvement_x": 16.10321444185779,
+      "improvement_x": 6.740832528438304,
       "over_2T": 0,
-      "p99_T": 1.2194958255902733,
+      "p99_T": 1.1366596323685367,
       "panel_q": 5.0,
       "replica_refreshes": 16
      },
      "wal": {
       "effective": true,
-      "improvement_x": 19.57510238640018,
+      "improvement_x": 7.63952467249109,
       "over_2T": 0,
-      "p99_T": 1.003203069020674,
+      "p99_T": 1.0029461978469043,
       "panel_q": 5.0,
       "replica_refreshes": 0
      }
     },
-    "panel_query_ms": 147.44329300083336,
+    "panel_query_ms": 155.14120900115813,
     "panel_rows": 249999,
     "q0_ok": true,
-    "q0_p99_T_max": 1.0210305940112443,
+    "q0_p99_T_max": 1.0156223983736705,
     "q0_runs": 10,
     "seconds_per_config": 20.0,
-    "wake_late_ms_max": 41.41450099992028
+    "wake_late_ms_max": 33.174770997719925
    },
    "ok": true,
    "scale": "32 configs x 20s, T=0.05s",
-   "seconds": 915.4,
+   "seconds": 912.1,
    "step": "g3_tick",
-   "summary": "Q=0 p99 max 1.02T; knee Q=5 p99 19.64T; effective mitigations ['chunked', 'replica', 'wal']"
+   "summary": "Q=0 p99 max 1.02T; knee Q=5 p99 7.66T; effective mitigations ['chunked', 'replica', 'wal']"
   },
   {
    "detail": {
     "ab_rows": 4,
-    "ab_same_first_line": "OK a2.p99_ms=12.99→13.26 (+2.0%) tol=10.0%",
+    "ab_same_first_line": "OK a2.p99_ms=12.68→12.74 (+0.5%) tol=10.0%",
     "ab_same_verdict": "OK",
-    "ab_slow_first_line": "REGRESSION a1.p99_ms=60.76→81.17 (+33.6%)",
+    "ab_slow_first_line": "REGRESSION a1.p99_ms=60.73→80.18 (+32.0%)",
     "ab_slow_red_rows": 4,
     "ab_slow_verdict": "REGRESSION",
     "knee_in_6_10": true,
@@ -456,23 +457,23 @@
     "knee_measured": 8,
     "knee_rps_by_c": {
      "1": 19.3,
-     "16": 157.7,
+     "16": 159.0,
      "2": 39.3,
-     "32": 158.7,
-     "4": 77.7,
+     "32": 159.0,
+     "4": 78.7,
      "8": 157.0
     },
-    "p99_error": -0.004327522928481168,
+    "p99_error": -0.0066630008247236345,
     "p99_in_108_132": true,
     "p99_injected_ms": 120.0,
-    "p99_measured_ms": 119.48069724858226,
-    "p99_requests": 1306
+    "p99_measured_ms": 119.20043990103316,
+    "p99_requests": 1311
    },
    "ok": true,
-   "scale": "1306 req p99 run + ramp 1..32 + 2 A/B",
-   "seconds": 53.8,
+   "scale": "1311 req p99 run + ramp 1..32 + 2 A/B",
+   "seconds": 53.7,
    "step": "g4_http",
-   "summary": "p99 injected 120 → 119.5 ms; knee injected 8 → 8; B +30% → REGRESSION; A/A → OK"
+   "summary": "p99 injected 120 → 119.2 ms; knee injected 8 → 8; B +30% → REGRESSION; A/A → OK"
   },
   {
    "detail": {
@@ -488,8 +489,8 @@
      "qbt/engine.py:Context.indicator",
      "qbt/engine.py:IndicatorCache.get"
     ],
-    "cold_wall_s": 4.298606685002596,
-    "hot_wall_s": 1.3590598839982704,
+    "cold_wall_s": 4.2296513879991835,
+    "hot_wall_s": 1.3315912679972826,
     "inner": 2,
     "n": 1000000,
     "names_have_no_lineno_or_tmp": true,
@@ -498,43 +499,43 @@
     "names_moved_copy_jaccard": 1.0,
     "names_moved_copy_top10_equal": true,
     "noise": {
-     "cold_wall_rel": 0.02242852648477778,
-     "hot_wall_rel": 0.04295986344199342,
+     "cold_wall_rel": 0.01172524505122463,
+     "hot_wall_rel": 0.031171043628140813,
      "peak_rel": 0.0
     },
     "peak_bytes": 125490348,
     "repeat": 8,
-    "rerun_first_line": "OK hot.wall_s=1.359→1.371 (+0.9%) tol=10.0%",
+    "rerun_first_line": "OK hot.wall_s=1.332→1.324 (-0.6%) tol=10.0%",
     "rerun_verdict": "OK",
     "runs": 3,
     "slow": {
      "12pct": {
-      "achieved_hot": 0.10744047831890642,
-      "first_line": "REGRESSION cold.wall_s=4.299→4.937 (+14.8%)",
-      "first_line_noise_only": "REGRESSION cold.wall_s=4.299→4.937 (+14.8%)",
-      "first_line_single_run": "REGRESSION cold.wall_s=4.299→4.955 (+15.3%)",
+      "achieved_hot": 0.13161620928040993,
+      "first_line": "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
+      "first_line_noise_only": "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
+      "first_line_single_run": "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
       "intended": 0.12,
       "new_top10": [],
       "per_round_single": [
-       "REGRESSION cold.wall_s=4.299→4.955 (+15.3%)",
-       "REGRESSION cold.wall_s=4.299→4.906 (+14.1%)",
-       "REGRESSION cold.wall_s=4.299→4.937 (+14.8%)"
+       "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
+       "REGRESSION hot.wall_s=1.332→1.507 (+13.2%)",
+       "REGRESSION cold.wall_s=4.23→4.831 (+14.2%)"
       ],
       "verdict_default": "REGRESSION",
       "verdict_noise_only": "REGRESSION",
       "verdict_single_run": "REGRESSION"
      },
      "5pct": {
-      "achieved_hot": 0.04148250321059082,
-      "first_line": "OK hot.wall_s=1.359→1.415 (+4.1%) tol=10.0%",
-      "first_line_noise_only": "REGRESSION cold.wall_s=4.299→4.566 (+6.2%)",
-      "first_line_single_run": "OK hot.wall_s=1.359→1.425 (+4.9%) tol=10.0%",
+      "achieved_hot": 0.024519359501744928,
+      "first_line": "OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%",
+      "first_line_noise_only": "REGRESSION cold.wall_s=4.23→4.447 (+5.1%)",
+      "first_line_single_run": "OK hot.wall_s=1.332→1.352 (+1.5%) tol=10.0%",
       "intended": 0.05,
       "new_top10": [],
       "per_round_single": [
-       "OK hot.wall_s=1.359→1.425 (+4.9%) tol=10.0%",
-       "OK hot.wall_s=1.359→1.415 (+4.1%) tol=10.0%",
-       "OK hot.wall_s=1.359→1.409 (+3.6%) tol=10.0%"
+       "OK hot.wall_s=1.332→1.352 (+1.5%) tol=10.0%",
+       "OK hot.wall_s=1.332→1.4 (+5.1%) tol=10.0%",
+       "OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%"
       ],
       "verdict_default": "OK",
       "verdict_noise_only": "REGRESSION",
@@ -544,13 +545,13 @@
     "slow12_red": true,
     "slow5_expected_by_noise": "OK",
     "tolerance_hot_default": 0.1,
-    "tolerance_hot_noise_only": 0.08591972688398684
+    "tolerance_hot_noise_only": 0.062342087256281625
    },
    "ok": true,
-   "scale": "qbt 1,000,000 bars x ma_cross, best-of-5 procs, 3 runs",
-   "seconds": 885.4,
+   "scale": "qbt 1,000,000 bars x ma_cross, best-of-8 procs, 3 runs",
+   "seconds": 866.8,
    "step": "perf_qbt",
-   "summary": "noise 4.3%; 12%: REGRESSION cold.wall_s=4.299→4.937 (+14.8%); 5%: OK (expected OK); rerun OK"
+   "summary": "noise 3.1%; 12%: REGRESSION cold.wall_s=4.23→4.826 (+14.1%); 5%: OK (expected OK); rerun OK"
   }
  ]
 }
