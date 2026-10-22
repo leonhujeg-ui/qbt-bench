@@ -4,61 +4,61 @@
    "n": 400000
   },
   "cold": {
-   "cpu_s": 0.019043868,
+   "cpu_s": 0.018884666,
    "cpu_samples": [
-    0.021640938999999998,
-    0.03338245199999999,
-    0.019043868,
-    0.019857938000000006,
-    0.03094207900000001
+    0.019242460000000003,
+    0.018884666,
+    0.019116955000000005,
+    0.019030864999999994,
+    0.024412512999999997
    ],
    "process_wall_samples": [
-    0.1550435320023098,
-    0.21564600800047629,
-    0.14919314199869405,
-    0.17260609599907184,
-    0.19614024199836422
+    0.15338311400046223,
+    0.14799591500195675,
+    0.15970970900161774,
+    0.15396585000053165,
+    0.190521828000783
    ],
-   "wall_s": 0.019042872001591604,
+   "wall_s": 0.018881481999414973,
    "wall_samples": [
-    0.021640389000822324,
-    0.03337919499972486,
-    0.019042872001591604,
-    0.019942550999985542,
-    0.031148501999268774
+    0.019477775000268593,
+    0.018881481999414973,
+    0.019406950999837136,
+    0.019063460997131187,
+    0.024911079999583308
    ]
   },
   "format": "qdperf.profile.v1",
   "hot": {
-   "cpu_s": 0.018281912999999997,
+   "cpu_s": 0.018457394000000002,
    "cpu_samples": [
-    0.018281912999999997,
-    0.02236701499999999,
-    0.01857844,
-    0.01911694700000001,
-    0.02023931299999998
+    0.01896805800000001,
+    0.018457394000000002,
+    0.018758068000000003,
+    0.018576979999999993,
+    0.020079248999999993
    ],
    "processes": 5,
-   "wall_s": 0.0183143829999608,
+   "wall_s": 0.018453018998116022,
    "wall_samples": [
-    0.0183143829999608,
-    0.02239538200228708,
-    0.01857616499910364,
-    0.01916957200228353,
-    0.020987370000511874
+    0.018965814997500274,
+    0.018453018998116022,
+    0.018732235999777913,
+    0.018623699997988297,
+    0.020075110001926078
    ]
   },
   "inner": 3,
   "machine": {
    "cpu_count": 4,
    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-   "git_commit": "441e683",
+   "git_commit": "02e27bf",
    "implementation": "CPython",
-   "load_avg_1m": 0.68,
+   "load_avg_1m": 0.56,
    "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
    "python": "3.12.3",
    "sqlite_version": "3.45.1",
-   "timestamp": "2026-10-22T22:18:12"
+   "timestamp": "2026-10-22T23:28:21"
   },
   "memory": {
    "current_bytes": 0,
@@ -66,23 +66,23 @@
    "peak_bytes": 901
   },
   "noise": {
-   "cold_wall_rel": 0.014680009586635033,
-   "hot_wall_rel": 0.010922634090438962,
+   "cold_wall_rel": 0.026917918717666637,
+   "hot_wall_rel": 0.01947691915932724,
    "peak_rel": 0.0,
    "per_run": [
     {
-     "cold_wall_s": 0.019042872001591604,
-     "hot_wall_s": 0.0183143829999608,
+     "cold_wall_s": 0.019352147002791753,
+     "hot_wall_s": 0.018205600001238054,
      "peak_bytes": 901
     },
     {
-     "cold_wall_s": 0.01878983799906564,
-     "hot_wall_s": 0.018244958002469502,
+     "cold_wall_s": 0.018881481999414973,
+     "hot_wall_s": 0.018453018998116022,
      "peak_bytes": 901
     },
     {
-     "cold_wall_s": 0.019065673001023242,
-     "hot_wall_s": 0.018444241002725903,
+     "cold_wall_s": 0.018844882000848884,
+     "hot_wall_s": 0.018560189000709215,
      "peak_bytes": 901
     }
    ]
@@ -92,46 +92,46 @@
    "sort": "cumtime",
    "top": [
     {
-     "cumtime": 0.018807,
+     "cumtime": 0.024388,
      "name": "qdperf/examples/demo_work.py:spin",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 7.2e-05
+     "tottime": 0.000116
     },
     {
-     "cumtime": 0.018708,
+     "cumtime": 0.024222,
      "name": "qdperf/examples/demo_work.py:_inner",
      "ncalls": 100,
      "primitive_calls": 100,
-     "tottime": 0.018708
+     "tottime": 0.024222
     },
     {
-     "cumtime": 2.3e-05,
+     "cumtime": 4.8e-05,
      "name": "<builtin>:get",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 3e-06
+     "tottime": 5e-06
     },
     {
-     "cumtime": 2e-05,
+     "cumtime": 4.3e-05,
      "name": "<builtin>:__getitem__",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 6e-06
+     "tottime": 1.5e-05
     },
     {
-     "cumtime": 1.4e-05,
+     "cumtime": 2.7e-05,
      "name": "<builtin>:encode",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 1.2e-05
+     "tottime": 2.3e-05
     },
     {
-     "cumtime": 2e-06,
+     "cumtime": 3e-06,
      "name": "<builtin>:<method 'encode' of 'str' objects>",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 2e-06
+     "tottime": 3e-06
     },
     {
      "cumtime": 1e-06,
@@ -142,16 +142,16 @@
     },
     {
      "cumtime": 1e-06,
-     "name": "<builtin>:<built-in method time.perf_counter>",
-     "ncalls": 1,
-     "primitive_calls": 1,
+     "name": "<builtin>:<built-in method builtins.isinstance>",
+     "ncalls": 2,
+     "primitive_calls": 2,
      "tottime": 1e-06
     },
     {
      "cumtime": 1e-06,
-     "name": "<builtin>:<built-in method builtins.isinstance>",
-     "ncalls": 2,
-     "primitive_calls": 2,
+     "name": "<builtin>:<built-in method time.perf_counter>",
+     "ncalls": 1,
+     "primitive_calls": 1,
      "tottime": 1e-06
     },
     {
@@ -172,61 +172,61 @@
    "n": 400000
   },
   "cold": {
-   "cpu_s": 0.018901158,
+   "cpu_s": 0.019393877000000004,
    "cpu_samples": [
-    0.018901158,
-    0.01927661900000001,
-    0.02057922100000001,
-    0.027959767999999996,
-    0.019892518000000012
+    0.026168955999999993,
+    0.020291431999999998,
+    0.020652879,
+    0.03472763200000001,
+    0.019393877000000004
    ],
    "process_wall_samples": [
-    0.20037383800081443,
-    0.16501570100081153,
-    0.1605292370004463,
-    0.18782564099819865,
-    0.2132194689984317
+    0.1990107400015404,
+    0.16159817699735868,
+    0.19336400399697595,
+    0.24334650400123792,
+    0.191476675998274
    ],
-   "wall_s": 0.0188985379973019,
+   "wall_s": 0.01946660300018266,
    "wall_samples": [
-    0.0188985379973019,
-    0.019275153001217404,
-    0.02069394400314195,
-    0.028575079999427544,
-    0.020111117999476846
+    0.029598094999528257,
+    0.02225896200252464,
+    0.025831891998677747,
+    0.03472455600058311,
+    0.01946660300018266
    ]
   },
   "format": "qdperf.profile.v1",
   "hot": {
-   "cpu_s": 0.018409916999999998,
+   "cpu_s": 0.018464146,
    "cpu_samples": [
-    0.018811441000000012,
-    0.018409916999999998,
-    0.020069869000000004,
-    0.018782907,
-    0.025091113000000012
+    0.019421598000000012,
+    0.018908699,
+    0.01864392199999998,
+    0.03019645400000001,
+    0.018464146
    ],
    "processes": 5,
-   "wall_s": 0.018404787999315886,
+   "wall_s": 0.01845965100073954,
    "wall_samples": [
-    0.019042067000555107,
-    0.018404787999315886,
-    0.020065673998033162,
-    0.01877721799974097,
-    0.02634802900138311
+    0.01983108299828018,
+    0.01893249999920954,
+    0.018634787000337383,
+    0.030189907000021776,
+    0.01845965100073954
    ]
   },
   "inner": 3,
   "machine": {
    "cpu_count": 4,
    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-   "git_commit": "441e683",
+   "git_commit": "4dc0fcf",
    "implementation": "CPython",
-   "load_avg_1m": 0.71,
+   "load_avg_1m": 0.6,
    "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
    "python": "3.12.3",
    "sqlite_version": "3.45.1",
-   "timestamp": "2026-10-22T22:18:17"
+   "timestamp": "2026-10-22T23:28:24"
   },
   "memory": {
    "current_bytes": 0,
@@ -239,46 +239,46 @@
    "sort": "cumtime",
    "top": [
     {
-     "cumtime": 0.021759,
+     "cumtime": 0.018924,
      "name": "qdperf/examples/demo_work.py:spin",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.000206
+     "tottime": 7.9e-05
     },
     {
-     "cumtime": 0.021504,
+     "cumtime": 0.018807,
      "name": "qdperf/examples/demo_work.py:_inner",
      "ncalls": 100,
      "primitive_calls": 100,
-     "tottime": 0.021504
+     "tottime": 0.018807
     },
     {
-     "cumtime": 4.5e-05,
+     "cumtime": 3.4e-05,
      "name": "<builtin>:get",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 5e-06
+     "tottime": 4e-06
     },
     {
-     "cumtime": 4e-05,
+     "cumtime": 3e-05,
      "name": "<builtin>:__getitem__",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 1.5e-05
+     "tottime": 9e-06
     },
     {
-     "cumtime": 2.5e-05,
+     "cumtime": 2.1e-05,
      "name": "<builtin>:encode",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 2.1e-05
+     "tottime": 1.7e-05
     },
     {
-     "cumtime": 3e-06,
+     "cumtime": 2e-06,
      "name": "<builtin>:<method 'encode' of 'str' objects>",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 3e-06
+     "tottime": 2e-06
     },
     {
      "cumtime": 1e-06,
@@ -289,16 +289,16 @@
     },
     {
      "cumtime": 1e-06,
-     "name": "<builtin>:<built-in method builtins.isinstance>",
-     "ncalls": 2,
-     "primitive_calls": 2,
+     "name": "<builtin>:<built-in method time.perf_counter>",
+     "ncalls": 1,
+     "primitive_calls": 1,
      "tottime": 1e-06
     },
     {
      "cumtime": 1e-06,
-     "name": "<builtin>:<built-in method time.perf_counter>",
-     "ncalls": 1,
-     "primitive_calls": 1,
+     "name": "<builtin>:<built-in method builtins.isinstance>",
+     "ncalls": 2,
+     "primitive_calls": 2,
      "tottime": 1e-06
     },
     {
@@ -319,61 +319,61 @@
    "n": 400000
   },
   "cold": {
-   "cpu_s": 0.021183480000000005,
+   "cpu_s": 0.021252310999999996,
    "cpu_samples": [
-    0.021353224000000004,
-    0.021183480000000005,
-    0.022376184999999993,
-    0.021316955,
-    0.021748199999999995
+    0.021513713999999996,
+    0.02451252100000001,
+    0.023680026999999992,
+    0.021884954999999998,
+    0.021753740000000008
    ],
    "process_wall_samples": [
-    0.15922321100151748,
-    0.15845179199823178,
-    0.20580941599837388,
-    0.16298341400033678,
-    0.17099471599794924
+    0.15845818900197628,
+    0.19777145399712026,
+    0.1686518310016254,
+    0.16609591000087676,
+    0.17116659000021173
    ],
-   "wall_s": 0.021183346001635073,
+   "wall_s": 0.02125300099942251,
    "wall_samples": [
-    0.02135308800279745,
-    0.021183346001635073,
-    0.022375644999556243,
-    0.021394261999375885,
-    0.02174814699901617
+    0.02154985699962708,
+    0.02451130799818202,
+    0.023927439000544837,
+    0.021884450001380173,
+    0.022015702998032793
    ]
   },
   "format": "qdperf.profile.v1",
   "hot": {
-   "cpu_s": 0.020673280000000016,
+   "cpu_s": 0.020626385999999997,
    "cpu_samples": [
-    0.020673280000000016,
-    0.020690317,
-    0.02265215899999999,
-    0.020715545999999987,
-    0.021069467999999994
+    0.020626385999999997,
+    0.020833800000000013,
+    0.021280646000000014,
+    0.021483142999999996,
+    0.020813458999999992
    ],
    "processes": 5,
-   "wall_s": 0.02067012499901466,
+   "wall_s": 0.020623721000447404,
    "wall_samples": [
-    0.02067012499901466,
-    0.020686089002992958,
-    0.022674578001897316,
-    0.020760414998221677,
-    0.021220930000708904
+    0.020623721000447404,
+    0.020830175002629403,
+    0.02134957700036466,
+    0.021545121999224648,
+    0.020809783000004245
    ]
   },
   "inner": 3,
   "machine": {
    "cpu_count": 4,
    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-   "git_commit": "441e683",
+   "git_commit": "02e27bf",
    "implementation": "CPython",
-   "load_avg_1m": 0.71,
+   "load_avg_1m": 0.56,
    "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
    "python": "3.12.3",
    "sqlite_version": "3.45.1",
-   "timestamp": "2026-10-22T22:18:15"
+   "timestamp": "2026-10-22T23:28:22"
   },
   "memory": {
    "current_bytes": 0,
@@ -381,23 +381,23 @@
    "peak_bytes": 901
   },
   "noise": {
-   "cold_wall_rel": 0.04514469045969261,
-   "hot_wall_rel": 0.02751117461125016,
+   "cold_wall_rel": 0.020407576741372304,
+   "hot_wall_rel": 0.019922351009535513,
    "peak_rel": 0.0,
    "per_run": [
     {
-     "cold_wall_s": 0.0205873380000412,
-     "hot_wall_s": 0.02014803099882556,
+     "cold_wall_s": 0.02125300099942251,
+     "hot_wall_s": 0.020855001999734668,
      "peak_bytes": 901
     },
     {
-     "cold_wall_s": 0.021516747001442127,
-     "hot_wall_s": 0.020702326997707132,
+     "cold_wall_s": 0.02154985699962708,
+     "hot_wall_s": 0.020623721000447404,
      "peak_bytes": 901
     },
     {
-     "cold_wall_s": 0.021183346001635073,
-     "hot_wall_s": 0.02067012499901466,
+     "cold_wall_s": 0.021118871998623945,
+     "hot_wall_s": 0.020447636998142116,
      "peak_bytes": 901
     }
    ]
@@ -407,63 +407,63 @@
    "sort": "cumtime",
    "top": [
     {
-     "cumtime": 0.021692,
+     "cumtime": 0.020992,
      "name": "qdperf/examples/demo_work.py:spin",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 8.1e-05
+     "tottime": 6e-05
     },
     {
-     "cumtime": 0.019211,
+     "cumtime": 0.018632,
      "name": "qdperf/examples/demo_work.py:_inner",
      "ncalls": 100,
      "primitive_calls": 100,
-     "tottime": 0.019211
+     "tottime": 0.018632
     },
     {
-     "cumtime": 0.002334,
+     "cumtime": 0.002258,
      "name": "qdperf/examples/demo_work.py:spin_until",
      "ncalls": 1,
      "primitive_calls": 1,
      "tottime": 2.4e-05
     },
     {
-     "cumtime": 0.002301,
+     "cumtime": 0.002226,
      "name": "qdperf/examples/demo_work.py:extra",
-     "ncalls": 77,
-     "primitive_calls": 77,
-     "tottime": 0.002301
+     "ncalls": 74,
+     "primitive_calls": 74,
+     "tottime": 0.002226
     },
     {
-     "cumtime": 6.1e-05,
+     "cumtime": 3.9e-05,
      "name": "<builtin>:get",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 5e-06
+     "tottime": 4e-06
     },
     {
-     "cumtime": 5.6e-05,
+     "cumtime": 3.5e-05,
      "name": "<builtin>:__getitem__",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 1.6e-05
+     "tottime": 1.1e-05
     },
     {
-     "cumtime": 3.6e-05,
+     "cumtime": 1.9e-05,
      "name": "<builtin>:encode",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 3.2e-05
+     "tottime": 1.5e-05
     },
     {
-     "cumtime": 1e-05,
+     "cumtime": 9e-06,
      "name": "<builtin>:<built-in method time.perf_counter>",
-     "ncalls": 81,
-     "primitive_calls": 81,
-     "tottime": 1e-05
+     "ncalls": 78,
+     "primitive_calls": 78,
+     "tottime": 9e-06
     },
     {
-     "cumtime": 4e-06,
+     "cumtime": 5e-06,
      "name": "<builtin>:decode",
      "ncalls": 1,
      "primitive_calls": 1,
@@ -478,10 +478,17 @@
     },
     {
      "cumtime": 2e-06,
-     "name": "<builtin>:<built-in method builtins.max>",
+     "name": "<builtin>:<method 'decode' of 'bytes' objects>",
      "ncalls": 1,
      "primitive_calls": 1,
      "tottime": 2e-06
+    },
+    {
+     "cumtime": 1e-06,
+     "name": "<builtin>:<built-in method builtins.max>",
+     "ncalls": 1,
+     "primitive_calls": 1,
+     "tottime": 1e-06
     },
     {
      "cumtime": 1e-06,
@@ -493,13 +500,6 @@
     {
      "cumtime": 1e-06,
      "name": "<builtin>:<built-in method builtins.len>",
-     "ncalls": 1,
-     "primitive_calls": 1,
-     "tottime": 1e-06
-    },
-    {
-     "cumtime": 1e-06,
-     "name": "<builtin>:<method 'decode' of 'bytes' objects>",
      "ncalls": 1,
      "primitive_calls": 1,
      "tottime": 1e-06
@@ -517,8 +517,8 @@
    "qdperf/examples/demo_work.py:extra",
    "<builtin>:decode"
   ],
-  "noise_hot": 0.010922634090438962,
-  "rerun": "OK hot.wall_s=0.01831→0.0184 (+0.5%) tol=10.0%",
-  "slow12": "REGRESSION hot.wall_s=0.01831→0.02067 (+12.9%)"
+  "noise_hot": 0.01947691915932724,
+  "rerun": "OK hot.wall_s=0.01845→0.01846 (+0.0%) tol=10.0%",
+  "slow12": "REGRESSION cold.wall_s=0.01888→0.02125 (+12.6%)"
  }
 }
