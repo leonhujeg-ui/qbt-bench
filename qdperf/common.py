@@ -263,8 +263,9 @@ def spawn_context():
     return multiprocessing.get_context("spawn")
 
 
-def start_process(target, *args, name=None):
-    proc = spawn_context().Process(target=target, args=args, name=name, daemon=True)
+def start_process(target, *args, name=None, daemon=True):
+    """daemon=False 用于自己还要再起子进程的进程（daemonic 进程不允许有子进程）；超时仍由 join_all 强制结束。"""
+    proc = spawn_context().Process(target=target, args=args, name=name, daemon=daemon)
     proc.start()
     return proc
 

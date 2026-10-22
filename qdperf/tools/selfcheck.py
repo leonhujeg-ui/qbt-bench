@@ -19,6 +19,7 @@ from qdperf import profile_gate as G
 from qdperf import sqlite_doctor as D
 from qdperf import sqlplan as P
 from qdperf import synth_db
+from qdperf import tick_jitter as J
 from qdperf.examples import qbt_case
 
 WORKLOAD = os.path.join(common.PKG, "examples", "workload_trading.json")
@@ -225,6 +226,60 @@ def g2_ok(s):
             and s["rerun_verdict"] == "OK" and s["names_have_no_lineno_or_tmp"] and s["names_moved_copy_top10_equal"])
 
 
+# ---- G3 ------------------------------------------------------------------------------
+def g3(quick=False, out_dir=common.RESULTS, log=print, seconds=None):
+    """缺省每个配置 20 s（T = 0.05 s → 400 个 tick；p99 至少由 4 个样本决定，不被单个宿主机调度毛刺左右）；
+    quick 时 10 s。"""
+    secs = seconds or (10.0 if quick else 20.0)
+    res = J.scan(quick=quick, base={"seconds": secs}, log=log)
+    res["command"] = f"python3.12 -m qdperf.tick_jitter scan --seconds {secs:g}" + (" --quick" if quick else "")
+    res["summary"] = g3_summary(res)
+    if out_dir:
+        common.write_json(os.path.join(out_dir, "g3_tick_jitter.json"), res)
+    return res
+
+
+def _find(results, **kw):
+    return next((r for r in results if all(r["config"][k] == v for k, v in kw.items())), None)
+
+
+def g3_summary(res):
+    rs = res["results"]
+    q0 = [r for r in rs + res["gil"] if r["config"]["q"] == 0 and r["config"]["bg_threads"] == 0]
+    knee = res["knee"]
+    mit = {}
+    for m in res["mitigations"]:
+        p99 = m["interval_T"]["p99"]
+        mit[m["config"]["mitigation"]] = {"p99_T": p99, "over_2T": m["over_2T"], "effective": p99 is not None and p99 <= 2.0,
+                                          "improvement_x": (knee["knee_p99_T"] / p99) if knee and p99 else None,
+                                          "panel_q": m.get("panel", {}).get("achieved_q"),
+                                          "replica_refreshes": m.get("panel", {}).get("replica_refreshes")}
+    busy = []
+    for r in rs:
+        c = r["config"]
+        if c["busy"] == 0.5:
+            o = _find(rs, wal=c["wal"], compute=c["compute"], q=c["q"], busy=5.0, mitigation="none", bg_threads=0)
+            if o:
+                busy.append({"wal": c["wal"], "compute": c["compute"], "q": c["q"], "p99_T_busy_0_5": r["interval_T"]["p99"],
+                             "p99_T_busy_5": o["interval_T"]["p99"], "write_errors_busy_0_5": r["tick_errors"]["write"],
+                             "write_errors_busy_5": o["tick_errors"]["write"]})
+    gil = {f"{g['config']['compute']}/bg{g['config']['bg_threads']}": {
+        "compute_p50_ms": g["segments_ms"]["compute"]["p50"], "p99_T": g["interval_T"]["p99"]} for g in res["gil"]}
+    return {"T": res["base"]["T"], "seconds_per_config": res["base"]["seconds"], "configs": len(rs),
+            "panel_query_ms": res["panel_calibration"]["seconds"] * 1000, "panel_rows": res["panel_calibration"]["rows"],
+            "q0_p99_T_max": max(r["interval_T"]["p99"] for r in q0), "q0_ok": all(r["interval_T"]["p99"] <= 1.2 for r in q0),
+            "q0_runs": len(q0), "wake_late_ms_max": max((r["wake_late_ms"]["max"] or 0.0) for r in rs + res["gil"]),
+            "knees": [{k: v for k, v in kn.items() if k != "p99_T_by_q"} for kn in res["knees"]],
+            "knee": None if knee is None else {k: v for k, v in knee.items() if k != "p99_T_by_q"},
+            "knee_found": knee is not None and knee["knee_p99_T"] > 2.0,
+            "mitigations": mit, "effective_mitigations": sorted(k for k, v in mit.items() if v["effective"]),
+            "busy_timeout_pairs": busy, "gil": gil, "first_line": J.first_line_scan(res)}
+
+
+def g3_ok(s):
+    return s["q0_ok"] and s["knee_found"] and len(s["effective_mitigations"]) >= 2
+
+
 def resummarize_g1(out_dir=common.RESULTS):
     """只用已入库的 g1 结果文件重算 summary（判据口径改了而实验不必重跑时用）。"""
     sv = common.read_json(os.path.join(out_dir, "g1_synth_verify.json"))
@@ -236,7 +291,8 @@ def resummarize_g1(out_dir=common.RESULTS):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3.12 -m qdperf.tools.selfcheck")
-    ap.add_argument("which", choices=["g1", "g2"])
+    ap.add_argument("which", choices=["g1", "g2", "g3"])
+    ap.add_argument("--quick", action="store_true", help="g3：缩小扫描网格")
     ap.add_argument("--scale", type=float, default=1.0, help="g1：合成库比例")
     ap.add_argument("--n", type=int, default=1_000_000, help="g2：K 线根数")
     ap.add_argument("--repeat", type=int, default=8, help="g2：best-of-N（N 个进程）")
@@ -250,6 +306,11 @@ def main(argv=None):
         for k, v in s["slow"].items():
             print(f"  slow {k}: {v['first_line']} | noise-only: {v['first_line_noise_only']} | new top10: {v['new_top10']}")
         return 0 if g2_ok(s) else 1
+    if args.which == "g3":
+        s = g3(quick=args.quick, out_dir=args.out)["summary"]
+        print(f"G3 {'OK' if g3_ok(s) else 'FAIL'} {s['first_line']} q0_ok={s['q0_ok']} knee_found={s['knee_found']} "
+              f"effective={s['effective_mitigations']}")
+        return 0 if g3_ok(s) else 1
     if args.which == "g1":
         res = g1(scale=args.scale, out_dir=args.out)
         s = res["summary"]

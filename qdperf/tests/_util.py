@@ -1,7 +1,8 @@
 """测试公用：快速模式开关、临时目录、小合成库缓存、捕获输出。
 
 QDPERF_FAST=1（突变测试子进程里设置）只缩短实验时长 / 次数，不放宽任何判据。
-QDPERF_COVERAGE=1（tools/cov.py 设置）时，绝对计时类判据跳过（监控下计时无意义），形状 / 结构类判据照跑。
+QDPERF_COVERAGE=1（tools/cov.py 设置）或 QDPERF_NO_TIMING=1（突变测试设置：4 个突变体并行时机器很忙）时，
+依赖绝对时长 / 机器空闲的断言跳过（TIMING = False），形状 / 结构类判据照跑。
 """
 import contextlib
 import io
@@ -11,6 +12,7 @@ import tempfile
 
 FAST = os.environ.get("QDPERF_FAST") == "1"
 UNDER_COVERAGE = os.environ.get("QDPERF_COVERAGE") == "1"
+TIMING = not (UNDER_COVERAGE or os.environ.get("QDPERF_NO_TIMING") == "1")
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PKG = os.path.join(REPO, "qdperf")
 WORKLOAD = os.path.join(PKG, "examples", "workload_trading.json")

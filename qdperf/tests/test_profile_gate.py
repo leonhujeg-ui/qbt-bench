@@ -8,7 +8,7 @@ import shutil
 import unittest
 
 from qdperf import profile_gate as G
-from qdperf.tests._util import UNDER_COVERAGE, captured, tmpdir
+from qdperf.tests._util import TIMING, captured, tmpdir
 
 DEMO = "qdperf.examples.demo_work:spin"
 REG_LINE = re.compile(r"^REGRESSION (hot\.wall_s|cold\.wall_s|memory\.peak_bytes)=[\d.e+-]+→[\d.e+-]+ \(\+[\d.]+%\)$")
@@ -240,7 +240,7 @@ class TestMeasure(unittest.TestCase):
         self.assertEqual(r["verdict"], "REGRESSION")
         self.assertRegex(r["lines"][0], REG_LINE)
         self.assertIn("qdperf/examples/demo_work.py:extra", [t["name"] for t in r["new_top"]])
-        if not UNDER_COVERAGE:
+        if TIMING:
             self.assertEqual(G.compare(base, same, wall_tol=0.25, mem_tol=0.25)["verdict"], "OK")
 
 
