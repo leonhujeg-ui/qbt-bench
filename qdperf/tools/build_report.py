@@ -156,6 +156,23 @@ def block_g3_mitigations(cache):
     return "\n".join(rows)
 
 
+MITIGATION_NAMES = {"replica": "读只读副本", "chunked": "分块读", "backoff": "轮询退避", "wal": "切 WAL"}
+
+
+def block_g3_mitig_list(cache):
+    """有效 / 无效由本次结果决定（分块读处在边缘，不同运行可能翻转），每条附超过 2T 的 tick 数。"""
+    m = _sum("g3_tick_jitter.json", cache)["mitigations"]
+
+    def fmt(k):
+        v = m[k]
+        return (f"{MITIGATION_NAMES.get(k, k)} p99 {v['p99_T']:.2f}T（改善 {v['improvement_x']:.1f} 倍，"
+                f"超过 2T 的 tick {v['over_2T']} 个）")
+    good = [fmt(k) for k in m if m[k]["effective"]]
+    bad = [fmt(k) for k in m if not m[k]["effective"]]
+    return ("有效（p99 ≤ 2T）：" + ("、".join(good) or "无") +
+            ("；实测无效的也照列：" + "、".join(bad) if bad else "；全部有效"))
+
+
 def block_g3_gil(cache):
     res = _load("g3_tick_jitter.json", cache)
     rows = ["| 算段 | 引擎进程里的忙线程 | 算段耗时 p50 ms | 算段 p99 ms | tick 间隔 p99 |", "|---|---:|---:|---:|---:|"]
@@ -269,7 +286,7 @@ def block_mutation_first(cache):
 
 BLOCKS = {"machines": block_machines, "g1_top": block_g1_top, "g1_suggestions": block_g1_suggestions,
           "g1_contention": block_g1_contention, "g1_wal": block_g1_wal, "g2_slow": block_g2_slow, "g2_noise": block_g2_noise,
-          "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g3_gil": block_g3_gil,
+          "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g3_mitig_list": block_g3_mitig_list, "g3_gil": block_g3_gil,
           "g4_knee": block_g4_knee, "g4_ab": block_g4_ab, "coverage": block_coverage, "mutation": block_mutation,
           "mutation_first": block_mutation_first, "g3_panel_T": block_g3_panel_T, "g3_knee_cfg": block_g3_knee_cfg,
           "g2_slow5_note": block_g2_slow5_note, "g2_noise_probe": block_g2_noise_probe,
