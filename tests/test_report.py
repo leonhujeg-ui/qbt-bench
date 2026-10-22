@@ -133,8 +133,7 @@ class TestSvg(QBTTestCase):
         ys = {p.split(",")[1] for p in neg.find(f"{SVG_NS}polygon").get("points").split()}
         self.assertEqual(ys, {"203.0"})                          # 权益非正：回撤定义为 0，面积贴在基线上
         tiny = self._parse(R.equity_svg([0.5, 0.4], None, width=500, height=300))
-        self.assertIn("398.0,270.0" if False else "480.0,270.0",
-                      tiny.find(f"{SVG_NS}polygon").get("points").split())          # 峰值 0.5 (>0 但 <1) 的回撤 20% 仍画出
+        self.assertIn("480.0,270.0", tiny.find(f"{SVG_NS}polygon").get("points").split())   # 峰值 0.5 (>0 但 <1) 的回撤 20% 仍画出
         flat = self._parse(R.equity_svg([5.0, 5.0, 5.0]))
         self.assertEqual(len(flat.find(f"{SVG_NS}polyline").get("points").split()), 3)
         one = self._parse(R.equity_svg([7.0], [0]))

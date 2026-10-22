@@ -253,7 +253,7 @@ class TestEngineSemantics(QBTTestCase):
         ctx = Context({"S": d}, Engine(d, EveryKBars(), CFG).broker)
         s = EveryKBars()
         self.assertEqual(s.size_qty(ctx, 0.0, 0.5), 0.0)
-        self.assertAlmostEqual(s.size_qty(ctx, 50.0, 0.5), CFG.cash * 0.5 / 50.0)
+        self.assertAlmostEqual(s.size_qty(ctx, 50.0, 0.5), CFG.cash * 0.5 / 50.0, delta=1e-9)   # 乘除顺序不同的舍入
         self.assertEqual(ctx.pending_signed("S"), 0.0)
         o = ctx.order("S", 1, 2.0, LIMIT, price=1.0)
         self.assertEqual(ctx.pending_signed("S"), 0.0)          # 限价单不计入
@@ -270,7 +270,7 @@ class TestEngineSemantics(QBTTestCase):
         self.assertEqual(Strategy.name, "base")
         self.assertGreater(s.size_qty(ctx, 0.5, 0.5), 0.0)      # 价格在 (0,1] 也能定仓
         ctx.broker.equity = 0.5
-        self.assertAlmostEqual(s.size_qty(ctx, 50.0, 0.5), 0.005)   # 权益在 (0,1] 也能定仓
+        self.assertAlmostEqual(s.size_qty(ctx, 50.0, 0.5), 0.005, delta=1e-15)   # 权益在 (0,1] 也能定仓；舍入
         uni = generate_universe(["P", "Q"], 20, 1)
         eng = Engine(uni, EveryKBars(), CFG)
         eng.run()

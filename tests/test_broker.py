@@ -36,7 +36,14 @@ class TestConfigAndValidation(QBTTestCase):
         self.assertEqual(BrokerConfig(cash=5.0).to_dict()["cash"], 5.0)
         with self.assertRaises(ConfigError):
             BrokerConfig(maintenance_margin=-0.5).check()
+        import dataclasses
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            BrokerConfig().cash = 1.0                                      # 配置不可变（进程间传递/缓存键的前提）
+        for kw in ({"cash": True}, {"maker_fee": False}, {"max_leverage": True}, {"allow_short": 1}):
+            with self.assertRaises(ConfigError, msg=str(kw)):
+                BrokerConfig(**kw).check()                                 # bool 不是实数
         BrokerConfig(maintenance_margin=0.0).check()               # 0 合法（关闭爆仓）
+        BrokerConfig(cash=0.5).check()                             # 现金在 (0,1] 合法（cash<=1 会误拒）
         self.assertEqual(BrokerConfig().to_dict(), {
             "cash": 100_000.0, "maker_fee": 0.0002, "taker_fee": 0.0005, "slippage": 0.0001, "impact": 0.0,
             "max_participation": 0.1, "max_leverage": 1.0, "maintenance_margin": 0.05, "liquidation_fee": 0.01,
@@ -238,6 +245,14 @@ class TestExactTouch(QBTTestCase):
         b2.on_bar(1)
         self.assertEqual([f.price for f in b2.fills], [100.0, 100.0])
 
+    def test_margin_exact_boundary_allowed(self):
+        rows = [(100, 101, 99, 100, 1e9)] * 2
+        b, d = broker(rows, max_leverage=1.0, slippage=0, taker_fee=0, max_participation=1.0)
+        b.on_bar(0)
+        o = b.submit("S", 1, 1000, MARKET)                                   # 名义恰好 == 权益 * 杠杆
+        b.on_bar(1)
+        self.assertEqual(o.status, FILLED)
+
     def test_margin_counts_own_symbol_once(self):
         rows = [(100, 101, 99, 100, 1e9)] * 3
         b, d = broker(rows, max_leverage=1.0, slippage=0, taker_fee=0, max_participation=1.0)
@@ -248,6 +263,65 @@ class TestExactTouch(QBTTestCase):
         b.on_bar(2)
         self.assertEqual(o.status, FILLED)
         self.assertEqual(b.position("S"), 900.0)
+
+
+class TestReduceOnlyAndMargin(QBTTestCase):
+    def test_reduce_only_never_flips(self):
+        """只减仓单：数量封顶在持仓，仓位归零后余量撤销；无仓/同向直接拒绝。"""
+        rows = [(100, 101, 99, 100, 1000)] * 4
+        b, d = broker(rows, max_participation=1.0)
+        b.on_bar(0)
+        b.submit("S", 1, 0.3, MARKET)
+        b.on_bar(1)
+        o = b.submit("S", -1, 0.5, STOP, price=99.5, reduce_only=True)     # 想卖 0.5，只持 0.3
+        b.on_bar(2)
+        self.assertEqual(b.position("S"), 0.0)
+        self.assertEqual((o.status, o.reason, o.remaining), (CANCELLED, "reduce_only", 0.2))
+        self.assertEqual(b.fills[-1].qty, 0.3)
+        none = b.submit("S", -1, 1, MARKET, reduce_only=True)                # 无仓
+        same = b.submit("S", 1, 1, MARKET, reduce_only=True)                 # 无仓（同向语义亦不成立）
+        b.on_bar(3)
+        self.assertEqual((none.status, none.reason), (REJECTED, "reduce_only"))
+        self.assertEqual((same.status, same.reason), (REJECTED, "reduce_only"))
+        self.assertEqual(b.position("S"), 0.0)
+        b2, _ = broker(rows, max_participation=1.0)
+        b2.on_bar(0)
+        b2.submit("S", 1, 1, MARKET)
+        b2.on_bar(1)
+        add = b2.submit("S", 1, 1, MARKET, reduce_only=True)                  # 持多再买：同向 => 拒绝
+        b2.on_bar(2)
+        self.assertEqual((add.status, add.reason, b2.position("S")), (REJECTED, "reduce_only", 1.0))
+
+    def test_partial_fill_then_margin_failure_is_cancelled_not_rejected(self):
+        rows = [(100, 101, 99, 100, 300), (100, 101, 99, 100, 300), (100, 101, 99, 100, 300), (100, 301, 99, 300, 300),
+                (300, 301, 299, 300, 300)]
+        b, d = broker(rows, max_leverage=1.0, slippage=0, taker_fee=0, max_participation=1.0)
+        b.on_bar(0)
+        o = b.submit("S", 1, 600, MARKET)                                     # 60k 名义，首根只能成交 300 手
+        b.on_bar(1)
+        self.assertEqual((o.status, o.remaining), (PARTIAL, 300.0))
+        b.on_bar(2)
+        self.assertEqual(o.status, FILLED)
+        o2 = b.submit("S", 1, 600, MARKET)                                    # 再买 600：第一根 300 手后名义 90k 可行
+        b.on_bar(3)                                                           # 收盘涨到 300：权益 = 100k + 900*200 = 280k
+        self.assertEqual(o2.status, PARTIAL)
+        b.on_bar(4)                                                           # 开盘 300：再买 300 手 => 名义 1200*300 = 360k > 280k
+        self.assertEqual((o2.status, o2.reason), (CANCELLED, "margin"))
+        self.assertEqual(o2.remaining, 300.0)                                 # 保留已成交部分与余量记录
+        self.assertEqual(b.position("S"), 900.0)
+
+    def test_margin_marks_other_symbols_at_previous_close(self):
+        """第 i 根开盘撮合时，其他标的只能按上一根收盘盯市（不能用本根收盘）。"""
+        rows_a = [(100, 101, 99, 100, 1e9), (100, 101, 99, 100, 1e9), (100, 101, 50, 50, 1e9)]
+        rows_b = [(100, 101, 99, 100, 1e9)] * 3
+        a, bb = bars(rows_a, "A"), bars(rows_b, "B")
+        b = Broker({"A": a, "B": bb}, BrokerConfig(max_leverage=1.0, slippage=0, taker_fee=0, max_participation=1.0))
+        b.on_bar(0)
+        b.submit("A", 1, 500, MARKET)                                         # 50k 名义
+        b.on_bar(1)
+        o = b.submit("B", 1, 600, MARKET)                                     # 60k：按上一根收盘 A=50k => 110k > 100k 拒绝
+        b.on_bar(2)                                                           # 本根 A 收盘跌到 50（若偷看则 30k+60k 可行）
+        self.assertEqual((o.status, o.reason), (REJECTED, "margin"))
 
 
 class TestAccounting(QBTTestCase):
@@ -317,7 +391,7 @@ class TestAccounting(QBTTestCase):
         self.assertAlmostEqual(b2.assets() - b2.liabilities(), b2.equity, delta=1e-6)
         r = b2.submit("S", 1, 1000, MARKET, reduce_only=True)
         b2.on_bar(2)
-        self.assertEqual((r.status, r.reason), (REJECTED, "margin"))     # reduce_only 不能加仓
+        self.assertEqual((r.status, r.reason), (REJECTED, "reduce_only"))   # reduce_only 不能加仓（同向直接拒绝）
         ok = b2.submit("S", -1, 500, MARKET, reduce_only=True)
         b2.on_bar(3)
         self.assertEqual(ok.status, FILLED)
@@ -539,7 +613,7 @@ class TestRoundTrips(QBTTestCase):
         t = round_trips(fills)
         self.assertEqual(len(t), 2)
         self.assertEqual((t[0]["entry_bar"], t[0]["exit_bar"], t[0]["side"], t[0]["qty"], t[0]["bars"]), (1, 4, 1, 20.0, 3))
-        self.assertAlmostEqual(t[0]["entry_price"], 105.0)
+        self.assertAlmostEqual(t[0]["entry_price"], 105.0, delta=1e-12)   # 加权均价的浮点舍入
         self.assertAlmostEqual(t[0]["pnl"], (120 - 105) * 5 + (90 - 105) * 15 - 4.5, delta=1e-9)
         self.assertEqual((t[1]["side"], t[1]["qty"], t[1]["entry_price"], t[1]["exit_price"]), (-1, 10.0, 90, 80))
         self.assertAlmostEqual(t[1]["pnl"], (90 - 80) * 10, delta=1e-9)

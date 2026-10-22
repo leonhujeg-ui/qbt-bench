@@ -87,12 +87,17 @@ class TestHandComputed(QBTTestCase):
         self.assertEqual(M.var_cvar([], 0.05), (0.0, 0.0))
         self.assertEqual(M.var_cvar([0.1], 0.05), (-0.1, -0.1))                   # 单样本：VaR 为负表示“最坏也是盈利”
         self.assertEqual(M.var_cvar([-0.1, 0.2], 1.0), (-0.2, -0.05))             # alpha=1 => 取全部
+        from qbt.errors import ConfigError
+        for bad in (0.0, 1.5, -0.1, float("nan"), True, "0.05"):
+            with self.assertRaises(ConfigError):
+                M.var_cvar([0.1, 0.2], bad)
 
     def test_period_returns_hand(self):
         eq = [100.0, 120.0, 90.0, 135.0, 140.0]
         ts = ts_days((2020, 1, 30), (2020, 1, 31), (2020, 2, 1), (2020, 2, 2), (2020, 2, 2))
         monthly = M.monthly_returns(eq, ts)
         self.assertEqual([(m["year"], m["month"]) for m in monthly], [(2020, 1), (2020, 2)])
+        self.assertTrue(all(type(m["year"]) is int and type(m["month"]) is int for m in monthly))   # 整数历法（非 float）
         self.assertAlmostEqual(monthly[0]["ret"], 0.2, delta=1e-12)              # 1 月末 120 / 起点 100
         self.assertAlmostEqual(monthly[1]["ret"], 140 / 120 - 1, delta=1e-12)    # 2 月末 140 / 1 月末 120（同日两根取最后）
         daily = M.daily_returns(eq, ts)
@@ -109,12 +114,12 @@ class TestHandComputed(QBTTestCase):
         T = lambda pnl, bars=3: {"pnl": pnl, "bars": bars}
         s = M.trade_stats([T(10.0), T(-5.0), T(20.0, 5), T(-10.0), T(0.0)])
         self.assertEqual(s["n_trades"], 5)
-        self.assertAlmostEqual(s["win_rate"], 0.4)
-        self.assertAlmostEqual(s["profit_factor"], 2.0)
-        self.assertAlmostEqual(s["avg_win"], 15.0)
-        self.assertAlmostEqual(s["avg_loss"], -7.5)
-        self.assertAlmostEqual(s["expectancy"], 3.0)
-        self.assertAlmostEqual(s["avg_bars"], 3.4)
+        self.assertAlmostEqual(s["win_rate"], 0.4, delta=1e-12)          # 2/5 的舍入
+        self.assertAlmostEqual(s["profit_factor"], 2.0, delta=1e-12)
+        self.assertAlmostEqual(s["avg_win"], 15.0, delta=1e-12)
+        self.assertAlmostEqual(s["avg_loss"], -7.5, delta=1e-12)
+        self.assertAlmostEqual(s["expectancy"], 3.0, delta=1e-12)
+        self.assertAlmostEqual(s["avg_bars"], 3.4, delta=1e-12)          # 17/5 的舍入
         self.assertEqual((s["gross_profit"], s["gross_loss"]), (30.0, 15.0))
         e = M.trade_stats([])
         self.assertEqual((e["n_trades"], e["win_rate"], e["profit_factor"], e["expectancy"]), (0, 0.0, None, 0.0))
@@ -191,6 +196,8 @@ class TestMetricsEdges(QBTTestCase):
     def test_drawdown_indices_and_empty_compute_fields(self):
         dd = M.max_drawdown([1.0, 2.0, 3.0])
         self.assertEqual((dd["peak_idx"], dd["trough_idx"]), (0, 0))
+        flat_top = M.max_drawdown([100.0, 100.0, 90.0])
+        self.assertEqual((flat_top["peak_idx"], flat_top["duration_bars"]), (0, 2))   # 平顶取首个峰值（严格 > 才更新）
         empty = M.compute([], [], DAY)
         self.assertEqual((empty["start_equity"], empty["end_equity"], empty["sharpe"], empty["monthly"]), (0.0, 0.0, 0.0, []))
 
@@ -217,7 +224,7 @@ class TestProperties(QBTTestCase):
         d = generate(n=scale(3000, 800), seed=21, bar_seconds=3600)
         res = run_backtest(d, REGISTRY["donchian_breakout"](), BrokerConfig(max_participation=1.0))
         m = M.compute(res.equity, res.ts, res.bar_seconds, res.trades)
-        self.assertAlmostEqual(m["end_equity"], res.final_equity)
+        self.assertEqual(m["end_equity"], res.final_equity)              # 同一个值，精确相等
         self.assertAlmostEqual(1 + m["total_return"], res.final_equity / res.initial_cash, delta=1e-12)
         prod = 1.0
         for mm in m["monthly"]:

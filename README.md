@@ -40,6 +40,7 @@ python3.12 bench/bench.py --out bench/results/xx.json        # 性能基准 -> J
 | `fuzz/fuzz.py` | 10 万次随机 / 畸形输入打 engine / broker / indicators / metrics |
 | `bench/bench.py` | 计时脚本，输出 JSON（`bench/results/`） |
 | `tools/cov.py` | 语句覆盖率工具（sys.monitoring, PEP 669） |
+| `results/`, `mutants/history/`, `bench/results/` | 报告引用的全部原始 JSON（覆盖率、walk-forward、各轮突变结果、基准） |
 
 ## 时间语义（不偷看未来）
 

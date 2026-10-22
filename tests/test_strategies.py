@@ -55,7 +55,7 @@ class TestParamSpaces(QBTTestCase):
                 r = run_backtest(d, cls(**params), CFG)
                 b_pos = sum(f.side * f.qty for f in r.fills)
                 self.assertAlmostEqual(r.final_equity, r.equity[-1], delta=ACCOUNTING_TOL, msg=f"{name} {params}")
-                self.assertTrue(all(o.status != "rejected" or o.reason in ("margin", "short not allowed", "bankrupt")
+                self.assertTrue(all(o.status != "rejected" or o.reason in ("margin", "short not allowed", "bankrupt", "reduce_only")
                                     for o in r.orders), name)
                 self.assertTrue(abs(b_pos) < 1e6)
 
@@ -133,7 +133,6 @@ class TestSignalConsistency(QBTTestCase):
         for f in r.fills:
             pos += f.side * f.qty
         self.assertLessEqual(abs(pos) / max(s.level_qty, 1e-9), 5 + 3 + 1e-6)
-        self.assertEqual(r.fills, [] if False else r.fills)
 
     def test_trend_stop_has_protective_orders(self):
         d = self.d
@@ -154,6 +153,21 @@ class TestSignalConsistency(QBTTestCase):
         for f in r.fills:
             pos += f.side * f.qty
             self.assertGreaterEqual(pos, -1e-9)                          # 只做多
+        # 与网格策略同账户同标的共跑：网格常年挂限价单，趋势策略仍必须能入场（不能看账户级 pending）
+        from qbt.engine import Engine
+        both = Engine(d, [REGISTRY["grid"](), REGISTRY["trend_stop"](ma_n=20, atr_n=14)],
+                      BrokerConfig(max_participation=1.0, max_leverage=2.0)).run()
+        self.assertGreater(sum(1 for o in both.orders if o.type == "stop"), 0)
+        # 默认参与上限 10% 下入场常被拆成多笔：reduce_only 止损/止盈绝不能把仓位打成空头
+        partial = run_backtest(d, REGISTRY["trend_stop"](ma_n=20), BrokerConfig())
+        pos = 0.0
+        for f in partial.fills:
+            pos += f.side * f.qty
+            self.assertGreaterEqual(pos, -1e-9)
+        self.assertGreater(len(partial.fills), 0)
+        # 极端波动（止损价 <= 0）不抛异常、不入场
+        wild = generate(n=300, seed=99, sigma=80.0, halt_prob=0.0)
+        run_backtest(wild, REGISTRY["trend_stop"](ma_n=20, atr_n=5, stop_mult=3.0), CFG)
         trailing = run_backtest(d, REGISTRY["trend_stop"](ma_n=20, trailing=True), CFG)
         fixed = run_backtest(d, REGISTRY["trend_stop"](ma_n=20, trailing=False), CFG)
         self.assertGreater(sum(1 for o in trailing.orders if o.type == "stop"),

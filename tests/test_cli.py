@@ -89,6 +89,28 @@ class TestCli(QBTTestCase):
         self.assertEqual(code, 0)
         self.assertIn("Ran 3 tests", err.getvalue())
 
+    def test_test_subcommand_returns_1_on_failure(self):
+        import contextlib
+        from unittest import mock
+
+        class FakeResult:
+            testsRun = 1
+            failures = errors = []
+            skipped = []
+
+            @staticmethod
+            def wasSuccessful():
+                return False
+
+        class FakeRunner:
+            def __init__(self, *a, **k):
+                pass
+
+            def run(self, suite):
+                return FakeResult()
+        with mock.patch("unittest.TextTestRunner", FakeRunner), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(cli.main(["test", "--pattern", "test_limits.py"]), 1)
+
     def test_parser(self):
         ap = cli.build_parser()
         args = ap.parse_args(["demo", "--n", "5"])
@@ -165,7 +187,7 @@ class TestToolScripts(QBTTestCase):
         summary = RM.summarize([{"module": "x", "status": "killed"}, {"module": "x", "status": "survived"},
                                 {"module": "y", "status": "timeout"}])
         self.assertEqual((summary["total"], summary["caught"], summary["survived"]), (3, 2, 1))
-        self.assertAlmostEqual(summary["kill_rate"], 200 / 3)
+        self.assertAlmostEqual(summary["kill_rate"], 200 / 3, delta=1e-12)   # 100*2/3 的舍入
 
     def test_coverage_tool_executable_lines(self):
         from tools import cov

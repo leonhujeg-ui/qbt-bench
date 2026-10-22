@@ -214,6 +214,13 @@ class Broker:
             qty, price, liquidity = self._match(order, d.open[i], d.high[i], d.low[i], d.volume[i])
             if qty <= 0:
                 continue
+            if order.reduce_only:
+                held = self.positions[order.symbol].qty          # 只减仓：无仓或同向即拒绝，数量封顶在持仓
+                if held == 0.0 or (held > 0) == (order.side > 0):
+                    self.pending.remove(order)
+                    self._reject(order, "reduce_only")
+                    continue
+                qty = qty if qty < abs(held) else abs(held)
             if not self.cfg.allow_short and order.side < 0:
                 held = self.positions[order.symbol].qty          # 成交时再次封顶：多笔挂单可能已把多头卖光
                 if held <= 1e-12:
@@ -223,11 +230,17 @@ class Broker:
                 qty = qty if qty < held else held
             if not self._margin_ok(order, qty, price):
                 self.pending.remove(order)
-                self._reject(order, "margin")
+                if order.remaining < order.qty:                    # 已有部分成交：保留成交，余量撤销
+                    order.status, order.reason = CANCELLED, "margin"
+                else:
+                    self._reject(order, "margin")
                 continue
             self._apply_fill(order, i, qty, price, liquidity)
             if order.remaining <= 1e-12:
                 order.remaining, order.status = 0.0, FILLED
+                self.pending.remove(order)
+            elif order.reduce_only and self.positions[order.symbol].qty == 0.0:
+                order.status, order.reason = CANCELLED, "reduce_only"   # 仓位已平，余量不得反手
                 self.pending.remove(order)
             else:
                 order.status = PARTIAL
@@ -262,16 +275,19 @@ class Broker:
     def _margin_ok(self, order, qty, price):
         pos = self.positions[order.symbol].qty
         new_pos = pos + order.side * qty
-        if abs(new_pos) <= abs(pos) + 1e-12:          # 减仓永远允许
+        if abs(new_pos) <= abs(pos) + 1e-12:          # 减仓永远允许（reduce_only 的加仓在撮合前已拒绝）
             return True
-        if order.reduce_only:
-            return False
         gross = 0.0
         for sym, p in self.positions.items():
             if sym != order.symbol and p.qty:
-                gross += abs(p.qty * self.data[sym].close[self.bar])
+                gross += abs(p.qty * self._mark_at_open(sym))
         gross += abs(new_pos * price)
         return gross <= self.equity * self.cfg.max_leverage + 1e-9
+
+    def _mark_at_open(self, sym):
+        """撮合发生在第 bar 根开盘：其他标的只能用上一根收盘（与 self.equity 的盯市口径一致）或本根开盘价。"""
+        d = self.data[sym]
+        return d.close[self.bar - 1] if self.bar > 0 else d.open[0]
 
     def _apply_fill(self, order, i, qty, price, liquidity):
         rate = self.cfg.maker_fee if liquidity == "maker" else self.cfg.taker_fee

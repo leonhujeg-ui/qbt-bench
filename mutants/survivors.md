@@ -1,18 +1,17 @@
 # 突变测试漏网清单（survivors）
 
-总数 640，抓住 590，漏网 50，抓住率 92.2%
+总数 640，抓住 596，漏网 44，抓住率 93.1%
 
-- `broker:1117:compare` 行 159 [compare]: `side < 0` -> `side <= 0`
-- `broker:1934:compare` 行 248 [compare]: `side > 0` -> `side >= 0`
-- `broker:1938:compare` 行 250 [compare]: `side < 0` -> `side <= 0`
-- `broker:1957:const:1` 行 255 [const]: `0` -> `1`
-- `broker:3254:compare` 行 317 [compare]: `pos.qty > 0` -> `pos.qty >= 0`
-- `broker:2253:compare` 行 383 [compare]: `st['qty'] > 0` -> `st['qty'] >= 0`
+- `broker:995:const:1.0` 行 105 [const]: `0.0` -> `1.0`
+- `broker:2594:compare` 行 223 [compare]: `qty < abs(held)` -> `qty <= abs(held)`
+- `broker:1969:compare` 行 263 [compare]: `side < 0` -> `side <= 0`
+- `broker:2685:const:1` 行 263 [const]: `0` -> `1`
+- `broker:2086:compare` 行 304 [compare]: `q > 0` -> `q >= 0`
+- `broker:1461:compare` 行 392 [compare]: `st['qty'] > 0` -> `st['qty'] >= 0`
+- `broker:850:binop` 行 399 [binop]: `(f.price - st['avg']) * closing * (1.0 if st['qty'] > 0 else -1.0)` -> `(f.price - st['avg']) * closing / (1.0 if st['qty'] > 0 else -1.0)`
 - `cli:738:const:0` 行 50 [const]: `1` -> `0`
 - `cli:738:const:2` 行 50 [const]: `1` -> `2`
 - `cli:946:const:2` 行 70 [const]: `1` -> `2`
-- `cli:301:const:0` 行 71 [const]: `1` -> `0`
-- `cli:301:const:2` 行 71 [const]: `1` -> `2`
 - `cli:812:const:True` 行 91 [const]: `False` -> `True`
 - `data:265:const:-1` 行 206 [const]: `0` -> `-1`
 - `data:1481:compare` 行 228 [compare]: `rnd() < jump_prob` -> `rnd() <= jump_prob`
@@ -20,20 +19,15 @@
 - `engine:1226:const:1.5000000000000002e-09` 行 157 [const]: `1e-09` -> `1.5000000000000002e-09`
 - `engine:832:compare` 行 206 [compare]: `ctx.equity <= 0` -> `ctx.equity < 0`
 - `engine:1468:const:-1` 行 274 [const]: `0` -> `-1`
-- `indicators:2065:const:0` 行 72 [const]: `1` -> `0`
-- `indicators:2191:compare` 行 127 [compare]: `d > 0` -> `d >= 0`
-- `indicators:4696:binop` 行 312 [binop]: `i + 1` -> `i - 1`
-- `indicators:5839:binop` 行 315 [binop]: `w - mean` -> `w + mean`
-- `indicators:268:delete_stmt` 行 450 [delete_stmt]: `_check_window(n)` -> `pass`
-- `indicators:5001:const:1.5` 行 457 [const]: `1.0` -> `1.5`
-- `indicators:5137:compare` 行 527 [compare]: `bl > lower` -> `bl >= lower`
-- `indicators:3079:compare` 行 550 [compare]: `v > peak` -> `v >= peak`
-- `metrics:425:const:1.5e-14` 行 61 [const]: `1e-14` -> `1.5e-14`
-- `metrics:514:const:True` 行 104 [const]: `False` -> `True`
-- `metrics:1360:const:0` 行 143 [const]: `1` -> `0`
-- `metrics:594:const:146098` 行 152 [const]: `146097` -> `146098`
-- `metrics:991:binop` 行 152 [binop]: `z - 146096` -> `z + 146096`
-- `metrics:1041:const:86399` 行 178 [const]: `86400` -> `86399`
+- `indicators:1138:const:0` 行 55 [const]: `1` -> `0`
+- `indicators:329:delete_stmt` 行 567 [delete_stmt]: `_check_window(n)` -> `pass`
+- `metrics:176:compare` 行 46 [compare]: `growth > 700.0` -> `growth >= 700.0`
+- `metrics:467:const:-1` 行 86 [const]: `0` -> `-1`
+- `metrics:467:const:1` 行 86 [const]: `0` -> `1`
+- `metrics:517:const:-1` 行 105 [const]: `0` -> `-1`
+- `metrics:585:const:-1` 行 146 [const]: `0` -> `-1`
+- `metrics:1399:const:1` 行 155 [const]: `0` -> `1`
+- `metrics:1403:const:146097` 行 155 [const]: `146096` -> `146097`
 - `optimizer:2064:const:False` 行 78 [const]: `True` -> `False`
 - `optimizer:1845:const:False` 行 142 [const]: `True` -> `False`
 - `optimizer:310:delete_stmt` 行 164 [delete_stmt]: `_worker_init(task['data_spec'])` -> `pass`

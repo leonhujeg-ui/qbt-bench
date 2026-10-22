@@ -18,6 +18,14 @@ def _check_window(n, name="window"):
         raise ConfigError(f"{name} must be a positive int, got {n!r}")
 
 
+def _check_real(v, name, lo=None, hi=None):
+    """非窗口类参数：有限实数，可选闭区间 [lo, hi]。"""
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or v != v or v in (math.inf, -math.inf):
+        raise ConfigError(f"{name} must be a finite real number, got {v!r}")
+    if (lo is not None and v < lo) or (hi is not None and v > hi):
+        raise ConfigError(f"{name} must be in [{lo}, {hi}], got {v!r}")
+
+
 # ---- 移动平均族 --------------------------------------------------------------
 def sma(x, n):
     """简单移动平均：滚动和，O(1)/bar。"""
@@ -36,6 +44,8 @@ def sma(x, n):
 def ema(x, n, alpha=None):
     """指数移动平均：alpha=2/(n+1)，以首值为种子。"""
     _check_window(n)
+    if alpha is not None:
+        _check_real(alpha, "alpha", 0.0, 1.0)
     a = 2.0 / (n + 1) if alpha is None else alpha
     out = [None] * len(x)
     if not x:
@@ -96,6 +106,8 @@ def tema(x, n):
 def kama(x, n=10, fast=2, slow=30):
     """Kaufman 自适应均线：ER = |x_i - x_{i-n}| / sum|dx|（滚动和）。"""
     _check_window(n)
+    _check_window(fast, "fast")
+    _check_window(slow, "slow")
     fast_sc, slow_sc = 2.0 / (fast + 1), 2.0 / (slow + 1)
     out = [None] * len(x)
     if not x:
@@ -299,6 +311,8 @@ def rolling_std(x, n, ddof=0):
     """滚动标准差（默认总体）。用 West 滑窗更新（均值 + 二阶中心矩），
     误差相对于方差本身而非 x^2，避免“平方和减均值平方”的灾难性消去。"""
     _check_window(n)
+    if not isinstance(ddof, int) or isinstance(ddof, bool) or ddof < 0:
+        raise ConfigError("ddof must be a non-negative int")
     out = [None] * len(x)
     if n - ddof <= 0:
         return out
@@ -326,6 +340,7 @@ def rolling_std(x, n, ddof=0):
 
 def bollinger(x, n=20, k=2.0):
     """布林带 (upper, middle, lower)，带宽对称：upper - mid == mid - lower。"""
+    _check_real(k, "k", 0.0)
     mid, sd = sma(x, n), rolling_std(x, n)
     up = [None if m is None else m + k * s for m, s in zip(mid, sd)]
     lo = [None if m is None else m - k * s for m, s in zip(mid, sd)]
@@ -339,6 +354,7 @@ def zscore(x, n=20):
 
 def keltner(high, low, close, n=20, k=2.0, atr_n=10):
     """Keltner 通道：EMA(close) ± k * ATR。"""
+    _check_real(k, "k", 0.0)
     mid, a = ema(close, n), atr(high, low, close, atr_n)
     up = [None if v is None else m + k * v for m, v in zip(mid, a)]
     lo = [None if v is None else m - k * v for m, v in zip(mid, a)]
@@ -482,6 +498,10 @@ def _midline(high, low, n):
 
 def parabolic_sar(high, low, af0=0.02, af_step=0.02, af_max=0.2):
     """抛物线 SAR（Wilder），返回 (sar, trend) trend=+1 多 / -1 空。"""
+    for name, v in (("af0", af0), ("af_step", af_step), ("af_max", af_max)):
+        _check_real(v, name, 0.0)
+    if af0 > af_max:
+        raise ConfigError("af0 must not exceed af_max")
     m = len(high)
     sar, trend = [None] * m, [None] * m
     if m < 2:
@@ -510,6 +530,7 @@ def parabolic_sar(high, low, af0=0.02, af_step=0.02, af_max=0.2):
 
 def supertrend(high, low, close, n=10, mult=3.0):
     """SuperTrend：返回 (line, direction)，direction=+1 多(价在线上)/-1 空。"""
+    _check_real(mult, "mult", 0.0)
     a = atr(high, low, close, n)
     m = len(close)
     line, direc = [None] * m, [None] * m
@@ -541,8 +562,8 @@ def rolling_drawdown(x, n):
 
 
 def rolling_max_drawdown(x, n):
-    """窗口内的最大回撤（>= 0）：窗口内 (峰值-谷值)/峰值 的最大值；
-    用“自序列起点的累计峰值回撤”在窗口上取滚动最大，O(n)。"""
+    """窗口内各点“相对序列起点以来累计峰值”的回撤的最大值（>= 0），O(n)。
+    注意：峰值是累计峰值而不是窗口内峰值——这是实现采用的定义，与 tests/_brute.max_drawdown_from_start 一致。"""
     _check_window(n)
     peak = -math.inf
     dd = []

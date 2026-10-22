@@ -126,7 +126,7 @@ class TestOscillators(QBTTestCase):
         n = 5
         self.assertCloseList(I.roc(self.x, n), [None] * n + [self.x[i] / self.x[i - n] - 1 for i in range(n, len(self.x))])
         self.assertCloseList(I.momentum(self.x, n), [None] * n + [self.x[i] - self.x[i - n] for i in range(n, len(self.x))])
-        self.assertIsNone(I.roc([1.0, 0.0, 2.0], 1)[1 + 1 - 1 + 1 - 1] if False else I.roc([1.0, 0.0, 2.0], 1)[2])  # 除零 => None
+        self.assertIsNone(I.roc([1.0, 0.0, 2.0], 1)[2])                                   # 除零 => None
         g = 0.01
         x = [math.exp(g * i) for i in range(600)]
         t = I.trix(x, 5)
@@ -350,6 +350,9 @@ class TestVolumeTrendRisk(QBTTestCase):
         self.assertEqual(down[1:], [-1, -1])
         sar1, tr1 = I.parabolic_sar([2.0, 3.0, 10.0], [1.0, 2.0, 9.0])
         self.assertEqual((tr1[1], sar1[1]), (1, 1.0))      # 初始方向/初始 SAR 只由前两根决定（看 high[-1] 会先判空再翻多，SAR=2）
+        self.assertEqual(I.parabolic_sar([2.0, 2.0, 3.0], [1.0, 1.0, 2.0])[1][1], -1)   # 前两根高点相等：不算上升
+        eq_lows = ([5.0, 4.0, 3.0, 3.0, 3.0, 3.0], [4.0, 3.0, 2.0, 2.0, 2.0, 2.0])     # 下行后多根低点相等：不加速
+        self.assertCloseList(I.parabolic_sar(*eq_lows)[0], B.parabolic_sar(*eq_lows)[0])
         sar2 = I.parabolic_sar([10.0, 11.0, 12.0, 13.0], [5.0, 10.5, 11.5, 12.5])[0]
         self.assertEqual(sar2[2], 5.0)                                                   # 第 2 根取 min(cur, low[1], low[0])，low[0]=5 生效
 
@@ -466,6 +469,13 @@ class TestGenericProperties(QBTTestCase):
                     I.REGISTRY[name](*args, b)
         with self.assertRaises(ConfigError):
             I.ichimoku([1.0], [1.0], [1.0], 0)
+        x = [1.0, 2.0, 3.0]
+        for call in (lambda: I.ema(x, 2, alpha=1.5), lambda: I.ema(x, 2, alpha=float("nan")), lambda: I.kama(x, 2, 0, 5),
+                     lambda: I.kama(x, 2, 2, "30"), lambda: I.bollinger(x, 2, -1.0), lambda: I.keltner(x, x, x, 2, float("inf")),
+                     lambda: I.supertrend(x, x, x, 2, -3.0), lambda: I.parabolic_sar(x, x, af0=0.5, af_max=0.2),
+                     lambda: I.parabolic_sar(x, x, af0="a"), lambda: I.rolling_std(x, 2, ddof=-1)):
+            with self.assertRaises(ConfigError):
+                call()                                                 # 非窗口参数也要受控拒绝
 
     def test_default_parameters_pinned(self):
         """默认窗口是 API 的一部分：用签名钉住，防止静默改动。"""

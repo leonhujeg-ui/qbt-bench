@@ -168,6 +168,19 @@ def fuzz_indicators(r):
     win = r.choice([1, 2, 3, 14, 50]) if r.random() < 0.8 else weird(r, 1.0)
     name = r.choice(list(I.REGISTRY))
     fn = I.REGISTRY[name]
+    if r.random() < 0.3:                      # 非窗口参数（alpha/k/mult/af/ddof/fast/slow）也打畸形值
+        kw = {"ema": {"alpha": r.choice([0.1, 1.0, 1.5, -0.2])}, "bollinger": {"k": r.choice([0.0, 2.0, -1.0])},
+              "keltner": {"k": r.choice([1.0, -2.0]), "atr_n": r.choice([1, 0])}, "supertrend": {"mult": r.choice([3.0, -1.0, 0.0])},
+              "parabolic_sar": {"af0": r.choice([0.02, 0.5, -1.0]), "af_max": r.choice([0.2, 0.01])},
+              "rolling_std": {"ddof": r.choice([0, 1, -1, 2.5])}, "kama": {"fast": r.choice([2, 0, -1]), "slow": r.choice([30, 1])}}
+        if name in kw:
+            for k2, v2 in kw[name].items():
+                w = weird(r, 0.3)
+                kw[name][k2] = w if w is not None else v2
+            base = {"ema": (x, 5), "bollinger": (x, 5), "keltner": (hi, lo, x, 5), "supertrend": (hi, lo, x, 5),
+                    "parabolic_sar": (hi, lo), "rolling_std": (x, 5), "kama": (x, 5)}[name]
+            fn(*base, **kw[name])
+            return
     args = {"sma": (x, win), "ema": (x, win), "wma": (x, win), "hma": (x, win), "dema": (x, win), "tema": (x, win),
             "kama": (x, win), "rsi": (x, win), "macd": (x,), "roc": (x, win), "momentum": (x, win), "trix": (x, win),
             "rolling_max": (x, win), "rolling_min": (x, win), "donchian": (hi, lo, win),

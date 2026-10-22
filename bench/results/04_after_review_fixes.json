@@ -1,0 +1,55 @@
+{
+ "data_indicators_1M": {
+  "generate_seconds": 1.729695596000056,
+  "indicator_adx_seconds": 1.0721248270001524,
+  "indicator_atr_seconds": 0.3220365109996237,
+  "indicator_bollinger_seconds": 0.6074533989999509,
+  "indicator_donchian_seconds": 0.4434203199998592,
+  "indicator_ema_seconds": 0.061153397999987646,
+  "indicator_rsi_seconds": 0.2672556870002154,
+  "indicator_sma_seconds": 0.11055441000007704,
+  "indicator_supertrend_seconds": 0.515957805999733,
+  "indicator_wma_seconds": 0.1578590340000119,
+  "validate_seconds": 0.36174257200036664
+ },
+ "grid_search": {
+  "bars": 20000,
+  "bytewise_identical": true,
+  "combos": 2000,
+  "parallel_seconds": 18.57273733000011,
+  "per_combo_ms_parallel": 9.286368665000055,
+  "serial_seconds": 70.14594752699986,
+  "speedup": 3.7768233233824264,
+  "workers": 8
+ },
+ "label": "after_review_fixes",
+ "machine": {
+  "cpus": 4,
+  "git_commit": "2a2e826",
+  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "python": "3.12.3",
+  "timestamp": "2026-10-22T00:33:33"
+ },
+ "pass": {
+  "grid": true,
+  "single_core": true
+ },
+ "quick": false,
+ "single_core_backtest": {
+  "bars": 1000000,
+  "bars_per_second_cold": 517545.3558274093,
+  "cold_seconds": 1.9321978039997703,
+  "fills": 38908,
+  "final_equity": 9.418260767340259e-06,
+  "identical_rerun": true,
+  "metrics_seconds": 1.3860962060002748,
+  "strategy": "ma_cross",
+  "trades": 38822,
+  "warm_seconds": 0.8838694409996606
+ },
+ "targets": {
+  "grid_2000x8proc_seconds": 90.0,
+  "single_core_backtest_1M_seconds": 3.0
+ }
+}

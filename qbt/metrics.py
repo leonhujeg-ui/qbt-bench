@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import math
 from qbt.data import SECONDS_PER_YEAR
+from qbt.errors import ConfigError
 
 
 def returns_from_equity(equity):
@@ -135,12 +136,14 @@ def calmar(cagr_value, mdd):
 
 
 def var_cvar(returns, alpha=0.05):
-    """历史 VaR/CVaR（正数 = 损失）。k = ceil(alpha*n) - 1 为下分位顺序统计量下标。"""
+    """历史 VaR/CVaR（正数 = 损失）。k = ceil(alpha*n) - 1 为下分位顺序统计量下标（alpha ∈ (0,1] 时 k <= n-1）。"""
+    if isinstance(alpha, bool) or not isinstance(alpha, (int, float)) or not 0.0 < alpha <= 1.0:
+        raise ConfigError(f"alpha must be in (0, 1], got {alpha!r}")
     n = len(returns)
     if n == 0:
         return 0.0, 0.0
     s = sorted(returns)
-    k = max(0, min(n - 1, math.ceil(alpha * n) - 1))
+    k = max(0, math.ceil(alpha * n) - 1)
     var = -s[k]
     cvar = -sum(s[: k + 1]) / (k + 1)
     return var, cvar

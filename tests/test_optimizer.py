@@ -49,7 +49,8 @@ class TestParamSpace(QBTTestCase):
         keys = {O.param_key(x) for x in O.grid(SPACE)}
         self.assertTrue(all(O.param_key(x) in keys for x in a))
         self.assertEqual(len(O.random_search(SPACE, 100, 1)), 8)
-        self.assertEqual([O.param_key(x) for x in a], sorted(O.param_key(x) for x in a) if False else [O.param_key(x) for x in a])
+        grid_index = {O.param_key(x): i for i, x in enumerate(O.grid(SPACE))}
+        self.assertEqual([grid_index[O.param_key(x)] for x in a], sorted(grid_index[O.param_key(x)] for x in a))   # 抽样结果按网格序排列
 
     def test_param_key_and_dedupe(self):
         self.assertEqual(O.param_key({"b": 1, "a": 2}), O.param_key({"a": 2, "b": 1}))
@@ -272,8 +273,8 @@ class TestWalkForward(QBTTestCase):
             oos = O.evaluate(dict(t, slice=[b, c]), f["best"])
             self.assertEqual(oos["metrics"], f["out_of_sample"])
             self.assertEqual(oos["raw_objective"], f["oos_objective"])        # 样本外报告原始值，不用 -1e300 哨兵
-        self.assertAlmostEqual(wf["oos_mean_objective"], sum(f["oos_objective"] for f in folds) / 3)
-        self.assertAlmostEqual(wf["is_mean_objective"], sum(f["is_objective"] for f in folds) / 3)
+        self.assertAlmostEqual(wf["oos_mean_objective"], sum(f["oos_objective"] for f in folds) / 3, delta=1e-12)   # 三项求和顺序相同，仅除法舍入
+        self.assertAlmostEqual(wf["is_mean_objective"], sum(f["is_objective"] for f in folds) / 3, delta=1e-12)
         again = O.walk_forward(t, combos, n_folds=3, train_frac=0.6, workers=1)
         self.assertEqual(json.dumps(wf, sort_keys=True), json.dumps(again, sort_keys=True))
 

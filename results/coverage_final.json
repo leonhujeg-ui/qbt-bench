@@ -1,0 +1,118 @@
+{
+ "files": {
+  "qbt/__init__.py": {
+   "covered": 3,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 3
+  },
+  "qbt/broker.py": {
+   "covered": 328,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 328
+  },
+  "qbt/cli.py": {
+   "covered": 91,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 91
+  },
+  "qbt/data.py": {
+   "covered": 194,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 194
+  },
+  "qbt/engine.py": {
+   "covered": 206,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 206
+  },
+  "qbt/errors.py": {
+   "covered": 4,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 4
+  },
+  "qbt/indicators.py": {
+   "covered": 452,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 452
+  },
+  "qbt/metrics.py": {
+   "covered": 144,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 144
+  },
+  "qbt/optimizer.py": {
+   "covered": 180,
+   "missed": [
+    254
+   ],
+   "percent": 99.4475138121547,
+   "statements": 181
+  },
+  "qbt/report.py": {
+   "covered": 97,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 97
+  },
+  "strategies/__init__.py": {
+   "covered": 8,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 8
+  },
+  "strategies/bollinger.py": {
+   "covered": 27,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 27
+  },
+  "strategies/donchian.py": {
+   "covered": 37,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 37
+  },
+  "strategies/grid.py": {
+   "covered": 41,
+   "missed": [
+    29
+   ],
+   "percent": 97.61904761904762,
+   "statements": 42
+  },
+  "strategies/ma_cross.py": {
+   "covered": 32,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 32
+  },
+  "strategies/rsi_reversion.py": {
+   "covered": 29,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 29
+  },
+  "strategies/trend_stop.py": {
+   "covered": 42,
+   "missed": [
+    45
+   ],
+   "percent": 97.67441860465117,
+   "statements": 43
+  }
+ },
+ "tests_failed": 0,
+ "tests_run": 177,
+ "tests_skipped": 3,
+ "total_covered": 1915,
+ "total_percent": 99.84358706986444,
+ "total_statements": 1918
+}

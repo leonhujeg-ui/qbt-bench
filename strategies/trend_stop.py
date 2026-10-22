@@ -17,7 +17,7 @@ class TrendFollowStop(Strategy):
         self.atr = ctx.indicator("atr", "high", "low", "close", p["atr_n"], symbol=self.symbol)
         _, self.direction = ctx.indicator("supertrend", "high", "low", "close", p["atr_n"], 3.0, symbol=self.symbol)
         self.close = ctx.data[self.symbol].close
-        self.stop = self.tp = None
+        self.stop = self.tp = self.entry = None
         self.stop_price = 0.0
         self.in_trade = False
 
@@ -37,12 +37,14 @@ class TrendFollowStop(Strategy):
                 self.stop_price = c - p["stop_mult"] * a
                 self.stop = ctx.order(self.symbol, -1, self.stop.remaining, STOP, price=self.stop_price, reduce_only=True)
             return
-        if c > self.ma[i] and d == 1 and ctx.position(self.symbol) == 0.0 and not ctx.broker.pending:
+        entry_open = self.entry is not None and self.entry.status in ("pending", "partial")
+        if c > self.ma[i] and d == 1 and ctx.position(self.symbol) == 0.0 and not entry_open:
             qty = self.size_qty(ctx, c, p["size"])
-            if qty <= 0:
+            stop_price = c - p["stop_mult"] * a
+            if qty <= 0 or stop_price <= 0:                        # 止损价非正（极端波动）不入场
                 return
-            ctx.order(self.symbol, 1, qty)
-            self.stop_price = c - p["stop_mult"] * a
+            self.entry = ctx.order(self.symbol, 1, qty)
+            self.stop_price = stop_price
             self.stop = ctx.order(self.symbol, -1, qty, STOP, price=self.stop_price, reduce_only=True)
             self.tp = ctx.order(self.symbol, -1, qty, TAKE_PROFIT, price=c + p["tp_mult"] * a, reduce_only=True)
             self.in_trade = True
