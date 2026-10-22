@@ -284,6 +284,15 @@ class TestWalkForward(QBTTestCase):
         again = O.walk_forward(t, combos, n_folds=3, train_frac=0.6, workers=1)
         self.assertEqual(json.dumps(wf, sort_keys=True), json.dumps(again, sort_keys=True))
 
+    def test_documented_defaults(self):
+        """README / CONTRACT 写明的默认值钉住：walk_forward n_folds=3、train_frac=0.7、workers=1；run_search workers=1。"""
+        import inspect
+        wf = inspect.signature(O.walk_forward).parameters
+        self.assertEqual((wf["n_folds"].default, wf["train_frac"].default, wf["workers"].default), (3, 0.7, 1))
+        rs = inspect.signature(O.run_search).parameters
+        self.assertEqual((rs["workers"].default, rs["flush_every"].default), (1, 20))
+        self.assertEqual(len(O.walk_forward(task(n=120), O.grid(SPACE)[:2])["folds"]), 3)    # 默认 3 折真的生效
+
     def test_walk_forward_validation(self):
         t = task(n=100)
         with self.assertRaises(ConfigError):

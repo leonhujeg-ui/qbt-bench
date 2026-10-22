@@ -111,6 +111,51 @@ class TestCli(QBTTestCase):
         with mock.patch("unittest.TextTestRunner", FakeRunner), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(cli.main(["test", "--pattern", "test_limits.py"]), 1)
 
+    def test_test_quick_loads_smoke_modules(self):
+        """--quick 只装载 QUICK_MODULES 里存在的模块，并设 QBT_FAST_TESTS=1（用假 runner 截获 suite，不真跑）。"""
+        from unittest import mock
+        seen = {}
+
+        class FakeResult:
+            testsRun, failures, errors, skipped = 1, [], [], []
+
+            @staticmethod
+            def wasSuccessful():
+                return True
+
+        class FakeRunner:
+            def __init__(self, *a, **k):
+                pass
+
+            def run(self, suite):
+                seen["ids"] = [t.id() for t in iter_tests(suite)]
+                return FakeResult()
+
+        def iter_tests(suite):
+            for t in suite:
+                yield from (iter_tests(t) if isinstance(t, unittest.TestSuite) else [t])
+        old_fast = os.environ.get("QBT_FAST_TESTS")
+        try:
+            with mock.patch("unittest.TextTestRunner", FakeRunner), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(cli.main(["test", "--quick"]), 0)
+            self.assertEqual(os.environ.get("QBT_FAST_TESTS"), "1")
+        finally:
+            if old_fast is None:
+                os.environ.pop("QBT_FAST_TESTS", None)
+            else:
+                os.environ["QBT_FAST_TESTS"] = old_fast
+        mods = {i.split(".")[1] for i in seen["ids"]}
+        self.assertEqual(mods, set(cli.QUICK_MODULES))                   # 每个冒烟模块都装载了、没有多装
+        self.assertGreater(len(seen["ids"]), 100)                        # 不是空 suite
+
+    def test_unknown_argument_exits_2(self):
+        """非委托子命令带未知参数 → argparse error → 退出码 2（README「退出码」）；委托子命令（optimize）透传。"""
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as cm:
+                cli.main(["test", "--nope"])
+        self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cli.build_parser().parse_known_args(["optimize", "--limit", "1"])[1], ["--limit", "1"])
+
     def test_parser(self):
         ap = cli.build_parser()
         args = ap.parse_args(["demo", "--n", "5"])

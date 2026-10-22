@@ -1,0 +1,17 @@
+{
+ "iterations": 100000,
+ "seed": 0,
+ "elapsed": 4.97,
+ "crashes": 0,
+ "distribution": {
+  "broker:ConfigError": 12390,
+  "broker:ok": 12610,
+  "engine:ConfigError": 4414,
+  "engine:DataError": 7173,
+  "engine:ok": 13413,
+  "indicators:ConfigError": 4404,
+  "indicators:ok": 20596,
+  "metrics:ok": 25000
+ },
+ "crash_samples": []
+}

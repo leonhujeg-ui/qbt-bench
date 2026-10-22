@@ -1,0 +1,112 @@
+{
+ "files": {
+  "qbt/__init__.py": {
+   "covered": 3,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 3
+  },
+  "qbt/broker.py": {
+   "covered": 328,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 328
+  },
+  "qbt/cli.py": {
+   "covered": 100,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 100
+  },
+  "qbt/data.py": {
+   "covered": 197,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 197
+  },
+  "qbt/engine.py": {
+   "covered": 212,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 212
+  },
+  "qbt/errors.py": {
+   "covered": 4,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 4
+  },
+  "qbt/indicators.py": {
+   "covered": 452,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 452
+  },
+  "qbt/metrics.py": {
+   "covered": 146,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 146
+  },
+  "qbt/optimizer.py": {
+   "covered": 190,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 190
+  },
+  "qbt/report.py": {
+   "covered": 97,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 97
+  },
+  "strategies/__init__.py": {
+   "covered": 8,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 8
+  },
+  "strategies/bollinger.py": {
+   "covered": 27,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 27
+  },
+  "strategies/donchian.py": {
+   "covered": 37,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 37
+  },
+  "strategies/grid.py": {
+   "covered": 45,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 45
+  },
+  "strategies/ma_cross.py": {
+   "covered": 32,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 32
+  },
+  "strategies/rsi_reversion.py": {
+   "covered": 29,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 29
+  },
+  "strategies/trend_stop.py": {
+   "covered": 43,
+   "missed": [],
+   "percent": 100.0,
+   "statements": 43
+  }
+ },
+ "tests_failed": 0,
+ "tests_run": 262,
+ "tests_skipped": 3,
+ "total_covered": 1950,
+ "total_percent": 100.0,
+ "total_statements": 1950
+}

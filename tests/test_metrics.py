@@ -152,6 +152,17 @@ class TestSurvivorKillers(QBTTestCase):
     def test_returns_with_sub_unit_equity(self):
         self.assertCloseList(M.returns_from_equity([0.5, 1.0]), [1.0], abs_tol=1e-12)     # 0 < 权益 < 1 也要算收益
 
+    def test_periods_per_year_boundaries(self):
+        """bar_seconds=1 合法（最小正整数），0 / 负 / NaN / inf / bool / str → ConfigError；默认 alpha 钉在 0.05。"""
+        self.assertEqual(M.periods_per_year(1), SECONDS_PER_YEAR)
+        self.assertEqual(M.periods_per_year(0.5), SECONDS_PER_YEAR / 0.5)
+        for bad in (0, -1, math.nan, math.inf, True, "60", None):
+            with self.assertRaises(M.ConfigError, msg=repr(bad)):
+                M.periods_per_year(bad)
+        rets = [(-1) ** i * i / 100 for i in range(1, 41)]                 # n=40：alpha 0.05 → k=1，0.075 → k=2
+        self.assertEqual(M.var_cvar(rets), M.var_cvar(rets, 0.05))
+        self.assertNotEqual(M.var_cvar(rets), M.var_cvar(rets, 0.075))
+
     def test_std_edge_and_two_returns(self):
         self.assertEqual(M._std([1.0], 1), 0.0)
         self.assertAlmostEqual(M.sharpe([0.1, 0.3], 1.0), 0.2 / math.sqrt(0.02), delta=1e-12)   # 恰好 2 个收益也要算
@@ -187,7 +198,11 @@ class TestMetricsEdges(QBTTestCase):
         self.assertEqual(M.cagr([100.0, -5.0], DAY), -1.0)
 
     def test_civil_from_days_matches_datetime(self):
-        for d in list(range(-3000, 48000, 7)) + [0, 10957, 11016, 47482, 47847, 54787, 146097 - 719468, 146097 - 719468 + 1]:
+        epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        era_edges = [(datetime(y, 2, d, tzinfo=timezone.utc) - epoch).days                 # 400 年纪元末尾的 2 月 28/29 日：
+                     for y in (1600, 2000, 2400) for d in (27, 28, 29)]                    # doe // 146096 只在这里为 1
+        for d in list(range(-3000, 48000, 7)) + [0, 10957, 11015, 11016, 47482, 47847, 54787, 146097 - 719468,
+                                                 146097 - 719468 + 1] + era_edges:
             dt = datetime.fromtimestamp(d * DAY, tz=timezone.utc)
             self.assertEqual(M._civil_from_days(d), (dt.year, dt.month), d)
             self.assertEqual(M._month_key(d * DAY + 3600), (dt.year, dt.month))
