@@ -410,5 +410,26 @@ class TestCli(unittest.TestCase):
         self.assertNotIn("qdperf/examples/demo_work.py:extra", G.function_names(a))
 
 
+class TestSelfcheckNames(unittest.TestCase):
+    def test_names_comparable_ignores_rank_swaps(self):
+        """G2 “函数名可比”的判据：前 10 里第 10 名上下换了排位不算失败（耗时接近、随噪声互换）；
+        名字里还带着临时目录（规范化坏了）才失败。selftest 的 perf_qbt 步按这个判。"""
+        from qdperf.tools import selfcheck as S
+
+        def top(names):
+            return [{"name": n} for n in names]
+        base = {"profile": {"top": top([f"m.py:f{i}" for i in range(30)])}}
+        swapped = top([f"m.py:f{i}" for i in (0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9)])
+        self.assertEqual(S.names_found(base, swapped, swapped), (True, True))
+        broken = top([f"/tmp/qdperf-g2-x/m.py:f{i}" for i in range(10)])
+        self.assertEqual(S.names_found(base, swapped, broken), (True, False))
+        s = {"slow12_red": True, "slow": {"5pct": {"verdict_default": "OK"}}, "slow5_expected_by_noise": "OK",
+             "rerun_verdict": "OK", "names_have_no_lineno_or_tmp": True, "names_rerun_top10_in_base": True,
+             "names_moved_copy_top10_in_base": True, "names_moved_copy_top10_equal": False}
+        self.assertTrue(S.g2_ok(s))
+        self.assertFalse(S.g2_ok(dict(s, names_moved_copy_top10_in_base=False)))
+        self.assertFalse(S.g2_ok(dict(s, names_rerun_top10_in_base=False)))
+
+
 if __name__ == "__main__":
     unittest.main()

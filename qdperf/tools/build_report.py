@@ -312,9 +312,17 @@ def block_mutation_first(cache):
             f"补判据、修 4 个真问题（3 个由漏网追查发现、1 个由自检的临时目录检查发现）、改了库的模块重抽样后重跑 → ")
 
 
+def block_g2_names(cache):
+    s, (fr, fm) = _sum("g2_profile_gate.json", cache), _g2_found(cache)
+    return (f"原样重跑、整份代码拷到临时目录再测，两份前 10 的名字都在基线前 30 里：{fr} / {fm}；名字里无行号 / 临时路径："
+            f"{s['names_have_no_lineno_or_tmp']}；前 30 的 Jaccard {s['names_jaccard_rerun']:.2f} / {s['names_moved_copy_jaccard']:.2f}；"
+            f"前 10 排位完全相同（只供参考：第 10 名上下的函数耗时接近，排位随噪声互换）：{s['names_identical_rerun_top10']} / "
+            f"{s['names_moved_copy_top10_equal']}")
+
+
 BLOCKS = {"machines": block_machines, "g1_top": block_g1_top, "g1_suggestions": block_g1_suggestions,
           "g1_contention": block_g1_contention, "g1_wal": block_g1_wal, "g2_slow": block_g2_slow, "g2_noise": block_g2_noise,
-          "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g3_mitig_list": block_g3_mitig_list, "g3_gil": block_g3_gil, "g3_gil_note": block_g3_gil_note,
+          "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g2_names": block_g2_names, "g3_mitig_list": block_g3_mitig_list, "g3_gil": block_g3_gil, "g3_gil_note": block_g3_gil_note,
           "g4_knee": block_g4_knee, "g4_ab": block_g4_ab, "coverage": block_coverage, "mutation": block_mutation,
           "mutation_first": block_mutation_first, "g3_panel_T": block_g3_panel_T, "g3_knee_cfg": block_g3_knee_cfg,
           "g2_slow5_note": block_g2_slow5_note, "g2_noise_probe": block_g2_noise_probe,
@@ -343,9 +351,16 @@ def _g1_file(c):
             and len(f["fk_without_index"]) > 0 and any(x["object"] == "idx_orders_user" for x in f["stats_stale"]))
 
 
+def _g2_found(c):
+    """（原样重跑, 拷到临时目录）前 10 的名字是否都在基线前 30 里——由结果文件里存的三份 top 现算（判据见 selfcheck.names_found）。"""
+    from qdperf.tools import selfcheck as S
+    d = _load("g2_profile_gate.json", c)
+    return S.names_found(d["baseline"], d["rerun"]["profile"]["top"], d["moved_copy_top"])
+
+
 def _g2_names(c):
-    s = _sum("g2_profile_gate.json", c)
-    return s["names_have_no_lineno_or_tmp"] and s["names_identical_rerun_top10"] and s["names_moved_copy_top10_equal"]
+    return _sum("g2_profile_gate.json", c)["names_have_no_lineno_or_tmp"] and all(_g2_found(c))
+
 
 
 def _g2_tol(c):

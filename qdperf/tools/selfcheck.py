@@ -193,6 +193,14 @@ def g2(n=1_000_000, repeat=8, runs=3, out_dir=common.RESULTS, pcts=(0.05, 0.12),
     return out
 
 
+def names_found(base, rerun_top, moved_top):
+    """名字可比：原样重跑、整份代码拷到临时目录再测，两份前 10 的名字都能在基线的前 30 里找到（名字没去掉行号 /
+    临时路径时就找不到）。不要求前 10 的排位一致：第 10 名上下的函数累计耗时只差一两成，排位随噪声互换
+    （前 10 是否完全相同照样记在 summary 里，只供参考）。"""
+    names = G.function_names(base)
+    return {t["name"] for t in rerun_top[:10]} <= names, {t["name"] for t in moved_top[:10]} <= names
+
+
 def g2_summary(base, slow, rerun, moved):
     tol_hot = max(0.10, 2 * base["noise"]["hot_wall_rel"])
     rows = {}
@@ -206,6 +214,7 @@ def g2_summary(base, slow, rerun, moved):
                      "per_round_single": v["per_round_single"],
                      "new_top10": [t["name"] for t in v["gate_default"]["new_top"]]}
     names_b, names_r, names_m = G.function_names(base), G.function_names(rerun), G.function_names(moved)
+    found_r, found_m = names_found(base, rerun["profile"]["top"], moved["profile"]["top"])
     top10 = [t["name"] for t in base["profile"]["top"][:10]]
     return {"n": base["args"]["n"], "repeat": base["repeat"], "inner": base["inner"], "runs": base["runs"],
             "hot_wall_s": base["hot"]["wall_s"], "cold_wall_s": base["cold"]["wall_s"],
@@ -214,6 +223,7 @@ def g2_summary(base, slow, rerun, moved):
             "slow": rows, "slow12_red": rows["12pct"]["verdict_default"] == "REGRESSION",
             "slow5_expected_by_noise": "REGRESSION" if 0.05 > tol_hot else "OK",
             "rerun_verdict": G.compare(base, rerun)["verdict"], "rerun_first_line": G.compare(base, rerun)["lines"][0],
+            "names_rerun_top10_in_base": found_r, "names_moved_copy_top10_in_base": found_m,
             "names_identical_rerun_top10": set(top10) == {t["name"] for t in rerun["profile"]["top"][:10]},
             "names_jaccard_rerun": len(names_b & names_r) / len(names_b | names_r),
             "names_moved_copy_top10_equal": set(top10) == {t["name"] for t in moved["profile"]["top"][:10]},
@@ -225,7 +235,8 @@ def g2_summary(base, slow, rerun, moved):
 
 def g2_ok(s):
     return (s["slow12_red"] and s["slow"]["5pct"]["verdict_default"] == s["slow5_expected_by_noise"]
-            and s["rerun_verdict"] == "OK" and s["names_have_no_lineno_or_tmp"] and s["names_moved_copy_top10_equal"])
+            and s["rerun_verdict"] == "OK" and s["names_have_no_lineno_or_tmp"]
+            and s["names_rerun_top10_in_base"] and s["names_moved_copy_top10_in_base"])
 
 
 # ---- G3 ------------------------------------------------------------------------------
