@@ -11,15 +11,15 @@ python3.12 -m qdperf.selftest
 ```
 qdperf selftest (default)  Linux-6.18.44-fc-v153-x86_64-with-glibc2.39  Python 3.12.3  SQLite 3.45.1  4 CPU
 step        scale                                            time  result  key numbers
-unittest    175 tests                                      146.9s  OK    OK; skipped 0; tmp dirs left 0
+unittest    179 tests                                      152.0s  OK    OK; skipped 0; tmp dirs left 0
 constraints 3 tests (deps / network / writes)                0.0s  OK    stdlib-only ok; no-network ok; writes+connects audit ok
-coverage    3006 statements, 175 tests                     147.7s  OK    97.77% (>= 90% required); child processes merged 119
-g1_sqlite   synth 399,300 rows, 23 statements               51.8s  OK    synth 1.62s deterministic=True; suggestions 10 verified=True; 3x50/s p99 0.11 ms busy 0; untouched=True
-g2_gate     demo_work.spin: pair x3 (12% slower) + rerun    11.3s  OK    noise 3.2%; REGRESSION hot.wall_s=0.01783→0.02022 (+13.4%); rerun OK hot.wall_s=0.01783→0.01728 (-3.1%) tol=10.0%; names equal True
-g3_tick     6 configs x 10s, T=0.05s                       181.8s  OK    Q=0 p99 max 1.05T; knee Q=5 p99 10.02T; effective mitigations ['chunked', 'replica', 'wal']
-g4_http     1310 req p99 run + ramp 1..32 + 2 A/B           53.8s  OK    p99 injected 120 → 119.2 ms; knee injected 8 → 8; B +30% → REGRESSION; A/A → OK
-perf_qbt    qbt 200,000 bars x ma_cross, best-of-8 procs, 3 runs   136.9s  OK    noise 1.5%; 12%: REGRESSION cold.wall_s=0.5886→0.662 (+12.5%); 5%: OK (expected OK); rerun OK
-TOTAL                                                      730.2s  OK    8/8 steps passed
+coverage    3064 statements, 179 tests                     154.1s  OK    97.85% (>= 90% required); child processes merged 119
+g1_sqlite   synth 399,300 rows, 23 statements               53.0s  OK    synth 1.63s deterministic=True; suggestions 10 verified=True; 3x50/s p99 0.17 ms busy 0; untouched=True
+g2_gate     demo_work.spin: A, S+20% x3 + R, interleaved    49.8s  OK    noise 0.6%; 20%: REGRESSION cold.wall_s=0.09591→0.1172 (+22.2%); rerun OK hot.wall_s=0.09558→0.09483 (-0.8%) tol=10.0%; names equal True
+g3_tick     7 configs x 10s, T=0.05s                       193.9s  OK    panel 128 ms (+3% of target, x1); Q=0 p99 max 1.02T; knee Q=5 p99 11.47T; effective mitigations ['chunked', 'replica', 'wal']
+g4_http     1306 req p99 run + ramp 1..32 + 2 A/B           53.8s  OK    p99 injected 120 → 119.3 ms; knee injected 8 → 8; B +30% → REGRESSION; A/A → OK
+perf_qbt    qbt 1,000,000 bars x ma_cross, best-of-8 procs, 3 runs   858.1s  OK    noise 2.1%; 12%: REGRESSION cold.wall_s=4.07→4.59 (+12.8%); 5%: OK (expected OK); rerun OK
+TOTAL                                                     1514.7s  OK    8/8 steps passed
 ```
 
 ---
