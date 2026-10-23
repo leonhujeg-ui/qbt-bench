@@ -30,10 +30,10 @@
 | G2 | 回归闸：墙钟 +10% 红、峰值内存 +20% 红、新进前 10 的函数点名；首行 `REGRESSION <指标>=<基线>→<本次> (+<百分比>)`；3 遍基线噪声 × 2 与手动容差取大 | 3 遍基线噪声：热 {{g2_profile_gate.json:summary.noise.hot_wall_rel|%}}、冷 {{g2_profile_gate.json:summary.noise.cold_wall_rel|%}}、内存 {{g2_profile_gate.json:summary.noise.peak_rel|%}} → 热墙钟容差 {{g2_profile_gate.json:summary.tolerance_hot_default|%}} | {{?g2_gate}} | `python3.12 -m qdperf.profile_gate compare base.json new.json` |
 | G2 | 故意放慢 12% 必红；5% 按噪声幅度决定（写明）；原样重跑不红 | 12%：`{{g2_profile_gate.json:summary.slow.12pct.first_line}}`，新进前 10：{{g2_profile_gate.json:summary.slow.12pct.new_top10}}；5%：`{{g2_profile_gate.json:summary.slow.5pct.first_line}}`（{{@g2_slow5_note}}）；原样重跑：`{{g2_profile_gate.json:summary.rerun_first_line}}` | {{?g2_slow}} | 同上 |
 | G2 | 两份 JSON 的函数名集合可比（去掉行号 / 临时路径） | {{@g2_names}} | {{?g2_names}} | `qdperf/tests/test_profile_gate.py` |
-| G3 | 三个真进程（引擎每 T 一个 tick、面板 Q 次/秒长查询、通知偶发写），量 tick 间隔 p50 / p99 / 最大、过 2T 次数、读 / 算 / 写分段 | T = {{g3_tick_jitter.json:summary.T}} s；面板长查询 {{g3_tick_jitter.json:summary.panel_rows|,}} 行、单线程 {{g3_tick_jitter.json:summary.panel_query_ms|.0f}} ms（≈ {{@g3_panel_T}}）；共 {{g3_tick_jitter.json:summary.configs}} 个配置 × {{g3_tick_jitter.json:summary.seconds_per_config}} s（全表见 §3） | {{?g3_scan}} | `python3.12 -m qdperf.tick_jitter scan` |
+| G3 | 三个真进程（引擎每 T 一个 tick、面板 Q 次/秒长查询、通知偶发写），量 tick 间隔 p50 / p99 / 最大、过 2T 次数、读 / 算 / 写分段 | T = {{g3_tick_jitter.json:summary.T}} s；面板长查询单线程 {{g3_tick_jitter.json:summary.panel_query_ms|.0f}} ms ≈ {{@g3_panel_T}}；共 {{g3_tick_jitter.json:summary.configs}} 个配置 × {{g3_tick_jitter.json:summary.seconds_per_config}} s（全表见 §3） | {{?g3_scan}} | `python3.12 -m qdperf.tick_jitter scan` |
 | G3 | Q=0 时 p99 间隔 ≤ 1.2T | 全部 Q=0 配置的最大 p99 = {{g3_tick_jitter.json:summary.q0_p99_T_max|.3f}}T | {{?g3_q0}} | 同上 |
-| G3 | 证明某个 Q 下 p99 > 2T（饿死点），并给拐点表 | 拐点：{{@g3_knee_cfg}}：Q = {{g3_tick_jitter.json:summary.knee.knee_q}} 时 p99 = {{g3_tick_jitter.json:summary.knee.knee_p99_T|.2f}}T（表见 §3.1） | {{?g3_knee}} | 同上 |
-| G3 | 两条有效缓解各自的实测改善 | {{@g3_mitig_list}}（见 §3.2） | {{?g3_mitig}} | `python3.12 -m qdperf.tick_jitter run --wal off --q 5 --mitigation replica`（或 `chunked` / `backoff` / `wal`） |
+| G3 | 证明某个 Q 下 p99 > 2T（饿死点），并给拐点表（判据：存在这样的 Q，不卡 Q 的具体值） | 拐点（本机实测，平台相关）：{{@g3_knee_cfg}}：Q = {{g3_tick_jitter.json:summary.knee.knee_q}} 时 p99 = {{g3_tick_jitter.json:summary.knee.knee_p99_T|.2f}}T（表见 §3.1） | {{?g3_knee}} | 同上 |
+| G3 | 两条有效缓解各自的实测改善（判据：至少两条把拐点配置的 p99 降回 ≤ 2T，不限哪两条） | 本机实测，平台相关：{{@g3_mitig_list}}（见 §3.2） | {{?g3_mitig}} | {{@g3_mitig_cmd}} |
 | G4 | 假后端注入 p99 = 120 ms → 量出 108–132 ms | {{g4_http_load.json:summary.p99_measured_ms|.1f}} ms（误差 {{g4_http_load.json:summary.p99_error|%}}，{{g4_http_load.json:summary.p99_requests|,}} 个请求，C = 8） | {{?g4_p99}} | `python3.12 -m qdperf.tools.selfcheck g4` |
 | G4 | 注入并发上限 8 → 拐点报 6–10 | 拐点 {{g4_http_load.json:summary.knee_measured}}（吞吐见 §4.1） | {{?g4_knee}} | 同上 |
 | G4 | A/B 中 B 比 A 慢 30% → 必红 | `{{g4_http_load.json:summary.ab_slow_first_line}}`（{{g4_http_load.json:summary.ab_slow_red_rows}}/{{g4_http_load.json:summary.ab_rows}} 项红）；同配置 A/A：`{{g4_http_load.json:summary.ab_same_first_line}}` | {{?g4_ab}} | 同上 |
@@ -77,14 +77,16 @@
 
 ## 3. G3 tick 抖动
 
-### 3.1 拐点表（tick 间隔 p99，单位 T；“←拐点”= 该组合里 p99 > 2T 的最小 Q）
+判据只按形状：面板长查询先标定到目标 ±20%（达不到 → 判红，不往下跑）；Q=0 时 p99 ≤ 1.2T；存在某个 Q 使 p99 > 2T；至少两条缓解把拐点配置的 p99 降回 ≤ 2T。拐点落在哪个 Q、哪几条缓解有效取决于平台（每行扫描耗时、文件锁的实现、线程调度），§3.1 / §3.2 的具体 Q 与缓解名单是**本机实测，平台相关**，换一台机器会变。
+
+### 3.1 拐点表（本机实测，平台相关；tick 间隔 p99，单位 T；“←拐点”= 该组合里 p99 > 2T 的最小 Q）
 
 {{@g3_table}}
 
 机理：WAL 关（rollback journal）时，面板的长查询持有 SHARED 锁，引擎提交要拿 EXCLUSIVE，必须等当前读完；面板查询 ≈ {{@g3_panel_T}}，
 所以一碰上就把这个 tick 拖过 2T。WAL 开时读不挡写，引擎几乎不受面板影响。
 
-### 3.2 缓解（在拐点配置上）
+### 3.2 缓解（在拐点配置上；本机实测，平台相关）
 
 {{@g3_mitigations}}
 

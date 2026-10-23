@@ -41,10 +41,21 @@ class TestPure(unittest.TestCase):
         synth_db.generate(p, seed=3, scale=0.001)
         conn = sqlite3.connect(p)
         hi = conn.execute("SELECT max(id) FROM trades").fetchone()[0]
-        whole = {r[0]: (r[1], r[2]) for r in conn.execute(J.PANEL_QUERY, (hi - 3000, hi))}
+        whole = {r[0]: (r[1], r[2]) for r in conn.execute(J.PANEL_QUERY, (1, hi - 3000, hi))}
+        plain = {r[0]: (r[1], r[2]) for r in conn.execute(
+            "SELECT o.user_id, count(*), sum(t.price * t.qty) FROM trades t JOIN orders o ON o.id = t.order_id "
+            "WHERE t.id > ? AND t.id <= ? GROUP BY o.user_id", (hi - 3000, hi))}
+        self.assertEqual(set(plain), set(whole))                               # 固定连接顺序、1 遍 = 原来的查询
+        for k, (c, s) in plain.items():
+            self.assertEqual(whole[k][0], c)
+            self.assertAlmostEqual(whole[k][1], s, places=6)
+        twice = {r[0]: (r[1], r[2]) for r in conn.execute(J.PANEL_QUERY, (2, hi - 3000, hi))}
+        self.assertEqual({k: v[0] for k, v in twice.items()}, {k: 2 * v[0] for k, v in whole.items()})   # 2 遍 = 同一区间扫两遍
+        plan = " ".join(r[3] for r in conn.execute("EXPLAIN QUERY PLAN " + J.PANEL_QUERY, (1, hi - 3000, hi)))
+        self.assertRegex(plan, r"SEARCH t USING INTEGER PRIMARY KEY \(rowid>\? AND rowid<\?\).*SEARCH o USING INTEGER PRIMARY KEY")
         acc = {}
         for a, b in J.chunk_ranges(hi - 3000, hi, 700):
-            J.merge_rows(acc, conn.execute(J.PANEL_QUERY, (a, b)).fetchall())
+            J.merge_rows(acc, conn.execute(J.PANEL_QUERY, (1, a, b)).fetchall())
         self.assertEqual(set(acc), set(whole))
         for k, (c, s) in whole.items():
             self.assertEqual(acc[k][0], c)
@@ -126,6 +137,7 @@ class TestPure(unittest.TestCase):
                                              {"wal": True, "busy": 5.0, "compute": "inline", "q": 5.0},
                                              {"wal": False, "busy": 5.0, "compute": "inline", "q": 0.0},
                                              {"wal": False, "busy": 5.0, "compute": "inline", "q": 5.0},
+                                             {"wal": False, "busy": 5.0, "compute": "inline", "q": 20.0},
                                              {"wal": False, "busy": 0.5, "compute": "subprocess", "q": 0.0},
                                              {"wal": False, "busy": 0.5, "compute": "subprocess", "q": 5.0}])
         order = J.find_knees([fake_result(False, 0.5, "inline", 0, 1.0), fake_result(False, 5.0, "subprocess", 0, 1.0)])
@@ -193,13 +205,49 @@ class TestScanCleanup(unittest.TestCase):
                 raise OSError("directory busy")
 
         with mock.patch.object(J, "prepare", return_value=(work, os.path.join(work, "m.db"))), \
-                mock.patch.object(J, "calibrate_panel", return_value={"rows": 1}), \
+                mock.patch.object(J, "calibrate_panel", return_value={"rows": 1, "capped": False}), \
                 mock.patch.object(J, "scan_grid", return_value=[]), \
                 mock.patch.object(J, "run_once", side_effect=lambda master, cfg, w, cal: {"config": cfg}), \
                 mock.patch.object(J.shutil, "rmtree", side_effect=rmtree):
             res = J.scan(quick=True)
         self.assertEqual(calls, [(work, True)])
         self.assertEqual((res["knee"], res["mitigations"], len(res["gil"])), (None, [], 4))
+
+    def test_unreachable_calibration_is_red_not_silent(self):
+        """标定达不到目标 ±20%：scan 不往下跑、抛 CalibrationError；CLI 两个子命令都退出码 2 并写明原因；
+        selfcheck 的 G3 判红，selftest 的 g3 步骤红且带原因。"""
+        from unittest import mock
+        from qdperf import selftest
+        from qdperf.tools import selfcheck as S
+        work = tmpdir(self)
+        bad = {"rows": 0, "passes": 1, "range": [0, 0], "seconds": None, "capped": True, "reason": "trades 表只有 0 行",
+               "target_seconds": 0.125}
+        runs = []
+        with mock.patch.object(J, "prepare", side_effect=lambda *a: (tmpdir(self), os.path.join(work, "m.db"))), \
+                mock.patch.object(J, "calibrate_panel", return_value=bad), \
+                mock.patch.object(J, "run_once", side_effect=lambda *a: runs.append(a)):
+            with self.assertRaises(J.CalibrationError) as cm:
+                J.scan(quick=True)
+            self.assertEqual(cm.exception.calibration, bad)
+            for cmd in ("scan", "run"):
+                with captured() as (out, _err):
+                    self.assertEqual(J.main([cmd, "--seconds", "1"]), 2)
+                self.assertIn("TICK_JITTER ERROR panel calibration: trades 表只有 0 行", out.getvalue())
+            res = S.g3(quick=True, out_dir=None, log=None)
+            row = selftest.step_g3("quick", None, {})
+        self.assertEqual(runs, [])                                                     # 一个配置都没跑
+        self.assertTrue(res["summary"]["panel_capped"])
+        self.assertFalse(S.g3_ok(res["summary"]))
+        self.assertFalse(row["ok"])
+        self.assertIn("panel calibration FAILED: trades 表只有 0 行", row["summary"])
+
+    def test_g3_shape_criteria(self):
+        """G3 判据只看形状：任一 Q 饿死、Q=0 不抖、至少两条缓解有效、标定没失败；拐点的 Q 与哪两条有效不限。"""
+        from qdperf.tools import selfcheck as S
+        ok = {"panel_capped": False, "q0_ok": True, "knee_found": True, "effective_mitigations": ["backoff", "wal"]}
+        self.assertTrue(S.g3_ok(ok))
+        for k, v in (("panel_capped", True), ("q0_ok", False), ("knee_found", False), ("effective_mitigations", ["wal"])):
+            self.assertFalse(S.g3_ok(dict(ok, **{k: v})), k)
 
 
 class TestRealProcesses(unittest.TestCase):
@@ -219,16 +267,56 @@ class TestRealProcesses(unittest.TestCase):
         return J.run_once(self.master, cfg, self.work, self.cal)
 
     def test_calibration(self):
-        capped = J.calibrate_panel(self.master, 1000.0)                      # 目标远超整表耗时 → 行数封顶为整表
-        self.assertTrue(capped["capped"])
-        self.assertEqual(capped["rows"], capped["range"][1] - 1)
         self.assertFalse(self.cal["capped"])
         c = self.cal
+        self.assertIsNone(c["reason"])
         self.assertEqual(c["range"][1] - c["range"][0], c["rows"])
-        self.assertGreater(c["rows"], 100)
+        self.assertGreaterEqual(c["passes"], 1)
+        self.assertGreater(c["rows"] * c["passes"], 100)
         self.assertGreater(c["per_row_us"], 0)
+        self.assertLessEqual(abs(c["error"]), 0.2)                            # 不封顶就意味着到了目标 ±20%
+        self.assertLessEqual(abs(c["seconds"] - c["target_seconds"]) / c["target_seconds"], 0.2)
+        # 真的达不到才 capped，并写明原因：trades 表是空的；或者无论工作量多小都比目标慢 10 倍（打桩计时器）
+        d = tmpdir(self)
+        empty = os.path.join(d, "empty.db")
+        conn = sqlite3.connect(empty)
+        conn.executescript("CREATE TABLE trades(id INTEGER PRIMARY KEY, order_id INT, price REAL, qty REAL);"
+                           "CREATE TABLE orders(id INTEGER PRIMARY KEY, user_id INT);")
+        conn.close()
+        e = J.calibrate_panel(empty, 0.1)
+        self.assertTrue(e["capped"])
+        self.assertIn("trades 表只有 0 行", e["reason"])
+        ticks = iter(range(10 ** 6))
+        from unittest import mock
+        with mock.patch.object(J.time, "perf_counter", lambda: next(ticks) * 1.0):     # 每次查询“耗时”恒为 1 s
+            slow = J.calibrate_panel(self.master, 0.1)
+        self.assertTrue(slow["capped"])
+        self.assertEqual(len(slow["rounds"]), J.CAL_ROUNDS)
+        self.assertIn("超出 ±20%", slow["reason"])
+
+    def test_calibration_on_3x_faster_rows(self):
+        """每行耗时只有现在的 1/3（打桩计时器：读数除以 3）：整张表不够长，靠同一区间多扫几遍，仍校准到目标 ±20%、
+        capped=False；用同一计时器独立复测校准出的查询，也在 ±20% 内。"""
+        from unittest import mock
+        real = J.time.perf_counter
+        target = 0.06
+        normal = J.calibrate_panel(self.master, target)
+        with mock.patch.object(J.time, "perf_counter", lambda: real() / 3):
+            fast = J.calibrate_panel(self.master, target)
+            conn = sqlite3.connect(self.master)
+            best = None
+            for _ in range(3):
+                t0 = J.time.perf_counter()
+                conn.execute(J.PANEL_QUERY, (fast["passes"], *fast["range"])).fetchall()
+                dt = J.time.perf_counter() - t0
+                best = dt if best is None else min(best, dt)
+            conn.close()
+        self.assertFalse(fast["capped"])
+        self.assertLessEqual(abs(fast["seconds"] / target - 1), 0.2)
+        self.assertGreater(fast["passes"], 1)                                  # 只扫一遍整张表已经不够
+        self.assertGreater(fast["rows"] * fast["passes"], 2 * normal["rows"] * normal["passes"])   # 工作量约 3 倍
         if TIMING:
-            self.assertLess(abs(c["seconds"] - c["target_seconds"]) / c["target_seconds"], 0.5)
+            self.assertLessEqual(abs(best / target - 1), 0.2)
 
     def test_q0_no_jitter_and_wal_off_starves(self):
         quiet = self.run_cfg(q=0.0, wal=False)

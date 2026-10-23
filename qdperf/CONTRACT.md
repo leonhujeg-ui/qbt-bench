@@ -203,7 +203,7 @@ python3.12 -m qdperf.tick_jitter scan [--quick] [同上的模型参数] [--json 
 |---|---|
 | `--T` | 引擎 tick 周期（秒） |
 | `--q` | 面板每秒轮询次数（开环，线程池 `--panel-threads` 个线程执行） |
-| `--panel-ratio` | 面板长查询目标耗时 / T（按扫描行数校准，单线程无争用时） |
+| `--panel-ratio` | 面板长查询目标耗时 / T（单线程无争用时；按“行数 × 遍数”迭代校准到目标 ±20%：整张 trades 不够长就让同一区间多扫几遍，行数不设上限） |
 | `--compute-ratio` | 引擎算段目标耗时 / T（纯 Python 循环，按本进程速度校准） |
 | `--compute` | `inline`：算段在引擎进程里（GIL 内）；`subprocess`：发给常驻子进程算完回传 |
 | `chunk_ratio` / `chunk_pause`（Python 接口 cfg） | 分块读每块目标耗时 / T（缺省 0.2）与块间让出秒数（缺省 0） |
@@ -212,6 +212,7 @@ python3.12 -m qdperf.tick_jitter scan [--quick] [同上的模型参数] [--json 
 | `--db` | 用你的库（只读拷到 tempfile）；缺省按 `--scale` 生成合成库 |
 
 **退出码**：run：0 = p99 间隔 ≤ 2T，1 = 被饿死（p99 > 2T）或进程崩溃，2 = 参数错误；scan：0 = 所有配置都没饿死，1 = 至少一个配置 p99 > 2T（找到了拐点），2 = 参数错误。
+两者在面板长查询标定达不到目标 ±20% 时（例如 trades 表是空的）都不跑实验、退出码 2，第一行 `TICK_JITTER ERROR panel calibration: <原因>`。
 
 **stdout 第一行**：
 
@@ -225,7 +226,9 @@ scan: ^TICK_SCAN knee=(none|wal=(on|off),busy=[\d.]+,compute=(inline|subprocess)
 ```python
 from qdperf import tick_jitter as J
 work, master = J.prepare(db=None, scale=0.05, seed=20261022)   # tempfile 里的母库
-cal = J.calibrate_panel(master, target_s, probe_rows=20000)   # {rows, range[lo, hi], seconds, per_row_us, target_seconds, capped}
+cal = J.calibrate_panel(master, target_s, probe_rows=20000, tolerance=0.2)
+      # {rows, passes, range[lo, hi], seconds, per_row_us, target_seconds, tolerance, error, capped, reason, rounds[{rows, passes, seconds}]}
+      # capped=True 只在 ±tolerance 达不到时（reason 写明原因）；scan 遇到它抛 J.CalibrationError（.calibration = 这份记录），不往下跑
 r   = J.run_once(master, cfg, work, cal)                  # cfg 键见 J.DEFAULTS
 s   = J.scan(quick=False, base=None, db=None, scale=0.05, mitigations=("replica", "chunked", "backoff", "wal"), log=None)
 J.find_knees(results); J.pick_knee(knees); J.first_line_run(r); J.first_line_scan(s); J.format_scan(s)
@@ -236,6 +239,8 @@ tick 间隔 = 相邻 tick 开始时刻之差，最后一个 tick 记 `max(T, 它
 segments_ms{read{}, compute{}, write{}}, tick_errors{read{}, write{}}, wake_late_ms{}（引擎按时睡下后实际开始比计划晚多少 = 操作系统 / 宿主机调度延迟，与锁和算段无关）, compute_rate,
 panel{polls, achieved_q, query_ms{}, errors{}, dropped, replica_refreshes},
 notifier{writes, wait_ms{}, errors{}}, starved`。
+面板长查询 `J.PANEL_QUERY` 的参数是 `(遍数, lo, hi)`：把 trades 的 id 区间 `(lo, hi]` 扫“遍数”遍、按 user_id 汇总（一条语句、一个读事务）；
+连接顺序用 `CROSS JOIN` 固定为 遍数 → trades 的 rowid 区间 → orders 主键，耗时与 行数 × 遍数 成正比、不随 SQLite 版本的计划选择变。
 `scan` 返回（`format = "qdperf.tick_jitter.v1"`）：`base{}, panel_calibration{}, results[], knees[{wal, busy, compute, knee_q, knee_p99_T, last_ok_q, p99_T_by_q{}}], knee, mitigations[], gil[], quick, machine{}`。
 
 ---
@@ -323,3 +328,5 @@ python3.12 -m qdperf.selftest [--quick | --full]
 退出码 0 = 全部步骤通过，1 = 任一步骤失败。第一行 `qdperf selftest (<模式>) <平台> Python <版本> SQLite <版本> <核数> CPU`，
 其后每步一行 `<步骤> <规模> <秒>s OK|FAIL <关键数字>`，最后一行 `TOTAL ... <通过>/<总数> steps passed`。
 步骤：`unittest`（另查测试跑完后 tempfile 下没有新留下的 `qdperf-*` 目录）、`constraints`（零依赖 / 零出网 / 零写仓外三条测试）、`coverage`、`g1_sqlite`、`g2_gate`、`g3_tick`、`g4_http`、`perf_qbt`。
+`g3_tick` 只按形状判（拐点在哪个 Q、哪几条缓解有效随平台变，不卡具体值）：面板长查询标定到目标 ±20%（达不到 → 红，关键数字栏写 `panel calibration FAILED: <原因>`）；Q=0 时 p99 ≤ 1.2T；存在某个 Q 使 p99 > 2T；至少两条缓解把拐点配置的 p99 降回 ≤ 2T。
+零写仓外的运行时审计：带目录 fd 的删除 / 改名按 `/proc/self/fd`（Linux）或 `fcntl(F_GETPATH)`（macOS）还原成全路径；两种都拿不到时记成 `<unresolved dir_fd=N>/名字`，写入判据把它当仓外写判红（失效时默认拒绝）。

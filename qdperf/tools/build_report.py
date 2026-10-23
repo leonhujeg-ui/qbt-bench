@@ -262,16 +262,23 @@ def block_mutation(cache):
 
 
 def block_g3_panel_T(cache):
-    """行内：面板长查询单线程实测耗时折成 T（标定目标与是否封顶也照写）。"""
+    """行内：面板长查询单线程实测耗时折成 T，连同标定目标 ± 容差、偏差、扫描的 行数 × 遍数。"""
     d = _load("g3_tick_jitter.json", cache)
     cal, t = d["panel_calibration"], d["summary"]["T"]
-    capped = "，行数已封顶为全表" if cal["capped"] else ""
-    return f"{cal['seconds'] / t:.1f}T（标定目标 {cal['target_seconds'] / t:.1f}T{capped}）"
+    return (f"{cal['seconds'] / t:.2f}T（标定目标 {cal['target_seconds'] / t:.1f}T ± {cal['tolerance'] * 100:.0f}%，"
+            f"偏差 {cal['error'] * 100:+.1f}%；扫描 {cal['rows']:,} 行 × {cal['passes']} 遍）")
 
 
 def block_g3_knee_cfg(cache):
     k = _sum("g3_tick_jitter.json", cache)["knee"]
     return f"WAL {'开' if k['wal'] else '关'}、busy {k['busy']:g} s、{k['compute']}"
+
+
+def block_g3_mitig_cmd(cache):
+    """缓解的复现命令：用本机实测的拐点配置（Q 随平台变，不写死）。"""
+    k = _sum("g3_tick_jitter.json", cache)["knee"]
+    return (f"`python3.12 -m qdperf.tick_jitter run --wal {'on' if k['wal'] else 'off'} --busy {k['busy']:g} "
+            f"--compute {k['compute']} --q {k['knee_q']:g} --mitigation replica`（或 `chunked` / `backoff` / `wal`）")
 
 
 def block_g2_slow5_note(cache):
@@ -324,7 +331,7 @@ BLOCKS = {"machines": block_machines, "g1_top": block_g1_top, "g1_suggestions": 
           "g1_contention": block_g1_contention, "g1_wal": block_g1_wal, "g2_slow": block_g2_slow, "g2_noise": block_g2_noise,
           "g3_table": block_g3_table, "g3_mitigations": block_g3_mitigations, "g2_names": block_g2_names, "g3_mitig_list": block_g3_mitig_list, "g3_gil": block_g3_gil, "g3_gil_note": block_g3_gil_note,
           "g4_knee": block_g4_knee, "g4_ab": block_g4_ab, "coverage": block_coverage, "mutation": block_mutation,
-          "mutation_first": block_mutation_first, "g3_panel_T": block_g3_panel_T, "g3_knee_cfg": block_g3_knee_cfg,
+          "mutation_first": block_mutation_first, "g3_panel_T": block_g3_panel_T, "g3_knee_cfg": block_g3_knee_cfg, "g3_mitig_cmd": block_g3_mitig_cmd,
           "g2_slow5_note": block_g2_slow5_note, "g2_noise_probe": block_g2_noise_probe,
           "g2_per_round": block_g2_per_round}
 
@@ -368,6 +375,11 @@ def _g2_tol(c):
     return abs(s["tolerance_hot_default"] - max(0.10, 2 * s["noise"]["hot_wall_rel"])) < 1e-9 and s["runs"] >= 3
 
 
+def _g3_cal_ok(c):
+    cal = _load("g3_tick_jitter.json", c)["panel_calibration"]
+    return not cal["capped"] and abs(cal["error"]) <= cal["tolerance"]
+
+
 def _g3_mitig(c):
     m = _sum("g3_tick_jitter.json", c)["mitigations"]
     good = [k for k, v in m.items() if v["effective"] and v["improvement_x"] > 1.0]
@@ -407,7 +419,8 @@ CHECKS = {
                           == _sum("g2_profile_gate.json", c)["slow5_expected_by_noise"]
                           and _sum("g2_profile_gate.json", c)["rerun_verdict"] == "OK"),
     "g2_names": _g2_names,
-    "g3_scan": lambda c: _sum("g3_tick_jitter.json", c)["configs"] >= 32 and not _load("g3_tick_jitter.json", c)["quick"],
+    "g3_scan": lambda c: (_sum("g3_tick_jitter.json", c)["configs"] >= 32 and not _load("g3_tick_jitter.json", c)["quick"]
+                          and _g3_cal_ok(c)),
     "g3_q0": lambda c: _sum("g3_tick_jitter.json", c)["q0_p99_T_max"] <= 1.2,
     "g3_knee": lambda c: _sum("g3_tick_jitter.json", c)["knee_found"] and _sum("g3_tick_jitter.json", c)["knee"][
         "knee_p99_T"] > 2.0,

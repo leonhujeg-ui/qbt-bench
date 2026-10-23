@@ -2,6 +2,7 @@
 import json
 import math
 import os
+import pathlib
 import subprocess
 import sys
 import tempfile
@@ -154,14 +155,47 @@ class TestAudit(unittest.TestCase):
             C._audit_event("os.remove", ("f.db", fd), emit)
         finally:
             os.close(fd)
-        C._audit_event("os.remove", ("g.db", 99999), emit)                 # 解析不了的目录 fd：跳过（外层事件有全路径）
+        C._audit_event("os.remove", ("g.db", 99999), emit)                 # 解析不了的目录 fd：照记，标成 unresolved
         C._audit_event("os.rename", ("/x/a", "/x/b", -1, -1), emit)
-        C._audit_event("os.rename", ("rel", "/x/c", 99999, -1), emit)   # 源是解析不了的 fd 相对名：跳过它，但目标照记
+        C._audit_event("os.rename", ("rel", "/x/c", 99999, -1), emit)
+        C._audit_event("os.mkdir", ("/x/m", 0o777, -1), emit)               # 第 2 个参数是 mode，不是目录 fd
+        C._audit_event("os.remove", (pathlib.PurePosixPath("/x/p"), -1), emit)   # PathLike 也要记
+        real_d = os.path.realpath(d)
         self.assertEqual(got, [("write", "/x/y"), ("os.remove", "/x/r"), ("sqlite3.connect", "/x/db"),
                                ("socket.connect", ["127.0.0.1", 80]), ("socket.connect", "/run/sock"),
-                               ("os.remove", os.path.join(os.path.realpath(d), "f.db")), ("os.rename", "/x/a"),
-                               ("os.rename", "/x/b"), ("os.rename", "/x/c")])
+                               ("os.remove", os.path.join(real_d, "f.db")), ("os.remove", "<unresolved dir_fd=99999>/g.db"),
+                               ("os.rename", "/x/a"), ("os.rename", "/x/b"), ("os.rename", "<unresolved dir_fd=99999>/rel"),
+                               ("os.rename", "/x/c"), ("os.mkdir", "/x/m"), ("os.remove", "/x/p")])
+        self.assertEqual(C.UNRESOLVED_DIR_FD, "<unresolved dir_fd=")         # test_constraints._allowed_path 按这个前缀拒绝
         self.assertIsNone(C._fd_dir(99999))
+
+    def test_fd_dir_platforms(self):
+        """目录 fd → 路径：/proc 拿不到时 macOS 走 fcntl(F_GETPATH=50, 1024 字节缓冲)；两种都拿不到 → None（调用方记 unresolved）。"""
+        d = tmpdir(self)
+        fd = os.open(d, os.O_RDONLY)
+        try:
+            if sys.platform.startswith("linux"):
+                self.assertEqual(C._fd_dir(fd), os.path.realpath(d))
+            if sys.platform == "darwin":
+                self.assertEqual(C._fd_dir(fd), os.path.realpath(d))             # 真机：F_GETPATH 给出 /private/var/... 实路径
+        finally:
+            os.close(fd)
+        try:
+            import fcntl                                                      # noqa: F401  Windows 没有 fcntl：下面只在有它时验
+        except ImportError:
+            return
+        with mock.patch.object(C.os, "readlink", side_effect=OSError), \
+                mock.patch("fcntl.fcntl", return_value=b"/private/var/folders/x" + bytes(1002)) as fc:
+            self.assertEqual(C._fd_dir(7, darwin=True), "/private/var/folders/x")
+            self.assertIsNone(C._fd_dir(7, darwin=False))                     # 非 macOS 不调 F_GETPATH
+        self.assertEqual(fc.call_count, 1)
+        self.assertEqual(fc.call_args.args[0], 7)
+        self.assertEqual(fc.call_args.args[1], getattr(sys.modules["fcntl"], "F_GETPATH", 50))
+        self.assertEqual(fc.call_args.args[2], bytes(1024))
+        with mock.patch.object(C.os, "readlink", side_effect=OSError), mock.patch("fcntl.fcntl", side_effect=OSError):
+            self.assertIsNone(C._fd_dir(7, darwin=True))
+        with mock.patch.object(C.os, "readlink", return_value="pipe:[123]"):
+            self.assertIsNone(C._fd_dir(7, darwin=False))                     # 不是绝对路径：当作拿不到
 
     def test_child_hooks_in_subprocess(self):
         """子进程里装审计钩子 + 覆盖率：写文件 / sqlite / socket 事件进日志；覆盖行写进 QDPERF_COV_DIR。"""

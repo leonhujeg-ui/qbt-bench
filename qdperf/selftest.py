@@ -126,7 +126,11 @@ def step_g3(mode, out_dir, state):
     from qdperf.tools import selfcheck as S
     res = S.g3(quick=mode != "full", out_dir=out_dir, log=None)
     s = res["summary"]
-    return _row(f"{s['configs']} configs x {s['seconds_per_config']:g}s, T={s['T']:g}s", S.g3_ok(s),
+    scale = f"{s['configs']} configs x {s['seconds_per_config']:g}s, T={s['T']:g}s"
+    if s["panel_capped"]:
+        return _row(scale, False, f"panel calibration FAILED: {s['panel_reason']}", s)
+    return _row(scale, S.g3_ok(s),
+                f"panel {s['panel_query_ms']:.0f} ms ({s['panel_error'] * 100:+.0f}% of target, x{s['panel_passes']}); "
                 f"Q=0 p99 max {s['q0_p99_T_max']:.2f}T; knee "
                 f"{'none' if not s['knee'] else 'Q=' + format(s['knee']['knee_q'], 'g') + ' p99 ' + format(s['knee']['knee_p99_T'], '.2f') + 'T'}"
                 f"; effective mitigations {s['effective_mitigations']}", s)

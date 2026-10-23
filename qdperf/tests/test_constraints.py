@@ -98,6 +98,8 @@ def _allowed_path(p):
         return True
     if p.startswith("file:"):
         p = p[5:].split("?", 1)[0]
+    if not os.path.isabs(p):                      # 相对路径、"<unresolved dir_fd=N>/名字"（审计钩子解析不了的目录 fd）：
+        return False                              # 失效时默认拒绝，不按当前目录去猜
     real = os.path.realpath(p)
     return real == "/dev/null" or real.startswith(tmp + os.sep) or real.startswith(results + os.sep)
 
@@ -133,6 +135,14 @@ class TestRuntimeAudit(unittest.TestCase):
         self.assertTrue(_allowed_path(os.path.join(PKG, "results", "g1.json")))
         self.assertTrue(_allowed_path("/dev/null"))
         self.assertTrue(_allowed_path(":memory:"))
+        cwd = os.getcwd()
+        os.chdir(tempfile.gettempdir())                                    # 当前目录在 tempfile 下也不许放行
+        try:
+            self.assertFalse(_allowed_path("<unresolved dir_fd=7>/x.db"))
+            self.assertFalse(_allowed_path("x.db"))
+            self.assertFalse(_allowed_path("file:x.db?mode=ro"))
+        finally:
+            os.chdir(cwd)
         outside = os.path.join(os.path.abspath(os.sep), "qdperf-outside-check", "x.json")
         self.assertFalse(_allowed_path(outside))
         self.assertFalse(_allowed_path("file:" + outside + "?mode=ro"))

@@ -211,6 +211,12 @@ def child_finish():
 _WRITE_FLAGS = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_APPEND | os.O_TRUNC
 _PATH_EVENTS = ("os.remove", "os.rename", "os.replace", "os.mkdir", "os.rmdir", "shutil.rmtree", "os.truncate",
                 "shutil.copyfile", "shutil.move", "os.symlink", "os.link")
+# 带 dir_fd 的路径事件：第几个参数是路径 → 第几个参数是它相对的目录 fd（CPython 审计事件的参数顺序；-1 = 相对当前目录）。
+# os.mkdir 的第 2 个参数是 mode、os.truncate 的是 length，都不是 fd。
+_DIR_FD_ARG = {"os.remove": {0: 1}, "os.rmdir": {0: 1}, "shutil.rmtree": {0: 1}, "os.mkdir": {0: 2},
+               "os.rename": {0: 2, 1: 3}, "os.replace": {0: 2, 1: 3}, "os.link": {0: 2, 1: 3}, "os.symlink": {1: 2}}
+UNRESOLVED_DIR_FD = "<unresolved dir_fd="           # 解析不了的目录 fd：记成 "<unresolved dir_fd=N>/名字"，写入判据按仓外写判红
+_F_GETPATH = 50                                     # macOS <sys/fcntl.h> 的 F_GETPATH（fcntl 模块在 macOS 上也导出同名常量）
 
 
 def install_audit(log_path):
@@ -239,16 +245,20 @@ def _audit_event(event, args, emit):
         if isinstance(path, (str, bytes)) and _is_write(mode, flags):
             emit("write", os.path.abspath(os.fsdecode(path)))
     elif event in _PATH_EVENTS:
-        fds = [a for a in args if isinstance(a, int) and not isinstance(a, bool) and a >= 0]
-        base = _fd_dir(fds[0]) if fds else None
-        for p in args:
-            if isinstance(p, (str, bytes)):
-                p = os.fsdecode(p)
-                if fds and not os.path.isabs(p):
-                    if base is None:
-                        continue                  # 相对某个目录 fd 的名字（shutil.rmtree 内部）：外层 rmtree 事件已带全路径
-                    p = os.path.join(base, p)
+        fd_arg = _DIR_FD_ARG.get(event, {})
+        for i, p in enumerate(args):
+            if isinstance(p, os.PathLike):
+                p = os.fspath(p)
+            if not isinstance(p, (str, bytes)):
+                continue
+            p = os.fsdecode(p)
+            j = fd_arg.get(i)
+            fd = args[j] if j is not None and j < len(args) else -1
+            if os.path.isabs(p) or not isinstance(fd, int) or isinstance(fd, bool) or fd < 0:
                 emit(event, os.path.abspath(p))
+                continue
+            base = _fd_dir(fd)                    # 相对某个目录 fd 的名字（shutil.rmtree 内部就这么删）
+            emit(event, os.path.abspath(os.path.join(base, p)) if base else f"{UNRESOLVED_DIR_FD}{fd}>/{p}")
     elif event == "sqlite3.connect":
         db = args[0] if args else None
         if isinstance(db, (str, bytes, os.PathLike)):
@@ -258,12 +268,21 @@ def _audit_event(event, args, emit):
         emit("socket.connect", list(addr) if isinstance(addr, tuple) else str(addr))
 
 
-def _fd_dir(fd):
-    """目录 fd → 路径（Linux 的 /proc/self/fd）；拿不到返回 None。"""
+def _fd_dir(fd, darwin=sys.platform == "darwin"):
+    """目录 fd → 绝对路径：Linux 读 /proc/self/fd/<fd>，macOS 用 fcntl(fd, F_GETPATH)；都拿不到（或拿到的不是绝对路径）
+    返回 None，调用方把事件记成 "<unresolved dir_fd=N>/名字"——失效时默认拒绝，不默认放行。"""
     try:
-        return os.readlink(f"/proc/self/fd/{fd}")
+        path = os.readlink(f"/proc/self/fd/{fd}")
     except OSError:
-        return None
+        path = None
+    if path is None and darwin:
+        try:
+            import fcntl
+            buf = fcntl.fcntl(fd, getattr(fcntl, "F_GETPATH", _F_GETPATH), bytes(1024))
+            path = os.fsdecode(buf.split(b"\0", 1)[0])
+        except (ImportError, OSError):
+            path = None
+    return path if path and os.path.isabs(path) else None
 
 
 def _is_write(mode, flags):

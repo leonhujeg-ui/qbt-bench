@@ -48,8 +48,12 @@ ENGINE_WRITE = ("INSERT INTO orders(bot_id, user_id, symbol, side, type, price, 
                 "INSERT INTO trades(order_id, bot_id, user_id, symbol, side, price, qty, fee, ts) "
                 "VALUES (last_insert_rowid(), 42, 7, 'BTCUSDT', 'buy', 65000.0, 0.01, 0.26, ?)",
                 "UPDATE bots SET updated_at = ? WHERE id = 42")
-PANEL_QUERY = ("SELECT o.user_id, count(*), sum(t.price * t.qty) FROM trades t JOIN orders o ON o.id = t.order_id "
-               "WHERE t.id > ? AND t.id <= ? GROUP BY o.user_id")
+# 面板长查询：参数 (遍数, lo, hi)，把 trades 的 id 区间 (lo, hi] 扫“遍数”遍（区间不够长时靠多扫几遍凑够耗时，
+# 一条语句、一个读事务）。连接顺序用 CROSS JOIN 固定为 遍数 → trades 的 rowid 区间 → orders 主键：耗时与 行数 × 遍数
+# 成正比、不随 SQLite 版本的计划选择变（不固定时 3.45 会先整扫 orders 的覆盖索引，每条查询都有一段与区间无关的开销）。
+PANEL_QUERY = ("WITH RECURSIVE pass(k) AS (SELECT 1 UNION ALL SELECT k + 1 FROM pass WHERE k < ?) "
+               "SELECT o.user_id, count(*), sum(t.price * t.qty) FROM pass CROSS JOIN trades t CROSS JOIN orders o "
+               "WHERE t.id > ? AND t.id <= ? AND o.id = t.order_id GROUP BY o.user_id")
 NOTIFIER_WRITE = ("INSERT INTO events(user_id, bot_id, kind, level, notified, ts, payload) "
                   "VALUES (7, 42, 'alert', 'warn', 0, ?, '{}')",
                   "UPDATE events SET notified = 1 WHERE id = last_insert_rowid()")
@@ -268,15 +272,16 @@ def _poll(spec, local, replica):
     t0 = time.perf_counter()
     err = None
     lo, hi = spec["range"]
+    passes = spec["passes"]
     try:
         if spec["mitigation"] == "chunked":
             acc = {}
             for a, b in chunk_ranges(lo, hi, spec["chunk_rows"]):
-                merge_rows(acc, conn.execute(PANEL_QUERY, (a, b)).fetchall())
+                merge_rows(acc, conn.execute(PANEL_QUERY, (passes, a, b)).fetchall())
                 if spec["chunk_pause"]:
                     time.sleep(spec["chunk_pause"])                            # 块之间让出（可选；实测见 REPORT §3.2）
         else:
-            conn.execute(PANEL_QUERY, (lo, hi)).fetchall()
+            conn.execute(PANEL_QUERY, (passes, lo, hi)).fetchall()
     except sqlite3.OperationalError as exc:
         err = getattr(exc, "sqlite_errorname", None) or "SQLITE_ERROR"
     finally:
@@ -413,27 +418,79 @@ def prepare(db=None, scale=0.05, seed=synth_db.DEFAULT_SEED):
     return work, master
 
 
-def calibrate_panel(master, target_s, probe_rows=20_000):
-    """把面板长查询的扫描行数调到单线程耗时 ≈ target_s（耗时与行数成正比，先测 probe_rows 行再按比例放大，再复测）。"""
+def calibrate_panel(master, target_s, probe_rows=20_000, tolerance=0.2):
+    """把面板长查询的单线程耗时调到 target_s ± tolerance（任何机器上都要达到，行数不设上限）。
+
+    工作量 = 行数 × 遍数：先测 probe_rows 行，再按实测耗时迭代（两点割线，斜率不可用时按比例）；需要的行数超过整张
+    trades 时让查询把同一区间扫多遍。每轮取 3 次里最快的；进入 ±tolerance / 4 就停，最多 CAL_ROUNDS 轮，取最接近的一次。
+    最接近的一次仍在 ±tolerance 之外（例如 trades 表是空的）才 capped=True，reason 写明原因——调用方据此判红，不静默降级。"""
     conn = sqlite3.connect(master)
-    hi = conn.execute("SELECT max(id) FROM trades").fetchone()[0]
+    try:
+        hi = conn.execute("SELECT max(id) FROM trades").fetchone()[0] or 0
+        avail = hi - 1
+        if avail < 1:
+            return _calibration(target_s, tolerance, hi, 0, 1, None, [], f"trades 表只有 {max(hi, 0)} 行，构造不出面板长查询")
 
-    def timed(rows):
-        best = None
-        for _ in range(3):
-            t0 = time.perf_counter()
-            conn.execute(PANEL_QUERY, (hi - rows, hi)).fetchall()
-            dt = time.perf_counter() - t0
-            best = dt if best is None else min(best, dt)
-        return best
+        def shape(work):
+            passes = -(-work // avail)
+            return max(1, min(avail, round(work / passes))), passes
 
-    probe = min(probe_rows, hi - 1)
-    per_row = timed(probe) / probe
-    rows = max(100, min(hi - 1, int(target_s / per_row)))
-    seconds = timed(rows)
-    conn.close()
-    return {"rows": rows, "range": [hi - rows, hi], "seconds": seconds, "per_row_us": per_row * 1e6,
-            "target_seconds": target_s, "capped": rows == hi - 1}
+        def timed(rows, passes):
+            best = None
+            for _ in range(3):
+                t0 = time.perf_counter()
+                conn.execute(PANEL_QUERY, (passes, hi - rows, hi)).fetchall()
+                dt = time.perf_counter() - t0
+                best = dt if best is None else min(best, dt)
+            return best
+
+        work, points = max(1, min(probe_rows, avail)), []
+        for _ in range(CAL_ROUNDS):
+            rows, passes = shape(work)
+            secs = timed(rows, passes)
+            points.append({"rows": rows, "passes": passes, "seconds": secs})
+            if abs(secs / target_s - 1) <= tolerance / 4:
+                break
+            work = _next_work(points, target_s)
+        best = min(points, key=lambda p: abs(p["seconds"] / target_s - 1))
+        off = best["seconds"] / target_s - 1
+        reason = None if abs(off) <= tolerance else (f"{len(points)} 轮后最接近的一次 {best['seconds'] * 1000:.1f} ms，"
+                                                     f"偏离目标 {target_s * 1000:.1f} ms {off * 100:+.0f}%，超出 ±{tolerance * 100:.0f}%")
+        return _calibration(target_s, tolerance, hi, best["rows"], best["passes"], best["seconds"], points, reason)
+    finally:
+        conn.close()
+
+
+CAL_ROUNDS = 8
+
+
+class CalibrationError(RuntimeError):
+    """面板长查询标定达不到目标耗时 ± 容差：不往下跑（结果没有意义），带着标定记录与原因抛给调用方判红。"""
+
+    def __init__(self, cal):
+        super().__init__(cal["reason"])
+        self.calibration = cal
+
+
+def _next_work(points, target_s):
+    """下一轮的工作量（行数 × 遍数）：最近两点的割线；斜率不可用时按比例；每轮最多放大 / 缩小 20 倍。"""
+    last = points[-1]
+    w1, t1 = last["rows"] * last["passes"], last["seconds"]
+    guess = w1 * target_s / t1 if t1 > 0 else w1 * 20
+    if len(points) >= 2:
+        prev = points[-2]
+        w0, t0 = prev["rows"] * prev["passes"], prev["seconds"]
+        if w1 != w0 and (t1 - t0) / (w1 - w0) > 0:
+            guess = w1 + (target_s - t1) * (w1 - w0) / (t1 - t0)
+    return max(1, round(min(max(guess, w1 / 20), w1 * 20)))
+
+
+def _calibration(target_s, tolerance, hi, rows, passes, seconds, points, reason):
+    work = rows * passes
+    return {"rows": rows, "passes": passes, "range": [hi - rows, hi], "seconds": seconds,
+            "per_row_us": (seconds / work * 1e6) if seconds and work else None, "target_seconds": target_s,
+            "tolerance": tolerance, "error": (seconds / target_s - 1) if seconds is not None else None,
+            "capped": reason is not None, "reason": reason, "rounds": points}
 
 
 def run_once(master, cfg, work, cal):
@@ -459,7 +516,7 @@ def run_once(master, cfg, work, cal):
     if cfg["q"] > 0:
         chunk_rows = max(1, int(cal["rows"] * cfg["chunk_ratio"] * cfg["T"] / max(cal["seconds"], 1e-9)))
         pspec = dict(base, q=cfg["q"], panel_threads=cfg["panel_threads"], mitigation=cfg["mitigation"],
-                     range=cal["range"], chunk_rows=chunk_rows, chunk_pause=cfg["chunk_pause"],
+                     range=cal["range"], passes=cal.get("passes", 1), chunk_rows=chunk_rows, chunk_pause=cfg["chunk_pause"],
                      replica_every=cfg["replica_every"],
                      backoff_k=cfg["backoff_k"],
                      replica_paths=[os.path.join(work, "replica_a.db"), os.path.join(work, "replica_b.db")])
@@ -556,6 +613,8 @@ def scan(quick=False, base=None, db=None, scale=0.05, mitigations=("replica", "c
     work, master = prepare(db, scale)
     try:
         cal = calibrate_panel(master, base["panel_ratio"] * base["T"])
+        if cal["capped"]:
+            raise CalibrationError(cal)
         grid = scan_grid(quick)
         results = [_logged(log, run_once(master, dict(base, **g), work, cal)) for g in grid]
         knees = find_knees(results)
@@ -573,8 +632,11 @@ def scan(quick=False, base=None, db=None, scale=0.05, mitigations=("replica", "c
 
 
 def scan_grid(quick):
+    """quick：WAL 开 / 关 × Q ∈ {0, 5}，WAL 关、busy 5 s、inline 再加 Q = 20（饿死点的 Q 随平台变：
+    有的机器 Q = 5 还拖不过 2T），外加 busy 0.5 s + subprocess 的 Q ∈ {0, 5}。全量：Q_GRID × 全组合。"""
     if quick:
         g = [{"wal": w, "busy": 5.0, "compute": "inline", "q": q} for w in (True, False) for q in (0.0, 5.0)]
+        g.append({"wal": False, "busy": 5.0, "compute": "inline", "q": 20.0})
         return g + [{"wal": False, "busy": 0.5, "compute": "subprocess", "q": q} for q in (0.0, 5.0)]
     return [{"wal": w, "busy": b, "compute": c, "q": q} for w in (True, False) for b in (5.0, 0.5)
             for c in COMPUTE for q in Q_GRID]
@@ -645,7 +707,7 @@ def first_line_scan(s):
 def format_scan(s):
     cal = s["panel_calibration"]
     out = [first_line_scan(s),
-           f"T={s['base']['T']:g}s，面板长查询扫描 {cal['rows']:,} 行，单线程 {cal['seconds'] * 1000:.0f} ms"
+           f"T={s['base']['T']:g}s，面板长查询扫描 {cal['rows']:,} 行 × {cal.get('passes', 1)} 遍，单线程 {cal['seconds'] * 1000:.0f} ms"
            f"（目标 {s['base']['panel_ratio']:g}T）；算段 {s['base']['compute_ratio']:g}T；每个配置 {s['base']['seconds']:g} s",
            "", "== tick 间隔 p99（单位 T；> 2T = 被拖过两个周期）==", knee_table(s), "", "== 全部配置 =="]
     out += [row_text(r) for r in s["results"]]
@@ -688,7 +750,11 @@ def main(argv=None):
         print("TICK_JITTER ERROR T / seconds must be > 0 and q >= 0")
         return 2
     if a.cmd == "scan":
-        res = scan(a.quick, _cfg_from_args(a), a.db, a.scale, log=lambda line: print(line, file=sys.stderr, flush=True))
+        try:
+            res = scan(a.quick, _cfg_from_args(a), a.db, a.scale, log=lambda line: print(line, file=sys.stderr, flush=True))
+        except CalibrationError as exc:
+            print(f"TICK_JITTER ERROR panel calibration: {exc}")
+            return 2
         print(format_scan(res))
         rc = 1 if any(r["starved"] for r in res["results"]) else 0
     else:
@@ -696,6 +762,9 @@ def main(argv=None):
         try:
             cfg = _cfg_from_args(a)
             cal = calibrate_panel(master, cfg["panel_ratio"] * cfg["T"])
+            if cal["capped"]:
+                print(f"TICK_JITTER ERROR panel calibration: {cal['reason']}")
+                return 2
             res = run_once(master, cfg, work, cal)
             res["panel_calibration"] = cal
         finally:

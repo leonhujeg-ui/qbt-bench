@@ -244,9 +244,15 @@ def g3(quick=False, out_dir=common.RESULTS, log=print, seconds=None):
     """缺省每个配置 20 s（T = 0.05 s → 400 个 tick；p99 至少由 4 个样本决定，不被单个宿主机调度毛刺左右）；
     quick 时 10 s。"""
     secs = seconds or (10.0 if quick else 20.0)
-    res = J.scan(quick=quick, base={"seconds": secs}, log=log)
+    try:
+        res = J.scan(quick=quick, base={"seconds": secs}, log=log)
+        res["summary"] = g3_summary(res)
+    except J.CalibrationError as exc:                    # 面板长查询标定达不到目标：不跑扫描，记下原因，判红
+        res = {"format": J.FORMAT, "machine": common.machine(), "panel_calibration": exc.calibration, "quick": quick}
+        res["summary"] = {"T": J.DEFAULTS["T"], "seconds_per_config": secs, "configs": 0, "panel_capped": True,
+                          "panel_reason": str(exc), "q0_ok": False, "knee_found": False, "knee": None,
+                          "effective_mitigations": [], "first_line": f"TICK_JITTER ERROR panel calibration: {exc}"}
     res["command"] = f"python3.12 -m qdperf.tick_jitter scan --seconds {secs:g}" + (" --quick" if quick else "")
-    res["summary"] = g3_summary(res)
     if out_dir:
         common.write_json(os.path.join(out_dir, "g3_tick_jitter.json"), res)
     return res
@@ -278,8 +284,11 @@ def g3_summary(res):
                              "write_errors_busy_5": o["tick_errors"]["write"]})
     gil = {f"{g['config']['compute']}/bg{g['config']['bg_threads']}": {
         "compute_p50_ms": g["segments_ms"]["compute"]["p50"], "p99_T": g["interval_T"]["p99"]} for g in res["gil"]}
+    cal = res["panel_calibration"]
     return {"T": res["base"]["T"], "seconds_per_config": res["base"]["seconds"], "configs": len(rs),
-            "panel_query_ms": res["panel_calibration"]["seconds"] * 1000, "panel_rows": res["panel_calibration"]["rows"],
+            "panel_query_ms": cal["seconds"] * 1000, "panel_rows": cal["rows"], "panel_passes": cal.get("passes", 1),
+            "panel_target_ms": cal["target_seconds"] * 1000, "panel_error": cal.get("error"),
+            "panel_capped": cal["capped"], "panel_reason": cal.get("reason"),
             "q0_p99_T_max": max(r["interval_T"]["p99"] for r in q0), "q0_ok": all(r["interval_T"]["p99"] <= 1.2 for r in q0),
             "q0_runs": len(q0), "wake_late_ms_max": max((r["wake_late_ms"]["max"] or 0.0) for r in rs + res["gil"]),
             "knees": [{k: v for k, v in kn.items() if k != "p99_T_by_q"} for kn in res["knees"]],
@@ -290,7 +299,9 @@ def g3_summary(res):
 
 
 def g3_ok(s):
-    return s["q0_ok"] and s["knee_found"] and len(s["effective_mitigations"]) >= 2
+    """形状判据（拐点的 Q 与哪几条缓解有效随平台变，不卡具体值）：面板长查询标定到目标 ±20%；Q=0 时 p99 ≤ 1.2T；
+    存在某个 Q 使 p99 > 2T；至少两条缓解把拐点配置的 p99 降回 ≤ 2T。"""
+    return (not s["panel_capped"] and s["q0_ok"] and s["knee_found"] and len(s["effective_mitigations"]) >= 2)
 
 
 # ---- G4 ------------------------------------------------------------------------------
