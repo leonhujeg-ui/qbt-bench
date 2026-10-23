@@ -328,5 +328,6 @@ python3.12 -m qdperf.selftest [--quick | --full]
 退出码 0 = 全部步骤通过，1 = 任一步骤失败。第一行 `qdperf selftest (<模式>) <平台> Python <版本> SQLite <版本> <核数> CPU`，
 其后每步一行 `<步骤> <规模> <秒>s OK|FAIL <关键数字>`，最后一行 `TOTAL ... <通过>/<总数> steps passed`。
 步骤：`unittest`（另查测试跑完后 tempfile 下没有新留下的 `qdperf-*` 目录）、`constraints`（零依赖 / 零出网 / 零写仓外三条测试）、`coverage`、`g1_sqlite`、`g2_gate`、`g3_tick`、`g4_http`、`perf_qbt`。
+`g2_gate` 在演示小负载上验回归闸：放慢 20% 必红、原样重跑必绿（基线 / 放慢 / 重跑三条臂按进程轮转交替取样）；需求里的“放慢 12% 必红”由 `perf_qbt` 在 qbt 真实用例上判（12% 离 10% 的容差下限只有 2 个点，演示负载太小，进程快慢会把它量到 10% 以下）。
 `g3_tick` 只按形状判（拐点在哪个 Q、哪几条缓解有效随平台变，不卡具体值）：面板长查询标定到目标 ±20%（达不到 → 红，关键数字栏写 `panel calibration FAILED: <原因>`）；Q=0 时 p99 ≤ 1.2T；存在某个 Q 使 p99 > 2T；至少两条缓解把拐点配置的 p99 降回 ≤ 2T。
 零写仓外的运行时审计：带目录 fd 的删除 / 改名按 `/proc/self/fd`（Linux）或 `fcntl(F_GETPATH)`（macOS）还原成全路径；两种都拿不到时记成 `<unresolved dir_fd=N>/名字`，写入判据把它当仓外写判红（失效时默认拒绝）。
