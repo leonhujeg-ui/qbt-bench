@@ -14,7 +14,7 @@
 | `results/g1_doctor.json` | Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.80GHz × 4，SQLite 3.45.1，提交 02e27bf，2026-10-22T23:25:50 |
 | `results/g2_profile_gate.json` | Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.80GHz × 4，SQLite 3.45.1，提交 e31fe1d，2026-10-22T23:58:58 |
 | `results/g2_noise_probe.json` | Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.80GHz × 4，SQLite 3.45.1，提交 ed9b896，2026-10-22T22:02:19 |
-| `results/g3_tick_jitter.json` | Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.80GHz × 4，SQLite 3.45.1，提交 ee45516，2026-10-22T23:43:38 |
+| `results/g3_tick_jitter.json` | Linux-6.18.44-fc-v153-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.10GHz × 4，SQLite 3.45.1，提交 0597e0b，2026-10-23T10:51:37 |
 | `results/g4_http_load.json` | Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.80GHz × 4，SQLite 3.45.1，提交 ee45516，2026-10-22T23:43:38 |
 | `results/selftest_summary.json` | Linux-6.18.44-fc-v140-x86_64-with-glibc2.39，Python 3.12.3，Intel(R) Xeon(R) Processor @ 2.80GHz × 4，SQLite 3.45.1，提交 e31fe1d，2026-10-22T23:58:58 |
 
@@ -38,10 +38,10 @@
 | G2 | 回归闸：墙钟 +10% 红、峰值内存 +20% 红、新进前 10 的函数点名；首行 `REGRESSION <指标>=<基线>→<本次> (+<百分比>)`；3 遍基线噪声 × 2 与手动容差取大 | 3 遍基线噪声：热 3.1%、冷 1.2%、内存 0.0% → 热墙钟容差 10.0% | ✅ | `python3.12 -m qdperf.profile_gate compare base.json new.json` |
 | G2 | 故意放慢 12% 必红；5% 按噪声幅度决定（写明）；原样重跑不红 | 12%：`REGRESSION cold.wall_s=4.23→4.826 (+14.1%)`，新进前 10：[]；5%：`OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%`（容差 10.0% > 5% → 放慢 5% 落在容差内，按设计应判绿；实际 OK）；原样重跑：`OK hot.wall_s=1.332→1.324 (-0.6%) tol=10.0%` | ✅ | 同上 |
 | G2 | 两份 JSON 的函数名集合可比（去掉行号 / 临时路径） | 原样重跑、整份代码拷到临时目录再测，两份前 10 的名字都在基线前 30 里：True / True；名字里无行号 / 临时路径：True；前 30 的 Jaccard 1.00 / 1.00；前 10 排位完全相同（只供参考：第 10 名上下的函数耗时接近，排位随噪声互换）：True / True | ✅ | `qdperf/tests/test_profile_gate.py` |
-| G3 | 三个真进程（引擎每 T 一个 tick、面板 Q 次/秒长查询、通知偶发写），量 tick 间隔 p50 / p99 / 最大、过 2T 次数、读 / 算 / 写分段 | T = 0.05 s；面板长查询 249,999 行、单线程 155 ms（≈ 3.1T（标定目标 2.5T，行数已封顶为全表））；共 32 个配置 × 20.0 s（全表见 §3） | ✅ | `python3.12 -m qdperf.tick_jitter scan` |
-| G3 | Q=0 时 p99 间隔 ≤ 1.2T | 全部 Q=0 配置的最大 p99 = 1.016T | ✅ | 同上 |
-| G3 | 证明某个 Q 下 p99 > 2T（饿死点），并给拐点表 | 拐点：WAL 关、busy 5 s、inline：Q = 5.0 时 p99 = 7.66T（表见 §3.1） | ✅ | 同上 |
-| G3 | 两条有效缓解各自的实测改善 | 有效（p99 ≤ 2T）：分块读 p99 1.37T（改善 5.6 倍，超过 2T 的 tick 0 个）、读只读副本 p99 1.14T（改善 6.7 倍，超过 2T 的 tick 0 个）、切 WAL p99 1.00T（改善 7.6 倍，超过 2T 的 tick 0 个）；实测无效的也照列：轮询退避 p99 2.95T（改善 2.6 倍，超过 2T 的 tick 7 个）（见 §3.2） | ✅ | `python3.12 -m qdperf.tick_jitter run --wal off --q 5 --mitigation replica`（或 `chunked` / `backoff` / `wal`） |
+| G3 | 三个真进程（引擎每 T 一个 tick、面板 Q 次/秒长查询、通知偶发写），量 tick 间隔 p50 / p99 / 最大、过 2T 次数、读 / 算 / 写分段 | T = 0.05 s；面板长查询单线程 129 ms ≈ 2.59T（标定目标 2.5T ± 20%，偏差 +3.4%；扫描 125,898 行 × 2 遍）；共 32 个配置 × 20.0 s（全表见 §3） | ✅ | `python3.12 -m qdperf.tick_jitter scan` |
+| G3 | Q=0 时 p99 间隔 ≤ 1.2T | 全部 Q=0 配置的最大 p99 = 1.030T | ✅ | 同上 |
+| G3 | 证明某个 Q 下 p99 > 2T（饿死点），并给拐点表（判据：存在这样的 Q，不卡 Q 的具体值） | 拐点（本机实测，平台相关）：WAL 关、busy 5 s、inline：Q = 5.0 时 p99 = 9.99T（表见 §3.1） | ✅ | 同上 |
+| G3 | 两条有效缓解各自的实测改善（判据：至少两条把拐点配置的 p99 降回 ≤ 2T，不限哪两条） | 本机实测，平台相关：有效（p99 ≤ 2T）：分块读 p99 1.36T（改善 7.3 倍，超过 2T 的 tick 0 个）、读只读副本 p99 1.01T（改善 9.9 倍，超过 2T 的 tick 0 个）、切 WAL p99 1.01T（改善 9.9 倍，超过 2T 的 tick 0 个）；实测无效的也照列：轮询退避 p99 3.21T（改善 3.1 倍，超过 2T 的 tick 8 个）（见 §3.2） | ✅ | `python3.12 -m qdperf.tick_jitter run --wal off --busy 5 --compute inline --q 5 --mitigation replica`（或 `chunked` / `backoff` / `wal`） |
 | G4 | 假后端注入 p99 = 120 ms → 量出 108–132 ms | 119.2 ms（误差 -0.7%，1,311 个请求，C = 8） | ✅ | `python3.12 -m qdperf.tools.selfcheck g4` |
 | G4 | 注入并发上限 8 → 拐点报 6–10 | 拐点 8（吞吐见 §4.1） | ✅ | 同上 |
 | G4 | A/B 中 B 比 A 慢 30% → 必红 | `REGRESSION a1.p99_ms=60.73→80.18 (+32.0%)`（4/4 项红）；同配置 A/A：`OK a2.p99_ms=12.68→12.74 (+0.5%) tol=10.0%` | ✅ | 同上 |
@@ -139,43 +139,45 @@
 
 ## 3. G3 tick 抖动
 
-### 3.1 拐点表（tick 间隔 p99，单位 T；“←拐点”= 该组合里 p99 > 2T 的最小 Q）
+判据只按形状：面板长查询先标定到目标 ±20%（达不到 → 判红，不往下跑）；Q=0 时 p99 ≤ 1.2T；存在某个 Q 使 p99 > 2T；至少两条缓解把拐点配置的 p99 降回 ≤ 2T。拐点落在哪个 Q、哪几条缓解有效取决于平台（每行扫描耗时、文件锁的实现、线程调度），§3.1 / §3.2 的具体 Q 与缓解名单是**本机实测，平台相关**，换一台机器会变。
+
+### 3.1 拐点表（本机实测，平台相关；tick 间隔 p99，单位 T；“←拐点”= 该组合里 p99 > 2T 的最小 Q）
 
 ```
-日志    busy_timeout  算段        Q=0    Q=5           Q=20     Q=50
-------  ------------  ----------  -----  ------------  -------  -------
-WAL 关  busy 5s       inline      1.00T  7.66T ←拐点   101.28T  105.68T
-WAL 关  busy 5s       subprocess  1.00T  16.25T ←拐点  198.27T  104.00T
-WAL 关  busy 0.5s     inline      1.02T  10.35T ←拐点  21.38T   20.79T
-WAL 关  busy 0.5s     subprocess  1.00T  10.37T ←拐点  21.44T   21.01T
-WAL 开  busy 5s       inline      1.00T  1.01T         1.07T    1.13T
-WAL 开  busy 5s       subprocess  1.01T  1.00T         1.07T    1.28T
-WAL 开  busy 0.5s     inline      1.01T  1.00T         1.06T    1.08T
-WAL 开  busy 0.5s     subprocess  1.00T  1.00T         1.06T    1.07T
+日志    busy_timeout  算段        Q=0    Q=5          Q=20     Q=50
+------  ------------  ----------  -----  -----------  -------  -------
+WAL 关  busy 5s       inline      1.01T  9.99T ←拐点  198.16T  103.04T
+WAL 关  busy 5s       subprocess  1.01T  7.61T ←拐点  101.00T  198.35T
+WAL 关  busy 0.5s     inline      1.00T  7.79T ←拐点  21.12T   21.31T
+WAL 关  busy 0.5s     subprocess  1.00T  8.38T ←拐点  26.17T   21.10T
+WAL 开  busy 5s       inline      1.03T  1.03T        1.07T    1.14T
+WAL 开  busy 5s       subprocess  1.02T  1.00T        1.06T    1.04T
+WAL 开  busy 0.5s     inline      1.03T  1.01T        1.08T    1.20T
+WAL 开  busy 0.5s     subprocess  1.02T  1.01T        1.06T    1.19T
 ```
 
-机理：WAL 关（rollback journal）时，面板的长查询持有 SHARED 锁，引擎提交要拿 EXCLUSIVE，必须等当前读完；面板查询 ≈ 3.1T（标定目标 2.5T，行数已封顶为全表），
+机理：WAL 关（rollback journal）时，面板的长查询持有 SHARED 锁，引擎提交要拿 EXCLUSIVE，必须等当前读完；面板查询 ≈ 2.59T（标定目标 2.5T ± 20%，偏差 +3.4%；扫描 125,898 行 × 2 遍），
 所以一碰上就把这个 tick 拖过 2T。WAL 开时读不挡写，引擎几乎不受面板影响。
 
-### 3.2 缓解（在拐点配置上）
+### 3.2 缓解（在拐点配置上；本机实测，平台相关）
 
 | 缓解 | tick 间隔 p50 | p99 | 最大 | 超过 2T 的 tick | 面板实际轮询 / 秒 | 面板查询 p50 ms | 有效（p99 ≤ 2T） |
 |---|---:|---:|---:|---:|---:|---:|---|
-| replica | 1.00T | 1.14T | 1.50T | 0/397 | 5.0 | 150 | 是 |
-| chunked | 1.00T | 1.37T | 1.61T | 0/398 | 5.0 | 159 | 是 |
-| backoff | 1.00T | 2.95T | 4.17T | 7/384 | 0.3 | 153 | 否 |
-| wal | 1.00T | 1.00T | 1.03T | 0/399 | 5.0 | 148 | 是 |
+| replica | 1.00T | 1.01T | 1.20T | 0/399 | 5.0 | 150 | 是 |
+| chunked | 1.00T | 1.36T | 1.52T | 0/397 | 5.0 | 152 | 是 |
+| backoff | 1.00T | 3.21T | 4.13T | 8/379 | 0.3 | 146 | 否 |
+| wal | 1.00T | 1.01T | 1.59T | 0/399 | 5.0 | 140 | 是 |
 
 ### 3.3 算段放 GIL 内 vs 子进程
 
 | 算段 | 引擎进程里的忙线程 | 读段 p50 ms | 算段 p50 ms | 算段 p99 ms | 写段 p50 ms | tick 间隔 p99 |
 |---|---:|---:|---:|---:|---:|---:|
-| inline | 0 | 0.1 | 15.0 | 31.8 | 0.9 | 1.00T |
-| subprocess | 0 | 0.2 | 15.3 | 33.3 | 0.9 | 1.01T |
-| inline | 1 | 103.9 | 24.4 | 53.4 | 32.0 | 6.49T |
-| subprocess | 1 | 98.3 | 24.6 | 44.9 | 37.3 | 7.37T |
+| inline | 0 | 0.1 | 16.3 | 32.2 | 0.8 | 1.01T |
+| subprocess | 0 | 0.1 | 16.3 | 29.5 | 1.0 | 1.01T |
+| inline | 1 | 96.5 | 26.0 | 52.9 | 22.0 | 6.99T |
+| subprocess | 1 | 155.5 | 25.2 | 37.5 | 40.0 | 7.44T |
 
-引擎进程里加 1 个纯 Python 忙线程后，tick 间隔 p99 从 1.00T 变成 6.49T（算段在进程内）/ 7.37T（算段在子进程）。p50 增长最多的是读段：读段 0.1 → 103.9 ms、算段 15.0 → 24.4 ms、写段 0.9 → 32.0 ms。把算段挪到子进程没有让 tick 回到 2T 以内（7.37T）：被拖慢的不只是算段——sqlite3 模块每取一行（sqlite3_step）都先放开 GIL 再拿回，写段的每次 execute / commit 也一样，而纯 Python 忙线程只在切换间隔（sys.getswitchinterval()，缺省 5 ms）到点时才让出 GIL；子进程算完回传后，引擎线程收结果同样要等 GIL。
+引擎进程里加 1 个纯 Python 忙线程后，tick 间隔 p99 从 1.01T 变成 6.99T（算段在进程内）/ 7.44T（算段在子进程）。p50 增长最多的是读段：读段 0.1 → 96.5 ms、算段 16.3 → 26.0 ms、写段 0.8 → 22.0 ms。把算段挪到子进程没有让 tick 回到 2T 以内（7.44T）：被拖慢的不只是算段——sqlite3 模块每取一行（sqlite3_step）都先放开 GIL 再拿回，写段的每次 execute / commit 也一样，而纯 Python 忙线程只在切换间隔（sys.getswitchinterval()，缺省 5 ms）到点时才让出 GIL；子进程算完回传后，引擎线程收结果同样要等 GIL。
 
 复现：`python3.12 -m qdperf.tick_jitter run --q 0 --wal on --bg-threads 1 --compute subprocess`（`--compute inline` / `--bg-threads 0` 对照）。
 
