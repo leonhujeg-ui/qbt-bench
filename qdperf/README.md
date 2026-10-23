@@ -39,7 +39,7 @@ TOTAL                                                      760.3s  OK    8/8 ste
 
 - 命令行参数、退出码、stdout 第一行格式、Python 接口与返回 JSON 字段：[CONTRACT.md](CONTRACT.md)
 - 目标达成表（要求 / 实测 / 复现命令，每个数字附机器 / Python 版本 / best-of-N / 冷热）：[REPORT.md](REPORT.md)
-- 突变漏网逐条判定：[mutants/triage.md](mutants/triage.md)
+- 突变漏网逐条判定：[mutants/triage.md](mutants/triage.md)（由 `mutants/triage.py` 从结果文件与 `mutants/triage_reasons.py` 生成）
 
 ## 接入示例
 
@@ -70,6 +70,7 @@ python3.12 -m qdperf.selftest --full                        # 全量：合成库
 python3.12 -m unittest discover -s qdperf/tests -t .        # 只跑单元测试
 python3.12 qdperf/tools/cov.py --fail-under 90              # 语句覆盖率（复用 tools/cov.py，合并子进程覆盖）
 python3.12 qdperf/mutants/run.py --per-module 50 --jobs 4   # 突变测试（复用 mutants/run_mutations.py）
+python3.12 qdperf/mutants/triage.py [--check]              # 由 results/mutation*.json + mutants/triage_reasons.py 重新生成 mutants/triage.md
 python3.12 -m qdperf.tools.selfcheck g1|g2|g3|g4            # 单独重跑某个目标的实测，写 qdperf/results/
 python3.12 -m qdperf.tools.noise_probe                      # 本机噪声探针：进程快慢、进程内 vs 跨进程 best-of-N（REPORT §2.3）
 python3.12 qdperf/tools/build_report.py                     # 由 results/*.json 重新生成 REPORT.md

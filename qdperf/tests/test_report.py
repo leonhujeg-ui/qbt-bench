@@ -3,7 +3,7 @@ import os
 import re
 import unittest
 
-from qdperf.tests._util import PKG, UNDER_COVERAGE
+from qdperf.tests._util import PKG, UNDER_COVERAGE, tmpdir
 
 RESULTS = os.path.join(PKG, "results")
 NEEDED = ("g1_synth_verify.json", "g1_doctor.json", "g2_profile_gate.json", "g2_noise_probe.json", "g3_tick_jitter.json",
@@ -56,6 +56,44 @@ class TestReport(unittest.TestCase):
         rows = [ln for ln in lines[:40] if re.match(r"^(unittest|constraints|coverage|g1_sqlite|g2_gate|g3_tick|g4_http|"
                                                      r"perf_qbt)\s", ln)]
         self.assertEqual(len(rows), 8)
+
+
+class TestTriage(unittest.TestCase):
+    """mutants/triage.md 由 mutants/triage.py 从结果文件 + mutants/triage_reasons.py 生成；判定表不许重号、不许有用不上的条目。"""
+
+    def _need_history(self):
+        import subprocess
+        from qdperf.mutants import triage as TG
+        for c in TG.COMMITS:
+            if subprocess.run(["git", "-C", TG.REPO, "cat-file", "-e", f"{c}^{{commit}}"], capture_output=True).returncode:
+                self.skipTest(f"git 历史里没有 {c}（浅克隆，或不在仓库里）")
+        return TG
+
+    def test_triage_matches_results(self):
+        import contextlib
+        import io
+        TG = self._need_history()
+        text, _counts = TG.Triage().render()
+        with open(TG.OUT, encoding="utf-8") as f:
+            self.assertEqual(f.read(), text, "triage.md 与结果文件 / triage_reasons.py 不一致：运行 python3.12 qdperf/mutants/triage.py")
+        bad = os.path.join(tmpdir(self), "triage.md")
+        with open(bad, "w", encoding="utf-8") as f:
+            f.write("stale\n")
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(TG.main(["--check"]), 0)
+            self.assertEqual(TG.main(["--check", "--out", bad]), 1)
+        self.assertIn("triage.md differs", out.getvalue())
+
+    def test_triage_rejects_duplicate_and_unused_verdicts(self):
+        from unittest import mock
+        TG = self._need_history()
+        dup = next(iter(TG.TR.ROUND1))
+        with mock.patch.dict(TG.TR.ROUND3, {dup: (TG.EQ, "x")}):
+            with self.assertRaisesRegex(TG.TriageError, "同时出现在"):
+                TG.tables()
+        with mock.patch.dict(TG.TR.RESAMPLE3, {"fake_backend:1:const:0": (TG.EQ, "x")}):
+            with self.assertRaisesRegex(TG.TriageError, "没在 triage.md 出现"):
+                TG.Triage().render()
 
 
 class TestSelftestParsing(unittest.TestCase):

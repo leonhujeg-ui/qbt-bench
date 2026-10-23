@@ -1,5 +1,7 @@
 # qdperf 突变漏网逐条判定
 
+本文件由 `python3.12 qdperf/mutants/triage.py` 从 `qdperf/results/mutation*.json` 与 `qdperf/mutants/triage_reasons.py`（人写的逐条判定）生成；`--check` 只比较。
+
 判据：突变抓住率 ≥ 85%，每模块 ≥ 40 个突变体（这里每模块 50 个、seed 0，10 个库模块共 500 个），活下来的逐条判“等价”或补判据。跑法与口径见 `qdperf/mutants/run.py` 文档串。
 
 **结论：第 3 轮（抓住须确认、跑的过程中不改任何文件）首跑抓住率 80.6%（403/500），漏网 97 条，逐条判定为等价 26、补判据 71；补判据并修掉追查中发现的 3 个真问题后重跑，最终 94.8%（474/500，`results/mutation.json`；另 1 个真问题由自检的临时目录检查发现，见经过第 7 条），剩下的 26 条漏网全部判为等价（见表 A / A2）。**
@@ -301,6 +303,18 @@
 | `profile_gate:3461:compare` | 384 | `name == 'run'` → `name != 'run'` | **补判据** | CLI `--runs` 缺省（run 1 / baseline、pair 3）取反；新增断言 run 的首行是 `runs=1`。 | 抓住 |
 | `profile_gate:1321:delete_stmt` | 436 | `common.write_json(args.out_b, doc_b)` → `pass` | **补判据** | CLI pair 不写 `--out-b`；新增 `test_cli_pair`：首行 PROFILE_B、两份文件都写出、B 里有 extra 而 A 没有。 | 抓住 |
 | `profile_gate:248:delete_stmt` | 447 | `print(common.text_table(['累计s', '自身s', '调用', '函数'], [(f'{t['` → `pass` | **补判据** | CLI 首行之后不打印函数表；新增断言输出含表头与目标函数名。 | 抓住 |
+
+## D. 第 1 轮的误杀里单独补了判据 / 判等价的 5 条
+
+第 1 轮把它们记成“抓住”，抓住它们的却是抖动或排版判据（见经过第 1 条）；第 2 轮没跑到（或跑到时已被新判据抓住），判定当时就记下了。
+
+| id | 行 | 突变 | 判定 | 理由 | 第 3 轮 |
+|---|---|---|---|---|---|
+| `profile_gate:546:compare` | 289 | `runs < 1` → `runs <= 1` | **补判据** | `pair` 的 `runs < 1` → `runs <= 1`（第 1 轮被 WAL 测试抖动“抓住”）；`test_runs_defaults` 已断言 `pair(runs=1)` 可用（第 1 轮之后补的判据）。 | 抓住 |
+| `sqlite_load:359:const:7.5` | 185 | `5.0` → `7.5` | **补判据** | `contention()` 缺省 busy_timeout 5.0 → 7.5（第 1 轮被排版判据“抓住”，见过程）；新增断言：不传参数时 config 为 busy_timeout 5 s、IMMEDIATE、NORMAL、预算 200 ms、非泊松、无 think（需求里“WAL + busy_timeout 5 s”的口径）。 | 不在第 3 轮样本里（源码已改） |
+| `sqlite_load:404:const:199` | 219 | `200` → `199` | **补判据** | WAL 实验每行负载 200 → 199 字节（第 1 轮被排版判据“抓住”）；新增断言：探针表每行恰好 200 字节——实验负载的定义，WAL 曲线跨版本才可比。 | 不在第 3 轮样本里（源码已改） |
+| `sqlite_load:443:const:-1` | 252 | `0` → `-1` | **等价** | （旧源码）长读者进程的轮转计数起点 `k = 0` → `k = -1`：`-1 % 2 == 1`，只是让两条完全相同的读连接里先开第 2 条；之后照样交替、每条持有 hold 秒、错开 hold/2，读事务数与“任意时刻至少一个读事务开着”都不变。 | 不在第 3 轮样本里（源码已改） |
+| `tick_jitter:4068:const:False` | 570 | `True` → `False` | **补判据** | `scan` 收尾 `rmtree(work, ignore_errors=True)` → `False`（第 1 轮被 test_profile_gate 抖动“抓住”）：清理失败会让一次几十分钟的扫描连结果一起丢掉；新增 `test_scan_cleanup_never_loses_results`（mock 掉进程与标定，rmtree 在 ignore_errors 为假时抛错，断言 scan 照常返回）。 | 抓住 |
 
 ## 超时（计入抓住）
 
