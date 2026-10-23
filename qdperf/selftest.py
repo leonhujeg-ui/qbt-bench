@@ -1,6 +1,6 @@
 """一条命令跑全部自检：unittest + 覆盖率 + 四个工具的自检 + 性能自检 + 工程约束，最后打印总表。
 
-    python3.12 -m qdperf.selftest            # 缺省：合成库 5%、G3 精简网格、性能自检用 20 万根；任何一项失败 → 退出码 1
+    python3.12 -m qdperf.selftest            # 缺省：合成库 5%、G3 精简网格、性能自检用 100 万根；任何一项失败 → 退出码 1
     python3.12 -m qdperf.selftest --quick    # 更快：unittest 用 QDPERF_FAST=1、跳过覆盖率、合成库 2%、性能自检 10 万根
     python3.12 -m qdperf.selftest --full     # 全量：合成库 100%、G3 全网格、性能自检 100 万根；结果写回 qdperf/results/
 
@@ -152,7 +152,7 @@ def step_g4(mode, out_dir, state):
 def step_perf(mode, out_dir, state):
     """性能自检：本仓 qbt 回测真实用例上跑回归闸（3 遍基线交替“放慢 5% / 12%”与原样重跑）。"""
     from qdperf.tools import selfcheck as S
-    n = {"quick": 100_000, "default": 200_000, "full": 1_000_000}[mode]
+    n = {"quick": 100_000, "default": 1_000_000, "full": 1_000_000}[mode]     # 20 万根时 12% 偶尔量成 +9.3%（< 10% 下限）
     s = S.g2(n=n, out_dir=out_dir)["summary"]
     return _row(f"qbt {n:,} bars x ma_cross, best-of-{s['repeat']} procs, {s['runs']} runs", S.g2_ok(s),
                 f"noise {s['noise']['hot_wall_rel'] * 100:.1f}%; 12%: {s['slow']['12pct']['first_line']}; "
