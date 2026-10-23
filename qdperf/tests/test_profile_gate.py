@@ -399,7 +399,10 @@ class TestCli(unittest.TestCase):
         self.assertEqual(len(docs), 3)
         self.assertTrue(all("cold" not in d and d["hot"]["processes"] == 2 for d in docs))
         if TIMING:                                                             # 机器满载时（突变测试并行）不比时长
-            self.assertGreater(docs[1]["hot"]["wall_s"], 2.0 * max(docs[0]["hot"]["wall_s"], docs[2]["hot"]["wall_s"]))
+            slow, fast = docs[1]["hot"]["wall_s"], (docs[0]["hot"]["wall_s"], docs[2]["hot"]["wall_s"])
+            self.assertGreater(slow, max(fast))                                # 放慢的臂（≈ 4 倍）比两条基线臂都慢，
+            self.assertGreater(slow, 2.0 * min(fast))                          # 且明显慢于较快的那条（0.6 ms 的调用，
+            # 宿主机一次抖动就能让某条基线臂翻倍：实测 1.21 ms vs 2.41 ms，曾让“> 2 × 较慢的基线臂”差 6 µs 判失败）
         self.assertIn("qdperf/examples/demo_work.py:spin_until", G.function_names(docs[1]))
         a, b = G.pair(DEMO, {"n": 20_000}, runs=2, repeat=2, env_b={"QDPERF_DEMO_BURN": "200000"})
         self.assertEqual((a["runs"], b["runs"]), (2, 2))
