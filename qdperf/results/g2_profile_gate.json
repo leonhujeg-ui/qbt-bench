@@ -4,76 +4,76 @@
    "n": 1000000
   },
   "cold": {
-   "cpu_s": 4.208121306,
+   "cpu_s": 3.35923586,
    "cpu_samples": [
-    4.4134960009999995,
-    4.431069625999999,
-    4.320821206,
-    4.244381809,
-    4.358139433,
-    4.713687381,
-    4.183414294,
-    4.378148336
+    3.759709145,
+    3.62462114,
+    3.634106025,
+    4.246264726,
+    3.979193024,
+    3.8095022860000003,
+    4.066282856,
+    3.9924327989999995
    ],
    "process_wall_samples": [
-    7.882888214000559,
-    7.964165617995604,
-    7.643129841002519,
-    7.911450785002671,
-    7.808383635005157,
-    8.18497531000321,
-    7.629547323995212,
-    8.039627780002775
+    6.758662331999858,
+    6.382924529999855,
+    7.17636068999991,
+    7.143942333000268,
+    7.178362280999863,
+    7.177475753999715,
+    7.06279083499976,
+    7.236797943000056
    ],
-   "wall_s": 4.2296513879991835,
+   "wall_s": 3.395022639000217,
    "wall_samples": [
-    4.466728749997856,
-    4.480663717993593,
-    4.369461053000123,
-    4.277615065002465,
-    4.42415603200061,
-    4.776178804000665,
-    4.184587424999336,
-    4.4361549179957365
+    3.8054885039996407,
+    3.662282688999767,
+    3.6999618730001202,
+    4.298678305000067,
+    4.031331864000094,
+    3.822250735000125,
+    4.125343745999999,
+    4.0159174149994215
    ]
   },
   "format": "qdperf.profile.v1",
   "hot": {
-   "cpu_s": 1.3313856990000001,
+   "cpu_s": 1.1080069629999993,
    "cpu_samples": [
-    1.3771708190000007,
-    1.4421067619999999,
-    1.3313856990000001,
-    1.4697793409999997,
-    1.3881815309999999,
-    1.3849171519999999,
-    1.378976368,
-    1.4423731650000002
+    1.2136287269999997,
+    1.1089626169999995,
+    1.4859436009999998,
+    1.1514131349999994,
+    1.1660773229999997,
+    1.3140379229999999,
+    1.1358295190000005,
+    1.3506416520000002
    ],
    "processes": 8,
-   "wall_s": 1.3315912679972826,
+   "wall_s": 1.1111057640000581,
    "wall_samples": [
-    1.378794119998929,
-    1.4522835099996882,
-    1.3315912679972826,
-    1.4851051510049729,
-    1.3997696000005817,
-    1.3982093020022148,
-    1.420778206003888,
-    1.4481993570007035
+    1.2256768739998734,
+    1.1111057640000581,
+    1.5106224800001655,
+    1.1632194459998573,
+    1.1898101750002752,
+    1.316704363000099,
+    1.1362731340004757,
+    1.361431010999695
    ]
   },
   "inner": 2,
   "machine": {
    "cpu_count": 4,
-   "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-   "git_commit": "e31fe1d",
+   "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "git_commit": "f3efae4",
    "implementation": "CPython",
    "load_avg_1m": 1.0,
-   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
    "python": "3.12.3",
    "sqlite_version": "3.45.1",
-   "timestamp": "2026-10-22T23:56:42"
+   "timestamp": "2026-10-23T11:32:45"
   },
   "memory": {
    "current_bytes": 12608,
@@ -81,23 +81,23 @@
    "peak_bytes": 125490348
   },
   "noise": {
-   "cold_wall_rel": 0.01172524505122463,
-   "hot_wall_rel": 0.031171043628140813,
+   "cold_wall_rel": 0.08747820363565327,
+   "hot_wall_rel": 0.0016702953967825253,
    "peak_rel": 0.0,
    "per_run": [
     {
-     "cold_wall_s": 4.233652737995726,
-     "hot_wall_s": 1.3574909629969625,
+     "cold_wall_s": 3.395022639000217,
+     "hot_wall_s": 1.1106382759999178,
      "peak_bytes": 125490348
     },
     {
-     "cold_wall_s": 4.184587424999336,
-     "hot_wall_s": 1.3315912679972826,
+     "cold_wall_s": 3.3676837629996044,
+     "hot_wall_s": 1.112493369999811,
      "peak_bytes": 125490348
     },
     {
-     "cold_wall_s": 4.2296513879991835,
-     "hot_wall_s": 1.316455665997637,
+     "cold_wall_s": 3.662282688999767,
+     "hot_wall_s": 1.1111057640000581,
      "peak_bytes": 125490348
     }
    ]
@@ -107,214 +107,214 @@
    "sort": "cumtime",
    "top": [
     {
-     "cumtime": 2.413987,
+     "cumtime": 2.303521,
      "name": "qdperf/examples/qbt_case.py:backtest",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.021065
+     "tottime": 0.014894
     },
     {
-     "cumtime": 2.392843,
+     "cumtime": 2.288558,
      "name": "qbt/engine.py:run_backtest",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 1.5e-05
+     "tottime": 1.4e-05
     },
     {
-     "cumtime": 2.392759,
+     "cumtime": 2.288453,
      "name": "qbt/engine.py:Engine.run",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.445704
+     "tottime": 0.44824
     },
     {
-     "cumtime": 1.077577,
+     "cumtime": 1.024707,
      "name": "qbt/broker.py:Broker.on_bar",
      "ncalls": 1000000,
      "primitive_calls": 1000000,
-     "tottime": 0.456937
+     "tottime": 0.438482
     },
     {
-     "cumtime": 0.62064,
+     "cumtime": 0.586224,
      "name": "qbt/broker.py:Broker._match_pending",
      "ncalls": 39189,
      "primitive_calls": 39189,
-     "tottime": 0.090264
+     "tottime": 0.088527
     },
     {
-     "cumtime": 0.440009,
+     "cumtime": 0.452578,
      "name": "strategies/ma_cross.py:MACross.on_bar",
      "ncalls": 1000000,
      "primitive_calls": 1000000,
-     "tottime": 0.195718
+     "tottime": 0.202588
     },
     {
-     "cumtime": 0.396605,
+     "cumtime": 0.363985,
      "name": "qbt/broker.py:Broker._apply_fill",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.303328
+     "tottime": 0.266818
     },
     {
-     "cumtime": 0.288219,
+     "cumtime": 0.246734,
      "name": "strategies/ma_cross.py:MACross.on_start",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 1.6e-05
+     "tottime": 1.3e-05
     },
     {
-     "cumtime": 0.288202,
+     "cumtime": 0.24672,
      "name": "qbt/engine.py:Context.indicator",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 1.1e-05
+     "tottime": 9e-06
     },
     {
-     "cumtime": 0.288191,
+     "cumtime": 0.24671,
      "name": "qbt/engine.py:IndicatorCache.get",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 5e-05
+     "tottime": 3.7e-05
     },
     {
-     "cumtime": 0.288121,
+     "cumtime": 0.246658,
      "name": "qbt/indicators.py:sma",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 0.288119
+     "tottime": 0.246655
     },
     {
-     "cumtime": 0.215096,
+     "cumtime": 0.219552,
      "name": "qbt/engine.py:Context.target",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.038859
+     "tottime": 0.040001
     },
     {
-     "cumtime": 0.163397,
+     "cumtime": 0.166094,
      "name": "qbt/broker.py:Broker.submit",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.070111
+     "tottime": 0.068592
     },
     {
-     "cumtime": 0.141244,
+     "cumtime": 0.116191,
      "name": "qbt/engine.py:Result.__init__",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 4.1e-05
+     "tottime": 1.9e-05
     },
     {
-     "cumtime": 0.141203,
+     "cumtime": 0.116172,
      "name": "qbt/broker.py:round_trips",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.10306
+     "tottime": 0.083784
     },
     {
-     "cumtime": 0.076026,
-     "name": "qbt/broker.py:Broker._margin_ok",
-     "ncalls": 38908,
-     "primitive_calls": 38908,
-     "tottime": 0.06166
-    },
-    {
-     "cumtime": 0.075121,
+     "cumtime": 0.079002,
      "name": "qbt/broker.py:Broker._update_position",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.048918
+     "tottime": 0.051746
     },
     {
-     "cumtime": 0.06607,
+     "cumtime": 0.075321,
+     "name": "qbt/broker.py:Broker._margin_ok",
+     "ncalls": 38908,
+     "primitive_calls": 38908,
+     "tottime": 0.060694
+    },
+    {
+     "cumtime": 0.070021,
      "name": "qbt/broker.py:_validate_order",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.041862
+     "tottime": 0.044168
     },
     {
-     "cumtime": 0.049515,
+     "cumtime": 0.050767,
      "name": "qbt/broker.py:Broker._match",
      "ncalls": 39203,
      "primitive_calls": 39203,
-     "tottime": 0.040369
+     "tottime": 0.04118
     },
     {
-     "cumtime": 0.043944,
+     "cumtime": 0.042293,
      "name": "<builtin>:<built-in method builtins.abs>",
      "ncalls": 363314,
      "primitive_calls": 363314,
-     "tottime": 0.043944
+     "tottime": 0.042293
     },
     {
-     "cumtime": 0.029195,
+     "cumtime": 0.030438,
      "name": "qbt/engine.py:Strategy.size_qty",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.021369
+     "tottime": 0.021791
     },
     {
-     "cumtime": 0.027399,
+     "cumtime": 0.026251,
      "name": "<builtin>:<method 'append' of 'list' objects>",
      "ncalls": 155376,
      "primitive_calls": 155376,
-     "tottime": 0.027399
+     "tottime": 0.026251
     },
     {
-     "cumtime": 0.020537,
-     "name": "<builtin>:<built-in method builtins.min>",
-     "ncalls": 77664,
-     "primitive_calls": 77664,
-     "tottime": 0.020537
-    },
-    {
-     "cumtime": 0.018921,
+     "cumtime": 0.02034,
      "name": "<builtin>:<built-in method builtins.isinstance>",
      "ncalls": 116506,
      "primitive_calls": 116506,
-     "tottime": 0.018921
+     "tottime": 0.02034
     },
     {
-     "cumtime": 0.012525,
+     "cumtime": 0.019657,
+     "name": "<builtin>:<built-in method builtins.min>",
+     "ncalls": 77664,
+     "primitive_calls": 77664,
+     "tottime": 0.019657
+    },
+    {
+     "cumtime": 0.012827,
      "name": "qbt/broker.py:Order.__init__",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.012525
+     "tottime": 0.012827
     },
     {
-     "cumtime": 0.011376,
+     "cumtime": 0.011452,
      "name": "qbt/broker.py:Fill.__init__",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.011376
+     "tottime": 0.011452
     },
     {
-     "cumtime": 0.009146,
+     "cumtime": 0.009588,
      "name": "qbt/broker.py:Broker._slip",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.009146
+     "tottime": 0.009588
     },
     {
-     "cumtime": 0.00823,
-     "name": "<builtin>:<method 'remove' of 'list' objects>",
-     "ncalls": 38823,
-     "primitive_calls": 38823,
-     "tottime": 0.00823
-    },
-    {
-     "cumtime": 0.007826,
+     "cumtime": 0.008647,
      "name": "qbt/engine.py:Context.equity",
      "ncalls": 77646,
      "primitive_calls": 77646,
-     "tottime": 0.007826
+     "tottime": 0.008647
     },
     {
-     "cumtime": 0.006862,
+     "cumtime": 0.007624,
+     "name": "<builtin>:<method 'remove' of 'list' objects>",
+     "ncalls": 38823,
+     "primitive_calls": 38823,
+     "tottime": 0.007624
+    },
+    {
+     "cumtime": 0.007313,
      "name": "qbt/engine.py:Context.pending_signed",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.006862
+     "tottime": 0.007313
     }
    ]
   },
@@ -330,14 +330,14 @@
  },
  "machine": {
   "cpu_count": 4,
-  "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-  "git_commit": "e31fe1d",
+  "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "git_commit": "f3efae4",
   "implementation": "CPython",
   "load_avg_1m": 1.0,
-  "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
   "python": "3.12.3",
   "sqlite_version": "3.45.1",
-  "timestamp": "2026-10-22T23:58:58"
+  "timestamp": "2026-10-23T11:33:59"
  },
  "moved_copy_names": [
   "<builtin>:<built-in method builtins.abs>",
@@ -373,214 +373,214 @@
  ],
  "moved_copy_top": [
   {
-   "cumtime": 2.386004,
+   "cumtime": 2.468175,
    "name": "qdperf/examples/qbt_case.py:backtest",
    "ncalls": 1,
    "primitive_calls": 1,
-   "tottime": 0.020534
+   "tottime": 0.01605
   },
   {
-   "cumtime": 2.365392,
+   "cumtime": 2.452056,
    "name": "qbt/engine.py:run_backtest",
    "ncalls": 1,
    "primitive_calls": 1,
-   "tottime": 4.7e-05
+   "tottime": 1.4e-05
   },
   {
-   "cumtime": 2.365278,
+   "cumtime": 2.451976,
    "name": "qbt/engine.py:Engine.run",
    "ncalls": 1,
    "primitive_calls": 1,
-   "tottime": 0.432629
+   "tottime": 0.474038
   },
   {
-   "cumtime": 1.052178,
+   "cumtime": 1.082844,
    "name": "qbt/broker.py:Broker.on_bar",
    "ncalls": 1000000,
    "primitive_calls": 1000000,
-   "tottime": 0.441064
+   "tottime": 0.480262
   },
   {
-   "cumtime": 0.611114,
+   "cumtime": 0.602582,
    "name": "qbt/broker.py:Broker._match_pending",
    "ncalls": 39189,
    "primitive_calls": 39189,
-   "tottime": 0.083998
+   "tottime": 0.093231
   },
   {
-   "cumtime": 0.436329,
+   "cumtime": 0.487616,
    "name": "strategies/ma_cross.py:MACross.on_bar",
    "ncalls": 1000000,
    "primitive_calls": 1000000,
-   "tottime": 0.194842
+   "tottime": 0.215831
   },
   {
-   "cumtime": 0.391713,
+   "cumtime": 0.368158,
    "name": "qbt/broker.py:Broker._apply_fill",
    "ncalls": 38908,
    "primitive_calls": 38908,
-   "tottime": 0.300023
+   "tottime": 0.264848
   },
   {
-   "cumtime": 0.291085,
+   "cumtime": 0.245298,
    "name": "strategies/ma_cross.py:MACross.on_start",
    "ncalls": 1,
    "primitive_calls": 1,
-   "tottime": 1.5e-05
+   "tottime": 1.2e-05
   },
   {
-   "cumtime": 0.291069,
+   "cumtime": 0.245285,
    "name": "qbt/engine.py:Context.indicator",
    "ncalls": 2,
    "primitive_calls": 2,
-   "tottime": 1.1e-05
+   "tottime": 1e-05
   },
   {
-   "cumtime": 0.291058,
+   "cumtime": 0.245275,
    "name": "qbt/engine.py:IndicatorCache.get",
    "ncalls": 2,
    "primitive_calls": 2,
-   "tottime": 4.9e-05
+   "tottime": 4e-05
   },
   {
-   "cumtime": 0.290988,
+   "cumtime": 0.245219,
    "name": "qbt/indicators.py:sma",
    "ncalls": 2,
    "primitive_calls": 2,
-   "tottime": 0.290985
+   "tottime": 0.245215
   },
   {
-   "cumtime": 0.212652,
+   "cumtime": 0.238122,
    "name": "qbt/engine.py:Context.target",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.040261
+   "tottime": 0.045481
   },
   {
-   "cumtime": 0.159874,
+   "cumtime": 0.177904,
    "name": "qbt/broker.py:Broker.submit",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.067736
+   "tottime": 0.073285
   },
   {
-   "cumtime": 0.153052,
+   "cumtime": 0.162178,
    "name": "qbt/engine.py:Result.__init__",
    "ncalls": 1,
    "primitive_calls": 1,
-   "tottime": 2.3e-05
+   "tottime": 1.7e-05
   },
   {
-   "cumtime": 0.153029,
+   "cumtime": 0.162161,
    "name": "qbt/broker.py:round_trips",
    "ncalls": 1,
    "primitive_calls": 1,
-   "tottime": 0.110707
+   "tottime": 0.118231
   },
   {
-   "cumtime": 0.079896,
-   "name": "qbt/broker.py:Broker._margin_ok",
-   "ncalls": 38908,
-   "primitive_calls": 38908,
-   "tottime": 0.065872
-  },
-  {
-   "cumtime": 0.073763,
+   "cumtime": 0.083353,
    "name": "qbt/broker.py:Broker._update_position",
    "ncalls": 38908,
    "primitive_calls": 38908,
-   "tottime": 0.048205
+   "tottime": 0.054225
   },
   {
-   "cumtime": 0.065402,
+   "cumtime": 0.081027,
+   "name": "qbt/broker.py:Broker._margin_ok",
+   "ncalls": 38908,
+   "primitive_calls": 38908,
+   "tottime": 0.065065
+  },
+  {
+   "cumtime": 0.074716,
    "name": "qbt/broker.py:_validate_order",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.041716
+   "tottime": 0.047488
   },
   {
-   "cumtime": 0.048192,
+   "cumtime": 0.051929,
    "name": "qbt/broker.py:Broker._match",
    "ncalls": 39203,
    "primitive_calls": 39203,
-   "tottime": 0.038923
+   "tottime": 0.041503
   },
   {
-   "cumtime": 0.045317,
+   "cumtime": 0.050074,
    "name": "<builtin>:<built-in method builtins.abs>",
    "ncalls": 363314,
    "primitive_calls": 363314,
-   "tottime": 0.045317
+   "tottime": 0.050074
   },
   {
-   "cumtime": 0.028836,
+   "cumtime": 0.033663,
    "name": "qbt/engine.py:Strategy.size_qty",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.021092
+   "tottime": 0.024279
   },
   {
-   "cumtime": 0.027414,
+   "cumtime": 0.029583,
    "name": "<builtin>:<method 'append' of 'list' objects>",
    "ncalls": 155376,
    "primitive_calls": 155376,
-   "tottime": 0.027414
+   "tottime": 0.029583
   },
   {
-   "cumtime": 0.021396,
+   "cumtime": 0.022772,
    "name": "<builtin>:<built-in method builtins.min>",
    "ncalls": 77664,
    "primitive_calls": 77664,
-   "tottime": 0.021396
+   "tottime": 0.022772
   },
   {
-   "cumtime": 0.018425,
+   "cumtime": 0.021193,
    "name": "<builtin>:<built-in method builtins.isinstance>",
    "ncalls": 116506,
    "primitive_calls": 116506,
-   "tottime": 0.018425
+   "tottime": 0.021193
   },
   {
-   "cumtime": 0.01238,
+   "cumtime": 0.01426,
    "name": "qbt/broker.py:Order.__init__",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.01238
+   "tottime": 0.01426
   },
   {
-   "cumtime": 0.011273,
+   "cumtime": 0.012608,
    "name": "qbt/broker.py:Fill.__init__",
    "ncalls": 38908,
    "primitive_calls": 38908,
-   "tottime": 0.011273
+   "tottime": 0.012608
   },
   {
-   "cumtime": 0.009269,
+   "cumtime": 0.010425,
    "name": "qbt/broker.py:Broker._slip",
    "ncalls": 38908,
    "primitive_calls": 38908,
-   "tottime": 0.009269
+   "tottime": 0.010425
   },
   {
-   "cumtime": 0.007743,
+   "cumtime": 0.009385,
    "name": "qbt/engine.py:Context.equity",
    "ncalls": 77646,
    "primitive_calls": 77646,
-   "tottime": 0.007743
+   "tottime": 0.009385
   },
   {
-   "cumtime": 0.007315,
+   "cumtime": 0.008237,
    "name": "<builtin>:<method 'remove' of 'list' objects>",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.007315
+   "tottime": 0.008237
   },
   {
-   "cumtime": 0.00671,
+   "cumtime": 0.008033,
    "name": "qbt/engine.py:Context.pending_signed",
    "ncalls": 38823,
    "primitive_calls": 38823,
-   "tottime": 0.00671
+   "tottime": 0.008033
   }
  ],
  "order": "臂 = [A, S5pct, S12pct] × 3 + [R]，按进程轮转交替取样（G.interleaved）",
@@ -589,76 +589,76 @@
    "n": 1000000
   },
   "cold": {
-   "cpu_s": 4.296629732,
+   "cpu_s": 3.405934518,
    "cpu_samples": [
-    4.296629732,
-    4.3300594960000005,
-    4.408777862999999,
-    4.466431075,
-    4.498260667,
-    4.423209364,
-    4.328999898999999,
-    4.327869659
+    3.65304032,
+    3.405934518,
+    3.619185119,
+    4.25278082,
+    4.360825065,
+    4.175380757,
+    3.999583547,
+    3.706685643
    ],
    "process_wall_samples": [
-    7.701254915999016,
-    7.8169828789978055,
-    7.914144722999481,
-    7.860425325001415,
-    7.768103273003362,
-    7.911996645001636,
-    7.743294787003833,
-    7.818260271997133
+    6.757149104999826,
+    6.351482349999969,
+    7.2604527329999655,
+    8.0029415959998,
+    7.573037612999997,
+    7.415176287000122,
+    7.021501907000129,
+    6.700873294000303
    ],
-   "wall_s": 4.3515177160006715,
+   "wall_s": 3.464815144000113,
    "wall_samples": [
-    4.351689459996123,
-    4.404869594000047,
-    4.425057231994288,
-    4.52642396200099,
-    4.5321826319996035,
-    4.500877831997059,
-    4.3515177160006715,
-    4.357273713001632
+    3.7290117080001437,
+    3.464815144000113,
+    3.6843411580002794,
+    4.300381312999889,
+    4.422947032000138,
+    4.233561797999755,
+    4.019875689000401,
+    3.7479554189994815
    ]
   },
   "format": "qdperf.profile.v1",
   "hot": {
-   "cpu_s": 1.3232386680000001,
+   "cpu_s": 1.1602037469999997,
    "cpu_samples": [
-    1.3292541200000008,
-    1.3655398879999998,
-    1.39082404,
-    1.336101845,
-    1.3232386680000001,
-    1.4070903990000003,
-    1.3425304229999995,
-    1.4045607210000002
+    1.1853016360000002,
+    1.169432133,
+    1.2758940280000002,
+    1.5901926810000004,
+    1.184389887,
+    1.2510635090000006,
+    1.1602037469999997,
+    1.188576405
    ],
    "processes": 8,
-   "wall_s": 1.3236336089976248,
+   "wall_s": 1.1791425859996707,
    "wall_samples": [
-    1.331207073002588,
-    1.3739880209977855,
-    1.3957758850010578,
-    1.3459179080018657,
-    1.3236336089976248,
-    1.4173712069969042,
-    1.3536120029966696,
-    1.4145953339975676
+    1.2039917400002196,
+    1.1791425859996707,
+    1.3080565590003062,
+    1.5996848130002945,
+    1.1855950300000586,
+    1.2703101279998918,
+    1.1973290599999018,
+    1.206529504000173
    ]
   },
   "inner": 2,
   "machine": {
    "cpu_count": 4,
-   "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-   "git_commit": "e31fe1d",
+   "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "git_commit": "f3efae4",
    "implementation": "CPython",
    "load_avg_1m": 1.0,
-   "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
    "python": "3.12.3",
    "sqlite_version": "3.45.1",
-   "timestamp": "2026-10-22T23:58:34"
+   "timestamp": "2026-10-23T11:33:37"
   },
   "memory": {
    "current_bytes": 12608,
@@ -671,214 +671,214 @@
    "sort": "cumtime",
    "top": [
     {
-     "cumtime": 2.493001,
+     "cumtime": 2.265681,
      "name": "qdperf/examples/qbt_case.py:backtest",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.022362
+     "tottime": 0.01613
     },
     {
-     "cumtime": 2.470554,
+     "cumtime": 2.24948,
      "name": "qbt/engine.py:run_backtest",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 1.6e-05
+     "tottime": 1.4e-05
     },
     {
-     "cumtime": 2.470468,
+     "cumtime": 2.249399,
      "name": "qbt/engine.py:Engine.run",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.456893
+     "tottime": 0.419493
     },
     {
-     "cumtime": 1.072194,
+     "cumtime": 1.010478,
      "name": "qbt/broker.py:Broker.on_bar",
      "ncalls": 1000000,
      "primitive_calls": 1000000,
-     "tottime": 0.448632
+     "tottime": 0.420181
     },
     {
-     "cumtime": 0.623563,
+     "cumtime": 0.590298,
      "name": "qbt/broker.py:Broker._match_pending",
      "ncalls": 39189,
      "primitive_calls": 39189,
-     "tottime": 0.090274
+     "tottime": 0.089463
     },
     {
-     "cumtime": 0.440755,
+     "cumtime": 0.443828,
      "name": "strategies/ma_cross.py:MACross.on_bar",
      "ncalls": 1000000,
      "primitive_calls": 1000000,
-     "tottime": 0.195135
+     "tottime": 0.193867
     },
     {
-     "cumtime": 0.397868,
+     "cumtime": 0.369763,
      "name": "qbt/broker.py:Broker._apply_fill",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.303138
+     "tottime": 0.27711
     },
     {
-     "cumtime": 0.36099,
+     "cumtime": 0.255031,
      "name": "strategies/ma_cross.py:MACross.on_start",
      "ncalls": 1,
      "primitive_calls": 1,
      "tottime": 1.4e-05
     },
     {
-     "cumtime": 0.360975,
+     "cumtime": 0.255017,
      "name": "qbt/engine.py:Context.indicator",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 1.2e-05
+     "tottime": 1e-05
     },
     {
-     "cumtime": 0.360963,
+     "cumtime": 0.255007,
      "name": "qbt/engine.py:IndicatorCache.get",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 5.5e-05
+     "tottime": 4e-05
     },
     {
-     "cumtime": 0.360886,
+     "cumtime": 0.25495,
      "name": "qbt/indicators.py:sma",
      "ncalls": 2,
      "primitive_calls": 2,
-     "tottime": 0.360884
+     "tottime": 0.254947
     },
     {
-     "cumtime": 0.216627,
+     "cumtime": 0.217797,
      "name": "qbt/engine.py:Context.target",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.039678
+     "tottime": 0.039672
     },
     {
-     "cumtime": 0.164254,
+     "cumtime": 0.164566,
      "name": "qbt/broker.py:Broker.submit",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.069472
+     "tottime": 0.06852
     },
     {
-     "cumtime": 0.139632,
+     "cumtime": 0.120565,
      "name": "qbt/engine.py:Result.__init__",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 2e-05
+     "tottime": 1.7e-05
     },
     {
-     "cumtime": 0.139612,
+     "cumtime": 0.120547,
      "name": "qbt/broker.py:round_trips",
      "ncalls": 1,
      "primitive_calls": 1,
-     "tottime": 0.101508
+     "tottime": 0.086695
     },
     {
-     "cumtime": 0.076478,
+     "cumtime": 0.075257,
      "name": "qbt/broker.py:Broker._margin_ok",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.062412
+     "tottime": 0.060655
     },
     {
-     "cumtime": 0.07621,
+     "cumtime": 0.074681,
      "name": "qbt/broker.py:Broker._update_position",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.049481
+     "tottime": 0.049105
     },
     {
-     "cumtime": 0.066421,
+     "cumtime": 0.068817,
      "name": "qbt/broker.py:_validate_order",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.042208
+     "tottime": 0.043879
     },
     {
-     "cumtime": 0.051022,
+     "cumtime": 0.048214,
      "name": "qbt/broker.py:Broker._match",
      "ncalls": 39203,
      "primitive_calls": 39203,
-     "tottime": 0.041255
+     "tottime": 0.038909
     },
     {
-     "cumtime": 0.043608,
+     "cumtime": 0.04289,
      "name": "<builtin>:<built-in method builtins.abs>",
      "ncalls": 363314,
      "primitive_calls": 363314,
-     "tottime": 0.043608
+     "tottime": 0.04289
     },
     {
-     "cumtime": 0.028993,
+     "cumtime": 0.032165,
      "name": "qbt/engine.py:Strategy.size_qty",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.021177
+     "tottime": 0.02347
     },
     {
-     "cumtime": 0.027233,
+     "cumtime": 0.026326,
      "name": "<builtin>:<method 'append' of 'list' objects>",
      "ncalls": 155376,
      "primitive_calls": 155376,
-     "tottime": 0.027233
+     "tottime": 0.026326
     },
     {
-     "cumtime": 0.021127,
-     "name": "<builtin>:<built-in method builtins.min>",
-     "ncalls": 77664,
-     "primitive_calls": 77664,
-     "tottime": 0.021127
-    },
-    {
-     "cumtime": 0.018868,
+     "cumtime": 0.01943,
      "name": "<builtin>:<built-in method builtins.isinstance>",
      "ncalls": 116506,
      "primitive_calls": 116506,
-     "tottime": 0.018868
+     "tottime": 0.01943
     },
     {
-     "cumtime": 0.013836,
+     "cumtime": 0.01821,
+     "name": "<builtin>:<built-in method builtins.min>",
+     "ncalls": 77664,
+     "primitive_calls": 77664,
+     "tottime": 0.01821
+    },
+    {
+     "cumtime": 0.012882,
      "name": "qbt/broker.py:Order.__init__",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.013836
+     "tottime": 0.012882
     },
     {
-     "cumtime": 0.011591,
+     "cumtime": 0.011363,
      "name": "qbt/broker.py:Fill.__init__",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.011591
+     "tottime": 0.011363
     },
     {
-     "cumtime": 0.009767,
+     "cumtime": 0.009306,
      "name": "qbt/broker.py:Broker._slip",
      "ncalls": 38908,
      "primitive_calls": 38908,
-     "tottime": 0.009767
+     "tottime": 0.009306
     },
     {
-     "cumtime": 0.007921,
-     "name": "<builtin>:<method 'remove' of 'list' objects>",
-     "ncalls": 38823,
-     "primitive_calls": 38823,
-     "tottime": 0.007921
-    },
-    {
-     "cumtime": 0.007816,
+     "cumtime": 0.008695,
      "name": "qbt/engine.py:Context.equity",
      "ncalls": 77646,
      "primitive_calls": 77646,
-     "tottime": 0.007816
+     "tottime": 0.008695
     },
     {
-     "cumtime": 0.006776,
+     "cumtime": 0.007602,
+     "name": "<builtin>:<method 'remove' of 'list' objects>",
+     "ncalls": 38823,
+     "primitive_calls": 38823,
+     "tottime": 0.007602
+    },
+    {
+     "cumtime": 0.007117,
      "name": "qbt/engine.py:Context.pending_signed",
      "ncalls": 38823,
      "primitive_calls": 38823,
-     "tottime": 0.006776
+     "tottime": 0.007117
     }
    ]
   },
@@ -893,76 +893,76 @@
      "n": 1000000
     },
     "cold": {
-     "cpu_s": 4.778289034,
+     "cpu_s": 3.837319314,
      "cpu_samples": [
-      4.958044688,
-      4.978395919,
-      4.619885286,
-      5.069766314000001,
-      4.916777936,
-      4.868472308,
-      4.6729949170000005,
-      4.8463581630000006
+      4.3505825510000005,
+      4.05827917,
+      3.837319314,
+      4.420805609,
+      4.321416297,
+      4.265532493,
+      4.152420866,
+      4.0624718689999995
      ],
      "process_wall_samples": [
-      8.691624551000132,
-      8.752400072997261,
-      8.31808124199597,
-      8.921220703996369,
-      9.029644618996826,
-      8.7752542369999,
-      8.484850098997413,
-      8.565366389004339
+      7.657541894000133,
+      7.228759470000114,
+      7.497240978999798,
+      7.771919950999745,
+      7.961791153999911,
+      8.165694557999814,
+      7.535123618000398,
+      7.327021220999995
      ],
-     "wall_s": 4.826471678999951,
+     "wall_s": 3.857462632000079,
      "wall_samples": [
-      4.999700701999245,
-      5.033991131000221,
-      4.624621474002197,
-      5.130661611001415,
-      4.9933660499955295,
-      4.907258698993246,
-      4.701913411998248,
-      4.882550028996775
+      4.410617530999843,
+      4.113896218000264,
+      3.857462632000079,
+      4.456588827999894,
+      4.36596147299997,
+      4.304987861999962,
+      4.219592763999572,
+      4.113198844999715
      ]
     },
     "format": "qdperf.profile.v1",
     "hot": {
-     "cpu_s": 1.505014245,
+     "cpu_s": 1.2508102660000002,
      "cpu_samples": [
-      1.5429646750000003,
-      1.5519191979999993,
-      1.5250887000000004,
-      1.5986331910000002,
-      1.5991332910000002,
-      1.5556873650000007,
-      1.5320772699999994,
-      1.505014245
+      1.3751935489999996,
+      1.2508102660000002,
+      1.3372008430000006,
+      1.357951882,
+      1.362528674,
+      1.4209509020000004,
+      1.3633838200000001,
+      1.2949413109999997
      ],
      "processes": 8,
-     "wall_s": 1.5068502630019793,
+     "wall_s": 1.2765013700000054,
      "wall_samples": [
-      1.5438535490029608,
-      1.5551510250006686,
-      1.5324259900007746,
-      1.6129582239955198,
-      1.6103522069970495,
-      1.5586623790004523,
-      1.535172486997908,
-      1.5068502630019793
+      1.3760007230002884,
+      1.2765013700000054,
+      1.34655970599988,
+      1.3742208210001081,
+      1.365017828999953,
+      1.466441162999672,
+      1.3740409719994204,
+      1.3066561159994308
      ]
     },
     "inner": 2,
     "machine": {
      "cpu_count": 4,
-     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-     "git_commit": "e31fe1d",
+     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+     "git_commit": "f3efae4",
      "implementation": "CPython",
      "load_avg_1m": 1.0,
-     "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+     "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
      "python": "3.12.3",
      "sqlite_version": "3.45.1",
-     "timestamp": "2026-10-22T23:57:20"
+     "timestamp": "2026-10-23T11:31:35"
     },
     "memory": {
      "current_bytes": 12512,
@@ -970,23 +970,23 @@
      "peak_bytes": 125490348
     },
     "noise": {
-     "cold_wall_rel": 0.04473338437759998,
-     "hot_wall_rel": 0.021750352179170488,
+     "cold_wall_rel": 0.06431777067614969,
+     "hot_wall_rel": 0.11562548468760815,
      "peak_rel": 0.0,
      "per_run": [
       {
-       "cold_wall_s": 4.826471678999951,
-       "hot_wall_s": 1.483702136996726,
+       "cold_wall_s": 3.857462632000079,
+       "hot_wall_s": 1.2765013700000054,
        "peak_bytes": 125490348
       },
       {
-       "cold_wall_s": 4.624621474002197,
-       "hot_wall_s": 1.5068502630019793,
+       "cold_wall_s": 3.7912511959998483,
+       "hot_wall_s": 1.3319448399997782,
        "peak_bytes": 125490348
       },
       {
-       "cold_wall_s": 4.83149644399964,
-       "hot_wall_s": 1.5159731810053927,
+       "cold_wall_s": 4.035096020999845,
+       "hot_wall_s": 1.1938996180001595,
        "peak_bytes": 125490348
       }
      ]
@@ -996,214 +996,214 @@
      "sort": "cumtime",
      "top": [
       {
-       "cumtime": 2.703789,
+       "cumtime": 2.502146,
        "name": "qdperf/examples/qbt_case.py:backtest",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.019684
+       "tottime": 0.015754
       },
       {
-       "cumtime": 2.394309,
+       "cumtime": 2.218204,
        "name": "qbt/engine.py:run_backtest",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 1.5e-05
+       "tottime": 1.3e-05
       },
       {
-       "cumtime": 2.394227,
+       "cumtime": 2.218127,
        "name": "qbt/engine.py:Engine.run",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.427566
+       "tottime": 0.416161
       },
       {
-       "cumtime": 1.106163,
+       "cumtime": 0.983003,
        "name": "qbt/broker.py:Broker.on_bar",
        "ncalls": 1000000,
        "primitive_calls": 1000000,
-       "tottime": 0.432655
+       "tottime": 0.432658
       },
       {
-       "cumtime": 0.673508,
+       "cumtime": 0.550346,
        "name": "qbt/broker.py:Broker._match_pending",
        "ncalls": 39189,
        "primitive_calls": 39189,
-       "tottime": 0.084231
+       "tottime": 0.08383
       },
       {
-       "cumtime": 0.484637,
-       "name": "qbt/broker.py:Broker._apply_fill",
-       "ncalls": 38908,
-       "primitive_calls": 38908,
-       "tottime": 0.371058
-      },
-      {
-       "cumtime": 0.429083,
+       "cumtime": 0.432828,
        "name": "strategies/ma_cross.py:MACross.on_bar",
        "ncalls": 1000000,
        "primitive_calls": 1000000,
-       "tottime": 0.193334
+       "tottime": 0.188027
       },
       {
-       "cumtime": 0.300832,
+       "cumtime": 0.362661,
+       "name": "qbt/broker.py:Broker._apply_fill",
+       "ncalls": 38908,
+       "primitive_calls": 38908,
+       "tottime": 0.245506
+      },
+      {
+       "cumtime": 0.268125,
+       "name": "qdperf/examples/qbt_case.py:meaningless_loop",
+       "ncalls": 1,
+       "primitive_calls": 1,
+       "tottime": 0.266838
+      },
+      {
+       "cumtime": 0.261105,
        "name": "strategies/ma_cross.py:MACross.on_start",
+       "ncalls": 1,
+       "primitive_calls": 1,
+       "tottime": 1.4e-05
+      },
+      {
+       "cumtime": 0.261091,
+       "name": "qbt/engine.py:Context.indicator",
+       "ncalls": 2,
+       "primitive_calls": 2,
+       "tottime": 1.1e-05
+      },
+      {
+       "cumtime": 0.261079,
+       "name": "qbt/engine.py:IndicatorCache.get",
+       "ncalls": 2,
+       "primitive_calls": 2,
+       "tottime": 4e-05
+      },
+      {
+       "cumtime": 0.261022,
+       "name": "qbt/indicators.py:sma",
+       "ncalls": 2,
+       "primitive_calls": 2,
+       "tottime": 0.261019
+      },
+      {
+       "cumtime": 0.214225,
+       "name": "qbt/engine.py:Context.target",
+       "ncalls": 38823,
+       "primitive_calls": 38823,
+       "tottime": 0.040953
+      },
+      {
+       "cumtime": 0.160092,
+       "name": "qbt/broker.py:Broker.submit",
+       "ncalls": 38823,
+       "primitive_calls": 38823,
+       "tottime": 0.065949
+      },
+      {
+       "cumtime": 0.125025,
+       "name": "qbt/engine.py:Result.__init__",
        "ncalls": 1,
        "primitive_calls": 1,
        "tottime": 1.8e-05
       },
       {
-       "cumtime": 0.300813,
-       "name": "qbt/engine.py:Context.indicator",
-       "ncalls": 2,
-       "primitive_calls": 2,
-       "tottime": 1.2e-05
-      },
-      {
-       "cumtime": 0.300801,
-       "name": "qbt/engine.py:IndicatorCache.get",
-       "ncalls": 2,
-       "primitive_calls": 2,
-       "tottime": 0.00011
-      },
-      {
-       "cumtime": 0.300668,
-       "name": "qbt/indicators.py:sma",
-       "ncalls": 2,
-       "primitive_calls": 2,
-       "tottime": 0.300665
-      },
-      {
-       "cumtime": 0.28972,
-       "name": "qdperf/examples/qbt_case.py:meaningless_loop",
-       "ncalls": 1,
-       "primitive_calls": 1,
-       "tottime": 0.288683
-      },
-      {
-       "cumtime": 0.207607,
-       "name": "qbt/engine.py:Context.target",
-       "ncalls": 38823,
-       "primitive_calls": 38823,
-       "tottime": 0.039239
-      },
-      {
-       "cumtime": 0.155692,
-       "name": "qbt/broker.py:Broker.submit",
-       "ncalls": 38823,
-       "primitive_calls": 38823,
-       "tottime": 0.065621
-      },
-      {
-       "cumtime": 0.130581,
-       "name": "qbt/engine.py:Result.__init__",
-       "ncalls": 1,
-       "primitive_calls": 1,
-       "tottime": 2e-05
-      },
-      {
-       "cumtime": 0.130561,
+       "cumtime": 0.125007,
        "name": "qbt/broker.py:round_trips",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.094464
+       "tottime": 0.090397
       },
       {
-       "cumtime": 0.071615,
+       "cumtime": 0.073366,
        "name": "qbt/broker.py:Broker._update_position",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.047184
+       "tottime": 0.047783
       },
       {
-       "cumtime": 0.063968,
+       "cumtime": 0.067165,
        "name": "qbt/broker.py:_validate_order",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.040477
+       "tottime": 0.042264
       },
       {
-       "cumtime": 0.049776,
+       "cumtime": 0.051455,
        "name": "qbt/broker.py:Broker._margin_ok",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.036328
+       "tottime": 0.037128
       },
       {
-       "cumtime": 0.047439,
+       "cumtime": 0.044966,
        "name": "qbt/broker.py:Broker._match",
        "ncalls": 39203,
        "primitive_calls": 39203,
-       "tottime": 0.038626
+       "tottime": 0.035966
       },
       {
-       "cumtime": 0.040636,
+       "cumtime": 0.043053,
        "name": "<builtin>:<built-in method builtins.abs>",
        "ncalls": 363314,
        "primitive_calls": 363314,
-       "tottime": 0.040636
+       "tottime": 0.043053
       },
       {
-       "cumtime": 0.03555,
+       "cumtime": 0.037327,
        "name": "qbt/broker.py:Fill.__init__",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.03555
+       "tottime": 0.037327
       },
       {
-       "cumtime": 0.028141,
+       "cumtime": 0.030577,
        "name": "qbt/engine.py:Strategy.size_qty",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.020431
+       "tottime": 0.021768
       },
       {
-       "cumtime": 0.025644,
+       "cumtime": 0.025892,
        "name": "<builtin>:<method 'append' of 'list' objects>",
        "ncalls": 155376,
        "primitive_calls": 155376,
-       "tottime": 0.025644
+       "tottime": 0.025892
       },
       {
-       "cumtime": 0.019759,
-       "name": "<builtin>:<built-in method builtins.min>",
-       "ncalls": 77664,
-       "primitive_calls": 77664,
-       "tottime": 0.019759
-      },
-      {
-       "cumtime": 0.018474,
+       "cumtime": 0.019269,
        "name": "<builtin>:<built-in method builtins.isinstance>",
        "ncalls": 116506,
        "primitive_calls": 116506,
-       "tottime": 0.018474
+       "tottime": 0.019269
       },
       {
-       "cumtime": 0.01226,
+       "cumtime": 0.018701,
+       "name": "<builtin>:<built-in method builtins.min>",
+       "ncalls": 77664,
+       "primitive_calls": 77664,
+       "tottime": 0.018701
+      },
+      {
+       "cumtime": 0.012733,
        "name": "qbt/broker.py:Order.__init__",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.01226
+       "tottime": 0.012733
       },
       {
-       "cumtime": 0.008814,
+       "cumtime": 0.009,
        "name": "qbt/broker.py:Broker._slip",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.008814
+       "tottime": 0.009
       },
       {
-       "cumtime": 0.00771,
+       "cumtime": 0.008808,
        "name": "qbt/engine.py:Context.equity",
        "ncalls": 77646,
        "primitive_calls": 77646,
-       "tottime": 0.00771
+       "tottime": 0.008808
       },
       {
-       "cumtime": 0.007425,
+       "cumtime": 0.007433,
        "name": "<builtin>:<method 'remove' of 'list' objects>",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.007425
+       "tottime": 0.007433
       }
      ]
     },
@@ -1213,33 +1213,34 @@
    },
    "gate_default": {
     "lines": [
-     "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-     "RED hot.wall_s 1.332→1.507 +13.2% tol=10.0% (manual 10.0%, 2×noise 6.2%)",
-     "RED cold.wall_s 4.23→4.826 +14.1% tol=10.0% (manual 10.0%, 2×noise 2.3%)",
-     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)"
+     "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+     "RED hot.wall_s 1.111→1.277 +14.9% tol=10.0% (manual 10.0%, 2×noise 0.3%)",
+     "ok  cold.wall_s 3.395→3.857 +13.6% tol=17.5% (manual 10.0%, 2×noise 17.5%)",
+     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)",
+     "NEW_TOP10 qdperf/examples/qbt_case.py:meaningless_loop cum=0.2681s"
     ],
     "metrics": [
      {
-      "base": 1.3315912679972826,
-      "change": 0.13161620928040993,
+      "base": 1.1111057640000581,
+      "change": 0.14885676175822507,
       "manual_tolerance": 0.1,
       "metric": "hot",
       "name": "hot.wall_s",
-      "new": 1.5068502630019793,
-      "noise": 0.031171043628140813,
+      "new": 1.2765013700000054,
+      "noise": 0.0016702953967825253,
       "red": true,
       "tolerance": 0.1
      },
      {
-      "base": 4.2296513879991835,
-      "change": 0.14110389633862724,
+      "base": 3.395022639000217,
+      "change": 0.13621116621951107,
       "manual_tolerance": 0.1,
       "metric": "cold",
       "name": "cold.wall_s",
-      "new": 4.826471678999951,
-      "noise": 0.01172524505122463,
-      "red": true,
-      "tolerance": 0.1
+      "new": 3.857462632000079,
+      "noise": 0.08747820363565327,
+      "red": false,
+      "tolerance": 0.17495640727130654
      },
      {
       "base": 125490348,
@@ -1253,38 +1254,47 @@
       "tolerance": 0.2
      }
     ],
-    "new_top": [],
+    "new_top": [
+     {
+      "cumtime": 0.268125,
+      "name": "qdperf/examples/qbt_case.py:meaningless_loop",
+      "ncalls": 1,
+      "primitive_calls": 1,
+      "tottime": 0.266838
+     }
+    ],
     "verdict": "REGRESSION"
    },
    "gate_noise_only": {
     "lines": [
-     "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-     "RED hot.wall_s 1.332→1.507 +13.2% tol=6.2% (manual 0.0%, 2×noise 6.2%)",
-     "RED cold.wall_s 4.23→4.826 +14.1% tol=2.3% (manual 0.0%, 2×noise 2.3%)",
-     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)"
+     "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+     "RED hot.wall_s 1.111→1.277 +14.9% tol=0.3% (manual 0.0%, 2×noise 0.3%)",
+     "ok  cold.wall_s 3.395→3.857 +13.6% tol=17.5% (manual 0.0%, 2×noise 17.5%)",
+     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)",
+     "NEW_TOP10 qdperf/examples/qbt_case.py:meaningless_loop cum=0.2681s"
     ],
     "metrics": [
      {
-      "base": 1.3315912679972826,
-      "change": 0.13161620928040993,
+      "base": 1.1111057640000581,
+      "change": 0.14885676175822507,
       "manual_tolerance": 0.0,
       "metric": "hot",
       "name": "hot.wall_s",
-      "new": 1.5068502630019793,
-      "noise": 0.031171043628140813,
+      "new": 1.2765013700000054,
+      "noise": 0.0016702953967825253,
       "red": true,
-      "tolerance": 0.062342087256281625
+      "tolerance": 0.0033405907935650505
      },
      {
-      "base": 4.2296513879991835,
-      "change": 0.14110389633862724,
+      "base": 3.395022639000217,
+      "change": 0.13621116621951107,
       "manual_tolerance": 0.0,
       "metric": "cold",
       "name": "cold.wall_s",
-      "new": 4.826471678999951,
-      "noise": 0.01172524505122463,
-      "red": true,
-      "tolerance": 0.02345049010244926
+      "new": 3.857462632000079,
+      "noise": 0.08747820363565327,
+      "red": false,
+      "tolerance": 0.17495640727130654
      },
      {
       "base": 125490348,
@@ -1298,38 +1308,47 @@
       "tolerance": 0.2
      }
     ],
-    "new_top": [],
+    "new_top": [
+     {
+      "cumtime": 0.268125,
+      "name": "qdperf/examples/qbt_case.py:meaningless_loop",
+      "ncalls": 1,
+      "primitive_calls": 1,
+      "tottime": 0.266838
+     }
+    ],
     "verdict": "REGRESSION"
    },
    "gate_single_run": {
     "lines": [
-     "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-     "RED hot.wall_s 1.332→1.484 +11.4% tol=10.0% (manual 10.0%, 2×noise 6.2%)",
-     "RED cold.wall_s 4.23→4.826 +14.1% tol=10.0% (manual 10.0%, 2×noise 2.3%)",
-     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)"
+     "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+     "RED hot.wall_s 1.111→1.277 +14.9% tol=10.0% (manual 10.0%, 2×noise 0.3%)",
+     "ok  cold.wall_s 3.395→3.857 +13.6% tol=17.5% (manual 10.0%, 2×noise 17.5%)",
+     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)",
+     "NEW_TOP10 qdperf/examples/qbt_case.py:meaningless_loop cum=0.2681s"
     ],
     "metrics": [
      {
-      "base": 1.3315912679972826,
-      "change": 0.1142324019803905,
+      "base": 1.1111057640000581,
+      "change": 0.14885676175822507,
       "manual_tolerance": 0.1,
       "metric": "hot",
       "name": "hot.wall_s",
-      "new": 1.483702136996726,
-      "noise": 0.031171043628140813,
+      "new": 1.2765013700000054,
+      "noise": 0.0016702953967825253,
       "red": true,
       "tolerance": 0.1
      },
      {
-      "base": 4.2296513879991835,
-      "change": 0.14110389633862724,
+      "base": 3.395022639000217,
+      "change": 0.13621116621951107,
       "manual_tolerance": 0.1,
       "metric": "cold",
       "name": "cold.wall_s",
-      "new": 4.826471678999951,
-      "noise": 0.01172524505122463,
-      "red": true,
-      "tolerance": 0.1
+      "new": 3.857462632000079,
+      "noise": 0.08747820363565327,
+      "red": false,
+      "tolerance": 0.17495640727130654
      },
      {
       "base": 125490348,
@@ -1343,14 +1362,22 @@
       "tolerance": 0.2
      }
     ],
-    "new_top": [],
+    "new_top": [
+     {
+      "cumtime": 0.268125,
+      "name": "qdperf/examples/qbt_case.py:meaningless_loop",
+      "ncalls": 1,
+      "primitive_calls": 1,
+      "tottime": 0.266838
+     }
+    ],
     "verdict": "REGRESSION"
    },
    "pct": 0.12,
    "per_round_single": [
-    "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-    "REGRESSION hot.wall_s=1.332→1.507 (+13.2%)",
-    "REGRESSION cold.wall_s=4.23→4.831 (+14.2%)"
+    "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+    "REGRESSION hot.wall_s=1.111→1.332 (+19.9%)",
+    "REGRESSION cold.wall_s=3.395→4.035 (+18.9%)"
    ]
   },
   "5pct": {
@@ -1359,76 +1386,76 @@
      "n": 1000000
     },
     "cold": {
-     "cpu_s": 4.412524262,
+     "cpu_s": 3.531617451,
      "cpu_samples": [
-      4.530032498000001,
-      4.481153937,
-      4.660328123,
-      4.631818398,
-      4.708155035,
-      4.550996775,
-      4.7142859470000005,
-      4.7996353350000005
+      3.918094321,
+      3.5598512429999998,
+      4.200299008,
+      3.8666279510000003,
+      3.895096316,
+      4.617162392,
+      3.5068695290000003,
+      3.8295081029999998
      ],
      "process_wall_samples": [
-      8.011439797002822,
-      7.934835266998562,
-      8.317365242997766,
-      8.342532442999072,
-      8.246186491000117,
-      8.082437577999372,
-      8.379591434997565,
-      8.438327556999866
+      7.028125200999966,
+      6.487927117999789,
+      7.361874762000298,
+      7.008528362999641,
+      7.865115005000007,
+      7.737660579000021,
+      6.422492341000179,
+      7.116013056999691
      ],
-     "wall_s": 4.446711379998305,
+     "wall_s": 3.5743074459996933,
      "wall_samples": [
-      4.566244090994587,
-      4.511632039997494,
-      4.715346777993545,
-      4.665157515999454,
-      4.7375360119986,
-      4.581406643999799,
-      4.782648111999151,
-      4.8304746099966
+      3.9770208630002344,
+      3.58161537199976,
+      4.217405038000379,
+      3.933383982000123,
+      3.9676139779999176,
+      4.674778230999891,
+      3.5097116159995494,
+      3.8983720739997807
      ]
     },
     "format": "qdperf.profile.v1",
     "hot": {
-     "cpu_s": 1.363843868,
+     "cpu_s": 1.1625196340000001,
      "cpu_samples": [
-      1.363843868,
-      1.4124416369999997,
-      1.460563284,
-      1.4479970359999994,
-      1.437055806,
-      1.4318726899999996,
-      1.432090906,
-      1.436837348
+      1.2569505739999998,
+      1.1930642629999992,
+      1.316110063,
+      1.2194970479999991,
+      1.6273394239999996,
+      1.1746923059999999,
+      1.1625196340000001,
+      1.2479944090000004
      ],
      "processes": 8,
-     "wall_s": 1.3642410330066923,
+     "wall_s": 1.1627558009995482,
      "wall_samples": [
-      1.3642410330066923,
-      1.4179651509984978,
-      1.4617022439997527,
-      1.4616612970057759,
-      1.449658958001237,
-      1.4372695189958904,
-      1.4481335559976287,
-      1.4573936570013757
+      1.258072878999883,
+      1.208176278999872,
+      1.3393772900003569,
+      1.2236583990002146,
+      1.6535292180001306,
+      1.1796697489999133,
+      1.1627558009995482,
+      1.2595588530002715
      ]
     },
     "inner": 2,
     "machine": {
      "cpu_count": 4,
-     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
-     "git_commit": "e31fe1d",
+     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+     "git_commit": "f3efae4",
      "implementation": "CPython",
      "load_avg_1m": 1.0,
-     "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+     "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
      "python": "3.12.3",
      "sqlite_version": "3.45.1",
-     "timestamp": "2026-10-22T23:57:56"
+     "timestamp": "2026-10-23T11:33:03"
     },
     "memory": {
      "current_bytes": 12512,
@@ -1436,23 +1463,23 @@
      "peak_bytes": 125490348
     },
     "noise": {
-     "cold_wall_rel": 0.03323435978205272,
-     "hot_wall_rel": 0.03523108240409594,
+     "cold_wall_rel": 0.021208763324191193,
+     "hot_wall_rel": 0.028487586745208206,
      "peak_rel": 0.0,
      "per_run": [
       {
-       "cold_wall_s": 4.446711379998305,
-       "hot_wall_s": 1.351981567000621,
+       "cold_wall_s": 3.5841482589994484,
+       "hot_wall_s": 1.1905956639998294,
        "peak_bytes": 125490348
       },
       {
-       "cold_wall_s": 4.366513751003367,
-       "hot_wall_s": 1.3996133409964386,
+       "cold_wall_s": 3.5743074459996933,
+       "hot_wall_s": 1.1576179230005437,
        "peak_bytes": 125490348
       },
       {
-       "cold_wall_s": 4.511632039997494,
-       "hot_wall_s": 1.3642410330066923,
+       "cold_wall_s": 3.5097116159995494,
+       "hot_wall_s": 1.1627558009995482,
        "peak_bytes": 125490348
       }
      ]
@@ -1462,214 +1489,214 @@
      "sort": "cumtime",
      "top": [
       {
-       "cumtime": 2.444766,
+       "cumtime": 2.925238,
        "name": "qdperf/examples/qbt_case.py:backtest",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.020435
+       "tottime": 0.015089
       },
       {
-       "cumtime": 2.307742,
+       "cumtime": 2.770773,
        "name": "qbt/engine.py:run_backtest",
        "ncalls": 1,
        "primitive_calls": 1,
        "tottime": 1.4e-05
       },
       {
-       "cumtime": 2.307658,
+       "cumtime": 2.770686,
        "name": "qbt/engine.py:Engine.run",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.42387
+       "tottime": 0.532236
       },
       {
-       "cumtime": 1.029273,
+       "cumtime": 1.232307,
        "name": "qbt/broker.py:Broker.on_bar",
        "ncalls": 1000000,
        "primitive_calls": 1000000,
-       "tottime": 0.424824
+       "tottime": 0.540473
       },
       {
-       "cumtime": 0.60445,
+       "cumtime": 0.691833,
        "name": "qbt/broker.py:Broker._match_pending",
        "ncalls": 39189,
        "primitive_calls": 39189,
-       "tottime": 0.08651
+       "tottime": 0.105624
       },
       {
-       "cumtime": 0.418663,
+       "cumtime": 0.543831,
        "name": "strategies/ma_cross.py:MACross.on_bar",
        "ncalls": 1000000,
        "primitive_calls": 1000000,
-       "tottime": 0.186231
+       "tottime": 0.241999
       },
       {
-       "cumtime": 0.412495,
+       "cumtime": 0.45502,
        "name": "qbt/broker.py:Broker._apply_fill",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.301704
+       "tottime": 0.318175
       },
       {
-       "cumtime": 0.304902,
-       "name": "strategies/ma_cross.py:MACross.on_start",
-       "ncalls": 1,
-       "primitive_calls": 1,
-       "tottime": 1.7e-05
-      },
-      {
-       "cumtime": 0.304884,
-       "name": "qbt/engine.py:Context.indicator",
-       "ncalls": 2,
-       "primitive_calls": 2,
-       "tottime": 3.8e-05
-      },
-      {
-       "cumtime": 0.304846,
-       "name": "qbt/engine.py:IndicatorCache.get",
-       "ncalls": 2,
-       "primitive_calls": 2,
-       "tottime": 4.5e-05
-      },
-      {
-       "cumtime": 0.30478,
-       "name": "qbt/indicators.py:sma",
-       "ncalls": 2,
-       "primitive_calls": 2,
-       "tottime": 0.304777
-      },
-      {
-       "cumtime": 0.204001,
+       "cumtime": 0.265308,
        "name": "qbt/engine.py:Context.target",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.036771
+       "tottime": 0.048767
       },
       {
-       "cumtime": 0.155215,
-       "name": "qbt/broker.py:Broker.submit",
-       "ncalls": 38823,
-       "primitive_calls": 38823,
-       "tottime": 0.064085
+       "cumtime": 0.26212,
+       "name": "strategies/ma_cross.py:MACross.on_start",
+       "ncalls": 1,
+       "primitive_calls": 1,
+       "tottime": 1.3e-05
       },
       {
-       "cumtime": 0.130945,
+       "cumtime": 0.262106,
+       "name": "qbt/engine.py:Context.indicator",
+       "ncalls": 2,
+       "primitive_calls": 2,
+       "tottime": 1.1e-05
+      },
+      {
+       "cumtime": 0.262095,
+       "name": "qbt/engine.py:IndicatorCache.get",
+       "ncalls": 2,
+       "primitive_calls": 2,
+       "tottime": 4.3e-05
+      },
+      {
+       "cumtime": 0.262033,
+       "name": "qbt/indicators.py:sma",
+       "ncalls": 2,
+       "primitive_calls": 2,
+       "tottime": 0.262029
+      },
+      {
+       "cumtime": 0.200189,
        "name": "qbt/engine.py:Result.__init__",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 2.1e-05
+       "tottime": 1.9e-05
       },
       {
-       "cumtime": 0.130924,
+       "cumtime": 0.20017,
        "name": "qbt/broker.py:round_trips",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.09617
+       "tottime": 0.143764
       },
       {
-       "cumtime": 0.116479,
+       "cumtime": 0.19844,
+       "name": "qbt/broker.py:Broker.submit",
+       "ncalls": 38823,
+       "primitive_calls": 38823,
+       "tottime": 0.082738
+      },
+      {
+       "cumtime": 0.139309,
        "name": "qdperf/examples/qbt_case.py:meaningless_loop",
        "ncalls": 1,
        "primitive_calls": 1,
-       "tottime": 0.116011
+       "tottime": 0.138635
       },
       {
-       "cumtime": 0.069928,
+       "cumtime": 0.091865,
        "name": "qbt/broker.py:Broker._update_position",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.046012
+       "tottime": 0.060211
       },
       {
-       "cumtime": 0.065568,
+       "cumtime": 0.08221,
        "name": "qbt/broker.py:_validate_order",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.040619
+       "tottime": 0.052807
       },
       {
-       "cumtime": 0.049389,
-       "name": "qbt/broker.py:Broker._match",
-       "ncalls": 39203,
-       "primitive_calls": 39203,
-       "tottime": 0.040204
-      },
-      {
-       "cumtime": 0.048764,
+       "cumtime": 0.064383,
        "name": "qbt/broker.py:Broker._margin_ok",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.035263
+       "tottime": 0.046563
       },
       {
-       "cumtime": 0.040108,
+       "cumtime": 0.057957,
        "name": "<builtin>:<built-in method builtins.abs>",
        "ncalls": 363314,
        "primitive_calls": 363314,
-       "tottime": 0.040108
+       "tottime": 0.057957
       },
       {
-       "cumtime": 0.034706,
+       "cumtime": 0.057577,
+       "name": "qbt/broker.py:Broker._match",
+       "ncalls": 39203,
+       "primitive_calls": 39203,
+       "tottime": 0.046609
+      },
+      {
+       "cumtime": 0.03675,
        "name": "qbt/broker.py:Fill.__init__",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.034706
+       "tottime": 0.03675
       },
       {
-       "cumtime": 0.028431,
+       "cumtime": 0.036523,
        "name": "qbt/engine.py:Strategy.size_qty",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.020795
+       "tottime": 0.026427
       },
       {
-       "cumtime": 0.025271,
+       "cumtime": 0.035611,
        "name": "<builtin>:<method 'append' of 'list' objects>",
        "ncalls": 155376,
        "primitive_calls": 155376,
-       "tottime": 0.025271
+       "tottime": 0.035611
       },
       {
-       "cumtime": 0.019775,
-       "name": "<builtin>:<built-in method builtins.isinstance>",
-       "ncalls": 116506,
-       "primitive_calls": 116506,
-       "tottime": 0.019775
-      },
-      {
-       "cumtime": 0.018787,
+       "cumtime": 0.027169,
        "name": "<builtin>:<built-in method builtins.min>",
        "ncalls": 77664,
        "primitive_calls": 77664,
-       "tottime": 0.018787
+       "tottime": 0.027169
       },
       {
-       "cumtime": 0.011989,
+       "cumtime": 0.022904,
+       "name": "<builtin>:<built-in method builtins.isinstance>",
+       "ncalls": 116506,
+       "primitive_calls": 116506,
+       "tottime": 0.022904
+      },
+      {
+       "cumtime": 0.01527,
        "name": "qbt/broker.py:Order.__init__",
        "ncalls": 38823,
        "primitive_calls": 38823,
-       "tottime": 0.011989
+       "tottime": 0.01527
       },
       {
-       "cumtime": 0.009186,
+       "cumtime": 0.011027,
+       "name": "qbt/engine.py:Context.pending_signed",
+       "ncalls": 38823,
+       "primitive_calls": 38823,
+       "tottime": 0.011027
+      },
+      {
+       "cumtime": 0.010968,
        "name": "qbt/broker.py:Broker._slip",
        "ncalls": 38908,
        "primitive_calls": 38908,
-       "tottime": 0.009186
+       "tottime": 0.010968
       },
       {
-       "cumtime": 0.007636,
+       "cumtime": 0.010096,
        "name": "qbt/engine.py:Context.equity",
        "ncalls": 77646,
        "primitive_calls": 77646,
-       "tottime": 0.007636
-      },
-      {
-       "cumtime": 0.007292,
-       "name": "<builtin>:<method 'remove' of 'list' objects>",
-       "ncalls": 38823,
-       "primitive_calls": 38823,
-       "tottime": 0.007292
+       "tottime": 0.010096
       }
      ]
     },
@@ -1679,33 +1706,34 @@
    },
    "gate_default": {
     "lines": [
-     "OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%",
-     "ok  hot.wall_s 1.332→1.364 +2.5% tol=10.0% (manual 10.0%, 2×noise 6.2%)",
-     "ok  cold.wall_s 4.23→4.447 +5.1% tol=10.0% (manual 10.0%, 2×noise 2.3%)",
-     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)"
+     "OK hot.wall_s=1.111→1.163 (+4.6%) tol=10.0%",
+     "ok  hot.wall_s 1.111→1.163 +4.6% tol=10.0% (manual 10.0%, 2×noise 0.3%)",
+     "ok  cold.wall_s 3.395→3.574 +5.3% tol=17.5% (manual 10.0%, 2×noise 17.5%)",
+     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)",
+     "NEW_TOP10 qbt/engine.py:Context.target cum=0.2653s"
     ],
     "metrics": [
      {
-      "base": 1.3315912679972826,
-      "change": 0.024519359501744928,
+      "base": 1.1111057640000581,
+      "change": 0.04648525700518948,
       "manual_tolerance": 0.1,
       "metric": "hot",
       "name": "hot.wall_s",
-      "new": 1.3642410330066923,
-      "noise": 0.031171043628140813,
+      "new": 1.1627558009995482,
+      "noise": 0.0016702953967825253,
       "red": false,
       "tolerance": 0.1
      },
      {
-      "base": 4.2296513879991835,
-      "change": 0.05131864829687561,
+      "base": 3.395022639000217,
+      "change": 0.05280813298266335,
       "manual_tolerance": 0.1,
       "metric": "cold",
       "name": "cold.wall_s",
-      "new": 4.446711379998305,
-      "noise": 0.01172524505122463,
+      "new": 3.5743074459996933,
+      "noise": 0.08747820363565327,
       "red": false,
-      "tolerance": 0.1
+      "tolerance": 0.17495640727130654
      },
      {
       "base": 125490348,
@@ -1719,38 +1747,47 @@
       "tolerance": 0.2
      }
     ],
-    "new_top": [],
+    "new_top": [
+     {
+      "cumtime": 0.265308,
+      "name": "qbt/engine.py:Context.target",
+      "ncalls": 38823,
+      "primitive_calls": 38823,
+      "tottime": 0.048767
+     }
+    ],
     "verdict": "OK"
    },
    "gate_noise_only": {
     "lines": [
-     "REGRESSION cold.wall_s=4.23→4.447 (+5.1%)",
-     "ok  hot.wall_s 1.332→1.364 +2.5% tol=6.2% (manual 0.0%, 2×noise 6.2%)",
-     "RED cold.wall_s 4.23→4.447 +5.1% tol=2.3% (manual 0.0%, 2×noise 2.3%)",
-     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)"
+     "REGRESSION hot.wall_s=1.111→1.163 (+4.6%)",
+     "RED hot.wall_s 1.111→1.163 +4.6% tol=0.3% (manual 0.0%, 2×noise 0.3%)",
+     "ok  cold.wall_s 3.395→3.574 +5.3% tol=17.5% (manual 0.0%, 2×noise 17.5%)",
+     "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)",
+     "NEW_TOP10 qbt/engine.py:Context.target cum=0.2653s"
     ],
     "metrics": [
      {
-      "base": 1.3315912679972826,
-      "change": 0.024519359501744928,
+      "base": 1.1111057640000581,
+      "change": 0.04648525700518948,
       "manual_tolerance": 0.0,
       "metric": "hot",
       "name": "hot.wall_s",
-      "new": 1.3642410330066923,
-      "noise": 0.031171043628140813,
-      "red": false,
-      "tolerance": 0.062342087256281625
+      "new": 1.1627558009995482,
+      "noise": 0.0016702953967825253,
+      "red": true,
+      "tolerance": 0.0033405907935650505
      },
      {
-      "base": 4.2296513879991835,
-      "change": 0.05131864829687561,
+      "base": 3.395022639000217,
+      "change": 0.05280813298266335,
       "manual_tolerance": 0.0,
       "metric": "cold",
       "name": "cold.wall_s",
-      "new": 4.446711379998305,
-      "noise": 0.01172524505122463,
-      "red": true,
-      "tolerance": 0.02345049010244926
+      "new": 3.5743074459996933,
+      "noise": 0.08747820363565327,
+      "red": false,
+      "tolerance": 0.17495640727130654
      },
      {
       "base": 125490348,
@@ -1764,38 +1801,46 @@
       "tolerance": 0.2
      }
     ],
-    "new_top": [],
+    "new_top": [
+     {
+      "cumtime": 0.265308,
+      "name": "qbt/engine.py:Context.target",
+      "ncalls": 38823,
+      "primitive_calls": 38823,
+      "tottime": 0.048767
+     }
+    ],
     "verdict": "REGRESSION"
    },
    "gate_single_run": {
     "lines": [
-     "OK hot.wall_s=1.332→1.352 (+1.5%) tol=10.0%",
-     "ok  hot.wall_s 1.332→1.352 +1.5% tol=10.0% (manual 10.0%, 2×noise 6.2%)",
-     "ok  cold.wall_s 4.23→4.447 +5.1% tol=10.0% (manual 10.0%, 2×noise 2.3%)",
+     "OK hot.wall_s=1.111→1.191 (+7.2%) tol=10.0%",
+     "ok  hot.wall_s 1.111→1.191 +7.2% tol=10.0% (manual 10.0%, 2×noise 0.3%)",
+     "ok  cold.wall_s 3.395→3.584 +5.6% tol=17.5% (manual 10.0%, 2×noise 17.5%)",
      "ok  memory.peak_bytes 125490348→125490348 +0.0% tol=20.0% (manual 20.0%, 2×noise 0.0%)"
     ],
     "metrics": [
      {
-      "base": 1.3315912679972826,
-      "change": 0.015312731086022751,
+      "base": 1.1111057640000581,
+      "change": 0.07154125428492254,
       "manual_tolerance": 0.1,
       "metric": "hot",
       "name": "hot.wall_s",
-      "new": 1.351981567000621,
-      "noise": 0.031171043628140813,
+      "new": 1.1905956639998294,
+      "noise": 0.0016702953967825253,
       "red": false,
       "tolerance": 0.1
      },
      {
-      "base": 4.2296513879991835,
-      "change": 0.05131864829687561,
+      "base": 3.395022639000217,
+      "change": 0.05570673309410564,
       "manual_tolerance": 0.1,
       "metric": "cold",
       "name": "cold.wall_s",
-      "new": 4.446711379998305,
-      "noise": 0.01172524505122463,
+      "new": 3.5841482589994484,
+      "noise": 0.08747820363565327,
       "red": false,
-      "tolerance": 0.1
+      "tolerance": 0.17495640727130654
      },
      {
       "base": 125490348,
@@ -1814,9 +1859,9 @@
    },
    "pct": 0.05,
    "per_round_single": [
-    "OK hot.wall_s=1.332→1.352 (+1.5%) tol=10.0%",
-    "OK hot.wall_s=1.332→1.4 (+5.1%) tol=10.0%",
-    "OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%"
+    "OK hot.wall_s=1.111→1.191 (+7.2%) tol=10.0%",
+    "OK hot.wall_s=1.111→1.158 (+4.2%) tol=10.0%",
+    "OK hot.wall_s=1.111→1.163 (+4.6%) tol=10.0%"
    ]
   }
  },
@@ -1833,8 +1878,8 @@
    "qbt/engine.py:Context.indicator",
    "qbt/engine.py:IndicatorCache.get"
   ],
-  "cold_wall_s": 4.2296513879991835,
-  "hot_wall_s": 1.3315912679972826,
+  "cold_wall_s": 3.395022639000217,
+  "hot_wall_s": 1.1111057640000581,
   "inner": 2,
   "n": 1000000,
   "names_have_no_lineno_or_tmp": true,
@@ -1842,44 +1887,50 @@
   "names_jaccard_rerun": 1.0,
   "names_moved_copy_jaccard": 1.0,
   "names_moved_copy_top10_equal": true,
+  "names_moved_copy_top10_in_base": true,
+  "names_rerun_top10_in_base": true,
   "noise": {
-   "cold_wall_rel": 0.01172524505122463,
-   "hot_wall_rel": 0.031171043628140813,
+   "cold_wall_rel": 0.08747820363565327,
+   "hot_wall_rel": 0.0016702953967825253,
    "peak_rel": 0.0
   },
   "peak_bytes": 125490348,
   "repeat": 8,
-  "rerun_first_line": "OK hot.wall_s=1.332→1.324 (-0.6%) tol=10.0%",
+  "rerun_first_line": "OK hot.wall_s=1.111→1.179 (+6.1%) tol=10.0%",
   "rerun_verdict": "OK",
   "runs": 3,
   "slow": {
    "12pct": {
-    "achieved_hot": 0.13161620928040993,
-    "first_line": "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-    "first_line_noise_only": "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-    "first_line_single_run": "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
+    "achieved_hot": 0.14885676175822507,
+    "first_line": "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+    "first_line_noise_only": "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+    "first_line_single_run": "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
     "intended": 0.12,
-    "new_top10": [],
+    "new_top10": [
+     "qdperf/examples/qbt_case.py:meaningless_loop"
+    ],
     "per_round_single": [
-     "REGRESSION cold.wall_s=4.23→4.826 (+14.1%)",
-     "REGRESSION hot.wall_s=1.332→1.507 (+13.2%)",
-     "REGRESSION cold.wall_s=4.23→4.831 (+14.2%)"
+     "REGRESSION hot.wall_s=1.111→1.277 (+14.9%)",
+     "REGRESSION hot.wall_s=1.111→1.332 (+19.9%)",
+     "REGRESSION cold.wall_s=3.395→4.035 (+18.9%)"
     ],
     "verdict_default": "REGRESSION",
     "verdict_noise_only": "REGRESSION",
     "verdict_single_run": "REGRESSION"
    },
    "5pct": {
-    "achieved_hot": 0.024519359501744928,
-    "first_line": "OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%",
-    "first_line_noise_only": "REGRESSION cold.wall_s=4.23→4.447 (+5.1%)",
-    "first_line_single_run": "OK hot.wall_s=1.332→1.352 (+1.5%) tol=10.0%",
+    "achieved_hot": 0.04648525700518948,
+    "first_line": "OK hot.wall_s=1.111→1.163 (+4.6%) tol=10.0%",
+    "first_line_noise_only": "REGRESSION hot.wall_s=1.111→1.163 (+4.6%)",
+    "first_line_single_run": "OK hot.wall_s=1.111→1.191 (+7.2%) tol=10.0%",
     "intended": 0.05,
-    "new_top10": [],
+    "new_top10": [
+     "qbt/engine.py:Context.target"
+    ],
     "per_round_single": [
-     "OK hot.wall_s=1.332→1.352 (+1.5%) tol=10.0%",
-     "OK hot.wall_s=1.332→1.4 (+5.1%) tol=10.0%",
-     "OK hot.wall_s=1.332→1.364 (+2.5%) tol=10.0%"
+     "OK hot.wall_s=1.111→1.191 (+7.2%) tol=10.0%",
+     "OK hot.wall_s=1.111→1.158 (+4.2%) tol=10.0%",
+     "OK hot.wall_s=1.111→1.163 (+4.6%) tol=10.0%"
     ],
     "verdict_default": "OK",
     "verdict_noise_only": "REGRESSION",
@@ -1889,6 +1940,6 @@
   "slow12_red": true,
   "slow5_expected_by_noise": "OK",
   "tolerance_hot_default": 0.1,
-  "tolerance_hot_noise_only": 0.062342087256281625
+  "tolerance_hot_noise_only": 0.0033405907935650505
  }
 }
