@@ -11,7 +11,10 @@ data/zh_confusable.json 形近字对。「台」默认保留「台」（台灣 /
 - simplified-residue 红：zh-TW 里出现只在简体里存在的字（没转）；
 - suspect-typo 红：对齐后同位置字不同，且不是字表候选 / 合法异体 / 标点对应（如 zh「马丁机器人」期望「馬丁機器人」、实际「馬工機器人」
   → 「丁 ≠ 工，疑似错字（形近）」）；一个替换块里连续 ≥ 2 字都不同且都不是形近字 → 当作换词（意译）而不是错字；
+  句子别处已有增删换词时，孤立的非形近单字差也并入意译（结构不同的句子里对不齐的单字不是错字证据）；
 - paraphrase 提示：有增删 / 换词（整句结构不同的意译），只报「意译，人工看」，不判红。
+已知盲区：整句其余完全一致、只换了一个非形近字的用词差异（和 → 與、按 → 以）会被判红——规则无法区分它和同音错字；
+这类词要么进词级例外表（--words），要么人工看。
 词级例外表里一个词有多个可接受写法时，zh-TW 用了任何一个都算对（登录 → 登入 / 登錄）。
 stdout 第一行 `QDTEXT ZHPAIR OK|FAIL n=…`；有红退出码 1；目录不存在退出码 2。
 """
@@ -113,6 +116,11 @@ def compare(src, actual, T):
             classify_block(expected, actual, i1, j1, i2 - i1, alts, T, res)
         else:
             res["paraphrase"].append({"expected": expected[i1:i2], "actual": actual[j1:j2], "pos": i1})
+    if res["paraphrase"] and res["typos"] and not any(d["confusable"] for d in res["typos"]):
+        # 句子别处已经增删换词（结构不同），孤立的非形近单字差多半也是改写的一部分 → 并入意译，不判红
+        res["paraphrase"].extend({"expected": d["expected"], "actual": d["actual"], "pos": d["pos"]} for d in res["typos"])
+        res["paraphrase"].sort(key=lambda x: x["pos"])
+        res["typos"] = []
     res["status"] = "typo" if res["typos"] else ("paraphrase" if res["paraphrase"] else "ok")
     return res
 

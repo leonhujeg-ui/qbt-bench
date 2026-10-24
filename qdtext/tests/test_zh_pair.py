@@ -41,10 +41,16 @@ class TestTables(unittest.TestCase):
         self.assertEqual(Z.convert("杠杆余额", T)[0], "槓桿餘額")
         self.assertEqual(Z.convert("台湾平台台风柜台", T)[0], "台灣平台颱風櫃檯")
         self.assertEqual(Z.convert("头发发布", T)[0], "頭髮發布")
+        identity_default = 0
         for k, v in T.chars.items():
             self.assertEqual(len(k), 1, k)
-            self.assertNotEqual(v[0], k, k)
+            if v[0] == k:
+                identity_default += 1                                            # 台 → 台臺颱檯 这类：默认保留，带依词替代
+                self.assertGreater(len(v), 1, k)
             k.encode("gb2312")                                                   # 键必须是简体编码里的字
+            v.encode("big5hkscs")                                                # 候选必须是繁体编码里的字
+        self.assertLess(identity_default, 100)
+        self.assertEqual(Z.convert("密钥", T)[0], "金鑰")
         for w, alts in list(T.words.items())[:50]:
             self.assertTrue(alts and all(alts), w)
 
@@ -110,8 +116,12 @@ class TestCompare(unittest.TestCase):
         self.assertEqual((r["status"], r["paraphrase"][0]["actual"]), ("paraphrase", "格爾"))
         r = self.status("马丁机器人", "機器人")
         self.assertEqual(r["status"], "paraphrase")
-        r = self.status("马丁机器人取消", "馬工機器人放棄")                              # 错字 + 换词 → 错字优先
+        r = self.status("马丁机器人取消", "馬工機器人放棄")                              # 形近错字 + 换词 → 错字优先
         self.assertEqual((r["status"], len(r["typos"]), len(r["paraphrase"])), ("typo", 1, 1))
+        r = self.status("后台机器人取消", "後兮機器人放棄")                              # 非形近单字差 + 别处换词 → 并入意译
+        self.assertEqual((r["status"], r["typos"], [x["actual"] for x in r["paraphrase"]]), ("paraphrase", [], ["兮", "放棄"]))
+        r = self.status("后台", "後兮")                                                  # 单独的非形近单字差仍是错字（已知盲区）
+        self.assertEqual(r["status"], "typo")
 
     def test_residue(self):
         r = self.status("马丁", "马丁")

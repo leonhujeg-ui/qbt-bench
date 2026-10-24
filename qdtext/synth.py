@@ -167,7 +167,7 @@ def plant_zh_pair(packs, vocab, rng, n_para=50, n_typo=20):
             break
         if (ns, k) in used:
             continue
-        packs[ns]["zh-TW"][k] = packs[ns]["zh-TW"][k].replace(default, tw_word, 1)
+        packs[ns]["zh-TW"][k] = packs[ns]["zh-TW"][k].replace(default, tw_word)        # 全部换掉：同一句里混用两种写法是另一种错
         paraphrases.append({"namespace": ns, "key": k, "kind": "term-swap", "from": default, "to": tw_word})
         used.add((ns, k))
     conf = C.data_file("zh_confusable.json")["pairs"]
