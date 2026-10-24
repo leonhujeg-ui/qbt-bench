@@ -1,0 +1,291 @@
+{
+ "command": "python3.12 -m qdexsim.selftest --full",
+ "machine": {
+  "cpu_count": 4,
+  "git_commit": "8946d7a",
+  "load_avg_1m": 0.22,
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-24T14:01:40"
+ },
+ "mode": "full",
+ "ok": true,
+ "seconds": 108.4,
+ "steps": {
+  "constraints": {
+   "detail": {
+    "test_static": "ok",
+    "test_stdlib_only": "ok",
+    "test_writes_binds_and_connects": "ok"
+   },
+   "ok": true,
+   "scale": "3 tests (deps / network / writes)",
+   "seconds": 0.0,
+   "summary": "stdlib-only ok; no-network ok; writes+binds+connects audit ok"
+  },
+  "coverage": {
+   "detail": {
+    "returncode": 0,
+    "stdout_tail": "ialects/okx.py                         154      0  100.0%  \nTOTAL                                          3002     59   98.0%\n-- tools / mutants / scenarios gen / selftest (reported, not counted)\nfile                                          stmts   miss   cover  missing\nqdexsim/selftest.py                              98     98    0.0%  10-16,18,20-21,24-25,28-30,33-38,40-45,49-56,60-64,66-69,74-\nqdexsim/scenarios/gen.py                         50     23   54.0%  25,41,123-127,135-146,148-151\nqdexsim/scenarios/__init__.py                    21      0  100.0%  \nqdexsim/tools/__init__.py                         0      0  100.0%  \nqdexsim/tools/build_report.py                    99     99    0.0%  4-7,9-13,15-16,18,21-22,25-28,31-35,37-38,40,43-55,57,64-68,\nqdexsim/tools/cov.py                             79     75    5.1%  10-16,18-20,22,24-25,28-31,34-39,42-52,55-61,63-65,68-73,76-\nqdexsim/tools/selfcheck.py                      163    163    0.0%  10-16,18-21,23-25,29-31,33-34,37-39,42,44-46,48,51-52,56-75,\nqdexsim/mutants/__init__.py                       0      0  100.0%  \nqdexsim/mutants/run.py                          189    189    0.0%  11-22,24-26,28,30-33,35,41,44-47,50-53,56-75,78-88,91-94,97,\nqdexsim/mutants/triage.py                        51     51    0.0%  6-9,11-15,17,19-21,24-26,29-33,37-46,49-67,70\nqdexsim/mutants/triage_reasons.py                 1      1    0.0%  4\nTOTAL                                           751    699    6.9%\nchild processes merged: 3\n",
+    "total_percent": 98.0346435709527
+   },
+   "ok": true,
+   "scale": "3002 statements, 158 tests",
+   "seconds": 20.5,
+   "summary": "98.03% (>= 90% required); child processes merged 3"
+  },
+  "g1_dialects": {
+   "detail": {
+    "dialects": {
+     "binance": {
+      "after_cancel": "CANCELED",
+      "bad_sign_code": -1022,
+      "bad_sign_expected": -1022,
+      "bad_ts_code": -1021,
+      "bad_ts_expected": -1021,
+      "cancel_status": "CANCELED",
+      "ok": true,
+      "partial_fill": {
+       "filled": 0.05,
+       "qty": 0.06,
+       "status": "PARTIALLY_FILLED"
+      }
+     },
+     "bitget": {
+      "after_cancel": "CANCELED",
+      "bad_sign_code": "40009",
+      "bad_sign_expected": "40009",
+      "bad_ts_code": "40008",
+      "bad_ts_expected": "40008",
+      "cancel_status": "CANCELED",
+      "ok": true,
+      "partial_fill": {
+       "filled": 0.05,
+       "qty": 0.06,
+       "status": "PARTIALLY_FILLED"
+      }
+     },
+     "bitunix": {
+      "after_cancel": "CANCELED",
+      "bad_sign_code": 10007,
+      "bad_sign_expected": 10007,
+      "bad_ts_code": 10002,
+      "bad_ts_expected": 10002,
+      "cancel_status": "CANCELED",
+      "ok": true,
+      "partial_fill": {
+       "filled": 0.05,
+       "qty": 0.06,
+       "status": "PARTIALLY_FILLED"
+      }
+     },
+     "bybit": {
+      "after_cancel": "CANCELED",
+      "bad_sign_code": 10004,
+      "bad_sign_expected": 10004,
+      "bad_ts_code": 10002,
+      "bad_ts_expected": 10002,
+      "cancel_status": "CANCELED",
+      "ok": true,
+      "partial_fill": {
+       "filled": 0.05,
+       "qty": 0.06,
+       "status": "PARTIALLY_FILLED"
+      }
+     },
+     "okx": {
+      "after_cancel": "CANCELED",
+      "bad_sign_code": "50113",
+      "bad_sign_expected": "50113",
+      "bad_ts_code": "50102",
+      "bad_ts_expected": "50102",
+      "cancel_status": "CANCELED",
+      "ok": true,
+      "partial_fill": {
+       "filled": 0.05,
+       "qty": 0.06,
+       "status": "PARTIALLY_FILLED"
+      }
+     }
+    },
+    "ok": true,
+    "restart": {
+     "dup_cid_after_restart": "DUP_CID",
+     "fills": 5,
+     "orders": 5,
+     "position_btc": 0.25,
+     "same_port": true,
+     "state_equal": true
+    },
+    "seconds": 0.4
+   },
+   "ok": true,
+   "scale": "5 dialects x (bad sign, expired ts, place, partial fill, cancel) + process restart",
+   "seconds": 0.5,
+   "summary": "sign/ts codes binance:-1022/-1021, bybit:10004/10002, okx:50113/50102, bitget:40009/40008, bitunix:10007/10002; partial 0.05/0.06 x5; restart orders 5 fills 5 equal=True dup-after-restart=DUP_CID"
+  },
+  "g2_chaos": {
+   "detail": {
+    "differs_with_other_seed": true,
+    "events_seed0_run1": 20,
+    "events_seed0_run2": 20,
+    "events_seed99": 25,
+    "identical": true,
+    "kinds_logged": [
+     "cancel_race",
+     "clock_drift",
+     "fill_delay",
+     "latency",
+     "maintenance",
+     "rate_limit",
+     "server_error",
+     "stale",
+     "symbol",
+     "unknown_result",
+     "zero_once"
+    ],
+    "kinds_missing": [],
+    "ok": true,
+    "requests": 21,
+    "seconds": 3.0
+   },
+   "ok": true,
+   "scale": "11 injection kinds, same seed x2 + other seed",
+   "seconds": 3.0,
+   "summary": "events 20 identical=True; other seed differs=True; kinds logged 11/11"
+  },
+  "g3_judges": {
+   "detail": {
+    "correct": {
+     "expected_mismatch": [],
+     "green": 60,
+     "red": 0
+    },
+    "dialects": [
+     "binance",
+     "bitget",
+     "bitunix",
+     "bybit",
+     "okx"
+    ],
+    "naive": {
+     "expected_mismatch": [],
+     "green": 0,
+     "red": 60
+    },
+    "naive_must_red_ok": true,
+    "naive_must_red_scenarios": 20,
+    "naive_red_judges": {
+     "balance_consistent": 5,
+     "cancel_real": 3,
+     "intent_complete": 26,
+     "kill_switch": 5,
+     "no_duplicate": 15,
+     "no_lost": 20,
+     "position_consistent": 25,
+     "rate_limit": 5,
+     "status_consistent": 15
+    },
+    "ok": true,
+    "scenarios": 60,
+    "seconds": 62.7,
+    "templates": [
+     "baseline",
+     "cancel_race",
+     "client_restart",
+     "clock_drift",
+     "kill_switch",
+     "rate_limit",
+     "server_restart",
+     "stale_views",
+     "symbol_rules",
+     "unknown_502",
+     "unknown_drop",
+     "unknown_timeout"
+    ]
+   },
+   "ok": true,
+   "scale": "60 scenarios x 2 clients",
+   "seconds": 62.7,
+   "summary": "correct green 60/60; naive red 60/60; naive must-red 20 ok=True"
+  },
+  "g4_recon": {
+   "detail": {
+    "false_positives": {},
+    "found": 50,
+    "missed": {},
+    "ok": true,
+    "planted": 50,
+    "seconds": 0.0,
+    "seed": 7,
+    "summary": {
+     "local_orders": 200,
+     "matched": 185,
+     "mismatch": 20,
+     "missing_local": 15,
+     "phantom": 15,
+     "remote_orders": 200,
+     "total": 50,
+     "ts_offset_ms": 28800000
+    },
+    "ts_offset_ms": 28800000
+   },
+   "ok": true,
+   "scale": "synthetic 200 orders, 50 planted diffs",
+   "seconds": 0.0,
+   "summary": "found 50/50, missed 0, false positives 0, tz offset 28800000 ms"
+  },
+  "knives": {
+   "detail": {
+    "knives": [
+     {
+      "caught_by": "FAIL: test_db_unique_cid_is_last_line_of_defense (qdexsim.tests.test_engine.TestPersistence.test_db_unique_cid_is_last_line_of_defense)",
+      "knife": "remove_cid_idempotency",
+      "red": true,
+      "tests": [
+       "test_engine",
+       "test_dialects",
+       "test_clients"
+      ]
+     },
+     {
+      "caught_by": "FAIL: test_unknown_result_modes (qdexsim.tests.test_server.TestHttp.test_unknown_result_modes)",
+      "knife": "unknown_result_not_executed",
+      "red": true,
+      "tests": [
+       "test_server",
+       "test_clients"
+      ]
+     },
+     {
+      "caught_by": "FAIL: test_files_and_main (qdexsim.tests.test_recon.TestCli.test_files_and_main)",
+      "knife": "recon_skips_status",
+      "red": true,
+      "tests": [
+       "test_recon"
+      ]
+     }
+    ],
+    "ok": true,
+    "seconds": 1.3
+   },
+   "ok": true,
+   "scale": "3 hand-made mutants",
+   "seconds": 1.3,
+   "summary": "remove_cid_idempotency red=True; unknown_result_not_executed red=True; recon_skips_status red=True"
+  },
+  "unittest": {
+   "detail": {
+    "leaked_tmp_dirs": [],
+    "returncode": 0,
+    "stderr_tail": "exsim.tests.test_recon.TestPieces.test_aggregate_split_orders) ... ok\ntest_compare_and_actions (qdexsim.tests.test_recon.TestPieces.test_compare_and_actions) ... ok\ntest_detect_ts_offset (qdexsim.tests.test_recon.TestPieces.test_detect_ts_offset) ... ok\ntest_match_precedence (qdexsim.tests.test_recon.TestPieces.test_match_precedence) ... ok\ntest_normalize_mapping (qdexsim.tests.test_recon.TestPieces.test_normalize_mapping) ... ok\ntest_selfcheck_finds_all_50_zero_false_positives (qdexsim.tests.test_recon.TestSelfcheck.test_selfcheck_finds_all_50_zero_false_positives) ... ok\ntest_ts_offset_given_disables_detection (qdexsim.tests.test_recon.TestSelfcheck.test_ts_offset_given_disables_detection) ... ok\ntest_without_status_compare_would_miss (qdexsim.tests.test_recon.TestSelfcheck.test_without_status_compare_would_miss)\n三刀之一：对账漏比状态字段必须被抓住——这里用同一数据证明只比数量 / 价格会漏 7 + 3 条。 ... ok\ntest_core_templates_expect_naive_red (qdexsim.tests.test_scenarios.TestScenarioFiles.test_core_templates_expect_naive_red) ... ok\ntest_count_and_schema (qdexsim.tests.test_scenarios.TestScenarioFiles.test_count_and_schema) ... ok\ntest_generated_matches_disk (qdexsim.tests.test_scenarios.TestScenarioFiles.test_generated_matches_disk) ... ok\ntest_loaders (qdexsim.tests.test_scenarios.TestScenarioFiles.test_loaders) ... ok\ntest_admin_endpoints (qdexsim.tests.test_server.TestHttp.test_admin_endpoints) ... ok\ntest_all_dialects_over_sockets (qdexsim.tests.test_server.TestHttp.test_all_dialects_over_sockets) ... ok\ntest_latency (qdexsim.tests.test_server.TestHttp.test_latency) ... ok\ntest_rate_limit_server_error_maintenance (qdexsim.tests.test_server.TestHttp.test_rate_limit_server_error_maintenance) ... ok\ntest_scheduled_symbol_and_clock_drift (qdexsim.tests.test_server.TestHttp.test_scheduled_symbol_and_clock_drift) ... ok\ntest_unknown_result_modes (qdexsim.tests.test_server.TestHttp.test_unknown_result_modes) ... ok\ntest_view_chaos_stale_zero_delay_race (qdexsim.tests.test_server.TestHttp.test_view_chaos_stale_zero_delay_race) ... ok\ntest_feed_thread_moves_prices (qdexsim.tests.test_server.TestLifecycle.test_feed_thread_moves_prices) ... ok\ntest_positions_before (qdexsim.tests.test_server.TestLifecycle.test_positions_before) ... ok\ntest_restart_keeps_state_and_port (qdexsim.tests.test_server.TestLifecycle.test_restart_keeps_state_and_port) ... ok\ntest_cli_prints_listen_line_and_serves (qdexsim.tests.test_server.TestMain.test_cli_prints_listen_line_and_serves) ... ok\ntest_duplicate_cid_is_rejected_by_database (qdexsim.tests.test_store.TestStore.test_duplicate_cid_is_rejected_by_database) ... ok\ntest_memory_store_has_no_wal (qdexsim.tests.test_store.TestStore.test_memory_store_has_no_wal) ... ok\ntest_roundtrip_and_restart (qdexsim.tests.test_store.TestStore.test_roundtrip_and_restart) ... ok\ntest_transaction_rollback (qdexsim.tests.test_store.TestStore.test_transaction_rollback) ... ok\n\n----------------------------------------------------------------------\nRan 158 tests in 20.280s\n\nOK\n",
+    "tests_run": 158
+   },
+   "ok": true,
+   "scale": "158 tests",
+   "seconds": 20.4,
+   "summary": "OK; tmp dirs left 0"
+  }
+ }
+}

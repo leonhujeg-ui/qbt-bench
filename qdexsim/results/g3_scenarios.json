@@ -1,0 +1,7704 @@
+{
+ "correct": {
+  "expected_mismatch": [],
+  "green": 60,
+  "red": 0
+ },
+ "dialects": [
+  "binance",
+  "bitget",
+  "bitunix",
+  "bybit",
+  "okx"
+ ],
+ "machine": {
+  "cpu_count": 4,
+  "git_commit": "9d9bd79",
+  "load_avg_1m": 0.09,
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-24T14:03:27"
+ },
+ "naive": {
+  "expected_mismatch": [],
+  "green": 0,
+  "red": 60
+ },
+ "naive_must_red_ok": true,
+ "naive_must_red_scenarios": 20,
+ "naive_red_judges": {
+  "balance_consistent": 5,
+  "cancel_real": 3,
+  "intent_complete": 26,
+  "kill_switch": 5,
+  "no_duplicate": 15,
+  "no_lost": 20,
+  "position_consistent": 25,
+  "rate_limit": 5,
+  "status_consistent": 15
+ },
+ "ok": true,
+ "results": [
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 5,
+   "scenario": "binance/baseline",
+   "seconds": 0.07,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "ledger": {
+      "BTCUSDT": 0.01
+     },
+     "server": {},
+     "t": 1792850545890,
+     "what": "position_adopted_from_server"
+    }
+   ],
+   "ok": true,
+   "requests": 9,
+   "scenario": "binance/baseline",
+   "seconds": 0.58,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('ORDER_NOT_OPEN (-2011): Unknown order sent.')",
+     "local_id": "i1",
+     "t": 1792850545954,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "binance/cancel_race",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client status vs server: {1001: ('CANCELED', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 6,
+   "scenario": "binance/cancel_race",
+   "seconds": 0.57,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 4,
+   "scenario": "binance/client_restart",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: [1001, 1002]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 2,
+      "server_orders": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 10,
+   "scenario": "binance/client_restart",
+   "seconds": 0.58,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (-1021): Timestamp for this request is outside of the recvWindow.')",
+     "t": 1792850547237,
+     "what": "balance_read_failed"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (-1021): Timestamp for this request is outside of the recvWindow.')",
+     "intent": "i1",
+     "t": 1792850547238,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (-1021): Timestamp for this request is outside of the recvWindow.')",
+     "intent": "i2",
+     "t": 1792850547240,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "binance/clock_drift",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 0,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 0, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 0, 'i2': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 7,
+   "scenario": "binance/clock_drift",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [
+    {
+     "error": "RuntimeError('killed')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (-1003): ')",
+     "local_id": "i1",
+     "t": 1792850547376,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 7,
+   "scenario": "binance/kill_switch",
+   "seconds": 0.62,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: [1001]",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "correct",
+   "client_errors": [
+    {
+     "error": "RuntimeError('kill switch engaged: refusing new orders')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850548009,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 12,
+   "scenario": "binance/kill_switch",
+   "seconds": 1.72,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: []",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (-1003): ')",
+     "intent": "i1",
+     "t": 1792850549722,
+     "what": "retry_blind"
+    },
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (-1003): ')",
+     "local_id": "i1",
+     "t": 1792850549733,
+     "what": "cancel_error_ignored"
+    },
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (-1003): ')",
+     "local_id": "i2",
+     "t": 1792850549735,
+     "what": "cancel_error_ignored"
+    },
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (-1003): ')",
+     "local_id": "i3",
+     "t": 1792850549737,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 8,
+   "scenario": "binance/rate_limit",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 6",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 6
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: ['i1', 'i2', 'i3']",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 3
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850550819,
+     "what": "backoff"
+    },
+    {
+     "attempt": 1,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850551833,
+     "what": "backoff"
+    },
+    {
+     "attempt": 2,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850552845,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 13,
+   "scenario": "binance/rate_limit",
+   "seconds": 4.13,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 0",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "binance/server_restart",
+   "seconds": 0.18,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "ledger": {
+      "BTCUSDT": 0.01
+     },
+     "server": {},
+     "t": 1792850554746,
+     "what": "position_adopted_from_server"
+    }
+   ],
+   "ok": true,
+   "requests": 7,
+   "scenario": "binance/server_restart",
+   "seconds": 0.69,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "binance/stale_views",
+   "seconds": 0.07,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client 0.0 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 9999.8802
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 5,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 8,
+   "scenario": "binance/stale_views",
+   "seconds": 0.62,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client 9999.8802 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 0.0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_QTY (-1111): Precision is over the maximum defined for this asset.')",
+     "intent": "i2",
+     "t": 1792850555497,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('SYMBOL_SUSPENDED (-2010): Symbol is not trading.')",
+     "intent": "i3",
+     "t": 1792850555499,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "binance/symbol_rules",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 0, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "changed": true,
+     "client": "correct",
+     "intent": "i2",
+     "price": 59800.0,
+     "qty": 0.02,
+     "t": 1792850555566,
+     "what": "requantized"
+    },
+    {
+     "client": "correct",
+     "code": -2010,
+     "intent": "i3",
+     "kind": "SYMBOL_SUSPENDED",
+     "t": 1792850555572,
+     "what": "rejected"
+    }
+   ],
+   "ok": true,
+   "requests": 7,
+   "scenario": "binance/symbol_rules",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850555646,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "binance/unknown_502",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850555713,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 10,
+   "scenario": "binance/unknown_502",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850556293,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "binance/unknown_drop",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850556355,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 10,
+   "scenario": "binance/unknown_drop",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850557235,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "binance/unknown_timeout",
+   "seconds": 0.41,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850557650,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 10,
+   "scenario": "binance/unknown_timeout",
+   "seconds": 0.94,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 5,
+   "scenario": "bitget/baseline",
+   "seconds": 0.07,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "bitget/baseline",
+   "seconds": 0.59,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('ORDER_NOT_FOUND (40768): Order does not exist')",
+     "local_id": "i1",
+     "t": 1792850558954,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "bitget/cancel_race",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client status vs server: {1001: ('CANCELED', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 7,
+   "scenario": "bitget/cancel_race",
+   "seconds": 0.58,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitget/client_restart",
+   "seconds": 0.07,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: [1001, 1002]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 2,
+      "server_orders": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "bitget/client_restart",
+   "seconds": 0.59,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (40008): Request timestamp expired')",
+     "t": 1792850560254,
+     "what": "balance_read_failed"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (40008): Request timestamp expired')",
+     "intent": "i1",
+     "t": 1792850560256,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (40008): Request timestamp expired')",
+     "intent": "i2",
+     "t": 1792850560257,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "bitget/clock_drift",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 0,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 0, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 0, 'i2': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bitget/clock_drift",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [
+    {
+     "error": "RuntimeError('killed')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (429): ')",
+     "local_id": "i1",
+     "t": 1792850560403,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 7,
+   "scenario": "bitget/kill_switch",
+   "seconds": 0.62,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: [1001]",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "correct",
+   "client_errors": [
+    {
+     "error": "RuntimeError('kill switch engaged: refusing new orders')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850561044,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 15,
+   "scenario": "bitget/kill_switch",
+   "seconds": 1.73,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: []",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 3,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (429): ')",
+     "intent": "i1",
+     "t": 1792850562759,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 1,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (429): ')",
+     "intent": "i1",
+     "t": 1792850562761,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 2,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (429): ')",
+     "intent": "i1",
+     "t": 1792850562763,
+     "what": "retry_blind"
+    },
+    {
+     "client": "naive",
+     "intent": "i1",
+     "t": 1792850562763,
+     "what": "gave_up"
+    }
+   ],
+   "ok": false,
+   "requests": 8,
+   "scenario": "bitget/rate_limit",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "429 issued 3, requests inside backoff window 6",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 3,
+      "violations": 6
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 0, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 0, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850565885,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 16,
+   "scenario": "bitget/rate_limit",
+   "seconds": 4.14,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 0",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "bitget/server_restart",
+   "seconds": 0.17,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 8,
+   "scenario": "bitget/server_restart",
+   "seconds": 0.69,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "bitget/stale_views",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client 0.0 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 9999.8802
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 5,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bitget/stale_views",
+   "seconds": 0.62,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client 9999.8802 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 0.0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_PARAM (40808): Parameter verification exception price')",
+     "intent": "i2",
+     "t": 1792850568504,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('SYMBOL_SUSPENDED (40020): Parameter symbol error: not trading')",
+     "intent": "i3",
+     "t": 1792850568506,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitget/symbol_rules",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 0, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "changed": true,
+     "client": "correct",
+     "intent": "i2",
+     "price": 59800.0,
+     "qty": 0.02,
+     "t": 1792850568574,
+     "what": "requantized"
+    },
+    {
+     "client": "correct",
+     "code": "40020",
+     "intent": "i3",
+     "kind": "SYMBOL_SUSPENDED",
+     "t": 1792850568586,
+     "what": "rejected"
+    }
+   ],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bitget/symbol_rules",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850568651,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitget/unknown_502",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850568712,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bitget/unknown_502",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850569292,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitget/unknown_drop",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850569354,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bitget/unknown_drop",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850570233,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitget/unknown_timeout",
+   "seconds": 0.41,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850570644,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bitget/unknown_timeout",
+   "seconds": 0.93,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 5,
+   "scenario": "bitunix/baseline",
+   "seconds": 0.07,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "bitunix/baseline",
+   "seconds": 0.59,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('ORDER_NOT_FOUND (20007): Order not found, please try it later')",
+     "local_id": "i1",
+     "t": 1792850571940,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "bitunix/cancel_race",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client status vs server: {1001: ('CANCELED', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 7,
+   "scenario": "bitunix/cancel_race",
+   "seconds": 0.57,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitunix/client_restart",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: [1001, 1002]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 2,
+      "server_orders": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "bitunix/client_restart",
+   "seconds": 0.58,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (10002): Parameter Error: timestamp expired')",
+     "t": 1792850573221,
+     "what": "balance_read_failed"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (10002): Parameter Error: timestamp expired')",
+     "intent": "i1",
+     "t": 1792850573222,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (10002): Parameter Error: timestamp expired')",
+     "intent": "i2",
+     "t": 1792850573224,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "bitunix/clock_drift",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 0,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 0, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 0, 'i2': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bitunix/clock_drift",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [
+    {
+     "error": "RuntimeError('killed')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): ')",
+     "local_id": "i1",
+     "t": 1792850573368,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 7,
+   "scenario": "bitunix/kill_switch",
+   "seconds": 0.62,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: [1001]",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "correct",
+   "client_errors": [
+    {
+     "error": "RuntimeError('kill switch engaged: refusing new orders')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850574001,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 15,
+   "scenario": "bitunix/kill_switch",
+   "seconds": 1.72,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: []",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): ')",
+     "intent": "i1",
+     "t": 1792850575707,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 1,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): ')",
+     "intent": "i1",
+     "t": 1792850575708,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): ')",
+     "intent": "i3",
+     "t": 1792850575712,
+     "what": "retry_blind"
+    },
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): ')",
+     "local_id": "i1",
+     "t": 1792850575715,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 10,
+   "scenario": "bitunix/rate_limit",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 8",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 8
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: ['i1']",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850578832,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 16,
+   "scenario": "bitunix/rate_limit",
+   "seconds": 4.14,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 0",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "bitunix/server_restart",
+   "seconds": 0.17,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 8,
+   "scenario": "bitunix/server_restart",
+   "seconds": 0.69,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "bitunix/stale_views",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client 0.0 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 9999.8802
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 5,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bitunix/stale_views",
+   "seconds": 0.62,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client 9999.8802 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 0.0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_QTY (10008): price does not comply with the rule')",
+     "intent": "i2",
+     "t": 1792850581480,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('SYMBOL_SUSPENDED (20015): This futures does not allow trading')",
+     "intent": "i3",
+     "t": 1792850581482,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitunix/symbol_rules",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 0, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "changed": true,
+     "client": "correct",
+     "intent": "i2",
+     "price": 59800.0,
+     "qty": 0.02,
+     "t": 1792850581548,
+     "what": "requantized"
+    },
+    {
+     "client": "correct",
+     "code": 20015,
+     "intent": "i3",
+     "kind": "SYMBOL_SUSPENDED",
+     "t": 1792850581556,
+     "what": "rejected"
+    }
+   ],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bitunix/symbol_rules",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850581621,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitunix/unknown_502",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850581684,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bitunix/unknown_502",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850582271,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitunix/unknown_drop",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850582337,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bitunix/unknown_drop",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850583222,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bitunix/unknown_timeout",
+   "seconds": 0.43,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850583648,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bitunix/unknown_timeout",
+   "seconds": 0.93,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 5,
+   "scenario": "bybit/baseline",
+   "seconds": 0.07,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "bybit/baseline",
+   "seconds": 0.59,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('ORDER_NOT_FOUND (110001): Order does not exist.')",
+     "local_id": "i1",
+     "t": 1792850584939,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "bybit/cancel_race",
+   "seconds": 0.07,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client status vs server: {1001: ('CANCELED', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 7,
+   "scenario": "bybit/cancel_race",
+   "seconds": 0.57,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bybit/client_restart",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: [1001, 1002]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 2,
+      "server_orders": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "bybit/client_restart",
+   "seconds": 0.58,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (10002): invalid request, please check your server timestamp or recv_window param. req_timestamp[1792850586220]')",
+     "t": 1792850586222,
+     "what": "balance_read_failed"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (10002): invalid request, please check your server timestamp or recv_window param. req_timestamp[1792850586222]')",
+     "intent": "i1",
+     "t": 1792850586224,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (10002): invalid request, please check your server timestamp or recv_window param. req_timestamp[1792850586224]')",
+     "intent": "i2",
+     "t": 1792850586225,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "bybit/clock_drift",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 0,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 0, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 0, 'i2': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bybit/clock_drift",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [
+    {
+     "error": "RuntimeError('killed')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): Too many visits. Exceeded the API Rate Limit.')",
+     "local_id": "i1",
+     "t": 1792850586365,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 7,
+   "scenario": "bybit/kill_switch",
+   "seconds": 0.62,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: [1001]",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "correct",
+   "client_errors": [
+    {
+     "error": "RuntimeError('kill switch engaged: refusing new orders')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 299,
+     "t": 1792850587005,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 15,
+   "scenario": "bybit/kill_switch",
+   "seconds": 1.03,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: []",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): Too many visits. Exceeded the API Rate Limit.')",
+     "intent": "i1",
+     "t": 1792850588014,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): Too many visits. Exceeded the API Rate Limit.')",
+     "intent": "i3",
+     "t": 1792850588019,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 1,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): Too many visits. Exceeded the API Rate Limit.')",
+     "intent": "i3",
+     "t": 1792850588021,
+     "what": "retry_blind"
+    },
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (10006): Too many visits. Exceeded the API Rate Limit.')",
+     "local_id": "i1",
+     "t": 1792850588025,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 10,
+   "scenario": "bybit/rate_limit",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 8",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 8
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: ['i1']",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 599,
+     "t": 1792850589936,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 16,
+   "scenario": "bybit/rate_limit",
+   "seconds": 2.53,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 0",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "bybit/server_restart",
+   "seconds": 0.18,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 8,
+   "scenario": "bybit/server_restart",
+   "seconds": 0.69,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "bybit/stale_views",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client 0.0 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 9999.8802
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 5,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "bybit/stale_views",
+   "seconds": 0.62,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client 9999.8802 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 0.0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_PARAM (10001): params error: price invalid')",
+     "intent": "i2",
+     "t": 1792850592177,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_PARAM (10001): params error: symbol is not trading')",
+     "intent": "i3",
+     "t": 1792850592178,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bybit/symbol_rules",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 0, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "changed": true,
+     "client": "correct",
+     "intent": "i2",
+     "price": 59800.0,
+     "qty": 0.02,
+     "t": 1792850592246,
+     "what": "requantized"
+    },
+    {
+     "changed": false,
+     "client": "correct",
+     "intent": "i3",
+     "price": 59700.0,
+     "qty": 0.03,
+     "t": 1792850592254,
+     "what": "requantized"
+    },
+    {
+     "client": "correct",
+     "code": 10001,
+     "intent": "i3",
+     "kind": "BAD_PARAM",
+     "t": 1792850592254,
+     "what": "rejected"
+    }
+   ],
+   "ok": true,
+   "requests": 10,
+   "scenario": "bybit/symbol_rules",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850592317,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bybit/unknown_502",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850592389,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bybit/unknown_502",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850592971,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bybit/unknown_drop",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850593034,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bybit/unknown_drop",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850593917,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "bybit/unknown_timeout",
+   "seconds": 0.41,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850594342,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "bybit/unknown_timeout",
+   "seconds": 0.95,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 5,
+   "scenario": "okx/baseline",
+   "seconds": 0.07,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "okx/baseline",
+   "seconds": 0.59,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('ORDER_NOT_OPEN (51400): Cancellation failed as the order does not exist')",
+     "local_id": "i1",
+     "t": 1792850595641,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "okx/cancel_race",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client status vs server: {1001: ('CANCELED', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 7,
+   "scenario": "okx/cancel_race",
+   "seconds": 0.57,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 4,
+   "scenario": "okx/client_restart",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: [1001, 1002]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 2,
+      "server_orders": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 12,
+   "scenario": "okx/client_restart",
+   "seconds": 0.59,
+   "server_fills": 1,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (50102): Timestamp request expired')",
+     "t": 1792850596930,
+     "what": "balance_read_failed"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (50102): Timestamp request expired')",
+     "intent": "i1",
+     "t": 1792850596931,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_TIMESTAMP (50102): Timestamp request expired')",
+     "intent": "i2",
+     "t": 1792850596933,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 3,
+   "scenario": "okx/clock_drift",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 0,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 0, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 0, 'i2': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "okx/clock_drift",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [
+    {
+     "error": "RuntimeError('killed')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (50011): ')",
+     "local_id": "i1",
+     "t": 1792850597074,
+     "what": "cancel_error_ignored"
+    }
+   ],
+   "ok": false,
+   "requests": 7,
+   "scenario": "okx/kill_switch",
+   "seconds": 0.62,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: [1001]",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "correct",
+   "client_errors": [
+    {
+     "error": "RuntimeError('kill switch engaged: refusing new orders')",
+     "intent": "i4",
+     "op": "place"
+    }
+   ],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850597706,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 15,
+   "scenario": "okx/kill_switch",
+   "seconds": 1.72,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders created after kill+grace: []; still open: []",
+     "judge": "kill_switch",
+     "numbers": {
+      "late_orders": 0,
+      "open_orders": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1, 'i4': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 3,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (50011): ')",
+     "intent": "i2",
+     "t": 1792850599416,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (50011): ')",
+     "intent": "i3",
+     "t": 1792850599419,
+     "what": "retry_blind"
+    },
+    {
+     "attempt": 1,
+     "client": "naive",
+     "error": "RateLimited('RATE_LIMIT (50011): ')",
+     "intent": "i3",
+     "t": 1792850599421,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 10,
+   "scenario": "okx/rate_limit",
+   "seconds": 0.07,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 3, requests inside backoff window 7",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 3,
+      "violations": 7
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 4,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850599489,
+     "what": "backoff"
+    },
+    {
+     "attempt": 0,
+     "client": "correct",
+     "ms": 1000,
+     "t": 1792850602543,
+     "what": "backoff"
+    }
+   ],
+   "ok": true,
+   "requests": 16,
+   "scenario": "okx/rate_limit",
+   "seconds": 4.14,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "429 issued 4, requests inside backoff window 0",
+     "judge": "rate_limit",
+     "numbers": {
+      "issued": 4,
+      "violations": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "okx/server_restart",
+   "seconds": 0.17,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (-0.01, 0.0)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 8,
+   "scenario": "okx/server_restart",
+   "seconds": 0.69,
+   "server_fills": 2,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1, 'i3': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 3,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 3
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 2,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [],
+   "ok": false,
+   "requests": 2,
+   "scenario": "okx/stale_views",
+   "seconds": 0.06,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {'BTCUSDT': (0.0, 0.01)}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "client 0.0 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 9999.8802
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {1001: ('NEW', 'FILLED')}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 1
+     },
+     "ok": false
+    }
+   ]
+  },
+  {
+   "chaos_events": 5,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [],
+   "ok": true,
+   "requests": 9,
+   "scenario": "okx/stale_views",
+   "seconds": 0.62,
+   "server_fills": 1,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client 9999.8802 vs server 9999.8802",
+     "judge": "balance_consistent",
+     "numbers": {
+      "diff": 0.0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client status vs server: {}",
+     "judge": "status_consistent",
+     "numbers": {
+      "mismatched": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_PARAM (51000): Parameter px error')",
+     "intent": "i2",
+     "t": 1792850605169,
+     "what": "rejected"
+    },
+    {
+     "client": "naive",
+     "error": "ExchangeError('BAD_PARAM (51000): Instrument is suspended')",
+     "intent": "i3",
+     "t": 1792850605170,
+     "what": "rejected"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "okx/symbol_rules",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 1,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 0}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 0, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 1
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 0,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "changed": true,
+     "client": "correct",
+     "intent": "i2",
+     "price": 59800.0,
+     "qty": 0.02,
+     "t": 1792850605240,
+     "what": "requantized"
+    },
+    {
+     "changed": false,
+     "client": "correct",
+     "intent": "i3",
+     "price": 59700.0,
+     "qty": 0.03,
+     "t": 1792850605249,
+     "what": "requantized"
+    },
+    {
+     "client": "correct",
+     "code": "51000",
+     "intent": "i3",
+     "kind": "BAD_PARAM",
+     "t": 1792850605249,
+     "what": "rejected"
+    }
+   ],
+   "ok": true,
+   "requests": 10,
+   "scenario": "okx/symbol_rules",
+   "seconds": 0.08,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1, 'i3': 0}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850605316,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "okx/unknown_502",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('http 502')",
+     "intent": "i1",
+     "t": 1792850605379,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "okx/unknown_502",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850605964,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "okx/unknown_drop",
+   "seconds": 0.06,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult(\"connection: RemoteDisconnected('Remote end closed connection without response')\")",
+     "intent": "i1",
+     "t": 1792850606030,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "okx/unknown_drop",
+   "seconds": 0.58,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "naive",
+   "client_errors": [],
+   "client_log": [
+    {
+     "attempt": 0,
+     "client": "naive",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850606914,
+     "what": "retry_blind"
+    }
+   ],
+   "ok": false,
+   "requests": 4,
+   "scenario": "okx/unknown_timeout",
+   "seconds": 0.42,
+   "server_fills": 0,
+   "server_orders": 3,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 2, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 1,
+      "max_per_intent": 2
+     },
+     "ok": false
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 2, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 1
+     },
+     "ok": false
+    },
+    {
+     "detail": "server orders unknown to client: [1001]",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 1,
+      "server_orders": 3
+     },
+     "ok": false
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  },
+  {
+   "chaos_events": 1,
+   "client": "correct",
+   "client_errors": [],
+   "client_log": [
+    {
+     "client": "correct",
+     "error": "UnknownResult('timeout: timed out')",
+     "intent": "i1",
+     "t": 1792850607330,
+     "what": "unknown_result"
+    }
+   ],
+   "ok": true,
+   "requests": 11,
+   "scenario": "okx/unknown_timeout",
+   "seconds": 0.94,
+   "server_fills": 0,
+   "server_orders": 2,
+   "verdicts": [
+    {
+     "detail": "orders per intent {'i1': 1, 'i2': 1}",
+     "judge": "no_duplicate",
+     "numbers": {
+      "duplicated_intents": 0,
+      "max_per_intent": 1
+     },
+     "ok": true
+    },
+    {
+     "detail": "expected 1 server order each: {'i1': 1, 'i2': 1}",
+     "judge": "intent_complete",
+     "numbers": {
+      "expected": 2,
+      "missing": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "server orders unknown to client: []",
+     "judge": "no_lost",
+     "numbers": {
+      "lost": 0,
+      "server_orders": 2
+     },
+     "ok": true
+    },
+    {
+     "detail": "client orders absent on server: []",
+     "judge": "no_phantom",
+     "numbers": {
+      "phantoms": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "client vs server mismatches: {}",
+     "judge": "position_consistent",
+     "numbers": {
+      "mismatched_symbols": 0
+     },
+     "ok": true
+    },
+    {
+     "detail": "believed canceled but still open on server: []",
+     "judge": "cancel_real",
+     "numbers": {
+      "still_open": 0
+     },
+     "ok": true
+    }
+   ]
+  }
+ ],
+ "scenarios": 60,
+ "seconds": 62.7,
+ "templates": [
+  "baseline",
+  "cancel_race",
+  "client_restart",
+  "clock_drift",
+  "kill_switch",
+  "rate_limit",
+  "server_restart",
+  "stale_views",
+  "symbol_rules",
+  "unknown_502",
+  "unknown_drop",
+  "unknown_timeout"
+ ]
+}

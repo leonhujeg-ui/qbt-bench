@@ -1,0 +1,29 @@
+{
+ "false_positives": {},
+ "found": 50,
+ "machine": {
+  "cpu_count": 4,
+  "git_commit": "9d9bd79",
+  "load_avg_1m": 0.09,
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-24T14:03:27"
+ },
+ "missed": {},
+ "ok": true,
+ "planted": 50,
+ "seconds": 0.0,
+ "seed": 7,
+ "summary": {
+  "local_orders": 200,
+  "matched": 185,
+  "mismatch": 20,
+  "missing_local": 15,
+  "phantom": 15,
+  "remote_orders": 200,
+  "total": 50,
+  "ts_offset_ms": 28800000
+ },
+ "ts_offset_ms": 28800000
+}
