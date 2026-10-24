@@ -1,5 +1,5 @@
 """漏网突变体的逐条判定：id → (kind, 理由)。kind ∈ equivalent（等价：行为不变或不可观测）/ pending（待补）。
-首轮漏网 154 个，补 tests/test_pins.py 后用 --ids 重跑；这里只剩重跑后仍漏网的，逐条说明为什么等价。由人写，triage.py 读。"""
+首轮漏网 154 个，补 tests/test_pins.py 后用 --ids 重跑三轮（harness 因源码改动重新抽样）；这里只剩最终仍漏网的 34 个，逐条说明为什么等价。由人写，triage.py 读。"""
 
 REASONS = {
     # 单元素列表取 [0] 改成 [-1]：这些列表恒为 1 个元素（服务器时间 / 单品种 ticker / 按 id 查到的单），结果相同
@@ -25,6 +25,7 @@ REASONS = {
     "server:184:delete_stmt": ("equivalent", "daemon_threads 只影响进程退出时是否等待处理线程，所有测试都显式 stop()"),
     "server:221:const:1": ("equivalent", "server.main 的 return 0 只在 KeyboardInterrupt 后到达，测试用 SIGTERM 退出（sys.exit(0)）"),
     "adapters:666:const:0.44999999999999996": ("equivalent", "Transport(timeout_s=0.3) 的缺省值从未被用到：Adapter 总是显式传 timeout_s"),
+    "dialects/bitget:1534:const:999": ("equivalent", "error() 里 retry_after_ms or 1000 的兜底：服务端注入限频时总是显式传 retry_after_ms"),
     "dialects/bybit:1302:const:1001": ("equivalent", "error() 里 retry_after_ms or 1000 的兜底：服务端注入限频时总是显式传 retry_after_ms"),
     "judges:937:const:1.0": ("equivalent", "只影响 detail 文本里的元组，判定用的是下一行的比较"),
     "judges:940:const:1.0": ("equivalent", "同上"),
