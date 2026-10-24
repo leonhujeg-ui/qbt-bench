@@ -96,6 +96,9 @@ class TestKlineRows(unittest.TestCase):
         self.bar = self.sim.candles.get("BTCUSDT")[-1]
         for i in range(150):                                      # 造 150 根历史 bar（给 limit 用）
             self.sim.candles.add("ETHUSDT", 3000.0 + i, 1_700_000_000_000 + i * 60000, 1.0)
+        self.big = type(self.sim.candles)(max_bars=2000)
+        for i in range(1600):
+            self.big.add("ETHUSDT", 3000.0, 1_700_000_000_000 + i * 60000, 1.0)
 
     def ad(self, name):
         return inproc_adapter(name, self.sim)
@@ -111,6 +114,9 @@ class TestKlineRows(unittest.TestCase):
         self.assertEqual(len(ad.call("klines", "GET", "/fapi/v1/klines", {"symbol": "ETHUSDT", "interval": "1m", "limit": 5000}, signed=False)), 150)
         self.assertEqual(len(ad.call("klines", "GET", "/fapi/v1/klines", {"symbol": "ETHUSDT", "interval": "1m"}, signed=False)), 150)
         self.assertEqual(ad.klines("BTCUSDT")[-1], [b[0], b[1], b[2], b[3], b[4], 0.02])
+        self.sim.candles = self.big
+        self.assertEqual(len(ad.call("klines", "GET", "/fapi/v1/klines", {"symbol": "ETHUSDT", "interval": "1m"}, signed=False)), 500)
+        self.assertEqual(len(ad.call("klines", "GET", "/fapi/v1/klines", {"symbol": "ETHUSDT", "interval": "1m", "limit": 5000}, signed=False)), 1500)
 
     def test_bybit(self):
         ad = self.ad("bybit")
@@ -139,6 +145,8 @@ class TestKlineRows(unittest.TestCase):
         self.assertEqual(ad.klines("BTCUSDT")[-1], [b[0], b[1], b[2], b[3], b[4], 0.02])
         self.assertEqual(len(ad.klines("ETHUSDT")), 100)
         self.assertEqual(len(ad.call("klines", "GET", "/api/v2/mix/market/candles", dict(ad.P, symbol="ETHUSDT", granularity="1m", limit=5000), signed=False)), 150)
+        self.sim.candles = self.big
+        self.assertEqual(len(ad.call("klines", "GET", "/api/v2/mix/market/candles", dict(ad.P, symbol="ETHUSDT", granularity="1m", limit=5000), signed=False)), 1000)
 
     def test_bitunix(self):
         ad = self.ad("bitunix")
@@ -157,8 +165,13 @@ class TestRoutesAndShapes(unittest.TestCase):
         self.sim = inproc_sim()
 
     def test_every_signed_route_rejects_bare_requests_and_public_returns_200(self):
+        signed_ops = {"account", "positions", "place", "cancel", "query", "open_orders", "fills", "leverage", "margin_mode"}
         for d in self.sim.dialects.values():
-            for method, path, op, need_auth in d.ROUTES:
+            ops = {op for _m, _p, op, _a in d.ROUTES}
+            full = signed_ops | {"time", "instruments", "ticker", "klines"}
+            self.assertEqual(ops, full - ({"open_orders"} if d.NAME == "bybit" else set()), d.NAME)   # Bybit 查单与未成交同一路由
+            for method, path, op, _need_auth in d.ROUTES:
+                need_auth = op in signed_ops                                       # 期望值不能来自被测表本身
                 body = b'{"category":"linear"}' if method == "POST" else b""
                 resp, _ = self.sim.handle(base.Request(method, path, "category=linear&instType=SWAP&productType=USDT-FUTURES",
                                                        {"Content-Type": "application/json"}, body))
@@ -186,6 +199,9 @@ class TestRoutesAndShapes(unittest.TestCase):
         with self.assertRaises(ExchangeError) as cm:
             ad.cancel("BTCUSDT", order_id=o["id"])
         self.assertEqual(cm.exception.code, -2011)                                     # 已撤 → 也是 -2011
+        with self.assertRaises(ExchangeError) as cm:
+            ad.set_margin_mode("DOGEUSDT", "isolated")                                  # 非“不变”的错要抛
+        self.assertEqual(cm.exception.kind, "SYMBOL_UNKNOWN")
         bad = inproc_adapter("binance", self.sim, creds={"secret": "wrong"})
         with self.assertRaises(ExchangeError) as cm:
             bad.query("BTCUSDT", order_id=o["id"])                                     # 非 not-found 的错要抛，不能当 None
@@ -201,7 +217,11 @@ class TestRoutesAndShapes(unittest.TestCase):
         self.assertTrue(now < nxt <= now + 8 * 3600 * 1000 and nxt % 28800000 == 0)
         with self.assertRaises(ExchangeError):
             ad.call("fills", "GET", "/v5/execution/list", {"category": "spot"})
+        with self.assertRaises(ExchangeError):
+            ad.call("positions", "GET", "/v5/position/list", {"category": "spot"})
         ad.place("BTCUSDT", "BUY", "MARKET", 0.01)
+        ex = ad.call("fills", "GET", "/v5/execution/list", {"category": "linear"})["list"][0]
+        self.assertEqual((ex["orderPrice"], ex["orderType"]), ("0", "Market"))
         pos = ad.call("positions", "GET", "/v5/position/list", {"category": "linear", "symbol": "BTCUSDT"})["list"][0]
         self.assertEqual((pos["tradeMode"], pos["positionIdx"]), (0, 0))
         o = ad.call("query", "GET", "/v5/order/realtime", {"category": "linear", "symbol": "BTCUSDT"})
@@ -216,8 +236,9 @@ class TestRoutesAndShapes(unittest.TestCase):
 
     def test_okx_details(self):
         ad = inproc_adapter("okx", self.sim)
-        ad.place("ETHUSDT", "BUY", "MARKET", 0.1)                                      # BTC 零仓在前、ETH 非零在后
-        self.sim.engine.positions["BTCUSDT"] = self.sim.engine._new_position("BTCUSDT")
+        self.sim.engine.positions["BTCUSDT"] = self.sim.engine._new_position("BTCUSDT")   # BTC 零仓在前、ETH 非零在后
+        ad.place("ETHUSDT", "BUY", "MARKET", 0.1)
+        self.assertEqual(list(self.sim.engine.positions), ["BTCUSDT", "ETHUSDT"])
         rows = ad.call("positions", "GET", "/api/v5/account/positions", {"instType": "SWAP"})
         self.assertEqual([r["instId"] for r in rows], ["ETH-USDT-SWAP"])              # 零仓跳过、不中断
         self.assertEqual(rows[0]["pos"], "1")
@@ -259,12 +280,17 @@ class TestBoundaries(unittest.TestCase):
             f.write("symbol,price\nBTCUSDT,61000\nETHUSDT,3100\nBTCUSDT,62000\n")
         f3 = feed_mod.Feed({"mode": "replay", "path": p})
         self.assertEqual([f3.step()[0][1] for _ in range(4)], [61000.0, 3100.0, 62000.0, 61000.0])
+        f4 = feed_mod.Feed({"mode": "replay", "path": p, "loop": False})
+        self.assertEqual([f4.step() for _ in range(4)], [[("BTCUSDT", 61000.0, 0.05)], [("ETHUSDT", 3100.0, 1.0)], [("BTCUSDT", 62000.0, 0.05)], []])
+        with open(p, "w", encoding="utf-8") as f:
+            f.write("symbol,price\nDOGEUSDT,0.1\n")
+        self.assertEqual(feed_mod.Feed({"mode": "replay", "path": p}).step(), [("DOGEUSDT", 0.1, 0.05)])    # 没配流动性 → 0.05
         with open(p, "w", encoding="utf-8") as f:
             f.write("symbol,px\nBTCUSDT,1\n")
         with self.assertRaises(ValueError):
             feed_mod.load_csv(p)
-        bars = [[0, 1, 5, 1, 2, 1], [1000, 2, 3, 0.5, 4, 1]]
-        self.assertEqual(feed_mod.resample(bars, 2000), [[0, 1, 5, 0.5, 4, 2]])
+        bars = [[0, 1, 5, 1, 2, 1], [1000, 2, 0.5, 6, 4, 1]]                      # 第二根 high < low 是故意的：钉死列号
+        self.assertEqual(feed_mod.resample(bars, 2000), [[0, 1, 5, 1, 4, 2]])
 
     def test_chaos_boundaries(self):
         c = chaos_mod.Chaos({"seed": 1, "rules": [{"kind": "latency", "op": "*", "ms": 9, "at_req": 2}]})
@@ -288,6 +314,8 @@ class TestBoundaries(unittest.TestCase):
         rows = recon.normalize([{"cid": "a", "qty": 1.0, "filled": 1.0, "price": None, "status": "FILLED", "ts": 1, "id": "1"},
                                 {"cid": "a", "qty": 1.0, "filled": 1.0, "price": 10.0, "status": "FILLED", "ts": 2, "id": ""}])
         self.assertEqual(recon.aggregate(rows)[0]["price"], 5.0)
+        rows[0]["qty"] = None
+        self.assertEqual(recon.aggregate(rows)[0]["qty"], 1.0)
         local = recon.normalize([{"id": "2", "cid": "a"}])
         remote = recon.normalize([{"id": "1", "cid": "a"}, {"id": "2", "cid": "b"}])
         pairs, only_l, only_r = recon.match(local, remote)
@@ -323,6 +351,29 @@ class TestClientsAndHarness(unittest.TestCase):
         good.orders = {"i1": dict(c.orders["i1"])}
         good.positions()
         self.assertFalse(any(e["what"] == "position_adopted_from_server" for e in good.log))     # 账本 == 服务端 → 不采纳
+
+    def test_journal_written_before_send(self):
+        sim = inproc_sim()
+        c = clients.CorrectClient("binance", "http://127.0.0.1:1", os.path.join(tmpdir(self), "c"), timeout_s=0.2)
+        wire(c.ad, sim)
+        c._send = lambda rec: (_ for _ in ()).throw(RuntimeError("crash before send"))
+        with self.assertRaises(RuntimeError):
+            c.place(intent("i1"))
+        j = common.read_json(c.journal_path)
+        self.assertEqual((j["i1"]["cid"], j["i1"]["phase"]), ("i1", "pending"))               # 先写日志再发
+
+    def test_harness_defaults(self):
+        scn = {"name": "t/z", "dialect": "binance", "symbol": "BTCUSDT", "seed": 1, "chaos": {"rules": []}, "judges": [],
+               "script": [{"op": "tick"}], "expect": {}}
+        run = harness.Run(scn, clients.CorrectClient, tmpdir(self))
+        run.start_sim()
+        try:
+            run.make_client()
+            self.assertEqual(run.client.ad.t.timeout, 0.3)                                   # timeout_s 缺省 0.3
+            run.step({"op": "tick"})
+            self.assertEqual(run.sim.feed.n, 1)                                              # n 缺省 1
+        finally:
+            run.sim.stop()
 
     def test_naive_logs_and_restart_rereads_balance(self):
         sim = inproc_sim()

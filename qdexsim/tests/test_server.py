@@ -1,6 +1,7 @@
 """真 socket 的服务端测试：HTTP 分发、管理口、混沌在线上的表现、重启恢复、行情线程、命令行入口。"""
 import json
 import os
+import sqlite3
 import subprocess
 import sys
 import time
@@ -78,6 +79,8 @@ class TestHttp(unittest.TestCase):
                 self.assertEqual(cm.exception.http_status, 502)
             if mode == "timeout":
                 self.assertGreaterEqual(time.perf_counter() - t0, 0.25)
+            if mode == "drop":
+                self.assertLess(time.perf_counter() - t0, 0.25)                               # 立即断连，不是等客户端超时
             ev = self.sim.store.events(kind="chaos")
             self.assertIn("response withheld", ev[-1]["executed"])
             self.assertEqual(ev[-1]["injection"], "unknown_result")
@@ -108,6 +111,10 @@ class TestHttp(unittest.TestCase):
         self.sim.chaos.update({"rules": [{"kind": "server_error", "op": "place", "max": 1, "status": 503}]})
         with self.assertRaises(UnknownResult):                                              # 写操作上的 5xx = 结果未知
             ad.place("BTCUSDT", "BUY", "LIMIT", 0.01, 59000.0)
+        self.sim.chaos.update({"rules": [{"kind": "latency", "op": "account", "ms": 1}]})
+        with self.assertRaises(ExchangeError):
+            adapters.make("binance", u, creds={"api_key": "nope"}, timeout_s=3).account()
+        self.assertIn("auth failed", self.sim.store.events(kind="chaos")[-1]["executed"])  # 鉴权失败也要留注入日志
 
     def test_view_chaos_stale_zero_delay_race(self):
         ad = adapters.make("binance", self.sim.url, timeout_s=3)
@@ -169,6 +176,8 @@ class TestLifecycle(unittest.TestCase):
         sim2 = Simulator(db, port, run_feed=False).start()
         self.addCleanup(sim2.stop)
         self.assertEqual(sim2.port, port)
+        with self.assertRaises(sqlite3.ProgrammingError):
+            sim.store.conn.execute("SELECT 1")                                               # stop() 关掉了库连接
         self.assertEqual(ad.query("BTCUSDT", cid="keep")["status"], "NEW")
         self.assertEqual(ad.positions()["BTCUSDT"], 0.02)
         self.assertEqual(len(ad.fills("BTCUSDT")), 1)
@@ -225,7 +234,7 @@ class TestMain(unittest.TestCase):
                 self.assertEqual(json.loads(f.readline())["injection"], "latency")
         finally:
             proc.terminate()
-            proc.wait(timeout=10)
+            self.assertEqual(proc.wait(timeout=10), 0)                                      # SIGTERM → sys.exit(0)，atexit 能跑
 
 
 if __name__ == "__main__":
