@@ -185,6 +185,7 @@ class TestWebSocket(unittest.TestCase):
         ws.send_text("bye")
         with self.assertRaises(cdp.ConnectionClosed):
             ws.recv_text()
+        ws.close()
 
 
 class TestFindChrome(unittest.TestCase):
@@ -266,9 +267,11 @@ class TestFindChrome(unittest.TestCase):
         with open(fake, "w") as f:
             f.write("#!/bin/sh\nexit 3\n")
         os.chmod(fake, 0o755)
+        tmp = __import__("tempfile").gettempdir()
+        before = {n for n in os.listdir(tmp) if n.startswith("qdtext-chrome-")}        # 并行跑测试时别的进程可能正开着浏览器
         with self.assertRaisesRegex(cdp.CDPError, "exited early"):
             cdp.Browser(fake, timeout=5)
-        self.assertEqual([n for n in os.listdir(__import__("tempfile").gettempdir()) if n.startswith("qdtext-chrome-")], [])
+        self.assertEqual({n for n in os.listdir(tmp) if n.startswith("qdtext-chrome-")} - before, set())
 
 
 @unittest.skipUnless(cdp.find_chrome(), "no chromium executable")

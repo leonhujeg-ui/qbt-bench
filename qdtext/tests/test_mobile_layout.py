@@ -116,7 +116,8 @@ class TestOfflineFixture(unittest.TestCase):
         self.assertTrue(out.getvalue().startswith("QDTEXT MOBILE FAIL n=8 red=4 yellow=4\n"), out.getvalue())
         doc = C.read_json(os.path.join(d, "mobile_layout.json"))
         self.assertEqual(doc["meta"]["mode"], "offline")
-        md = open(os.path.join(d, "mobile_layout.md"), encoding="utf-8").read()
+        with open(os.path.join(d, "mobile_layout.md"), encoding="utf-8") as f:
+            md = f.read()
         self.assertIn("| overflow.html | 375x812 |", md)
         self.assertIn("模式：offline", md)
         self.assertIn("快照 ", md)

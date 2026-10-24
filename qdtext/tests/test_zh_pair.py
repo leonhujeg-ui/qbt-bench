@@ -151,7 +151,8 @@ class TestRunAndCli(unittest.TestCase):
         doc = C.read_json(os.path.join(d, "o", "zh_pair.json"))
         self.assertEqual(doc["meta"]["pairs"], 2)
         self.assertEqual([x["rule"] for x in doc["findings"]], ["suspect-typo", "paraphrase"])
-        self.assertIn("| expected", open(os.path.join(d, "o", "zh_pair.md"), encoding="utf-8").read().replace("| 原文 | 建议 | expected |", "| expected"))
+        with open(os.path.join(d, "o", "zh_pair.md"), encoding="utf-8") as f:
+            self.assertIn("| 建议 | expected |", f.read())
         loc2 = write_packs(os.path.join(d, "loc2"), packs_from({"a": "马丁机器人"}, zh_TW={"a": "馬丁機器人"}))
         with redirect_stdout(io.StringIO()) as out:
             self.assertEqual(Z.main([loc2, "--out", os.path.join(d, "o2")]), 0)

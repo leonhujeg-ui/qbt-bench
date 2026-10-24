@@ -71,7 +71,11 @@ class WebSocket:
             raise CDPError(f"refusing to connect to {host}: only {LOCALHOST} is allowed")
         self.sock = socket.create_connection((host, int(port)), timeout=timeout)
         self.buf = b""
-        self._handshake(host, port, path)
+        try:
+            self._handshake(host, port, path)
+        except Exception:
+            self.sock.close()
+            raise
 
     def _handshake(self, host, port, path):
         key = base64.b64encode(os.urandom(16)).decode()

@@ -128,7 +128,8 @@ class TestRunAndCli(unittest.TestCase):
         doc = C.read_json(os.path.join(d, "o", "wordy.json"))
         self.assertEqual(doc["meta"]["screens"], 1)
         self.assertEqual([f["rule"] for f in doc["findings"]], ["same-screen-duplicate", "explanatory"])
-        md = open(os.path.join(d, "o", "wordy.md"), encoding="utf-8").read()
+        with open(os.path.join(d, "o", "wordy.md"), encoding="utf-8") as f:
+            md = f.read()
         self.assertIn("normalized-equal", md)
         with redirect_stdout(io.StringIO()):
             self.assertEqual(W.main([loc, "--out", os.path.join(d, "o2")]), 0)               # 没有屏配置：只有黄
