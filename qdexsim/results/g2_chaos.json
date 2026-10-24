@@ -1,0 +1,135 @@
+{
+ "differs_with_other_seed": true,
+ "events_seed0_run1": 20,
+ "events_seed0_run2": 20,
+ "events_seed99": 25,
+ "identical": true,
+ "kinds_logged": [
+  "cancel_race",
+  "clock_drift",
+  "fill_delay",
+  "latency",
+  "maintenance",
+  "rate_limit",
+  "server_error",
+  "stale",
+  "symbol",
+  "unknown_result",
+  "zero_once"
+ ],
+ "kinds_missing": [],
+ "machine": {
+  "cpu_count": 4,
+  "git_commit": "19d46bd",
+  "load_avg_1m": 0.0,
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-24T13:10:17"
+ },
+ "ok": true,
+ "requests": 21,
+ "seconds": 2.9,
+ "trace": [
+  [
+   1,
+   "place",
+   "unknown_result"
+  ],
+  [
+   2,
+   "query",
+   "latency"
+  ],
+  [
+   2,
+   "query",
+   "server_error"
+  ],
+  [
+   4,
+   "-",
+   "symbol"
+  ],
+  [
+   4,
+   "place",
+   "latency"
+  ],
+  [
+   5,
+   "query",
+   "rate_limit"
+  ],
+  [
+   6,
+   "-",
+   "clock_drift"
+  ],
+  [
+   6,
+   "query",
+   "rate_limit"
+  ],
+  [
+   7,
+   "-",
+   "fill_delay"
+  ],
+  [
+   8,
+   "cancel",
+   "cancel_race"
+  ],
+  [
+   11,
+   "query",
+   "latency"
+  ],
+  [
+   11,
+   "query",
+   "server_error"
+  ],
+  [
+   12,
+   "query",
+   "latency"
+  ],
+  [
+   15,
+   "account",
+   "latency"
+  ],
+  [
+   15,
+   "account",
+   "maintenance"
+  ],
+  [
+   15,
+   "account",
+   "zero_once"
+  ],
+  [
+   17,
+   "account",
+   "latency"
+  ],
+  [
+   19,
+   "positions",
+   "stale"
+  ],
+  [
+   20,
+   "positions",
+   "stale"
+  ],
+  [
+   21,
+   "positions",
+   "stale"
+  ]
+ ]
+}

@@ -1,0 +1,55 @@
+{
+ "chaos": {
+  "rules": [
+   {
+    "hold_ms": 600,
+    "kind": "unknown_result",
+    "max": 1,
+    "mode": "timeout",
+    "op": "place",
+    "p": 1.0
+   }
+  ],
+  "seed": 101
+ },
+ "dialect": "binance",
+ "expect": {
+  "correct": "green",
+  "naive": "red"
+ },
+ "judges": [
+  "no_duplicate",
+  "intent_complete",
+  "no_lost",
+  "no_phantom",
+  "position_consistent",
+  "cancel_real"
+ ],
+ "name": "binance/unknown_timeout",
+ "script": [
+  {
+   "intent": "i1",
+   "offset": -100,
+   "op": "place",
+   "qty": 0.01,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "ms": 50,
+   "op": "sleep"
+  },
+  {
+   "intent": "i2",
+   "offset": 200,
+   "op": "place",
+   "qty": 0.02,
+   "side": "SELL",
+   "type": "LIMIT"
+  }
+ ],
+ "seed": 101,
+ "symbol": "BTCUSDT",
+ "template": "unknown_timeout",
+ "timeout_s": 0.3
+}

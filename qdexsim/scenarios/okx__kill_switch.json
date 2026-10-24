@@ -1,0 +1,78 @@
+{
+ "chaos": {
+  "rules": [
+   {
+    "kind": "rate_limit",
+    "max": 1,
+    "op": "cancel",
+    "p": 1.0,
+    "retry_after_ms": 300
+   },
+   {
+    "kind": "unknown_result",
+    "max": 1,
+    "mode": "drop",
+    "op": "cancel",
+    "p": 1.0
+   }
+  ],
+  "seed": 148
+ },
+ "dialect": "okx",
+ "expect": {
+  "correct": "green",
+  "naive": "red"
+ },
+ "judges": [
+  "kill_switch",
+  "no_duplicate"
+ ],
+ "name": "okx/kill_switch",
+ "script": [
+  {
+   "intent": "i1",
+   "offset": -100,
+   "op": "place",
+   "qty": 0.01,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "intent": "i2",
+   "offset": -200,
+   "op": "place",
+   "qty": 0.02,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "intent": "i3",
+   "offset": 200,
+   "op": "place",
+   "qty": 0.03,
+   "side": "SELL",
+   "type": "LIMIT"
+  },
+  {
+   "grace_ms": 500,
+   "op": "kill_switch"
+  },
+  {
+   "expect_placed": false,
+   "intent": "i4",
+   "offset": -300,
+   "op": "place",
+   "qty": 0.04,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "ms": 600,
+   "op": "sleep"
+  }
+ ],
+ "seed": 148,
+ "symbol": "BTCUSDT",
+ "template": "kill_switch",
+ "timeout_s": 0.3
+}

@@ -1,0 +1,44 @@
+{
+ "chaos": {
+  "rules": [
+   {
+    "kind": "cancel_race",
+    "max": 1,
+    "op": "cancel",
+    "p": 1.0
+   }
+  ],
+  "seed": 126
+ },
+ "dialect": "bybit",
+ "expect": {
+  "correct": "green",
+  "naive": "red"
+ },
+ "judges": [
+  "no_duplicate",
+  "no_lost",
+  "cancel_real",
+  "position_consistent",
+  "status_consistent"
+ ],
+ "name": "bybit/cancel_race",
+ "script": [
+  {
+   "intent": "i1",
+   "offset": -100,
+   "op": "place",
+   "qty": 0.01,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "intent": "i1",
+   "op": "cancel"
+  }
+ ],
+ "seed": 126,
+ "symbol": "BTCUSDT",
+ "template": "cancel_race",
+ "timeout_s": 0.3
+}

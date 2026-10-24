@@ -1,0 +1,61 @@
+{
+ "chaos": {
+  "rules": [],
+  "seed": 171
+ },
+ "dialect": "bitget",
+ "expect": {
+  "correct": "green",
+  "naive": "red"
+ },
+ "judges": [
+  "intent_complete",
+  "no_duplicate",
+  "no_phantom",
+  "no_lost"
+ ],
+ "name": "bitget/symbol_rules",
+ "script": [
+  {
+   "intent": "i1",
+   "offset": -100.5,
+   "op": "place",
+   "qty": 0.01,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "changes": {
+    "tick": 1.0
+   },
+   "op": "symbol"
+  },
+  {
+   "intent": "i2",
+   "offset": -200.5,
+   "op": "place",
+   "qty": 0.02,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "changes": {
+    "status": "SUSPENDED"
+   },
+   "op": "symbol"
+  },
+  {
+   "expect_placed": false,
+   "intent": "i3",
+   "offset": -300,
+   "op": "place",
+   "qty": 0.03,
+   "side": "BUY",
+   "type": "LIMIT"
+  }
+ ],
+ "seed": 171,
+ "symbol": "BTCUSDT",
+ "template": "symbol_rules",
+ "timeout_s": 0.3
+}

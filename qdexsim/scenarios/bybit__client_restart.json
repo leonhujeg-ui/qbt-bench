@@ -1,0 +1,56 @@
+{
+ "chaos": {
+  "rules": [],
+  "seed": 124
+ },
+ "dialect": "bybit",
+ "expect": {
+  "correct": "green",
+  "naive": "red"
+ },
+ "judges": [
+  "no_lost",
+  "no_phantom",
+  "position_consistent",
+  "cancel_real",
+  "status_consistent"
+ ],
+ "name": "bybit/client_restart",
+ "script": [
+  {
+   "intent": "i1",
+   "offset": -100,
+   "op": "place",
+   "qty": 0.01,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "intent": "i2",
+   "offset": -500,
+   "op": "place",
+   "qty": 0.02,
+   "side": "BUY",
+   "type": "LIMIT"
+  },
+  {
+   "offset": -120,
+   "op": "price"
+  },
+  {
+   "offset": 0,
+   "op": "price"
+  },
+  {
+   "op": "restart_client"
+  },
+  {
+   "intent": "i2",
+   "op": "cancel"
+  }
+ ],
+ "seed": 124,
+ "symbol": "BTCUSDT",
+ "template": "client_restart",
+ "timeout_s": 0.3
+}

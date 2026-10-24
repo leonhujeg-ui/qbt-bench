@@ -1,0 +1,93 @@
+{
+ "dialects": {
+  "binance": {
+   "after_cancel": "CANCELED",
+   "bad_sign_code": -1022,
+   "bad_sign_expected": -1022,
+   "bad_ts_code": -1021,
+   "bad_ts_expected": -1021,
+   "cancel_status": "CANCELED",
+   "ok": true,
+   "partial_fill": {
+    "filled": 0.05,
+    "qty": 0.06,
+    "status": "PARTIALLY_FILLED"
+   }
+  },
+  "bitget": {
+   "after_cancel": "CANCELED",
+   "bad_sign_code": "40009",
+   "bad_sign_expected": "40009",
+   "bad_ts_code": "40008",
+   "bad_ts_expected": "40008",
+   "cancel_status": "CANCELED",
+   "ok": true,
+   "partial_fill": {
+    "filled": 0.05,
+    "qty": 0.06,
+    "status": "PARTIALLY_FILLED"
+   }
+  },
+  "bitunix": {
+   "after_cancel": "CANCELED",
+   "bad_sign_code": 10007,
+   "bad_sign_expected": 10007,
+   "bad_ts_code": 10002,
+   "bad_ts_expected": 10002,
+   "cancel_status": "CANCELED",
+   "ok": true,
+   "partial_fill": {
+    "filled": 0.05,
+    "qty": 0.06,
+    "status": "PARTIALLY_FILLED"
+   }
+  },
+  "bybit": {
+   "after_cancel": "CANCELED",
+   "bad_sign_code": 10004,
+   "bad_sign_expected": 10004,
+   "bad_ts_code": 10002,
+   "bad_ts_expected": 10002,
+   "cancel_status": "CANCELED",
+   "ok": true,
+   "partial_fill": {
+    "filled": 0.05,
+    "qty": 0.06,
+    "status": "PARTIALLY_FILLED"
+   }
+  },
+  "okx": {
+   "after_cancel": "CANCELED",
+   "bad_sign_code": "50113",
+   "bad_sign_expected": "50113",
+   "bad_ts_code": "50102",
+   "bad_ts_expected": "50102",
+   "cancel_status": "CANCELED",
+   "ok": true,
+   "partial_fill": {
+    "filled": 0.05,
+    "qty": 0.06,
+    "status": "PARTIALLY_FILLED"
+   }
+  }
+ },
+ "machine": {
+  "cpu_count": 4,
+  "git_commit": "19d46bd",
+  "load_avg_1m": 0.0,
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "sqlite_version": "3.45.1",
+  "timestamp": "2026-10-24T13:09:51"
+ },
+ "ok": true,
+ "restart": {
+  "dup_cid_after_restart": "DUP_CID",
+  "fills": 5,
+  "orders": 5,
+  "position_btc": 0.25,
+  "same_port": true,
+  "state_equal": true
+ },
+ "seconds": 0.4
+}
