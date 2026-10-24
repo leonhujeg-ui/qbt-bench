@@ -3,7 +3,22 @@ python3.12 -m qdtext.selftest
 ```
 
 <!-- SELFTEST_OUTPUT_START -->
-（最近一次真实输出贴在这里，由最后一次提交后的运行产生）
+最近一次真实输出（提交 72f1157 之后、本仓容器里跑的，任何一行 FAIL 都会让退出码变成 1；耗时随机器变化）：
+
+```
+qdtext selftest (default)  Linux-6.18.44-fc-v153-x86_64-with-glibc2.39  Python 3.12.3  Chromium chrome  4 CPU
+step        scale                                                             time  result  key numbers
+unittest    113 tests                                                         4.6s  OK      OK; skipped 0; tmp dirs left 0
+constraints 3 tests (deps / network / writes)                                 0.0s  OK      stdlib-only ok; loopback-only ok; writes+connects audit ok
+coverage    1143 statements, 113 tests                                        4.9s  OK      97.81% (>= 90% required); lowest file common.py 91.0%
+mutation    7 modules, 280 mutants (results @ 2026-10-24 00:10:22)            0.1s  OK      kill 94.6% (>= 85%); survived 15; min per-module 40; sources unchanged; triage complete
+g1_locale   synth 441 keys x 10 langs, 44 planted                             0.1s  OK      recall 100% (44/44); false positives 0; by-design over-budget on wordy keys 274; clean pack red 0 non-wordy yellow 0
+g2_wordy    30 wordy + 30 good, 10 dup screens + 8 good screens               0.1s  OK      wordy recall 100%, good flagged 0 (0%); dup recall 100% via ['containment', 'edit-distance', 'synonym']; good-screen pairs flagged 0/36
+g3_zhpair   20 typos + 50 paraphrases; table 2349 chars / 422 words           0.1s  OK      typo recall 100% (20/20); paraphrases red 0 (info 11, silent ok 39); other red 0; clean pack red 0 info 5
+g4_mobile   fixtures 3 pages x 2 sizes, Chrome/153.0.8010.12                  0.9s  OK      6/6 page checks ok; normal page findings 0; 0.94s
+g4_offline  snapshot site.json, 6 page x size                                 0.0s  OK      6/6 checks ok; findings 8; normal page 0
+TOTAL                                                                        10.8s  OK      9/9 steps passed, 0 skipped, 0 failed
+```
 <!-- SELFTEST_OUTPUT_END -->
 
 ---

@@ -58,7 +58,7 @@
   "mode": "chromium",
   "normal_page_findings": 0,
   "pages": 3,
-  "seconds": 0.91,
+  "seconds": 0.94,
   "sizes": [
    "375x812",
    "414x896"
@@ -68,5 +68,5 @@
  "scale": "fixtures 3 pages x 2 sizes, Chrome/153.0.8010.12",
  "seconds": 0.9,
  "skipped": false,
- "summary": "6/6 page checks ok; normal page findings 0; 0.91s"
+ "summary": "6/6 page checks ok; normal page findings 0; 0.94s"
 }

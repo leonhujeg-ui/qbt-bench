@@ -6,7 +6,7 @@
  },
  "ok": true,
  "scale": "1143 statements, 113 tests",
- "seconds": 4.8,
+ "seconds": 4.9,
  "skipped": false,
  "summary": "97.81% (>= 90% required); lowest file common.py 91.0%"
 }

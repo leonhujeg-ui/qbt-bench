@@ -2,7 +2,7 @@
  "header": "qdtext selftest (default)  Linux-6.18.44-fc-v153-x86_64-with-glibc2.39  Python 3.12.3  Chromium chrome  4 CPU",
  "mode": "default",
  "ok": true,
- "seconds": 11.0,
+ "seconds": 10.8,
  "steps": {
   "constraints": {
    "ok": true,
@@ -14,14 +14,14 @@
   "coverage": {
    "ok": true,
    "scale": "1143 statements, 113 tests",
-   "seconds": 4.8,
+   "seconds": 4.9,
    "skipped": false,
    "summary": "97.81% (>= 90% required); lowest file common.py 91.0%"
   },
   "g1_locale": {
    "ok": true,
    "scale": "synth 441 keys x 10 langs, 44 planted",
-   "seconds": 0.2,
+   "seconds": 0.1,
    "skipped": false,
    "summary": "recall 100% (44/44); false positives 0; by-design over-budget on wordy keys 274; clean pack red 0 non-wordy yellow 0"
   },
@@ -44,7 +44,7 @@
    "scale": "fixtures 3 pages x 2 sizes, Chrome/153.0.8010.12",
    "seconds": 0.9,
    "skipped": false,
-   "summary": "6/6 page checks ok; normal page findings 0; 0.91s"
+   "summary": "6/6 page checks ok; normal page findings 0; 0.94s"
   },
   "g4_offline": {
    "ok": true,
@@ -63,7 +63,7 @@
   "unittest": {
    "ok": true,
    "scale": "113 tests",
-   "seconds": 4.9,
+   "seconds": 4.6,
    "skipped": false,
    "summary": "OK; skipped 0; tmp dirs left 0"
   }

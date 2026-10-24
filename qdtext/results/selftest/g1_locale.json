@@ -58,7 +58,7 @@
  },
  "ok": true,
  "scale": "synth 441 keys x 10 langs, 44 planted",
- "seconds": 0.2,
+ "seconds": 0.1,
  "skipped": false,
  "summary": "recall 100% (44/44); false positives 0; by-design over-budget on wordy keys 274; clean pack red 0 non-wordy yellow 0"
 }
