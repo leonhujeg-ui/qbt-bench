@@ -2,10 +2,20 @@
 python3.12 -m qdexsim.selftest
 ```
 
-最近一次真实输出（提交 `__COMMIT__`，任何一行 `FAIL` 都会让退出码变成 1；耗时随机器变化）：
+最近一次真实输出（提交 `da6272a`，任何一行 `FAIL` 都会让退出码变成 1；耗时随机器变化）：
 
 ```
-__SELFTEST_OUTPUT__
+qdexsim selftest (default)  Linux-6.18.44-fc-v153-x86_64-with-glibc2.39  Python 3.12.3  SQLite 3.45.1  4 CPU  commit da6272a
+step         scale                                                                     time  result  key numbers
+unittest     158 tests                                                                20.1s  OK      OK; tmp dirs left 0
+constraints  3 tests (deps / network / writes)                                         0.0s  OK      stdlib-only ok; no-network ok; writes+binds+connects audit ok
+coverage     3002 statements, 158 tests                                               20.4s  OK      98.03% (>= 90% required); child processes merged 3
+g1_dialects  5 dialects x (bad sign, expired ts, place, partial fill, cancel) + pro    0.4s  OK      sign/ts codes binance:-1022/-1021, bybit:10004/10002, okx:50113/50102, bitget:40009/40008, bitunix:10007/10002; partial 0.05/0.06 x5; restart orders 5 fills 5 equal=True dup-after-restart=DUP_CID
+g2_chaos     11 injection kinds, same seed x2 + other seed                             3.0s  OK      events 20 identical=True; other seed differs=True; kinds logged 11/11
+g3_judges    60 scenarios x 2 clients                                                 62.6s  OK      correct green 60/60; naive red 60/60; naive must-red 20 ok=True
+g4_recon     synthetic 200 orders, 50 planted diffs                                    0.0s  OK      found 50/50, missed 0, false positives 0, tz offset 28800000 ms
+knives       3 hand-made mutants                                                       1.3s  OK      remove_cid_idempotency red=True; unknown_result_not_executed red=True; recon_skips_status red=True
+TOTAL                                                                                107.9s  OK      8/8 steps passed
 ```
 
 ---
