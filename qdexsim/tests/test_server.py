@@ -190,12 +190,12 @@ class TestLifecycle(unittest.TestCase):
         try:
             ad = adapters.make("binance", sim.url, timeout_s=3)
             ad.place("BTCUSDT", "BUY", "LIMIT", 0.01, 59990.0)
-            deadline = time.time() + 5
-            while time.time() < deadline and not sim.candles.get("BTCUSDT"):
+            deadline = time.time() + 10
+            while time.time() < deadline and (not sim.candles.get("BTCUSDT") or sim.feed.n < 5):   # 机器忙时行情线程慢，等条件而不是等时间
                 time.sleep(0.02)
             self.assertTrue(sim.candles.get("BTCUSDT"))
+            self.assertGreaterEqual(sim.feed.n, 5)
             self.assertNotEqual(ad.ticker("BTCUSDT"), 60000.0)
-            self.assertGreater(sim.feed.n, 3)
         finally:
             sim.stop()
 
