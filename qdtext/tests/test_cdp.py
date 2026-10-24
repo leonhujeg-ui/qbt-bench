@@ -68,7 +68,7 @@ class EchoServer(threading.Thread):
             key = [ln.split(":", 1)[1].strip() for ln in req.decode().split("\r\n") if ln.lower().startswith("sec-websocket-key")][0]
             accept = base64.b64encode(hashlib.sha1((key + cdp.WS_GUID).encode()).digest()).decode()
             if self.bad_accept:
-                accept = "x" + accept[1:]
+                accept = ("x" if accept[0] != "x" else "y") + accept[1:]             # 保证真的不一样（首字母本来就是 x 时换 y）
             conn.sendall(f"HTTP/1.1 {self.status}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: {accept}\r\n\r\n".encode())
             if self.status.startswith("101"):
                 self.script(conn, self)
