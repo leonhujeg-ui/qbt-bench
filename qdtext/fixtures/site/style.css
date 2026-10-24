@@ -1,0 +1,25 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "PingFang SC", "Noto Sans CJK SC", sans-serif; background: #f5f6f8; color: #1a1a1a; }
+header { height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #fff; }
+header h1 { font-size: 18px; margin: 0; }
+main { padding: 12px 16px 24px; }
+.card { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+.row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
+.label { color: #666; font-size: 13px; }
+.num { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip { display: inline-block; font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 10px; background: #e6f4ea; color: #1e7f3a; }
+.chip.warn { background: #fdecea; color: #b3261e; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; min-width: 48px; padding: 0 18px;
+       border: 0; border-radius: 10px; background: #1f6fe5; color: #fff; font-size: 16px; text-decoration: none; }
+.btn.ghost { background: #eef3fb; color: #1f6fe5; }
+.actions { display: flex; gap: 12px; }
+.icon-btn { width: 48px; height: 48px; border-radius: 24px; border: 0; background: #eef3fb; }
+.hint { font-size: 12px; color: #888; margin: 6px 0 0; }
+/* overlap.html：状态贴在数字上 */
+.price { position: relative; }
+.price .chip.on-number { position: absolute; left: 8px; top: 2px; }
+/* overflow.html：写死宽度的行 + 小按钮 */
+.wide { width: 560px; display: flex; gap: 8px; }
+.wide .cell { flex: 0 0 130px; background: #fff; padding: 8px; border-radius: 8px; }
+.tiny-btn { width: 28px; height: 28px; font-size: 10px; border: 1px solid #ccc; background: #fff; border-radius: 6px; padding: 0; }
+.text-link { font-size: 11px; line-height: 14px; padding: 0; border: 0; background: none; color: #1f6fe5; display: inline-block; }
