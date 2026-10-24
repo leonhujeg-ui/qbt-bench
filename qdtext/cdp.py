@@ -292,4 +292,8 @@ class Browser:
             except subprocess.TimeoutExpired:
                 self.proc.kill()
                 self.proc.wait()
-        shutil.rmtree(self.user_data_dir, ignore_errors=True)
+        for _ in range(50):                                   # 子进程退出后还可能写几毫秒，删不干净就重试（最多 5 秒）
+            shutil.rmtree(self.user_data_dir, ignore_errors=True)
+            if not os.path.exists(self.user_data_dir):
+                break
+            time.sleep(0.1)

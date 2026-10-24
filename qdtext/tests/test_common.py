@@ -35,6 +35,10 @@ class TestWidth(unittest.TestCase):
         self.assertTrue(C.is_han("㐀"))
         self.assertTrue(C.is_han("豈"))                              # 兼容区
         self.assertTrue(C.is_han("\U00020000"))
+        for ch in ("\u4e00", "\u9fff", "\u3400", "\u4dbf", "\uf900", "\ufaff"):               # 区段两端
+            self.assertTrue(C.is_han(ch), hex(ord(ch)))
+        for ch in ("\u4dff", "\u33ff", "\ua000", "\uf8ff", "\ufb00"):
+            self.assertFalse(C.is_han(ch), hex(ord(ch)))
         self.assertFalse(C.is_han("、"))
         self.assertFalse(C.is_han("あ"))
         self.assertFalse(C.is_han("한"))
@@ -127,6 +131,9 @@ class TestConfigAndReport(unittest.TestCase):
         s = C.sort_findings(f)
         self.assertEqual([(x["severity"], x["key"]) for x in s], [("red", "k1"), ("red", "k9"), ("yellow", "k2"), ("info", "k1")])
         self.assertEqual(C.count_by_severity(f), {"red": 2, "yellow": 1, "info": 1})
+        g = [C.finding("a", "red", "ns", "k", "zh", "t", "s"), C.finding("a", "red", "ns", "k", "en", "t", "s"),
+             C.finding("a", "red", "ns", "k", None, "t", "s")]
+        self.assertEqual([x["lang"] for x in C.sort_findings(g)], [None, "en", "zh"])        # 同键按语言排，None 当空串
 
     def test_markdown(self):
         rows = [["a|b", "x\ny"]]

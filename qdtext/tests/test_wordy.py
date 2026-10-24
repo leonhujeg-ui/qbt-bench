@@ -24,9 +24,14 @@ class TestScore(unittest.TestCase):
         self.assertEqual(set(hits), {"word:因为", "word:所以", "word:如果", "word:注意", "word:为了"})
         self.assertEqual(W.score_text("请", CFG), (0.5, ["word:请"]))
         self.assertEqual(W.score_text("立即", CFG), (0.0, []))                       # 「即」不在词表
+        self.assertGreaterEqual(len(CFG["explain_words"]), 35)
+        self.assertTrue(all(w in (0.5, 1) for w in CFG["explain_words"].values()))
+        for word, weight in {"因为": 1, "由于": 1, "所以": 1, "因此": 1, "如果": 1, "注意": 1, "将会": 1, "不代表": 1, "仅供": 1,
+                             "说明": 1, "也就是": 1, "而是": 1, "若": 0.5, "请": 0.5, "可能": 0.5, "建议": 0.5, "需要": 0.5}.items():
+            self.assertEqual(W.score_text(word, CFG), (weight, [f"word:{word}"]), word)
 
     def test_parens_and_width(self):
-        self.assertEqual(W.score_text("甲（补充内容）", CFG)[1], ["parens"])
+        self.assertEqual(W.score_text("甲（补充内容）", CFG), (1.0, ["parens"]))
         self.assertEqual(W.score_text("甲(x)", CFG)[1], [])                          # 括号里不足 2 字不算
         self.assertEqual(W.score_text("一" * 17, CFG), (1.0, ["width=17>16"]))
         self.assertEqual(W.score_text("一" * 25, CFG), (2.0, ["width=25>24"]))
@@ -67,6 +72,10 @@ class TestDuplicate(unittest.TestCase):
         self.assertEqual(W.levenshtein("", "abc"), 3)
         self.assertEqual(W.levenshtein("kitten", "sitting"), 3)
         self.assertEqual(W.levenshtein("同一", "同一"), 0)
+        self.assertEqual(W.levenshtein("abc", "bc"), 1)
+        self.assertEqual(W.levenshtein("bc", "abc"), 1)
+        self.assertEqual(W.levenshtein("abc", "abd"), 1)
+        self.assertEqual(W.levenshtein("abc", ""), 3)
         self.assertAlmostEqual(W.similarity("下单失败请检查参数", "下单失败请核对参数"), 1 - 2 / 9)
         self.assertEqual(W.similarity("", ""), 1.0)
 

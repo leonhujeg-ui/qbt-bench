@@ -62,6 +62,8 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(self.clean["common"]["ko"]["status.runningChip"], "실행 중")
         self.assertEqual(synth.fill("{V} {n}", "en", v="create", n="bot"), "Create bot")
         self.assertEqual(synth.fill("{n}{v}", "ja", v="作成", n="注文"), "注文作成")
+        self.assertEqual(synth.fill("{v} {n}", "de", v="laden", n="Order"), "laden Order")       # 只有 en / vi / fr 做首字母大写
+        self.assertEqual(synth.fill("{v} {n}", "vi", v="xem", n="ví"), "Xem ví")
 
     def test_arabic_wrapping(self):
         self.assertEqual(synth.wrap_ltr("رسوم {fee} USDT"), "رسوم {fee} ⁦USDT⁩")
@@ -84,7 +86,10 @@ class TestBuild(unittest.TestCase):
         for a in self.answers["lint"]:
             if not a.get("secondary"):
                 rules[a["rule"]] = rules.get(a["rule"], 0) + 1
+        self.assertEqual(rules, {"missing-key": 8, "empty-value": 4, "placeholder-mismatch": 6, "pipe-mismatch": 3, "han-residue": 5,
+                                 "fullwidth-punct": 3, "rtl-unwrapped-ltr": 3, "over-budget": 6, "extra-key": 2, "leaf-type": 1})
         self.assertEqual(rules, synth.LINT_PLAN)
+        self.assertEqual(len(self.answers["lint"]), 44)
         self.assertTrue(all(a["lang"] not in ("zh", "zh-TW") for a in self.answers["lint"]))
         self.assertEqual(len(self.answers["zh_pair"]["typos"]), 20)
         self.assertEqual(len(self.answers["zh_pair"]["paraphrases"]), 50)
@@ -137,6 +142,8 @@ class TestBuild(unittest.TestCase):
         with redirect_stdout(io.StringIO()) as out:
             self.assertEqual(synth.main(["--out", os.path.join(d, "c"), "--clean"]), 0)
         self.assertIn("lint_planted=0 typos=0 paraphrases=0", out.getvalue())
+        self.assertEqual(C.read_json(os.path.join(d, "c", "answers.json"))["seed"], 7)      # 默认种子 7
+        self.assertEqual(synth.DEFAULT_SEED, 7)
 
 
 if __name__ == "__main__":

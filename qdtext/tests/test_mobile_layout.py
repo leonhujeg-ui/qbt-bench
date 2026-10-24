@@ -29,6 +29,11 @@ class TestGeometry(unittest.TestCase):
         self.assertFalse(M.intersect([0, 0, 10, 10], [9.5, 0, 10, 10], 1.0))             # 0.5px 在容差内
         self.assertTrue(M.intersect([0, 0, 10, 10], [9.5, 0, 10, 10], 0.0))
         self.assertFalse(M.intersect([0, 0, 10, 10], [0, 12, 10, 10], 1.0))
+        self.assertTrue(M.intersect([0, 100, 50, 20], [10, 105, 50, 20], 1.0))             # x 和 y 差很多，别把轴搞混
+        self.assertFalse(M.intersect([0, 100, 50, 20], [10, 125, 50, 20], 1.0))
+        self.assertTrue(M.intersect([200, 0, 10, 10], [205, 5, 10, 10], 1.0))
+        self.assertFalse(M.intersect([200, 0, 10, 10], [0, 5, 10, 10], 1.0))
+        self.assertFalse(M.intersect([5, 300, 10, 10], [5, 0, 10, 10], 1.0))
 
     def test_overlaps_only_between_different_nodes(self):
         a = text(0, "A", (0, 0, 50, 20), (0, 20, 50, 20))                                 # 同节点两行
@@ -45,6 +50,11 @@ class TestGeometry(unittest.TestCase):
         total, top = M.first_screen(snap([t1, t2, t3]), dict(CFG, first_screen_top_n=1))
         self.assertEqual(total, 4.0)
         self.assertEqual([(w, t["id"]) for w, t in top], [(2.0, 0)])
+        edge = text(3, "边", (0, -10, 10, 10))                                             # 底边刚好在 0：不在首屏
+        edge2 = text(4, "沿", (0, -9, 10, 10))
+        self.assertEqual(M.first_screen(snap([edge, edge2]), CFG)[0], 1.0)
+        many = [text(i, "字", (0, i, 10, 10)) for i in range(7)]
+        self.assertEqual(len(M.first_screen(snap(many), CFG)[1]), 5)                     # 默认只列 5 段
 
 
 class TestJudge(unittest.TestCase):
@@ -53,6 +63,8 @@ class TestJudge(unittest.TestCase):
         f = M.judge(s, CFG)
         self.assertEqual([(x["rule"], x["severity"], x["namespace"], x["key"]) for x in f], [("text-overlap", "red", "p.html", "375x812")])
         self.assertEqual(f[0]["text"], "「63,412.50」 × 「执行异常」")
+        s2 = snap([text(0, "甲" * 50, (0, 0, 100, 20)), text(1, "乙" * 50, (10, 5, 100, 20))])
+        self.assertEqual(M.judge(s2, CFG)[0]["text"], "「" + "甲" * 40 + "」 × 「" + "乙" * 40 + "」")
         self.assertIn("span.num @ [32, 116, 111, 26]", f[0]["suggestion"])
         self.assertEqual(f[0]["rect_b"], [48, 120, 120, 15])
 
@@ -72,6 +84,9 @@ class TestJudge(unittest.TestCase):
         self.assertEqual([(x["rule"], x["severity"]) for x in f], [("no-viewport-meta", "yellow")])
         self.assertIn("innerWidth 980", f[0]["text"])
         self.assertEqual(M.judge(snap(meta=True), CFG), [])
+        s = snap()
+        del s["viewport_meta"]                                                             # 旧快照没这个字段：当作有
+        self.assertEqual(M.judge(s, CFG), [])
 
     def test_touch_targets(self):
         cl = [{"tag": "button", "text": "筛", "path": "button", "rect": [0, 0, 28, 28], "inline": False},
@@ -85,6 +100,8 @@ class TestJudge(unittest.TestCase):
         self.assertEqual(len(f), 3)
         f = M.judge(snap(clickables=cl), dict(CFG, touch_min_px=28))
         self.assertEqual(len(f), 0)
+        long_ = [{"tag": "a", "text": "长" * 35, "path": "a", "rect": [0, 0, 10, 10], "inline": False}]
+        self.assertEqual(M.judge(snap(clickables=long_), CFG)[0]["text"], "<a> 「" + "长" * 30 + "」 10×10")
 
     def test_first_screen_budget(self):
         texts = [text(i, "字" * 30, (0, i * 40, 300, 30)) for i in range(5)]               # 150 字宽
@@ -94,6 +111,8 @@ class TestJudge(unittest.TestCase):
         self.assertIn("首屏文字 150 字宽 > 预算 120", f[0]["text"])
         self.assertEqual(M.judge(snap(texts[:4]), CFG), [])                                 # 120 不超
         self.assertEqual(len(M.judge(snap(texts), dict(CFG, first_screen_budget=149, first_screen_top_n=2))[0]["longest"]), 2)
+        seven = [text(i, "字" * 30, (0, i * 40, 300, 30)) for i in range(7)]
+        self.assertEqual(len(M.judge(snap(seven), CFG)[0]["longest"]), 5)
 
 
 class TestOfflineFixture(unittest.TestCase):

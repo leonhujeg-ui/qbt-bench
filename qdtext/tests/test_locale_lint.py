@@ -28,6 +28,11 @@ class TestAlignment(unittest.TestCase):
         self.assertIn("2 键全缺", f[0]["suggestion"])
         self.assertTrue(all(x["severity"] == "red" for x in f))
 
+    def test_missing_file_does_not_stop_other_languages(self):
+        packs = packs_from({"a": "甲", "b": "乙"}, en={"a": "A"})
+        f = L.lint(packs, cfg_langs("zh", "fr", "en"))                                   # fr 整个缺，排在 en 前面
+        self.assertEqual([(x["rule"], x["lang"]) for x in f], [("missing-file", "fr"), ("missing-key", "en")])
+
     def test_missing_base_file(self):
         f = L.lint({"app": {"en": {"a": "A"}}}, cfg_langs("zh", "en"))
         self.assertEqual([(x["rule"], x["lang"]) for x in f], [("missing-file", "zh")])
@@ -111,8 +116,10 @@ class TestBudget(unittest.TestCase):
         packs = packs_from({"a.btn": "一二三四五六", "b.btn": "一二三四五"})
         f = L.lint(packs, cfg_langs("zh"))
         md = L.markdown(f, {"dir": "d", "namespaces": 1, "base_keys": 2, "langs": ["zh"]})
-        pos_a, pos_b = md.index("| app | a.btn"), md.index("| app | b.btn")
-        self.assertLess(pos_a, pos_b)
+        ranking = md[md.index("## 超预算排行"):]
+        pos_a, pos_b = ranking.index("| app | a.btn"), ranking.index("| app | b.btn")
+        self.assertLess(pos_a, pos_b)                                                     # 超出 2 的排在超出 1 前面
+        self.assertIn("| app | a.btn | zh | button | 6 字 | 4 字 | 2 字 |", ranking)
         self.assertIn("| over-budget | 2 |", md)
         self.assertIn("## 超预算排行", md)
         self.assertIn("无。", L.markdown([], {"dir": "d", "namespaces": 0, "base_keys": 0, "langs": []}))
@@ -127,6 +134,12 @@ class TestRunAndCli(unittest.TestCase):
         doc = C.read_json(os.path.join(d, "out", "locale_lint.json"))
         self.assertEqual(doc["meta"]["base_keys"], 1)
         self.assertEqual(doc["tool"], "locale_lint")
+        with open(os.path.join(d, "out", "locale_lint.md"), encoding="utf-8") as f:
+            self.assertIn("# QDTEXT 语言包体检", f.read())
+        write_packs(os.path.join(d, "loc2"), packs_from({"a.okBtn": "一二三四五"}))
+        line, code, findings = L.run(os.path.join(d, "loc2"), os.path.join(d, "out2"), cfg_langs("zh"))
+        self.assertEqual((line, code, [x["rule"] for x in findings]), ("QDTEXT LOCALE OK n=1 red=0 yellow=1", 0, ["over-budget"]))
+        self.assertEqual(L.run(os.path.join(d, "loc2"), os.path.join(d, "out3"), cfg_langs("zh"), strict=True)[1], 1)
 
     def test_main_exit_codes(self):
         d = tmpdir(self)

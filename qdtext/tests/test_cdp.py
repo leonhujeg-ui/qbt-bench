@@ -267,11 +267,13 @@ class TestFindChrome(unittest.TestCase):
         with open(fake, "w") as f:
             f.write("#!/bin/sh\nexit 3\n")
         os.chmod(fake, 0o755)
-        tmp = __import__("tempfile").gettempdir()
-        before = {n for n in os.listdir(tmp) if n.startswith("qdtext-chrome-")}        # 并行跑测试时别的进程可能正开着浏览器
-        with self.assertRaisesRegex(cdp.CDPError, "exited early"):
-            cdp.Browser(fake, timeout=5)
-        self.assertEqual({n for n in os.listdir(tmp) if n.startswith("qdtext-chrome-")} - before, set())
+        import tempfile
+        from unittest import mock
+        real = tempfile.mkdtemp
+        with mock.patch.object(cdp.tempfile, "mkdtemp", lambda prefix: real(prefix=prefix, dir=d)):   # 只看自己这次建的目录
+            with self.assertRaisesRegex(cdp.CDPError, "exited early"):
+                cdp.Browser(fake, timeout=5)
+        self.assertEqual(sorted(os.listdir(d)), ["fakechrome"])
 
 
 @unittest.skipUnless(cdp.find_chrome(), "no chromium executable")
@@ -302,6 +304,15 @@ class TestRealBrowser(unittest.TestCase):
         with self.assertRaises(cdp.CDPError):
             b.wait_event("Page.neverFires", session, timeout=0.2)
         b.close_page(target)
+
+    def test_close_releases_resources(self):
+        b = cdp.Browser()
+        sock, proc, udd = b.ws.sock, b.proc, b.user_data_dir
+        b.close()
+        self.assertIsNone(b.ws)
+        self.assertEqual(sock.fileno(), -1)                                            # socket 真关了
+        self.assertIsNotNone(proc.returncode)                                           # 进程真等到退出了
+        self.assertFalse(os.path.exists(udd))
 
 
 if __name__ == "__main__":
