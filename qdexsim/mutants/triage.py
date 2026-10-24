@@ -27,7 +27,8 @@ def load(path=RESULTS):
 
 
 def render(data):
-    s, meta = data["summary"], data["meta"]
+    s, meta = dict(data["summary"]), data["meta"]
+    s["timeout"] = sum(m["timeout"] for m in s["modules"].values())
     survivors = sorted((m for m in data["mutants"] if m["status"] == "survived"), key=lambda m: (m["module"], m["line"]))
     lines = ["# qdexsim 突变漏网逐条判定（由 mutants/triage.py 生成）", "",
              f"命令 `{meta['command']}`；每模块 {meta['per_module']} 个、共 {s['total']} 个突变体，抓住 {s['caught']}（超时 {s['timeout']}），"

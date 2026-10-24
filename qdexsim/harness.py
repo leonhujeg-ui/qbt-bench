@@ -137,7 +137,7 @@ def run_scenario(scn, client="correct", keep_work=False):
     cls = clients.CLIENTS[client] if isinstance(client, str) else client
     work = tempfile.mkdtemp(prefix="qdexsim-scn-")
     try:
-        return Run(scn, cls, work).execute()
+        return dict(Run(scn, cls, work).execute(), **({"work": work} if keep_work else {}))
     except Exception:
         return {"scenario": scn["name"], "client": cls.NAME, "ok": False, "verdicts": [], "client_errors": [],
                 "harness_error": traceback.format_exc(), "seconds": 0.0}

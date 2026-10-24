@@ -1,5 +1,32 @@
-"""漏网突变体的逐条判定：id → (kind, 理由)。kind ∈ equivalent（等价：行为不变）/ fixed（已补判据，重跑 --ids 已抓住）/ pending（待补）。
-由人写，triage.py 读；--check 要求每个漏网都有判定且没有 pending。"""
+"""漏网突变体的逐条判定：id → (kind, 理由)。kind ∈ equivalent（等价：行为不变或不可观测）/ pending（待补）。
+首轮漏网 154 个，补 tests/test_pins.py 后用 --ids 重跑；这里只剩重跑后仍漏网的，逐条说明为什么等价。由人写，triage.py 读。"""
 
 REASONS = {
+    # 单元素列表取 [0] 改成 [-1]：这些列表恒为 1 个元素（服务器时间 / 单品种 ticker / 按 id 查到的单），结果相同
+    "adapters:4846:const:-1": ("equivalent", "OKX /public/time 的 data 恒 1 个元素，[0] 与 [-1] 相同"),
+    "adapters:4875:const:-1": ("equivalent", "OKX /market/ticker 按 instId 查恒 1 个元素"),
+    "adapters:3519:const:-1": ("equivalent", "OKX /trade/order 按 ordId/clOrdId 查恒 1 个元素"),
+    "adapters:3428:const:True": ("equivalent", "公开接口多带一套签名头，服务端对公开路由不验签，报文相同"),
+    "chaos:1635:const:2": ("equivalent", "at_req 缺省 -1 改 -2：没有 at_req 的规则两种缺省都永远不等于请求序号"),
+    "clients:2059:binop": ("equivalent", "退避时长 ±10 ms 的抖动，判据只看退避窗口内有没有再打（窗口 ≥ 30 ms），不可观测"),
+    "clients:1361:const:0.03": ("equivalent", "撤单重试之间 sleep 20 → 30 ms，只影响耗时"),
+    "dialects/base:259:delete_stmt": ("equivalent", "基类抽象方法桩（pragma: no cover），子类全部覆写"),
+    "dialects/okx:2326:const:0": ("equivalent", "posId 占位常量（真实为服务端生成的 id），SHAPES.md 标占位"),
+    "engine:1611:const:1.0": ("equivalent", "逐仓强平价 max(0.0, x) → max(1.0, x)：x 在任何可达状态下远大于 1"),
+    "engine:2976:compare": ("equivalent", "old > 0 → old >= 0 只在 old == 0 时不同，而 old == 0 已走上一分支"),
+    "engine:3022:delete_stmt": ("equivalent", "流动性用完后不 break 继续循环：_fill 对 qty ≤ 0 直接返回 None，结果相同"),
+    "engine:4186:binop": ("equivalent", "min(liq, qty + filled) 比 min(liq, qty − filled) 更大，但 _fill 内部再按剩余量截断"),
+    "engine:2202:compare": ("equivalent", "逐仓强平 ≤ 改 <：浮点相等的边界状态不可达（标记价按 tick 归整后恰好等于阈值的概率可忽略）"),
+    "harness:688:const:1": ("equivalent", "耗时 round 到 2 位改 1 位，只是报告精度"),
+    "judges:593:compare": ("equivalent", "持仓差 > 1e-9 改 >=：恰好 1e-9 的差不可达（数量按 1e-10 归整）"),
+    "judges:339:compare": ("equivalent", "余额差 < 1e-6 改 <=：同上，边界不可达"),
+    "recon:287:const:1799999": ("equivalent", "时区偏移识别阈值 30 分钟 − 1 ms，中位差恰好落在这 1 ms 内不可达"),
+    "recon:296:compare": ("equivalent", "abs(med) < min_ms 改 <=：同上"),
+    "recon:669:compare": ("equivalent", "ts 容差 > 改 >=：差恰好等于 5000 ms 不可达（合成数据与真实时间戳都是毫秒随机）"),
+    "server:184:delete_stmt": ("equivalent", "daemon_threads 只影响进程退出时是否等待处理线程，所有测试都显式 stop()"),
+    "server:221:const:1": ("equivalent", "server.main 的 return 0 只在 KeyboardInterrupt 后到达，测试用 SIGTERM 退出（sys.exit(0)）"),
+    "store:406:const:-1": ("equivalent", "单列查询 row[0] 改 row[-1]"),
+    "store:426:const:-1": ("equivalent", "单列查询 row[0] 改 row[-1]"),
+    "store:144:const:-1": ("equivalent", "单列查询 row[0] 改 row[-1]"),
+    "store:447:const:-1": ("equivalent", "COUNT(*) 单列 fetchone()[0] 改 [-1]"),
 }

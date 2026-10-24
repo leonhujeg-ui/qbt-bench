@@ -70,7 +70,8 @@ def cov_block(cov):
 
 
 def mut_block(mut, text, counts):
-    s, meta = mut["summary"], mut["meta"]
+    s, meta = dict(mut["summary"]), mut["meta"]
+    s["timeout"] = sum(m["timeout"] for m in s["modules"].values())
     rows = [[m, v["total"], v["killed"] + v["timeout"], v["survived"], f"{v['kill_rate']:.1f}%"] for m, v in sorted(s["modules"].items())]
     reruns = meta.get("reruns", [])
     first = sum(1 for m in mut["mutants"] if m.get("first_run") == "survived" and m["status"] != "survived")

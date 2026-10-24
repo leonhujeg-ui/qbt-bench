@@ -30,7 +30,7 @@ from mutants import run_mutations as base      # noqa: E402
 PKG = os.path.join(REPO, "qdexsim")
 RESULTS = os.path.join(PKG, "results")
 T = "qdexsim.tests."
-ALL_TESTS = ["test_common", "test_store", "test_feed", "test_engine", "test_chaos", "test_judges", "test_recon", "test_adapters",
+ALL_TESTS = ["test_pins", "test_common", "test_store", "test_feed", "test_engine", "test_chaos", "test_judges", "test_recon", "test_adapters",
              "test_dialects", "test_scenarios", "test_harness", "test_clients", "test_server", "test_constraints"]
 FIRST = {
     "common": ["test_common", "test_engine"], "store": ["test_store", "test_engine"], "feed": ["test_feed", "test_server"],
@@ -49,6 +49,7 @@ def modules():
 
 def test_order(module):
     first = FIRST.get(module, ["test_dialects", "test_adapters", "test_clients"] if module.startswith("dialects/") else [])
+    first = first + ["test_pins"]
     return [T + m for m in first + [m for m in ALL_TESTS if m not in first]]
 
 
