@@ -1,0 +1,25 @@
+{
+ "detail": {
+  "chars": 2349,
+  "clean_exit": 0,
+  "clean_info": 5,
+  "clean_red": 0,
+  "clean_red_samples": [],
+  "other_red": [],
+  "paraphrases_info": 11,
+  "paraphrases_planted": 50,
+  "paraphrases_red": [],
+  "paraphrases_silent_ok": 39,
+  "seed": 7,
+  "typo_recall_pct": 100.0,
+  "typos_caught": 20,
+  "typos_missed": [],
+  "typos_planted": 20,
+  "words": 422
+ },
+ "ok": true,
+ "scale": "20 typos + 50 paraphrases; table 2349 chars / 422 words",
+ "seconds": 0.1,
+ "skipped": false,
+ "summary": "typo recall 100% (20/20); paraphrases red 0 (info 11, silent ok 39); other red 0; clean pack red 0 info 5"
+}

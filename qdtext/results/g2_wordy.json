@@ -1,0 +1,26 @@
+{
+ "summary": {
+  "dup_caught": 10,
+  "dup_groups": 10,
+  "dup_methods": [
+   "containment",
+   "edit-distance",
+   "synonym"
+  ],
+  "dup_missed": [],
+  "dup_recall_pct": 100.0,
+  "good_false_positive_pct": 0.0,
+  "good_flagged": [],
+  "good_planted": 30,
+  "good_screen_pairs": 36,
+  "good_screens": 8,
+  "good_screens_flagged": [],
+  "other_flagged": [],
+  "screen_key_missing": 0,
+  "seed": 7,
+  "wordy_caught": 30,
+  "wordy_missed": [],
+  "wordy_planted": 30,
+  "wordy_recall_pct": 100.0
+ }
+}

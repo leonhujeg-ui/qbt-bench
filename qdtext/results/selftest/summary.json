@@ -1,0 +1,71 @@
+{
+ "header": "qdtext selftest (default)  Linux-6.18.44-fc-v153-x86_64-with-glibc2.39  Python 3.12.3  Chromium chrome  4 CPU",
+ "mode": "default",
+ "ok": true,
+ "seconds": 11.0,
+ "steps": {
+  "constraints": {
+   "ok": true,
+   "scale": "3 tests (deps / network / writes)",
+   "seconds": 0.0,
+   "skipped": false,
+   "summary": "stdlib-only ok; loopback-only ok; writes+connects audit ok"
+  },
+  "coverage": {
+   "ok": true,
+   "scale": "1143 statements, 113 tests",
+   "seconds": 4.8,
+   "skipped": false,
+   "summary": "97.81% (>= 90% required); lowest file common.py 91.0%"
+  },
+  "g1_locale": {
+   "ok": true,
+   "scale": "synth 441 keys x 10 langs, 44 planted",
+   "seconds": 0.2,
+   "skipped": false,
+   "summary": "recall 100% (44/44); false positives 0; by-design over-budget on wordy keys 274; clean pack red 0 non-wordy yellow 0"
+  },
+  "g2_wordy": {
+   "ok": true,
+   "scale": "30 wordy + 30 good, 10 dup screens + 8 good screens",
+   "seconds": 0.1,
+   "skipped": false,
+   "summary": "wordy recall 100%, good flagged 0 (0%); dup recall 100% via ['containment', 'edit-distance', 'synonym']; good-screen pairs flagged 0/36"
+  },
+  "g3_zhpair": {
+   "ok": true,
+   "scale": "20 typos + 50 paraphrases; table 2349 chars / 422 words",
+   "seconds": 0.1,
+   "skipped": false,
+   "summary": "typo recall 100% (20/20); paraphrases red 0 (info 11, silent ok 39); other red 0; clean pack red 0 info 5"
+  },
+  "g4_mobile": {
+   "ok": true,
+   "scale": "fixtures 3 pages x 2 sizes, Chrome/153.0.8010.12",
+   "seconds": 0.9,
+   "skipped": false,
+   "summary": "6/6 page checks ok; normal page findings 0; 0.91s"
+  },
+  "g4_offline": {
+   "ok": true,
+   "scale": "snapshot site.json, 6 page x size",
+   "seconds": 0.0,
+   "skipped": false,
+   "summary": "6/6 checks ok; findings 8; normal page 0"
+  },
+  "mutation": {
+   "ok": true,
+   "scale": "7 modules, 280 mutants (results @ 2026-10-24 00:10:22)",
+   "seconds": 0.1,
+   "skipped": false,
+   "summary": "kill 94.6% (>= 85%); survived 15; min per-module 40; sources unchanged; triage complete"
+  },
+  "unittest": {
+   "ok": true,
+   "scale": "113 tests",
+   "seconds": 4.9,
+   "skipped": false,
+   "summary": "OK; skipped 0; tmp dirs left 0"
+  }
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "detail": {
+  "test_static": "ok",
+  "test_stdlib_only": "ok",
+  "test_writes_and_connects": "ok"
+ },
+ "ok": true,
+ "scale": "3 tests (deps / network / writes)",
+ "seconds": 0.0,
+ "skipped": false,
+ "summary": "stdlib-only ok; loopback-only ok; writes+connects audit ok"
+}

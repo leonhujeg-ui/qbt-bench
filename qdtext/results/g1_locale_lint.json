@@ -1,0 +1,59 @@
+{
+ "summary": {
+  "by_design_over_budget": 274,
+  "caught": 44,
+  "clean_exit": 0,
+  "clean_red": 0,
+  "clean_yellow_non_wordy": 0,
+  "false_positive_samples": [],
+  "false_positives": 0,
+  "keys": 441,
+  "missed": [],
+  "per_rule": {
+   "empty-value": {
+    "caught": 4,
+    "planted": 4
+   },
+   "extra-key": {
+    "caught": 2,
+    "planted": 2
+   },
+   "fullwidth-punct": {
+    "caught": 3,
+    "planted": 3
+   },
+   "han-residue": {
+    "caught": 5,
+    "planted": 5
+   },
+   "leaf-type": {
+    "caught": 1,
+    "planted": 1
+   },
+   "missing-key": {
+    "caught": 8,
+    "planted": 8
+   },
+   "over-budget": {
+    "caught": 6,
+    "planted": 6
+   },
+   "pipe-mismatch": {
+    "caught": 3,
+    "planted": 3
+   },
+   "placeholder-mismatch": {
+    "caught": 9,
+    "planted": 9
+   },
+   "rtl-unwrapped-ltr": {
+    "caught": 3,
+    "planted": 3
+   }
+  },
+  "planted": 44,
+  "recall_pct": 100.0,
+  "seed": 7,
+  "total_findings": 312
+ }
+}

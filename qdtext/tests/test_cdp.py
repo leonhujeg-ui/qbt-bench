@@ -196,6 +196,10 @@ class TestFindChrome(unittest.TestCase):
             self.assertIsNone(cdp.find_chrome())
             os.environ[cdp.CHROME_ENV] = os.path.abspath(__import__("sys").executable)
             self.assertEqual(cdp.find_chrome(), os.path.abspath(__import__("sys").executable))
+            os.environ[cdp.CHROME_ENV] = os.path.abspath(__file__)                        # 存在但不可执行 → 不算
+            self.assertIsNone(cdp.find_chrome())
+            os.environ[cdp.CHROME_ENV] = os.path.dirname(os.path.abspath(__file__))      # 目录可执行但不是文件 → 不算
+            self.assertIsNone(cdp.find_chrome())
         finally:
             if old is None:
                 del os.environ[cdp.CHROME_ENV]
@@ -236,6 +240,32 @@ class TestFindChrome(unittest.TestCase):
                 del os.environ[cdp.CHROME_ENV]
             else:
                 os.environ[cdp.CHROME_ENV] = old
+
+    def test_wait_event_filters_by_session(self):
+        """不起浏览器：预先塞事件进缓冲，看 wait_event 的会话过滤；没匹配时 _pump 读到超时要变成 CDPError。"""
+        class FakeSock:
+            def settimeout(self, t):
+                pass
+
+        class FakeWS:
+            sock = FakeSock()
+
+            def recv_text(self):
+                raise TimeoutError
+
+        b = cdp.Browser.__new__(cdp.Browser)
+        b.ws, b.events, b.pending, b.next_id, b.timeout = FakeWS(), [], {}, 0, 1.0
+        b.events = [{"method": "X", "sessionId": "A"}, {"method": "Y"}]
+        with self.assertRaisesRegex(cdp.CDPError, "timeout waiting for event X"):
+            b.wait_event("X", "B", timeout=0.05)                                         # 别的会话的事件不算
+        self.assertEqual(len(b.events), 2)
+        self.assertEqual(b.wait_event("X", "A"), {"method": "X", "sessionId": "A"})
+        self.assertEqual(b.wait_event("Y", None), {"method": "Y"})                       # 不指定会话 → 任何会话都行
+        b.events = [{"method": "Z", "sessionId": "A"}]
+        self.assertEqual(b.wait_event("Z", None), {"method": "Z", "sessionId": "A"})
+        self.assertEqual(b.events, [])
+        with self.assertRaisesRegex(cdp.CDPError, "timeout waiting for Q"):
+            b._pump(0, "Q")
 
     def test_wait_port_exit_early_and_timeout(self):
         class P:

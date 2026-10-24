@@ -1,0 +1,20 @@
+{
+ "summary": {
+  "chars": 2349,
+  "clean_exit": 0,
+  "clean_info": 5,
+  "clean_red": 0,
+  "clean_red_samples": [],
+  "other_red": [],
+  "paraphrases_info": 11,
+  "paraphrases_planted": 50,
+  "paraphrases_red": [],
+  "paraphrases_silent_ok": 39,
+  "seed": 7,
+  "typo_recall_pct": 100.0,
+  "typos_caught": 20,
+  "typos_missed": [],
+  "typos_planted": 20,
+  "words": 422
+ }
+}

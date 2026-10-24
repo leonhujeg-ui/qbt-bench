@@ -1,0 +1,67 @@
+{
+ "summary": {
+  "all_ok": true,
+  "browser": "Chrome/153.0.8010.12",
+  "checks": {
+   "index.html@375x812": {
+    "expected": [],
+    "got": [],
+    "ok": true
+   },
+   "index.html@414x896": {
+    "expected": [],
+    "got": [],
+    "ok": true
+   },
+   "overflow.html@375x812": {
+    "expected": [
+     "horizontal-overflow",
+     "touch-target"
+    ],
+    "got": [
+     "horizontal-overflow",
+     "touch-target"
+    ],
+    "ok": true
+   },
+   "overflow.html@414x896": {
+    "expected": [
+     "horizontal-overflow",
+     "touch-target"
+    ],
+    "got": [
+     "horizontal-overflow",
+     "touch-target"
+    ],
+    "ok": true
+   },
+   "overlap.html@375x812": {
+    "expected": [
+     "text-overlap"
+    ],
+    "got": [
+     "text-overlap"
+    ],
+    "ok": true
+   },
+   "overlap.html@414x896": {
+    "expected": [
+     "text-overlap"
+    ],
+    "got": [
+     "text-overlap"
+    ],
+    "ok": true
+   }
+  },
+  "findings": 8,
+  "mode": "chromium",
+  "normal_page_findings": 0,
+  "pages": 3,
+  "seconds": 0.91,
+  "sizes": [
+   "375x812",
+   "414x896"
+  ]
+ }
+}

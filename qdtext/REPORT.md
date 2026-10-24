@@ -11,8 +11,8 @@
 | G2 说明句 + 同屏重复 | 召回 ≥ 90%、误报 ≤ 10% | 30 条说明句 30/30 = 100%；30 条好文案误报 0/30 = 0%；10 组同屏重复 10/10（含包含 / 同义词 / 编辑距离三种路径）；8 组好屏 36 对两两比较 0 误报 | 达成 |
 | G3 简繁一致性 | 20 形近错字全抓；50 条正确意译不判红 | 20/20；50 条意译 0 红（11 条「意译，人工看」提示，39 条静默通过）；干净包 0 红 | 达成 |
 | G4 手机版式 | 三类问题全抓到、正常页零报；没 Chromium 整项 SKIP | 真实 Chromium 153：3 页 × 2 尺寸 6/6 判定符合预期，正常页 0 条；同一快照离线复判 6/6 | 达成 |
-| G5 覆盖率 | ≥ 90% | 库模块语句覆盖率见 §5（selftest 的 coverage 行） | 达成 |
-| G5 突变 | 抓住率 ≥ 85%，每模块 ≥ 30 | 见 §6 | 见 §6 |
+| G5 覆盖率 | ≥ 90% | 库模块 1143 条语句 97.81%（最低 common.py 91.0%，未覆盖的是审计钩子在子进程里才跑的分支） | 达成 |
+| G5 突变 | 抓住率 ≥ 85%，每模块 ≥ 30 | 280 个突变体抓住 265（94.6%），每模块 40；首轮 83.2% 未达标，补判据重跑后达标；15 条漏网全部判等价（§6） | 达成 |
 | G5 零依赖 / 零出网 / 零写仓外 | 各一条判据钉死 | test_stdlib_only / test_static / test_writes_and_connects 三条都通过（§7） | 达成 |
 
 ## 1. G1 语言包体检（locale_lint）
@@ -85,12 +85,42 @@
 ## 5. 覆盖率
 
 `python3.12 qdtext/tools/cov.py`（sys.monitoring 语句覆盖，复用仓内 tools/cov.py 口径）。计入判据的是库模块 common / locale_lint /
-wordy / zh_pair / mobile_layout / cdp / synth；selftest.py（调度器）、tools/、mutants/ 单独列出不计入。实测见 README 第一屏 coverage 行与
-`results/coverage.json`。cdp.py 未覆盖的几行是 Browser.close 里「Browser.close 命令失败 / terminate 后 5 秒不退就 kill」的兜底分支。
+wordy / zh_pair / mobile_layout / cdp / synth；selftest.py（调度器）、tools/、mutants/ 单独列出不计入。实测 1143 条语句 97.81%
+（`results/coverage.json`）：common.py 91.0%（未覆盖的是审计钩子只在 QDTEXT_AUDIT_LOG 子进程里执行的分支与 /proc 解析失败的兜底）、
+cdp.py 约 93%（Browser.close 里「协议关闭失败 / terminate 5 秒不退就 kill」的兜底），其余五个模块 100%。
 
 ## 6. 突变测试
 
-MUTATION_SECTION
+- 命令：`python3.12 qdtext/mutants/run.py --per-module 40 --jobs 4`（复用仓内 mutants/run_mutations.py 的算子：运算符翻转、比较边界、条件取反、
+  布尔互换、常量 ±1 / 翻转、语句删除、return 置空、break/continue 互换；每模块按 seed 抽 40 个）。每个突变体在 tempfile 下的独立副本里跑
+  `python -m unittest -f <该模块最能抓的测试顺序>`；失败要经「报失败的测试单独重跑仍失败」确认，超时（> 4× 基线，下限 120 s）算抓住并单列。
+- **首轮**：280 个突变体抓住 233（83.2%），漏网 47——没到 85%。其中 5 条是并行 4 份时一个浏览器用例抖动（断言「tempfile 下没有
+  qdtext-chrome-* 目录」，可别的进程正开着浏览器）把真实的失败掩盖成「未确认」；35 条是测试没钉住的东西：汉字区段两端、`sort_findings`
+  同键按语言排序、缺文件后是否继续查后面的语言、超预算排行的排序方向（原测试在正文表里找到了同名行）、相交判定的 x / y 轴、首屏底边刚好
+  为 0、文本截断长度、合成器的默认种子与埋点数量（原测试拿 `LINT_PLAN` 自己比自己）、解释词权重、括号得分、levenshtein 首列、
+  zh_pair 替换块里第二个位置的索引……这些都补成了显式判据；其余判等价。
+- **补判据后**：28 条首轮漏网的突变体重跑（`--ids`，记录里保留 first_run=survived）全部抓住；cdp.py 因为 Browser.close 加了「rmtree 重试」
+  （4 份并行基线里复现过目录删不干净）源码变了，重新抽样 40 个再跑，再补 2 条判据（QDTEXT_CHROME 指向不可执行文件；wait_event 的会话过滤，
+  用假 WebSocket 不起浏览器测）。**最终 280 个突变体抓住 265（94.6%，含超时 1 个：zh_pair:638:binop），
+  漏网 15，每模块 40 个（≥ 30）。**
+
+| 模块 | 候选 | 抽样 | 抓住（不含超时） | 超时（也算抓住） | 漏网 | 抓住率 |
+|---|---|---|---|---|---|---|
+| cdp | 346 | 40 | 33 | 0 | 7 | 82.5% |
+| common | 317 | 40 | 37 | 0 | 3 | 92.5% |
+| locale_lint | 170 | 40 | 39 | 0 | 1 | 97.5% |
+| mobile_layout | 231 | 40 | 38 | 0 | 2 | 95.0% |
+| synth | 240 | 40 | 40 | 0 | 0 | 100.0% |
+| wordy | 328 | 40 | 38 | 0 | 2 | 95.0% |
+| zh_pair | 209 | 40 | 39 | 1 | 0 | 100.0% |
+
+- 漏网 15 条逐条判定（`mutants/triage.md`，由 `mutants/triage.py` 从结果与 `triage_reasons.py` 生成；`--check` 保证每条漏网都有判定、
+  判为 fixed 的不再漏网），全部是**等价**：cdp 里的时序 / 超时常量（轮询 sleep、rmtree 重试的 sleep 与 break、terminate 等待 5→4 s、
+  `remaining <= 0` 的浮点边界、去掉优雅关闭后 terminate 结果相同、去掉「等两帧」的时序等待）、JSON 缩进、`round` 的小数位、
+  SEVERITY_ORDER 里 info 的序号、`hits[0]` 在 len==1 时等于 `hits[-1]`、argparse 的 --help 文本。没有把任何行为性突变判成等价。
+- 诚实说明：selftest 不重跑突变（分钟级），而是核对 `results/mutation.json` 里每个库模块规范化源码（ast.unparse）的 sha256 与当前代码一致、
+  每模块 ≥ 30、总抓住率 ≥ 85%、triage 完整；源码一改这一步就 FAIL，直到重跑。cdp 的 82.5% 是七个模块里最低的：
+  它的大部分逻辑只有真实 Chromium 才能触到，而等待 / 清理分支的常量天然不可观测。
 
 ## 7. 工程约束（各一条判据）
 

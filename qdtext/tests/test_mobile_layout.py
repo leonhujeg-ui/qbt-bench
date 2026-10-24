@@ -113,6 +113,10 @@ class TestJudge(unittest.TestCase):
         self.assertEqual(len(M.judge(snap(texts), dict(CFG, first_screen_budget=149, first_screen_top_n=2))[0]["longest"]), 2)
         seven = [text(i, "字" * 30, (0, i * 40, 300, 30)) for i in range(7)]
         self.assertEqual(len(M.judge(snap(seven), CFG)[0]["longest"]), 5)
+        long_ = [text(0, "长" * 200, (0, 0, 300, 30))]
+        f = M.judge(snap(long_), CFG)[0]
+        self.assertEqual(f["suggestion"], "最长 1 段：「" + "长" * 30 + "」(200)")        # 建议里每段只截 30 字
+        self.assertEqual(f["longest"], ["长" * 200])                                        # JSON 里给全文（采集时 JS 已截 120）
 
 
 class TestOfflineFixture(unittest.TestCase):

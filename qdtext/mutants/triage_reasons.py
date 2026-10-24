@@ -4,10 +4,13 @@ equivalent = 等价突变（行为不变或只改了不可观测的常量，任�
 triage.py 把这里的判定与 results/mutation.json 对拍：漏网却没判定 → 报错；判了 fixed 却仍漏网 → 报错。"""
 REASONS = {
     # ---- 等价 / 不可观测常量 ----
-    "cdp:1395:const:65537": ("equivalent", "socket.recv 的缓冲区大小 65536→65537，只影响一次读多少字节，不影响任何输出"),
     "cdp:198:delete_stmt": ("equivalent", "等 DevToolsActivePort 的轮询里去掉 sleep(0.05)：变成忙等，结果相同（性能差异测试不该钉）"),
-    "cdp:399:const:45.0": ("equivalent", "Browser 构造函数的默认 timeout 30→45 秒：所有调用都在远小于 30 秒内完成，只有卡死时才可观测"),
-    "cdp:866:const:False": ("equivalent", "导航后「等两帧让排版落定」的 Runtime.evaluate 不 awaitPromise：只影响时序，排版结果在无头 Chromium 上一致"),
+    "cdp:249:delete_stmt": ("equivalent", "导航后去掉「等两帧让排版落定」的 Runtime.evaluate：只影响时序，无头 Chromium 上 load 之后排版已稳定，盒子坐标相同"),
+    "cdp:428:compare": ("equivalent", "_pump 里 remaining <= 0 → < 0：remaining 是浮点差值，恰好等于 0 的概率为零；为 0 时 settimeout(0) 也立刻超时"),
+    "cdp:890:delete_stmt": ("equivalent", "Browser.close 去掉 Browser.close 协议调用：后面的 terminate/kill 仍结束进程，socket、returncode、目录清理结果相同（只少了优雅关闭）"),
+    "cdp:1894:const:4": ("equivalent", "terminate 后 wait 的超时 5→4 秒：Chromium 退出远快于此，只有卡死时可观测"),
+    "cdp:906:delete_stmt": ("equivalent", "rmtree 重试循环里去掉 break：目录已删后再空转 49 次 rmtree + sleep，慢 5 秒但结果相同"),
+    "cdp:522:delete_stmt": ("equivalent", "rmtree 重试循环里去掉 sleep(0.1)：变成忙重试，结果相同"),
     "common:279:const:3": ("equivalent", "SEVERITY_ORDER 里 info 的序号 2→3：仍然排在 yellow(1) 之后，排序结果不变"),
     "common:1382:const:0": ("equivalent", "write_json 的 indent 1→0：只改 JSON 缩进，读回来内容相同"),
     "common:1382:const:2": ("equivalent", "write_json 的 indent 1→2：同上"),

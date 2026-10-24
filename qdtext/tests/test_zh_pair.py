@@ -110,8 +110,10 @@ class TestCompare(unittest.TestCase):
         self.assertEqual([t["actual"] for t in r["typos"]], ["賣", "出"])
         r = self.status("后台买入机器人", "後台賣出機器人")                            # 替换块不在句首：位置要对
         self.assertEqual([(t["pos"], t["expected"], t["actual"]) for t in r["typos"]], [(2, "買", "賣"), (3, "入", "出")])
-        r = self.status("后台头发", "後台頭髮")                                        # 块内第二个位置的字级候选要查对位置
+        r = self.status("后台头发", "後台頭髮")                                        # 字级候选（髮）要查对位置
         self.assertEqual(r["status"], "ok")
+        r = self.status("后台买发", "後台賣髮")                                        # 两字替换块：第 1 个形近错字，第 2 个是候选 → 只报一个
+        self.assertEqual([(t["pos"], t["expected"], t["actual"]) for t in r["typos"]], [(2, "買", "賣")])
 
     def test_paraphrase(self):
         r = self.status("取消", "放棄")
